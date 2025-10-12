@@ -1,0 +1,44 @@
+<section class="min-h-screen bg-blue-600 flex items-center justify-center">
+  <div class="w-full max-w-md p-6">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 text-center">
+      <h3 class="text-2xl font-semibold mb-6">Login</h3>
+
+
+      <div class="mb-4 text-left">
+        <label for="email" class="block text-gray-700 mb-1">Email</label>
+        <input type="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ingresa tu Email" />
+      </div>
+
+      <div class="mb-4 text-left">
+        <label for="password" class="block text-gray-700 mb-1">Contraseña</label>
+        <input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ingresa tu contraseña " />
+      </div>
+
+      <div class="mb-4 flex items-center">
+        <input type="checkbox" id="remember" class="mr-2" />
+        <label for="remember" class="text-gray-700">Recordar contraseña</label>
+      </div>
+
+      <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold mb-4 hover:bg-blue-700 transition-colors">
+        Login
+      </button>
+
+      <hr class="my-4 border-gray-300" />
+
+      <button class="w-full bg-red-500 text-white py-2 rounded-lg font-semibold mb-3 flex items-center justify-center hover:bg-red-600 transition-colors">
+        <i class="fab fa-google mr-2"></i> Sign in with Google
+      </button>
+
+      <button class="w-full bg-blue-800 text-white py-2 rounded-lg font-semibold flex items-center justify-center hover:bg-blue-900 transition-colors">
+        <i class="fab fa-facebook-f mr-2"></i> Sign in with Facebook
+      </button>
+
+
+       <p class="mt-4 text-center text-gray-600">
+      ¿No tienes cuenta?
+      <a routerLink="/register" class="text-indigo-600 hover:underline">Regístrate</a>
+    </p>
+
+    </div>
+  </div>
+</section>
