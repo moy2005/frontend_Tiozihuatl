@@ -1,44 +1,262 @@
-<section class="min-h-screen bg-blue-600 flex items-center justify-center">
-  <div class="w-full max-w-md p-6">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 text-center">
-      <h3 class="text-2xl font-semibold mb-6">Login</h3>
+<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900 p-4 sm:p-6" role="main" aria-label="Formulario de login">
+  <style>
+    /* 🎨 Efecto de presión suave para botones - UX mejorado */
+    .btn-soft-press {
+      transition: 
+        transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.25s ease;
+    }
 
+    /* Hover sutil - solo cambio de color, sin elevación */
+    .btn-soft-press:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
 
-      <div class="mb-4 text-left">
-        <label for="email" class="block text-gray-700 mb-1">Email</label>
-        <input type="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ingresa tu Email" />
+    /* Active - se hunde suavemente al presionar */
+    .btn-soft-press:active:not(:disabled) {
+      transform: scale(0.94);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Rebote sutil al soltar - efecto de liberación */
+    .btn-soft-press.released {
+      animation: bounce-back 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes bounce-back {
+      0%   { transform: scale(0.94); }
+      60%  { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    /* ✨ Animación de las cajitas OTP */
+    .otp-box {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .otp-box.active {
+      transform: scale(1.05);
+      border-color: rgb(99 102 241);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    .otp-box.filled {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05));
+    }
+  </style>
+
+  <div class="w-full max-w-md bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 relative overflow-hidden">
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 mb-3">
+        <i class="fas fa-sign-in-alt text-xl text-white" aria-hidden="true"></i>
       </div>
-
-      <div class="mb-4 text-left">
-        <label for="password" class="block text-gray-700 mb-1">Contraseña</label>
-        <input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ingresa tu contraseña " />
-      </div>
-
-      <div class="mb-4 flex items-center">
-        <input type="checkbox" id="remember" class="mr-2" />
-        <label for="remember" class="text-gray-700">Recordar contraseña</label>
-      </div>
-
-      <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold mb-4 hover:bg-blue-700 transition-colors">
-        Login
-      </button>
-
-      <hr class="my-4 border-gray-300" />
-
-      <button class="w-full bg-red-500 text-white py-2 rounded-lg font-semibold mb-3 flex items-center justify-center hover:bg-red-600 transition-colors">
-        <i class="fab fa-google mr-2"></i> Sign in with Google
-      </button>
-
-      <button class="w-full bg-blue-800 text-white py-2 rounded-lg font-semibold flex items-center justify-center hover:bg-blue-900 transition-colors">
-        <i class="fab fa-facebook-f mr-2"></i> Sign in with Facebook
-      </button>
-
-
-       <p class="mt-4 text-center text-gray-600">
-      ¿No tienes cuenta?
-      <a routerLink="/register" class="text-indigo-600 hover:underline">Regístrate</a>
-    </p>
-
+      <h3 class="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
+        Iniciar sesión
+      </h3>
     </div>
+
+    <!-- ANIMATED CONTAINER -->
+    <div
+      class="transition-all duration-300"
+      [class.opacity-0]="transitioning"
+      [class.translate-y-5]="transitioning">
+      
+      <!-- LOGIN NORMAL -->
+      <form (ngSubmit)="loginPassword()" class="space-y-4" *ngIf="!smsMode">
+        <!-- Campo correo -->
+        <div>
+          <label class="block text-gray-700 mb-1 flex items-center gap-2">
+            <i class="fas fa-envelope text-gray-400 text-xs" aria-hidden="true"></i>
+            Correo electrónico
+          </label>
+          <div class="relative">
+            <i class="fas fa-envelope text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+            <input
+              type="email"
+              [(ngModel)]="correo"
+              name="correo"
+              required
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-indigo-400"
+              placeholder="correo@ejemplo.com" />
+          </div>
+        </div>
+
+        <!-- Campo contraseña -->
+        <div>
+          <label class="block text-gray-700 mb-1 flex items-center gap-2">
+            <i class="fas fa-lock text-gray-400 text-xs" aria-hidden="true"></i>
+            Contraseña
+          </label>
+          <div class="relative">
+            <i class="fas fa-lock text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+            <input
+              type="password"
+              [(ngModel)]="contrasena"
+              name="contrasena"
+              required
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-indigo-400"
+              placeholder="Tu contraseña" />
+          </div>
+        </div>
+
+        <!-- Botón iniciar sesión -->
+        <button
+          type="submit"
+          [disabled]="cargando"
+          (click)="addBounceEffect($event)"
+          class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 rounded-lg font-semibold flex justify-center items-center hover:bg-indigo-700 transition-all duration-200 btn-soft-press">
+          <ng-container *ngIf="!cargando; else loading">
+            <i class="fas fa-sign-in-alt mr-2"></i> Iniciar sesión
+          </ng-container>
+          <ng-template #loading>
+            <i class="fas fa-spinner fa-spin mr-2"></i> Cargando...
+          </ng-template>
+        </button>
+
+        <!-- Enlace a login por SMS -->
+        <button
+          type="button"
+          (click)="cambiarModoSMS(true); addBounceEffect($event)"
+          class="w-full mt-4 text-indigo-600 hover:underline font-semibold flex items-center justify-center gap-2 btn-soft-press">
+          <i class="fas fa-sms"></i> Iniciar sesión por SMS
+        </button>
+      </form>
+
+      <!-- LOGIN POR SMS -->
+      <div *ngIf="smsMode" class="space-y-4">
+        <div *ngIf="!otpEnviado; else otpStep">
+          <label class="block text-gray-700 mb-1 flex items-center gap-2">
+            <i class="fas fa-phone text-gray-400 text-xs" aria-hidden="true"></i>
+            Número de teléfono
+          </label>
+          <div class="relative">
+            <i class="fas fa-phone text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+            <input
+              type="tel"
+              [(ngModel)]="telefono"
+              name="telefono"
+              maxlength="10"
+              required
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-indigo-400"
+              placeholder="Ejemplo: 7711813520" />
+          </div>
+
+          <button
+            (click)="enviarSMS(); addBounceEffect($event)"
+            [disabled]="cargando"
+            class="w-full mt-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 rounded-lg font-semibold flex justify-center items-center hover:bg-indigo-700 transition-all duration-200 btn-soft-press">
+            <ng-container *ngIf="!cargando; else loading2">
+              <i class="fas fa-paper-plane mr-2"></i> Enviar código por SMS
+            </ng-container>
+            <ng-template #loading2>
+              <i class="fas fa-spinner fa-spin mr-2"></i> Enviando...
+            </ng-template>
+          </button>
+
+          <button
+            (click)="cambiarModoSMS(false); addBounceEffect($event)"
+            class="w-full mt-3 text-indigo-600 hover:text-indigo-700 font-semibold flex justify-center items-center gap-1 btn-soft-press">
+            <i class="fas fa-arrow-left"></i> Volver al inicio de sesión normal
+          </button>
+        </div>
+
+        <ng-template #otpStep>
+          <div>
+          <p class="text-gray-600 text-center mb-4">
+            Se envió un código al número <strong>{{ telefono }}</strong>
+          </p>
+
+          <label class="block text-gray-700 mb-2 flex items-center justify-center gap-2">
+            <i class="fas fa-key text-gray-400 text-xs" aria-hidden="true"></i>
+            Ingresa el código de verificación
+          </label>
+
+          <!-- Contenedor clickeable para forzar foco -->
+          <div class="flex justify-center cursor-text" (click)="focusOtp()">
+            <!-- Cajitas visuales mejoradas -->
+            <div class="flex justify-center gap-2 mb-4 select-none">
+              <div
+                *ngFor="let i of [0,1,2,3,4,5]; let idx = index"
+                class="otp-box w-12 h-14 flex items-center justify-center rounded-xl border-2 border-gray-300
+                       text-2xl font-bold bg-white shadow-sm"
+                [class.active]="otp.length === idx"
+                [class.filled]="otp[idx]"
+                [class.ring-2]="otp.length === idx"
+                [class.ring-indigo-500]="otp.length === idx">
+                <span class="text-indigo-600">{{ otp[idx] || '' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input accesible (oculto visualmente pero focusable) -->
+          <input
+            #otpInput
+            type="tel"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+            [value]="otp"
+            name="otp"
+            class="absolute w-px h-px opacity-0 -z-10"
+            (input)="onOtpInput($event)"
+            (paste)="onOtpPaste($event)"
+            [disabled]="cargando"
+            autofocus
+          />
+
+          <!-- Indicador de carga durante verificación -->
+          <div *ngIf="cargando" class="text-center py-3">
+            <i class="fas fa-spinner fa-spin text-indigo-600 text-2xl"></i>
+            <p class="text-gray-600 mt-2 text-sm">Verificando código...</p>
+          </div>
+
+          <!-- Botón para volver atrás -->
+          <button
+            (click)="otpEnviado = false; otp = ''; addBounceEffect($event)"
+            [disabled]="cargando"
+            class="w-full mt-4 text-indigo-600 hover:text-indigo-700 font-semibold flex justify-center items-center gap-1 btn-soft-press">
+            <i class="fas fa-arrow-left"></i> Volver atrás
+          </button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Separador -->
+    <hr class="my-6 border-gray-300" />
+
+    <!-- OTROS MÉTODOS -->
+    <div class="space-y-3">
+      <button
+        (click)="loginBiometria(); addBounceEffect($event)"
+        [disabled]="cargando"
+        class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 rounded-lg font-semibold flex justify-center items-center gap-2 hover:bg-indigo-700 transition-all duration-200 btn-soft-press">
+        <i class="fas fa-fingerprint"></i> Usar biometría
+      </button>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button
+          (click)="loginOAuth('google'); addBounceEffect($event)"
+          [disabled]="oauthLoading === 'google'"
+          class="w-full bg-red-500 text-white py-2 rounded-lg font-semibold flex justify-center items-center gap-2 hover:bg-red-600 transition-all duration-200 btn-soft-press">
+          <i class="fab fa-google"></i> Google
+        </button>
+
+        <button
+          (click)="loginOAuth('facebook'); addBounceEffect($event)"
+          [disabled]="oauthLoading === 'facebook'"
+          class="w-full bg-blue-800 text-white py-2 rounded-lg font-semibold flex justify-center items-center gap-2 hover:bg-blue-900 transition-all duration-200 btn-soft-press">
+          <i class="fab fa-facebook-f"></i> Facebook
+        </button>
+      </div>
+    </div>
+
+    <!-- Link al registro -->
+    <p class="mt-6 text-center text-gray-600 text-sm">
+      ¿No tienes cuenta?
+      <a (click)="irARegistro()" class="text-indigo-600 hover:underline cursor-pointer font-medium">
+        Regístrate
+      </a>
+    </p>
   </div>
 </section>

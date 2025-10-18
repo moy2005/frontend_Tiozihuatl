@@ -1,60 +1,554 @@
-<section class="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
-  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-    <h2 class="text-2xl font-bold text-center mb-6">Crear Cuenta</h2>
-    <form #registerForm="ngForm" (ngSubmit)="onSubmit(registerForm)" class="space-y-4">
+<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900 p-4 sm:p-6" role="main" aria-label="Formulario de registro">
+  <style>
+    /*  Efecto de presión suave para botones - UX mejorado */
+    .btn-soft-press {
+      transition: 
+        transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.25s ease;
+    }
 
-      <div>
-        <label class="block text-gray-700">Nombre</label>
-        <input type="text" name="nombre" ngModel required
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"  placeholder="Ingresa su nombre ">
+    .btn-soft-press:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+
+    .btn-soft-press:active:not(:disabled) {
+      transform: scale(0.94);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-soft-press.released {
+      animation: bounce-back 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes bounce-back {
+      0%   { transform: scale(0.94); }
+      60%  { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    .biometric-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .biometric-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
+    }
+
+    .biometric-card.selected {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+      border-color: rgb(99, 102, 241);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .biometric-icon-container {
+      transition: all 0.3s ease;
+    }
+
+    .biometric-card.selected .biometric-icon-container {
+      transform: scale(1.08);
+    }
+
+
+    .biometric-icon {
+      color: white;
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+
+  <div class="w-full max-w-4xl bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 relative overflow-hidden">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 mb-3">
+        <i class="fas fa-user-plus text-xl text-white" aria-hidden="true"></i>
+      </div>
+      <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
+        Crear Nueva Cuenta
+      </h1>
+    </div>
+
+    <div class="relative mb-6 text-center">
+      <div class="flex justify-center items-center space-x-12">
+        <div class="flex-1 flex items-center justify-center" *ngFor="let stepItem of [1, 2, 3]; let i = index">
+          <div class="relative flex flex-col items-center">
+            <div
+              [ngClass]="{
+                'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg': step > i + 1,
+                'bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-200': step === i + 1,
+                'bg-gray-200 text-gray-500': step < i + 1
+              }"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-base font-semibold transition-all duration-300"
+              [attr.aria-label]="'Paso ' + (i + 1) + ': ' + (i === 0 ? 'Datos Personales' : i === 1 ? 'Seguridad' : 'Biometría')"
+              [attr.aria-current]="step === i + 1 ? 'step' : undefined">
+              <i *ngIf="step > i + 1" class="fas fa-check" aria-hidden="true"></i>
+              <span *ngIf="step <= i + 1" class="flex items-center justify-center w-full h-full">{{ i + 1 }}</span>
+            </div>
+            <span
+              [ngClass]="{
+                'text-indigo-600 font-medium': step === i + 1,
+                'text-gray-500': step !== i + 1
+              }"
+              class="mt-2 text-xs text-center w-20">
+              {{ i === 0 ? 'Datos Personales' : i === 1 ? 'Seguridad' : 'Biometría' }}
+            </span>
+          </div>
+          <div *ngIf="i < 2" class="flex-1 h-1 mx-6 bg-gray-200" [ngClass]="{'bg-gradient-to-r from-indigo-600 to-purple-600': step > i + 1}" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1: Personal Information -->
+    <div *ngIf="step === 1" class="space-y-5 animate-fade-in">
+      <div class="flex items-center gap-3 mb-4 border-b border-gray-200 pb-2 justify-center">
+        <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+          <i class="fas fa-id-card text-indigo-600" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">Información Personal</h2>
+          <p class="text-sm text-gray-500">Ingresa tus datos personales</p>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-gray-700">Apellido Paterno</label>
-        <input type="text" name="apaterno" ngModel required
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Ingresa su Apellido Paterno">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 justify-center">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700 flex items-center gap-2" for="nombre">
+            <i class="fas fa-user text-gray-400 text-xs" aria-hidden="true"></i>
+            Nombre(s)
+          </label>
+          <input
+            id="nombre"
+            type="text"
+            [(ngModel)]="form.nombre"
+            name="nombre"
+            maxlength="20"
+            placeholder="Ej: Juan Carlos"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-indigo-400"
+            aria-describedby="nombre-error"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700 flex items-center gap-2" for="apaterno">
+            <i class="fas fa-user text-gray-400 text-xs" aria-hidden="true"></i>
+            Apellido Paterno
+          </label>
+          <input
+            id="apaterno"
+            type="text"
+            [(ngModel)]="form.apaterno"
+            name="apaterno"
+            maxlength="15"
+            placeholder="Ej: García"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-indigo-400"
+            aria-describedby="apaterno-error"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700 flex items-center gap-2" for="amaterno">
+            <i class="fas fa-user text-gray-400 text-xs" aria-hidden="true"></i>
+            Apellido Materno
+          </label>
+          <input
+            id="amaterno"
+            type="text"
+            [(ngModel)]="form.amaterno"
+            name="amaterno"
+            maxlength="15"
+            placeholder="Ej: López"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-indigo-400"
+            aria-describedby="amaterno-error"
+          />
+        </div>
+
+        <div class="space-y-2 col-span-2">
+          <label class="block text-sm font-medium text-gray-700 flex items-center gap-2" for="correo">
+            <i class="fas fa-envelope text-gray-400 text-xs" aria-hidden="true"></i>
+            Correo Electrónico
+          </label>
+          <div class="relative">
+            <input
+              id="correo"
+              type="email"
+              [(ngModel)]="form.correo"
+              name="correo"
+              maxlength="50"
+              (input)="validarCorreoLocal()"
+              [ngClass]="{
+                'border-red-400 focus:ring-red-500 bg-red-50': emailValid === false || emailExists,
+                'border-green-400 focus:ring-green-500 bg-green-50': emailValid && !emailExists,
+                'border-gray-300': emailValid === null
+              }"
+              placeholder="ejemplo@correo.com"
+              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all duration-200 pr-10"
+              aria-describedby="correo-error correo-status"
+            />
+            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+              <i *ngIf="emailValid === false || emailExists" class="fas fa-times-circle text-red-500" aria-hidden="true"></i>
+              <i *ngIf="emailValid && !emailExists" class="fas fa-check-circle text-green-500" aria-hidden="true"></i>
+            </div>
+          </div>
+          <p *ngIf="emailValid === false && !emailExists" id="correo-error" class="text-xs text-red-600 flex items-center gap-1">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            Formato de correo inválido
+          </p>
+          <p *ngIf="emailExists && emailValid" id="correo-error" class="text-xs text-red-600 flex items-center gap-1">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            Este correo ya está registrado
+          </p>
+          <p *ngIf="emailValid && !emailExists" id="correo-status" class="text-xs text-green-600 flex items-center gap-1">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            Correo disponible
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700 flex items-center gap-2" for="telefono">
+            <i class="fas fa-phone text-gray-400 text-xs" aria-hidden="true"></i>
+            Teléfono
+          </label>
+          <div class="relative">
+            <input
+              id="telefono"
+              type="tel"
+              [(ngModel)]="form.telefono"
+              name="telefono"
+              (input)="validarTelefonoLocal()"
+              [ngClass]="{
+                'border-red-400 focus:ring-red-500 bg-red-50': phoneValid === false || phoneExists,
+                'border-green-400 focus:ring-green-500 bg-green-50': phoneValid && !phoneExists,
+                'border-gray-300': phoneValid === null
+              }"
+              maxlength="10"
+              placeholder="771813530"
+              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all duration-200 pr-10"
+              aria-describedby="telefono-error telefono-status"
+            />
+            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+              <i *ngIf="phoneValid === false || phoneExists" class="fas fa-times-circle text-red-500" aria-hidden="true"></i>
+              <i *ngIf="phoneValid && !phoneExists" class="fas fa-check-circle text-green-500" aria-hidden="true"></i>
+            </div>
+          </div>
+          <p *ngIf="phoneValid === false && !phoneExists" id="telefono-error" class="text-xs text-red-600 flex items-center gap-1">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            Debe tener 10 dígitos
+          </p>
+          <p *ngIf="phoneExists && phoneValid" id="telefono-error" class="text-xs text-red-600 flex items-center gap-1">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            Número ya registrado
+          </p>
+          <p *ngIf="phoneValid && !phoneExists" id="telefono-status" class="text-xs text-green-600 flex items-center gap-1">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            Número válido
+          </p>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-gray-700">Apellido Materno</label>
-        <input type="text" name="amaterno" ngModel required
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Ingresa su Apellido Materno">
+      <div class="flex justify-center mt-4">
+        <button
+          (click)="nextStep(); addBounceEffect($event)"
+          [disabled]="!emailValid || emailExists || !phoneValid || phoneExists"
+          class="w-48 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-all duration-200 flex items-center justify-center gap-2 btn-soft-press"
+          aria-label="Continuar al siguiente paso">
+          Continuar
+          <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        </button>
       </div>
 
-      <div>
-        <label class="block text-gray-700">Correo</label>
-        <input type="email" name="correo" ngModel required
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder=" ejemplo: correo@correo.gmail">
+      <div class="relative mt-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-300"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-3 bg-white text-gray-600 font-medium">O regístrate con</span>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-gray-700">Teléfono</label>
-        <input type="tel" name="telefono" ngModel required pattern="[0-9]{10}, placeholder= ejemplo: +1234567890"
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          placeholder="10 dígitos">
+      <div class="grid grid-cols-2 gap-3 mt-4 justify-center">
+        <button
+          (click)="loginOAuth('google'); addBounceEffect($event)"
+          [disabled]="oauthLoading === 'google'"
+          class="w-full bg-red-500 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-red-600 transition-all duration-200 btn-soft-press"
+          aria-label="Registrarse con Google">
+          <i class="fab fa-google text-white" aria-hidden="true"></i>
+          Google
+        </button>
+        <button
+          (click)="loginOAuth('facebook'); addBounceEffect($event)"
+          [disabled]="oauthLoading === 'facebook'"
+          class="w-full bg-blue-800 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-blue-900 transition-all duration-200 btn-soft-press"
+          aria-label="Registrarse con Facebook">
+          <i class="fab fa-facebook-f text-white" aria-hidden="true"></i>
+          Facebook
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Security -->
+    <div *ngIf="step === 2" class="space-y-5 animate-fade-in max-w-md mx-auto">
+      <div class="flex items-center gap-3 mb-4 border-b border-gray-200 pb-2 justify-center">
+        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+          <i class="fas fa-shield-alt text-purple-600" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">Seguridad de la Cuenta</h2>
+          <p class="text-sm text-gray-500">Configura una contraseña segura</p>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-gray-700">Contraseña</label>
-        <input type="password" name="password" ngModel required minlength="6"
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700 flex items-center gap-2" for="contrasena">
+            <i class="fas fa-lock text-gray-400 text-xs" aria-hidden="true"></i>
+            Contraseña
+          </label>
+          <input
+            id="contrasena"
+            type="password"
+            [(ngModel)]="form.contrasena"
+            name="contrasena"
+            (input)="onPasswordInput()"
+            minlength="8"
+            maxlength="8"
+            placeholder="Ingresa tu contraseña"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+            aria-describedby="contrasena-status"
+          />
+
+          <div class="space-y-2 mt-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600 font-medium">Seguridad de contraseña:</span>
+              <span
+                [ngClass]="{
+                  'text-red-600': passwordStage === 1,
+                  'text-yellow-600': passwordStage === 2,
+                  'text-green-600': passwordStage === 3,
+                  'text-gray-400': passwordStage === 0
+                }"
+                class="font-medium">
+                {{ passwordStage === 0 ? 'Sin evaluar' : passwordStage === 1 ? 'Débil' : passwordStage === 2 ? 'Media' : 'Fuerte' }}
+              </span>
+            </div>
+            <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+              <div
+                [ngClass]="{
+                  'w-1/3 bg-red-500': passwordStage === 1,
+                  'w-2/3 bg-yellow-500': passwordStage === 2,
+                  'w-full bg-green-500': passwordStage === 3
+                }"
+                class="h-full transition-all duration-300"></div>
+            </div>
+          </div>
+
+          <div *ngIf="showPasswordTip" class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <p class="text-xs font-medium text-gray-700 mb-1.5">La contraseña debe contener:</p>
+            <ul class="space-y-1 text-xs">
+              <li class="flex items-center gap-2" [ngClass]="form.contrasena.length >= 8 ? 'text-green-600' : 'text-gray-500'">
+                <i [ngClass]="form.contrasena.length >= 8 ? 'fas fa-check-circle' : 'far fa-circle'" aria-hidden="true"></i>
+                Mínimo 8 caracteres
+              </li>
+              <li class="flex items-center gap-2" [ngClass]="hasUppercase() ? 'text-green-600' : 'text-gray-500'">
+                <i [ngClass]="hasUppercase() ? 'fas fa-check-circle' : 'far fa-circle'" aria-hidden="true"></i>
+                Una letra mayúscula
+              </li>
+              <li class="flex items-center gap-2" [ngClass]="hasLowercase() ? 'text-green-600' : 'text-gray-500'">
+                <i [ngClass]="hasLowercase() ? 'fas fa-check-circle' : 'far fa-circle'" aria-hidden="true"></i>
+                Una letra minúscula
+              </li>
+              <li class="flex items-center gap-2" [ngClass]="hasNumber() ? 'text-green-600' : 'text-gray-500'">
+                <i [ngClass]="hasNumber() ? 'fas fa-check-circle' : 'far fa-circle'" aria-hidden="true"></i>
+                Un número
+              </li>
+              <li class="flex items-center gap-2" [ngClass]="hasSpecialChar() ? 'text-green-600' : 'text-gray-500'">
+                <i [ngClass]="hasSpecialChar() ? 'fas fa-check-circle' : 'far fa-circle'" aria-hidden="true"></i>
+                Un carácter especial (@$!%*?&)
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700 flex items-center gap-2" for="confirmPassword">
+            <i class="fas fa-lock text-gray-400 text-xs" aria-hidden="true"></i>
+            Confirmar Contraseña
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            [(ngModel)]="form.confirmPassword"
+            name="confirmPassword"
+            minlength="8"
+            maxlength="8"
+            placeholder="Repite tu contraseña"
+            [ngClass]="{
+              'border-red-400 bg-red-50': form.confirmPassword && form.contrasena !== form.confirmPassword,
+              'border-green-400 bg-green-50': form.confirmPassword && form.contrasena === form.confirmPassword,
+              'border-gray-300': !form.confirmPassword
+            }"
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+            aria-describedby="confirmPassword-error confirmPassword-status"
+          />
+          <p
+            *ngIf="form.confirmPassword && form.contrasena !== form.confirmPassword"
+            id="confirmPassword-error"
+            class="text-xs text-red-600 flex items-center gap-1">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            Las contraseñas no coinciden
+          </p>
+          <p
+            *ngIf="form.confirmPassword && form.contrasena === form.confirmPassword"
+            id="confirmPassword-status"
+            class="text-xs text-green-600 flex items-center gap-1">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            Las contraseñas coinciden
+          </p>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-gray-700">Confirmar Contraseña</label>
-        <input type="password" name="confirmPassword" ngModel required
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+      <div class="flex justify-between mt-4">
+        <button
+          (click)="prevStep(); addBounceEffect($event)"
+          class="px-4 py-2 text-gray-600 hover:text-indigo-600 font-medium rounded-lg transition-all duration-200 flex items-center gap-2 btn-soft-press"
+          aria-label="Volver al paso anterior">
+          <i class="fas fa-arrow-left" aria-hidden="true"></i>
+          Atrás
+        </button>
+        <button
+          (click)="nextStep(); addBounceEffect($event)"
+          [disabled]="!validarPasswordFuerte()"
+          class="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all duration-200 flex items-center gap-2 btn-soft-press"
+          aria-label="Continuar al siguiente paso">
+          Continuar
+          <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Biometrics -->
+    <div *ngIf="step === 3" class="space-y-6 animate-fade-in max-w-lg mx-auto">
+      <div class="flex items-center gap-3 mb-4 border-b border-gray-200 pb-2 justify-center">
+        <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+          <i class="fas fa-fingerprint text-blue-600" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">Autenticación Biométrica</h2>
+          <p class="text-sm text-gray-500">Configura tu huella digital (opcional)</p>
+        </div>
       </div>
 
-      <button type="submit"
-        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-2">
-        Registrarse
-      </button>
+      <!-- Opciones de biometría mejoradas -->
+      <div class="space-y-4">
+        <!-- Opción de Huella -->
+        <div
+          (click)="toggleBiometric('HUELLA')"
+          [class.selected]="enrollBiometria && tipoBiometria === 'HUELLA'"
+          class="biometric-card relative p-6 border-2 border-gray-200 rounded-xl bg-white shadow-sm">
+          <div class="flex items-center gap-4">
+            <div class="flex-shrink-0">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                <i class="fas fa-fingerprint text-3xl text-white biometric-icon" aria-hidden="true"></i>
+              </div>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-gray-800 mb-1">Huella Digital</h3>
+              <p class="text-sm text-gray-600">Usa tu huella dactilar para iniciar sesión de forma rápida y segura</p>
+            </div>
+            <div class="flex-shrink-0">
+              <div 
+                *ngIf="enrollBiometria && tipoBiometria === 'HUELLA'"
+                class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center">
+                <i class="fas fa-check text-white text-sm" aria-hidden="true"></i>
+              </div>
+              <div 
+                *ngIf="!enrollBiometria || tipoBiometria !== 'HUELLA'"
+                class="w-6 h-6 rounded-full border-2 border-gray-300"></div>
+            </div>
+          </div>
+        </div>
 
-      <p class="text-center text-gray-500 text-sm mt-4">
-        ¿Ya tienes una cuenta?
-        <a routerLink="/login" class="text-blue-500 hover:underline">Inicia sesión</a>
-      </p>
-    </form>
+        <!-- Opción de Omitir -->
+        <div
+          (click)="toggleBiometric(null)"
+          [class.selected]="!enrollBiometria"
+          class="biometric-card relative p-6 border-2 border-gray-200 rounded-xl bg-white shadow-sm">
+          <div class="flex items-center gap-4">
+            <div class="flex-shrink-0">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
+                <i class="fas fa-times text-3xl text-white biometric-icon" aria-hidden="true"></i>
+              </div>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-gray-800 mb-1">Omitir este paso</h3>
+              <p class="text-sm text-gray-600">Continuar sin configurar biometría. Podrás activarla más tarde</p>
+            </div>
+            <div class="flex-shrink-0">
+              <div 
+                *ngIf="!enrollBiometria"
+                class="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center">
+                <i class="fas fa-check text-white text-sm" aria-hidden="true"></i>
+              </div>
+              <div 
+                *ngIf="enrollBiometria"
+                class="w-6 h-6 rounded-full border-2 border-gray-300"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex gap-3">
+          <i class="fas fa-info-circle text-blue-600 mt-0.5" aria-hidden="true"></i>
+          <div class="text-sm text-blue-800">
+            <p class="font-medium mb-1">¿Qué es la autenticación biométrica?</p>
+            <p class="text-blue-700">
+              Te permite iniciar sesión usando tu huella digital en lugar de tu contraseña. Es más rápido y seguro.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-6">
+        <button
+          (click)="prevStep(); addBounceEffect($event)"
+          class="px-4 py-2 text-gray-600 hover:text-indigo-600 font-medium rounded-lg transition-all duration-200 flex items-center gap-2 btn-soft-press"
+          aria-label="Volver al paso anterior">
+          <i class="fas fa-arrow-left" aria-hidden="true"></i>
+          Atrás
+        </button>
+        <button
+          (click)="registrar(); addBounceEffect($event)"
+          [disabled]="cargando"
+          class="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 btn-soft-press"
+          aria-label="Finalizar registro">
+          <i *ngIf="cargando" class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+          <span *ngIf="!cargando">Finalizar Registro</span>
+          <span *ngIf="cargando">Registrando...</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Link al login -->
+    <p class="mt-6 text-center text-gray-600 text-sm">
+      ¿Ya tienes cuenta?
+      <a (click)="irALogin(); addBounceEffect($event)" class="text-indigo-600 hover:underline cursor-pointer font-medium">
+        Inicia sesión
+      </a>
+    </p>
   </div>
 </section>
