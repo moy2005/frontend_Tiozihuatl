@@ -45,31 +45,80 @@ export class LoginComponent implements OnInit {
   this.router.navigate(['/register']);
 }
 
-  /** Detectar redirección de OAuth (tokens en URL) */
-  ngOnInit() {
-    this.route.queryParams.subscribe((params) => {
-      const access = params['accessToken'];
-      const refresh = params['refreshToken'];
+ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      // Verificar si viene de un redirect OAuth
+      this.checkOAuthRedirect();
+    }
+  }
+
+   /** 🔍 Verificar si viene de OAuth y guardar datos */
+  checkOAuthRedirect() {
+    this.route.queryParams.subscribe(params => {
+      const accessToken = params['accessToken'];
+      const refreshToken = params['refreshToken'];
       const nombre = params['nombre'];
       const correo = params['correo'];
 
-      if (access) {
-        localStorage.setItem('accessToken', access);
-        if (refresh) localStorage.setItem('refreshToken', refresh);
-        if (nombre && correo)
-          localStorage.setItem('user', JSON.stringify({ nombre, correo }));
+      // Si hay tokens, es un redirect de OAuth exitoso
+      if (accessToken && nombre) {
+        console.log('✅ OAuth exitoso, guardando datos...');
+        
+        // Guardar tokens
+        localStorage.setItem('accessToken', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
 
-        // ✅ Redirige directamente al dashboard
-        this.router.navigate(['/dashboard']);
+        // Guardar datos del usuario para el dashboard
+        const userData = {
+          nombre: nombre,
+          correo: correo,
+          metodo_autenticacion: correo.includes('facebook_') ? 'Facebook' : 
+                                 correo.includes('@gmail.com') ? 'Google' : 'OAuth'
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
+
+        // Mostrar mensaje de bienvenida
+        Swal.fire({
+          icon: 'success',
+          title: '¡Bienvenido!',
+          text: `Has iniciado sesión como ${nombre}`,
+          timer: 2000,
+          showConfirmButton: false
+        });
+
+        // Redirigir al dashboard
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 2000);
       }
 
-      // Si viene error desde backend OAuth
-      if (params['error']) {
+      // Manejar errores de OAuth
+      const error = params['error'];
+      if (error) {
+        let errorMessage = 'Ocurrió un error en la autenticación';
+        
+        switch (error) {
+          case 'email_required':
+            errorMessage = 'Facebook no proporcionó tu email. Por favor autoriza el permiso e intenta de nuevo.';
+            break;
+          case 'auth_cancelled':
+            errorMessage = 'Autenticación cancelada';
+            break;
+          case 'invalid_user':
+            errorMessage = 'Usuario inválido';
+            break;
+          case 'oauth_failed':
+            errorMessage = 'Error en la autenticación. Intenta de nuevo.';
+            break;
+        }
+
         Swal.fire({
           icon: 'error',
-          title: 'Error en autenticación',
-          text: params['error'],
-          confirmButtonColor: '#E53E3E',
+          title: 'Error de autenticación',
+          text: errorMessage,
+          confirmButtonColor: '#EF4444'
         });
       }
     });
@@ -88,41 +137,44 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  /** Login con correo y contraseña */
-  async loginPassword() {
-    if (!this.correo || !this.contrasena) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campos incompletos',
-        text: 'Ingresa tu correo y contraseña.',
-        confirmButtonColor: '#3B82F6',
-      });
-      return;
-    }
-
-    this.cargando = true;
-    try {
-      const res = await this.auth
-        .login({ correo: this.correo, contrasena: this.contrasena })
-        .toPromise();
-
-      const access = res?.accessToken || res?.token;
-      const refresh = res?.refreshToken;
-
-      if (access) {
-        localStorage.setItem('accessToken', access);
-        if (refresh) localStorage.setItem('refreshToken', refresh);
-        this.router.navigate(['/dashboard']);
-      } else {
-        this.mostrarError('Credenciales inválidas o token no generado.');
-      }
-    } catch (err: any) {
-      const msg = err?.error?.error || 'Error en el inicio de sesión';
-      this.mostrarError(msg);
-    } finally {
-      this.cargando = false;
-    }
+/** Login con correo y contraseña */
+async loginPassword() {
+  if (!this.correo || !this.contrasena) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Campos incompletos',
+      text: 'Ingresa tu correo y contraseña.',
+      confirmButtonColor: '#3B82F6',
+    });
+    return;
   }
+
+  this.cargando = true;
+  try {
+    const res = await this.auth
+      .login({ correo: this.correo, contrasena: this.contrasena })
+      .toPromise();
+
+    const access = res?.accessToken || res?.token;
+    const refresh = res?.refreshToken;
+
+    if (access) {
+      localStorage.setItem('accessToken', access);
+      if (refresh) localStorage.setItem('refreshToken', refresh);
+      if (res?.user) {
+        localStorage.setItem('user', JSON.stringify(res.user));
+      }
+      this.router.navigate(['/dashboard']);
+    } else {
+      this.mostrarError('Credenciales inválidas o token no generado.');
+    }
+  } catch (err: any) {
+    const msg = err?.error?.error || 'Error en el inicio de sesión';
+    this.mostrarError(msg);
+  } finally {
+    this.cargando = false;
+  }
+}
 
 /** Cambiar modo entre contraseña y SMS */
   cambiarModoSMS(valor: boolean) {
