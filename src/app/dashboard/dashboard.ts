@@ -3,7 +3,7 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
-import { AuthService } from '../services/auth';
+import { AuthService } from '../auth/api/services/auth';
 
 @Component({
   selector: 'app-dashboard',

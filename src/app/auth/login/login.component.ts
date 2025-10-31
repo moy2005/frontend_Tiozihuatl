@@ -3,13 +3,11 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
-import { AuthService } from '../../services/auth';
-import { SmsService } from '../../services/sms';
-import { BiometricService } from '../../services/biometric';
-import { OauthService } from '../../services/oauth';
+import { AuthService } from '../api/services/auth';
+import { SmsService } from '../api/services/sms';
+import { BiometricService } from '../api/services/biometric';
+import { OauthService } from '../api/services/oauth';
 import { ElementRef, ViewChild } from '@angular/core';
-
-
 
 @Component({
   selector: 'app-login',
@@ -40,21 +38,26 @@ export class LoginComponent implements OnInit {
   ) {}
 
   @ViewChild('otpInput') otpInput!: ElementRef<HTMLInputElement>;
-  
-  irARegistro() {
-  this.router.navigate(['/register']);
-}
 
-ngOnInit() {
+  irARegistro() {
+    this.router.navigate(['/register']);
+  }
+
+  irARecuperacionContrasena() {
+    console.log('Redirigiendo a /forgot-password');
+    this.router.navigate(['/forgot-password']);
+  }
+
+  ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       // Verificar si viene de un redirect OAuth
       this.checkOAuthRedirect();
     }
   }
 
-   /** 🔍 Verificar si viene de OAuth y guardar datos */
+  /** 🔍 Verificar si viene de OAuth y guardar datos */
   checkOAuthRedirect() {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       const accessToken = params['accessToken'];
       const refreshToken = params['refreshToken'];
       const nombre = params['nombre'];
@@ -63,7 +66,7 @@ ngOnInit() {
       // Si hay tokens, es un redirect de OAuth exitoso
       if (accessToken && nombre) {
         console.log('✅ OAuth exitoso, guardando datos...');
-        
+
         // Guardar tokens
         localStorage.setItem('accessToken', accessToken);
         if (refreshToken) {
@@ -74,8 +77,11 @@ ngOnInit() {
         const userData = {
           nombre: nombre,
           correo: correo,
-          metodo_autenticacion: correo.includes('facebook_') ? 'Facebook' : 
-                                 correo.includes('@gmail.com') ? 'Google' : 'OAuth'
+          metodo_autenticacion: correo.includes('facebook_')
+            ? 'Facebook'
+            : correo.includes('@gmail.com')
+            ? 'Google'
+            : 'OAuth',
         };
         localStorage.setItem('userData', JSON.stringify(userData));
 
@@ -85,7 +91,7 @@ ngOnInit() {
           title: '¡Bienvenido!',
           text: `Has iniciado sesión como ${nombre}`,
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
 
         // Redirigir al dashboard
@@ -98,10 +104,11 @@ ngOnInit() {
       const error = params['error'];
       if (error) {
         let errorMessage = 'Ocurrió un error en la autenticación';
-        
+
         switch (error) {
           case 'email_required':
-            errorMessage = 'Facebook no proporcionó tu email. Por favor autoriza el permiso e intenta de nuevo.';
+            errorMessage =
+              'Facebook no proporcionó tu email. Por favor autoriza el permiso e intenta de nuevo.';
             break;
           case 'auth_cancelled':
             errorMessage = 'Autenticación cancelada';
@@ -118,32 +125,33 @@ ngOnInit() {
           icon: 'error',
           title: 'Error de autenticación',
           text: errorMessage,
-          confirmButtonColor: '#EF4444'
+          confirmButtonColor: '#EF4444',
         });
       }
     });
   }
 
-    // 🎯 Hook para dar foco automático cuando aparece el input OTP
+  // 🎯 Hook para dar foco automático cuando aparece el input OTP
   ngAfterViewChecked() {
     if (this.otpEnviado && this.otpInput && !this.otpInputFocused && !this.cargando) {
       this.otpInputFocused = true;
       this.focusOtp();
     }
-    
+
     // Resetear flag cuando se oculta el OTP
     if (!this.otpEnviado && this.otpInputFocused) {
       this.otpInputFocused = false;
     }
   }
 
-/** Login con correo y contraseña */
+ rolSeleccionado = ''; // ✅ nuevo campo
+
 async loginPassword() {
-  if (!this.correo || !this.contrasena) {
+  if (!this.correo || !this.contrasena || !this.rolSeleccionado) {
     Swal.fire({
       icon: 'warning',
       title: 'Campos incompletos',
-      text: 'Ingresa tu correo y contraseña.',
+      text: 'Ingresa tu correo, contraseña y selecciona tu rol.',
       confirmButtonColor: '#3B82F6',
     });
     return;
@@ -152,7 +160,11 @@ async loginPassword() {
   this.cargando = true;
   try {
     const res = await this.auth
-      .login({ correo: this.correo, contrasena: this.contrasena })
+      .login({
+        credential: this.correo,
+        contrasena: this.contrasena,
+        rolSeleccionado: this.rolSeleccionado,
+      })
       .toPromise();
 
     const access = res?.accessToken || res?.token;
@@ -164,7 +176,23 @@ async loginPassword() {
       if (res?.user) {
         localStorage.setItem('user', JSON.stringify(res.user));
       }
-      this.router.navigate(['/dashboard']);
+
+      // Redirigir según rol (opcional)
+      switch (this.rolSeleccionado) {
+        case 'Administrador':
+          this.router.navigate(['/admin/dashboard']);
+          break;
+        case 'Bibliotecario':
+          this.router.navigate(['/biblioteca']);
+          break;
+        case 'Docente':
+        case 'Alumno':
+          this.router.navigate(['/dashboard']);
+          break;
+        default:
+          this.router.navigate(['/dashboard']);
+          break;
+      }
     } else {
       this.mostrarError('Credenciales inválidas o token no generado.');
     }
@@ -176,10 +204,11 @@ async loginPassword() {
   }
 }
 
-/** Cambiar modo entre contraseña y SMS */
+
+  /** Cambiar modo entre contraseña y SMS */
   cambiarModoSMS(valor: boolean) {
     this.transitioning = true;
-    this.otpInputFocused = false; 
+    this.otpInputFocused = false;
     setTimeout(() => {
       this.smsMode = valor;
       this.transitioning = false;
@@ -199,7 +228,7 @@ async loginPassword() {
     }
 
     this.cargando = true;
-    this.otpInputFocused = false; 
+    this.otpInputFocused = false;
     try {
       const res = await this.sms.sendOTP({ telefono: this.telefono }).toPromise();
       this.otpEnviado = true;
@@ -211,10 +240,8 @@ async loginPassword() {
         text: res?.message || 'Se envió un código a tu número registrado.',
         confirmButtonColor: '#16A34A',
         timer: 2000,
-        timerProgressBar: true
+        timerProgressBar: true,
       });
-
-   
     } catch (err: any) {
       const msg = err?.error?.error || 'Error al enviar SMS.';
       this.mostrarError(msg);
@@ -237,12 +264,14 @@ async loginPassword() {
 
     this.cargando = true;
     try {
-      const res = await this.sms.verifyOTP({
-        telefono: this.telefono,
-        otp: this.otp,
-      }).toPromise();
+      const res = await this.sms
+        .verifyOTP({
+          telefono: this.telefono,
+          otp: this.otp,
+        })
+        .toPromise();
 
-      console.log("📦 Respuesta del backend:", res);
+      console.log('📦 Respuesta del backend:', res);
 
       if (res?.success && res?.token) {
         localStorage.setItem('accessToken', res.token);
@@ -273,14 +302,12 @@ async loginPassword() {
     }
   }
 
-
-
   /** Función mejorada para manejar input del OTP */
   onOtpInput(event: any) {
     const raw = (event?.target?.value ?? '').toString();
     const value = raw.replace(/\D/g, '').slice(0, 6);
     this.otp = value;
-    
+
     if (event?.target) {
       event.target.value = value;
     }
@@ -301,9 +328,9 @@ async loginPassword() {
     event.preventDefault();
     const text = event.clipboardData?.getData('text') ?? '';
     const value = text.replace(/\D/g, '').slice(0, 6);
-    
+
     this.otp = value;
-    
+
     const target = event.target as HTMLInputElement;
     if (target) {
       target.value = value;
@@ -320,7 +347,6 @@ async loginPassword() {
     }
   }
 
-
   /**  Dar foco al input OTP */
   focusOtp() {
     setTimeout(() => {
@@ -332,233 +358,239 @@ async loginPassword() {
       }
     }, 100);
   }
-  
-async loginBiometria() {
-  this.cargando = true;
-  try {
-    console.log("🔐 Iniciando login biométrico...");
-    const correo = this.correo.trim();
-    
-    if (!correo) {
-      console.log("❌ Error: Correo no proporcionado");
-      Swal.fire({
-        icon: 'info',
-        title: 'Correo requerido',
-        text: 'Introduce tu correo para continuar.',
-        confirmButtonColor: '#3B82F6',
-      });
-      this.cargando = false;
-      return;
-    }
 
-    console.log("📧 Correo:", correo);
-
-    // Verificar soporte de WebAuthn
-    if (!window.PublicKeyCredential) {
-      console.log("❌ Error: El dispositivo no soporta WebAuthn");
-      Swal.fire({
-        icon: 'info',
-        title: 'No soportado',
-        text: 'Tu navegador no admite autenticación biométrica.',
-        confirmButtonColor: '#3B82F6',
-      });
-      this.cargando = false;
-      return;
-    }
-
-    // Obtener tipo de biometría configurada
-    console.log("🔍 Obteniendo tipo de biometría configurada...");
-    const tipoRes = await this.bio.obtenerTipoBiometria(correo).toPromise();
-    console.log("✅ Tipo de biometría recibido:", tipoRes);
-
-    if (!tipoRes || !tipoRes.metodo) {
-      console.log("❌ Error: Biometría no configurada para este usuario");
-      Swal.fire({
-        icon: 'info',
-        title: 'Biometría no configurada',
-        text: 'Este usuario no tiene biometría registrada. Por favor, inicia sesión con contraseña.',
-        confirmButtonColor: '#3B82F6',
-      });
-      this.cargando = false;
-      return;
-    }
-
-    const tipo = tipoRes.metodo;
-    console.log("🔐 Método biométrico:", tipo);
-
-    // Obtener opciones de autenticación del servidor
-    console.log("📋 Solicitando opciones de autenticación al servidor...");
-    const options = await this.bio.authOptions({ correo, tipo }).toPromise();
-    console.log("✅ Opciones de autenticación recibidas:", {
-      challengeLength: options.challenge?.length,
-      hasAllowCredentials: !!options.allowCredentials,
-      credentialsCount: options.allowCredentials?.length
-    });
-
-    // Convertir challenge de Base64 a ArrayBuffer
-    const challengeArrayBuffer = this.base64ToArrayBuffer(options.challenge);
-    console.log("✅ Challenge convertido a ArrayBuffer, longitud:", challengeArrayBuffer.byteLength);
-
-    // Convertir allowCredentials IDs
-    if (options.allowCredentials && options.allowCredentials.length > 0) {
-      options.allowCredentials = options.allowCredentials.map((cred: any) => ({
-        ...cred,
-        id: this.base64ToArrayBuffer(cred.id)
-      }));
-      console.log("✅ CredentialIds convertidos a ArrayBuffer");
-    }
-
-    // Solicitar autenticación biométrica
-    console.log("🔑 Solicitando credencial biométrica al usuario...");
-    let cred: any;
+  async loginBiometria() {
+    this.cargando = true;
     try {
-      cred = await navigator.credentials.get({
-        publicKey: {
-          ...options,
-          challenge: challengeArrayBuffer
-        }
+      console.log('🔐 Iniciando login biométrico...');
+      const correo = this.correo.trim();
+
+      if (!correo) {
+        console.log('❌ Error: Correo no proporcionado');
+        Swal.fire({
+          icon: 'info',
+          title: 'Correo requerido',
+          text: 'Introduce tu correo para continuar.',
+          confirmButtonColor: '#3B82F6',
+        });
+        this.cargando = false;
+        return;
+      }
+
+      console.log('📧 Correo:', correo);
+
+      // Verificar soporte de WebAuthn
+      if (!window.PublicKeyCredential) {
+        console.log('❌ Error: El dispositivo no soporta WebAuthn');
+        Swal.fire({
+          icon: 'info',
+          title: 'No soportado',
+          text: 'Tu navegador no admite autenticación biométrica.',
+          confirmButtonColor: '#3B82F6',
+        });
+        this.cargando = false;
+        return;
+      }
+
+      // Obtener tipo de biometría configurada
+      console.log('🔍 Obteniendo tipo de biometría configurada...');
+      const tipoRes = await this.bio.obtenerTipoBiometria(correo).toPromise();
+      console.log('✅ Tipo de biometría recibido:', tipoRes);
+
+      if (!tipoRes || !tipoRes.metodo) {
+        console.log('❌ Error: Biometría no configurada para este usuario');
+        Swal.fire({
+          icon: 'info',
+          title: 'Biometría no configurada',
+          text: 'Este usuario no tiene biometría registrada. Por favor, inicia sesión con contraseña.',
+          confirmButtonColor: '#3B82F6',
+        });
+        this.cargando = false;
+        return;
+      }
+
+      const tipo = tipoRes.metodo;
+      console.log('🔐 Método biométrico:', tipo);
+
+      // Obtener opciones de autenticación del servidor
+      console.log('📋 Solicitando opciones de autenticación al servidor...');
+      const options = await this.bio.authOptions({ correo, tipo }).toPromise();
+      console.log('✅ Opciones de autenticación recibidas:', {
+        challengeLength: options.challenge?.length,
+        hasAllowCredentials: !!options.allowCredentials,
+        credentialsCount: options.allowCredentials?.length,
       });
-      console.log("✅ Credencial biométrica obtenida");
-    } catch (credError: any) {
-      console.error("❌ Error al obtener credencial:", credError);
-      const msg = credError?.name === 'NotAllowedError'
-        ? 'Autenticación cancelada o biometría no reconocida.'
-        : 'Error al acceder a la biometría del dispositivo.';
+
+      // Convertir challenge de Base64 a ArrayBuffer
+      const challengeArrayBuffer = this.base64ToArrayBuffer(options.challenge);
+      console.log(
+        '✅ Challenge convertido a ArrayBuffer, longitud:',
+        challengeArrayBuffer.byteLength
+      );
+
+      // Convertir allowCredentials IDs
+      if (options.allowCredentials && options.allowCredentials.length > 0) {
+        options.allowCredentials = options.allowCredentials.map((cred: any) => ({
+          ...cred,
+          id: this.base64ToArrayBuffer(cred.id),
+        }));
+        console.log('✅ CredentialIds convertidos a ArrayBuffer');
+      }
+
+      // Solicitar autenticación biométrica
+      console.log('🔑 Solicitando credencial biométrica al usuario...');
+      let cred: any;
+      try {
+        cred = await navigator.credentials.get({
+          publicKey: {
+            ...options,
+            challenge: challengeArrayBuffer,
+          },
+        });
+        console.log('✅ Credencial biométrica obtenida');
+      } catch (credError: any) {
+        console.error('❌ Error al obtener credencial:', credError);
+        const msg =
+          credError?.name === 'NotAllowedError'
+            ? 'Autenticación cancelada o biometría no reconocida.'
+            : 'Error al acceder a la biometría del dispositivo.';
+        Swal.fire({
+          icon: 'error',
+          title: 'Error biométrico',
+          text: msg,
+          confirmButtonColor: '#E53E3E',
+        });
+        this.cargando = false;
+        return;
+      }
+
+      if (!cred) {
+        console.log('❌ No se obtuvo credencial');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Sin credencial',
+          text: 'No se pudo obtener la credencial biométrica.',
+          confirmButtonColor: '#E53E3E',
+        });
+        this.cargando = false;
+        return;
+      }
+
+      console.log('📦 Datos de credencial:', {
+        id: cred.id.substring(0, 20) + '...',
+        type: cred.type,
+        rawIdLength: cred.rawId.byteLength,
+      });
+
+      // Preparar datos para enviar al servidor
+      const assertionPayload = {
+        correo,
+        tipo,
+        assertionResponse: {
+          id: cred.id,
+          rawId: this.arrayBufferToBase64(cred.rawId),
+          type: cred.type,
+          response: {
+            clientDataJSON: this.arrayBufferToBase64(cred.response.clientDataJSON),
+            authenticatorData: this.arrayBufferToBase64(cred.response.authenticatorData),
+            signature: this.arrayBufferToBase64(cred.response.signature),
+            userHandle: cred.response.userHandle
+              ? this.arrayBufferToBase64(cred.response.userHandle)
+              : null,
+          },
+        },
+      };
+
+      console.log('📤 Enviando datos de autenticación al servidor:', {
+        correo: assertionPayload.correo,
+        tipo: assertionPayload.tipo,
+        credentialIdLength: assertionPayload.assertionResponse.id.length,
+        rawIdLength: assertionPayload.assertionResponse.rawId.length,
+        clientDataJSONLength: assertionPayload.assertionResponse.response.clientDataJSON.length,
+        authenticatorDataLength:
+          assertionPayload.assertionResponse.response.authenticatorData.length,
+        signatureLength: assertionPayload.assertionResponse.response.signature.length,
+      });
+
+      // Enviar al servidor para verificación
+      console.log('🔐 Verificando autenticación con el servidor...');
+      const result = await this.bio.authenticate(assertionPayload).toPromise();
+      console.log('✅ Resultado de autenticación:', result);
+
+      if (result?.token || result?.accessToken) {
+        const token = result.token || result.accessToken;
+        console.log('✅ Token JWT recibido');
+        localStorage.setItem('accessToken', token);
+
+        if (result.user) {
+          localStorage.setItem('user', JSON.stringify(result.user));
+          console.log('✅ Datos de usuario guardados');
+        }
+
+        Swal.fire({
+          icon: 'success',
+          title: '¡Bienvenido!',
+          text:
+            tipo === 'HUELLA'
+              ? 'Autenticación con huella exitosa'
+              : 'Autenticación con PIN exitosa',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        console.log('🚀 Redirigiendo al dashboard...');
+        this.router.navigate(['/dashboard']);
+      } else {
+        console.log('❌ Error: No se recibió token del servidor');
+        this.mostrarError('Error en autenticación biométrica');
+      }
+    } catch (error: any) {
+      console.error('❌ Error en el proceso de autenticación biométrica:', error);
+      const errorMsg =
+        error?.error?.error || error?.message || 'No se pudo completar la autenticación';
       Swal.fire({
         icon: 'error',
-        title: 'Error biométrico',
-        text: msg,
+        title: 'Error en biometría',
+        text: errorMsg,
         confirmButtonColor: '#E53E3E',
       });
+    } finally {
+      console.log('🏁 Finalizando proceso de login biométrico');
       this.cargando = false;
-      return;
+    }
+  }
+
+  /** Función para convertir Base64 a ArrayBuffer */
+  base64ToArrayBuffer(base64: string): ArrayBuffer {
+    // Normalizar Base64 URL-safe a Base64 estándar
+    base64 = base64.replace(/-/g, '+').replace(/_/g, '/');
+
+    // Agregar padding si es necesario
+    while (base64.length % 4) {
+      base64 += '=';
     }
 
-    if (!cred) {
-      console.log("❌ No se obtuvo credencial");
-      Swal.fire({
-        icon: 'warning',
-        title: 'Sin credencial',
-        text: 'No se pudo obtener la credencial biométrica.',
-        confirmButtonColor: '#E53E3E',
-      });
-      this.cargando = false;
-      return;
+    const binaryString = atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
     }
 
-    console.log("📦 Datos de credencial:", {
-      id: cred.id.substring(0, 20) + '...',
-      type: cred.type,
-      rawIdLength: cred.rawId.byteLength
-    });
+    return bytes.buffer;
+  }
 
-    // Preparar datos para enviar al servidor
-    const assertionPayload = {
-      correo,
-      tipo,
-      assertionResponse: {
-        id: cred.id,
-        rawId: this.arrayBufferToBase64(cred.rawId),
-        type: cred.type,
-        response: {
-          clientDataJSON: this.arrayBufferToBase64(cred.response.clientDataJSON),
-          authenticatorData: this.arrayBufferToBase64(cred.response.authenticatorData),
-          signature: this.arrayBufferToBase64(cred.response.signature),
-          userHandle: cred.response.userHandle 
-            ? this.arrayBufferToBase64(cred.response.userHandle)
-            : null
-        }
-      }
-    };
-
-    console.log("📤 Enviando datos de autenticación al servidor:", {
-      correo: assertionPayload.correo,
-      tipo: assertionPayload.tipo,
-      credentialIdLength: assertionPayload.assertionResponse.id.length,
-      rawIdLength: assertionPayload.assertionResponse.rawId.length,
-      clientDataJSONLength: assertionPayload.assertionResponse.response.clientDataJSON.length,
-      authenticatorDataLength: assertionPayload.assertionResponse.response.authenticatorData.length,
-      signatureLength: assertionPayload.assertionResponse.response.signature.length
-    });
-
-    // Enviar al servidor para verificación
-    console.log("🔐 Verificando autenticación con el servidor...");
-    const result = await this.bio.authenticate(assertionPayload).toPromise();
-    console.log("✅ Resultado de autenticación:", result);
-
-    if (result?.token || result?.accessToken) {
-      const token = result.token || result.accessToken;
-      console.log("✅ Token JWT recibido");
-      localStorage.setItem('accessToken', token);
-      
-      if (result.user) {
-        localStorage.setItem('user', JSON.stringify(result.user));
-        console.log("✅ Datos de usuario guardados");
-      }
-
-      Swal.fire({
-        icon: 'success',
-        title: '¡Bienvenido!',
-        text: tipo === 'HUELLA' 
-          ? 'Autenticación con huella exitosa' 
-          : 'Autenticación con PIN exitosa',
-        timer: 1500,
-        showConfirmButton: false
-      });
-
-      console.log("🚀 Redirigiendo al dashboard...");
-      this.router.navigate(['/dashboard']);
-    } else {
-      console.log("❌ Error: No se recibió token del servidor");
-      this.mostrarError('Error en autenticación biométrica');
+  /** Función para convertir ArrayBuffer a Base64 */
+  arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
     }
-  } catch (error: any) {
-    console.error("❌ Error en el proceso de autenticación biométrica:", error);
-    const errorMsg = error?.error?.error || error?.message || 'No se pudo completar la autenticación';
-    Swal.fire({
-      icon: 'error',
-      title: 'Error en biometría',
-      text: errorMsg,
-      confirmButtonColor: '#E53E3E',
-    });
-  } finally {
-    console.log("🏁 Finalizando proceso de login biométrico");
-    this.cargando = false;
+    return window.btoa(binary);
   }
-}
-
-/** Función para convertir Base64 a ArrayBuffer */
-base64ToArrayBuffer(base64: string): ArrayBuffer {
-  // Normalizar Base64 URL-safe a Base64 estándar
-  base64 = base64.replace(/-/g, '+').replace(/_/g, '/');
-  
-  // Agregar padding si es necesario
-  while (base64.length % 4) {
-    base64 += '=';
-  }
-  
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-
-  return bytes.buffer;
-}
-
-/** Función para convertir ArrayBuffer a Base64 */
-arrayBufferToBase64(buffer: ArrayBuffer): string {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return window.btoa(binary);
-}
-
 
   /** ✅ Login OAuth sin popup (redirección directa) */
   async loginOAuth(provider: 'google' | 'facebook') {
@@ -566,20 +598,17 @@ arrayBufferToBase64(buffer: ArrayBuffer): string {
     this.oauth.login(provider); // hace window.location.href = api/oauth/...
   }
 
-
- /** 🎨 Añade efecto de rebote al soltar el botón */
+  /** 🎨 Añade efecto de rebote al soltar el botón */
   addBounceEffect(event: Event) {
     const button = event.currentTarget as HTMLElement;
     button.classList.remove('released');
     void button.offsetWidth;
     button.classList.add('released');
-    
+
     setTimeout(() => {
       button.classList.remove('released');
     }, 350);
   }
-
-
 
   /** Manejo unificado de errores */
   mostrarError(mensaje: string) {
@@ -592,6 +621,4 @@ arrayBufferToBase64(buffer: ArrayBuffer): string {
       confirmButtonColor: '#E53E3E',
     });
   }
-
 }
-

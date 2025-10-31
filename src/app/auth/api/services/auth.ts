@@ -29,7 +29,7 @@ export class AuthService {
   }
 
   /** 🔹 Login tradicional (correo + contraseña) */
-  login(data: { correo: string; contrasena: string }): Observable<any> {
+  login(data: { credential: string; contrasena: string; rolSeleccionado: string }): Observable<any> {
     return this.http.post(`${this.api}/auth/login`, data);
   }
 
@@ -59,7 +59,8 @@ export class AuthService {
     return this.http.post(`${this.api}/password/forgot`, payload);
   }
 
-  resetPassword(payload: { token: string; nuevaContrasena: string }) {
+  resetPassword(payload: { codigo: string; nuevaContrasena: string }) {
     return this.http.post(`${this.api}/password/reset`, payload);
   }
 }
+

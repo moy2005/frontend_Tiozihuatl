@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { AuthService } from '../../services/auth';
-import { BiometricService } from '../../services/biometric';
-import { OauthService } from '../../services/oauth';
+import { AuthService } from '../api/services/auth';
+import { BiometricService } from '../api/services/biometric';
+import { OauthService } from '../api/services/oauth';
 import { catchError } from 'rxjs/operators';
 
 interface PublicKeyCredential {
