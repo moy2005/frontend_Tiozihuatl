@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tu-dominio.com/api'
+  apiUrl: 'https://backend-tiozihuatl.vercel.app/api'
 };
