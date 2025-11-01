@@ -21,6 +21,7 @@ export class AdminPanelComponent implements OnInit {
   cargando = false;
   editando = false;
   nuevoUsuario: any = this.resetForm();
+  mostrarModal = false;
 
   constructor(
     private adminService: AdminUserService,
