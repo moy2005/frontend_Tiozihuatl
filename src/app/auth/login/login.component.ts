@@ -3,10 +3,10 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
-import { AuthService } from '../api/services/auth';
-import { SmsService } from '../api/services/sms';
-import { BiometricService } from '../api/services/biometric';
-import { OauthService } from '../api/services/oauth';
+import { AuthService } from '../../api/services/auth';
+import { SmsService } from '../../api/services/sms';
+import { BiometricService } from '../../api/services/biometric';
+import { OauthService } from '../../api/services/oauth';
 import { ElementRef, ViewChild } from '@angular/core';
 
 @Component({
@@ -96,7 +96,7 @@ export class LoginComponent implements OnInit {
 
         // Redirigir al dashboard
         setTimeout(() => {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/perfil']);
         }, 2000);
       }
 
@@ -177,22 +177,8 @@ async loginPassword() {
         localStorage.setItem('user', JSON.stringify(res.user));
       }
 
-      // Redirigir según rol (opcional)
-      switch (this.rolSeleccionado) {
-        case 'Administrador':
-          this.router.navigate(['/admin/dashboard']);
-          break;
-        case 'Bibliotecario':
-          this.router.navigate(['/biblioteca']);
-          break;
-        case 'Docente':
-        case 'Alumno':
-          this.router.navigate(['/dashboard']);
-          break;
-        default:
-          this.router.navigate(['/dashboard']);
-          break;
-      }
+    this.router.navigate(['/perfil']);
+
     } else {
       this.mostrarError('Credenciales inválidas o token no generado.');
     }
@@ -285,7 +271,7 @@ async loginPassword() {
           showConfirmButton: false,
         });
 
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/perfil']);
       } else {
         this.otp = '';
         this.otpInputFocused = false;
@@ -538,8 +524,8 @@ async loginPassword() {
           showConfirmButton: false,
         });
 
-        console.log('🚀 Redirigiendo al dashboard...');
-        this.router.navigate(['/dashboard']);
+        console.log('🚀 Redirigiendo al perfil...');
+        this.router.navigate(['/perfil']);
       } else {
         console.log('❌ Error: No se recibió token del servidor');
         this.mostrarError('Error en autenticación biométrica');

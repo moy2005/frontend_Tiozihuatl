@@ -1,0 +1,111 @@
+<section class="min-h-screen bg-gray-100 py-10 px-4">
+  <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-semibold text-indigo-700">Panel de Administración</h2>
+      <button (click)="volverAlPerfil()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+        Volver al perfil
+      </button>
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!cargando; else loading">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border">
+          <thead class="bg-indigo-600 text-white">
+            <tr>
+              <th class="p-2">#</th>
+              <th class="p-2 text-left">Nombre</th>
+              <th class="p-2 text-left">Correo</th>
+              <th class="p-2 text-left">Rol</th>
+              <th class="p-2 text-left">Carrera</th>
+              <th class="p-2 text-left">Semestre</th>
+              <th class="p-2 text-left">Matrícula</th>
+              <th class="p-2 text-left">Estado</th>
+              <th class="p-2 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of usuarios" class="border-b hover:bg-gray-50">
+              <td class="p-2">{{ u.id_usuario }}</td>
+              <td class="p-2">{{ u.nombre }} {{ u.a_paterno }}</td>
+              <td class="p-2">{{ u.correo }}</td>
+              <td class="p-2">{{ u.rol }}</td>
+              <td class="p-2">{{ u.carrera || 'N/A' }}</td>
+              <td class="p-2">{{ u.semestre || 'N/A' }}</td>
+              <td class="p-2">{{ u.matricula || 'N/A' }}</td>
+              <td class="p-2">
+                <span [ngClass]="u.estado === 'Activo' ? 'text-green-600' : 'text-red-500'">{{ u.estado }}</span>
+              </td>
+              <td class="p-2 text-center flex justify-center gap-2">
+                <button (click)="editarUsuario(u)" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Editar</button>
+                <button (click)="desactivarUsuario(u.id_usuario)" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Desactivar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <ng-template #loading>
+      <div class="text-center py-10 text-gray-500">
+        <i class="fas fa-spinner fa-spin text-indigo-600 text-3xl"></i>
+        <p>Cargando usuarios...</p>
+      </div>
+    </ng-template>
+
+    <hr class="my-8" />
+
+    <!-- Formulario -->
+    <h3 class="text-lg font-semibold text-indigo-700 mb-4">{{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input [(ngModel)]="nuevoUsuario.nombre" placeholder="Nombre" class="border p-2 rounded" />
+      <input [(ngModel)]="nuevoUsuario.a_paterno" placeholder="Apellido Paterno" class="border p-2 rounded" />
+      <input [(ngModel)]="nuevoUsuario.a_materno" placeholder="Apellido Materno" class="border p-2 rounded" />
+      <input [(ngModel)]="nuevoUsuario.correo" placeholder="Correo" class="border p-2 rounded" />
+      <input [(ngModel)]="nuevoUsuario.telefono" placeholder="Teléfono" class="border p-2 rounded" />
+
+      <select [(ngModel)]="nuevoUsuario.id_rol" class="border p-2 rounded">
+        <option value="">Seleccionar Rol</option>
+        <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
+      </select>
+
+      <!-- Campos condicionales -->
+      <select
+        [(ngModel)]="nuevoUsuario.id_carrera"
+        [disabled]="!campoActivo('carrera')"
+        class="border p-2 rounded"
+      >
+        <option value="">Seleccionar Carrera</option>
+        <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
+      </select>
+
+      <select
+        [(ngModel)]="nuevoUsuario.id_semestre"
+        [disabled]="!campoActivo('semestre')"
+        class="border p-2 rounded"
+      >
+        <option value="">Seleccionar Semestre</option>
+        <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
+      </select>
+
+      <input
+        [(ngModel)]="nuevoUsuario.matricula"
+        [disabled]="!campoActivo('matricula')"
+        placeholder="Matrícula"
+        class="border p-2 rounded"
+      />
+
+      <input [(ngModel)]="nuevoUsuario.contrasena" placeholder="Contraseña" type="password" class="border p-2 rounded" />
+    </div>
+
+    <div class="mt-4 flex justify-end gap-3">
+      <button (click)="guardarUsuario()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        {{ editando ? 'Guardar Cambios' : 'Crear Usuario' }}
+      </button>
+      <button *ngIf="editando" (click)="nuevoUsuario = resetForm(); editando=false" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</section>

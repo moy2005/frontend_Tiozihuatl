@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { AuthService } from '../api/services/auth';
+import { AuthService } from '../../api/services/auth';
 
 @Component({
   selector: 'app-forgot-password',
