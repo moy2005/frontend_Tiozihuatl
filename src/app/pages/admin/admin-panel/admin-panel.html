@@ -1,16 +1,20 @@
 <section class="min-h-screen bg-gray-100 py-10 px-4">
   <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6">
+
+    <!-- 🔹 ENCABEZADO -->
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-semibold text-indigo-700">Panel de Administración</h2>
-      <button (click)="volverAlPerfil()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+      <button
+        (click)="volverAlPerfil()"
+        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
         Volver al perfil
       </button>
     </div>
 
-    <!-- Tabla -->
+    <!-- 🔹 TABLA DE USUARIOS -->
     <div *ngIf="!cargando; else loading">
       <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border">
+        <table class="min-w-full text-sm border border-gray-200 rounded-lg">
           <thead class="bg-indigo-600 text-white">
             <tr>
               <th class="p-2">#</th>
@@ -24,6 +28,7 @@
               <th class="p-2 text-center">Acciones</th>
             </tr>
           </thead>
+
           <tbody>
             <tr *ngFor="let u of usuarios" class="border-b hover:bg-gray-50">
               <td class="p-2">{{ u.id_usuario }}</td>
@@ -34,98 +39,163 @@
               <td class="p-2">{{ u.semestre || 'N/A' }}</td>
               <td class="p-2">{{ u.matricula || 'N/A' }}</td>
               <td class="p-2">
-                <span [ngClass]="u.estado === 'Activo' ? 'text-green-600' : 'text-red-500'">{{ u.estado }}</span>
+                <span
+                  [ngClass]="u.estado === 'Activo' ? 'text-green-600 font-medium' : 'text-red-500 font-medium'">
+                  {{ u.estado }}
+                </span>
               </td>
-             <td class="p-2 text-center flex justify-center gap-2">
-  <button 
-    (click)="editarUsuario(u)" 
-    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-    Editar
-  </button>
 
-  <!-- Botón dinámico de activar/desactivar -->
-  <button
-    *ngIf="u.estado === 'Activo'; else activarBtn"
-    (click)="cambiarEstado(u, 'Inactivo')"
-    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-    Desactivar
-  </button>
+              <td class="p-2 text-center flex justify-center gap-2">
+                <button
+                  (click)="editarUsuario(u)"
+                  class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
+                  Editar
+                </button>
 
-  <ng-template #activarBtn>
-    <button
-      (click)="cambiarEstado(u, 'Activo')"
-      class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
-      Activar
-    </button>
-  </ng-template>
-</td>
+                <button
+                  *ngIf="u.estado === 'Activo'; else activarBtn"
+                  (click)="cambiarEstado(u, 'Inactivo')"
+                  class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
+                  Desactivar
+                </button>
 
+                <ng-template #activarBtn>
+                  <button
+                    (click)="cambiarEstado(u, 'Activo')"
+                    class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition">
+                    Activar
+                  </button>
+                </ng-template>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
+    <!-- 🔹 SPINNER DE CARGA -->
     <ng-template #loading>
       <div class="text-center py-10 text-gray-500">
         <i class="fas fa-spinner fa-spin text-indigo-600 text-3xl"></i>
-        <p>Cargando usuarios...</p>
+        <p class="mt-2">Cargando usuarios...</p>
       </div>
     </ng-template>
 
-    <hr class="my-8" />
+    <hr class="my-8 border-gray-300" />
 
-    <!-- Formulario -->
-    <h3 class="text-lg font-semibold text-indigo-700 mb-4">{{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+    <!-- 🔹 FORMULARIO -->
+    <h3 class="text-lg font-semibold text-indigo-700 mb-4">
+      {{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}
+    </h3>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <input [(ngModel)]="nuevoUsuario.nombre" placeholder="Nombre" class="border p-2 rounded" />
-      <input [(ngModel)]="nuevoUsuario.a_paterno" placeholder="Apellido Paterno" class="border p-2 rounded" />
-      <input [(ngModel)]="nuevoUsuario.a_materno" placeholder="Apellido Materno" class="border p-2 rounded" />
-      <input [(ngModel)]="nuevoUsuario.correo" placeholder="Correo" class="border p-2 rounded" />
-      <input [(ngModel)]="nuevoUsuario.telefono" placeholder="Teléfono" class="border p-2 rounded" />
 
-      <select [(ngModel)]="nuevoUsuario.id_rol" class="border p-2 rounded">
+      <!-- NOMBRE -->
+      <input
+        [(ngModel)]="nuevoUsuario.nombre"
+        placeholder="Nombre"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
+        [disabled]="!campoActivo('nombre')"
+      />
+
+      <!-- APELLIDO PATERNO -->
+      <input
+        [(ngModel)]="nuevoUsuario.a_paterno"
+        placeholder="Apellido Paterno"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
+        [disabled]="!campoActivo('a_paterno')"
+      />
+
+      <!-- APELLIDO MATERNO -->
+      <input
+        [(ngModel)]="nuevoUsuario.a_materno"
+        placeholder="Apellido Materno"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
+        [disabled]="!campoActivo('a_materno')"
+      />
+
+      <!-- CORREO -->
+      <input
+        [(ngModel)]="nuevoUsuario.correo"
+        placeholder="Correo electrónico"
+        type="email"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
+        [disabled]="!campoActivo('correo')"
+      />
+
+      <!-- TELÉFONO -->
+      <input
+        [(ngModel)]="nuevoUsuario.telefono"
+        placeholder="Teléfono"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
+        [disabled]="!campoActivo('telefono')"
+      />
+
+      <!-- ROL -->
+      <select
+        [(ngModel)]="nuevoUsuario.id_rol"
+        (change)="nuevoUsuario.id_carrera = nuevoUsuario.id_semestre = nuevoUsuario.matricula = ''"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
+      >
         <option value="">Seleccionar Rol</option>
         <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
       </select>
 
-      <!-- Campos condicionales -->
+      <!-- CARRERA -->
       <select
         [(ngModel)]="nuevoUsuario.id_carrera"
-        [disabled]="!campoActivo('carrera')"
-        class="border p-2 rounded"
+        [disabled]="!campoActivo('id_carrera')"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
       >
         <option value="">Seleccionar Carrera</option>
         <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
       </select>
 
+      <!-- SEMESTRE -->
       <select
         [(ngModel)]="nuevoUsuario.id_semestre"
-        [disabled]="!campoActivo('semestre')"
-        class="border p-2 rounded"
+        [disabled]="!campoActivo('id_semestre')"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
       >
         <option value="">Seleccionar Semestre</option>
         <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
       </select>
 
+      <!-- MATRÍCULA -->
       <input
         [(ngModel)]="nuevoUsuario.matricula"
-        [disabled]="!campoActivo('matricula')"
         placeholder="Matrícula"
-        class="border p-2 rounded"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
+        [disabled]="!campoActivo('matricula')"
       />
 
-      <input [(ngModel)]="nuevoUsuario.contrasena" placeholder="Contraseña" type="password" class="border p-2 rounded" />
+      <!-- CONTRASEÑA -->
+      <input
+        [(ngModel)]="nuevoUsuario.contrasena"
+        placeholder="Contraseña"
+        type="password"
+        class="border p-2 rounded focus:ring-2 focus:ring-indigo-500"
+        [disabled]="!campoActivo('contrasena')"
+      />
     </div>
 
-    <div class="mt-4 flex justify-end gap-3">
-      <button (click)="guardarUsuario()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+    <!-- 🔹 BOTONES -->
+    <div class="mt-6 flex justify-end gap-3">
+      <button
+        (click)="guardarUsuario()"
+        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+      >
         {{ editando ? 'Guardar Cambios' : 'Crear Usuario' }}
       </button>
-      <button *ngIf="editando" (click)="nuevoUsuario = resetForm(); editando=false" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+
+      <button
+        *ngIf="editando"
+        (click)="nuevoUsuario = resetForm(); editando = false"
+        class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition"
+      >
         Cancelar
       </button>
     </div>
+
   </div>
 </section>

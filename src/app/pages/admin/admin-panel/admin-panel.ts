@@ -50,6 +50,9 @@ export class AdminPanelComponent implements OnInit {
     };
   }
 
+  /** ===========================
+   * 🔁 Cambiar estado (activar / desactivar)
+   * =========================== */
   cambiarEstado(usuario: any, nuevoEstado: 'Activo' | 'Inactivo') {
     const accion = nuevoEstado === 'Activo' ? 'activar' : 'desactivar';
 
@@ -63,11 +66,9 @@ export class AdminPanelComponent implements OnInit {
       confirmButtonText: `Sí, ${accion}`,
     }).then((r) => {
       if (r.isConfirmed) {
-       const payload = { estado: nuevoEstado };
-
-
+        const payload = { estado: nuevoEstado };
         this.adminService.update(usuario.id_usuario, payload).subscribe({
-          next: (res) => {
+          next: () => {
             Swal.fire(
               'Hecho',
               `Usuario ${nuevoEstado === 'Activo' ? 'activado' : 'desactivado'} correctamente.`,
@@ -82,8 +83,9 @@ export class AdminPanelComponent implements OnInit {
     });
   }
 
-
-  /** 🔄 Cargar datos */
+  /** ===========================
+   * 🔄 Cargar datos iniciales
+   * =========================== */
   cargarUsuarios() {
     this.cargando = true;
     this.adminService.getAll().subscribe({
@@ -100,62 +102,58 @@ export class AdminPanelComponent implements OnInit {
     });
   }
 
-cargarCatalogos() {
-  this.adminService.getCarreras().subscribe({
-    next: (res) => {
-      console.log('✅ Carreras:', res);
-      this.carreras = res;
-    },
-    error: (err) => console.error('❌ Error al obtener carreras:', err),
-  });
+  cargarCatalogos() {
+    this.adminService.getCarreras().subscribe({
+      next: (res) => (this.carreras = res),
+      error: (err) => console.error('❌ Error al obtener carreras:', err),
+    });
 
-  this.adminService.getSemestres().subscribe({
-    next: (res) => {
-      console.log('✅ Semestres:', res);
-      this.semestres = res;
-    },
-    error: (err) => console.error('❌ Error al obtener semestres:', err),
-  });
-}
-
-  /** 🧩 Verifica si el campo aplica según rol */
-/** 🧩 Control dinámico de campos por rol */
-campoActivo(campo: string): boolean {
-  const rol = this.getRolNombre(this.nuevoUsuario.id_rol);
-  if (!rol) return true; // por defecto, antes de seleccionar un rol, todo activo
-
-  switch (rol) {
-    case 'Administrador':
-      return true; // todos los campos activos
-
-    case 'Alumno':
-      // todos los campos activos
-      return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'matricula', 'id_carrera', 'id_semestre', 'estado'].includes(campo);
-
-    case 'Docente':
-      // sin semestre
-      return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'matricula', 'id_carrera', 'estado'].includes(campo);
-
-    case 'Bibliotecario':
-      // sin carrera ni semestre
-      return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'matricula', 'estado'].includes(campo);
-
-    case 'Visitante':
-      // sin matrícula, carrera ni semestre
-      return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'estado'].includes(campo);
-
-    default:
-      return true;
+    this.adminService.getSemestres().subscribe({
+      next: (res) => (this.semestres = res),
+      error: (err) => console.error('❌ Error al obtener semestres:', err),
+    });
   }
-}
 
+  /** ===========================
+   * 🧩 Control dinámico de campos
+   * =========================== */
+  campoActivo(campo: string): boolean {
+    const rol = this.getRolNombre(this.nuevoUsuario.id_rol);
+    if (!rol) return true; // todos activos antes de elegir rol
+
+    switch (rol) {
+      case 'Administrador':
+        return true; // todos los campos activos
+
+      case 'Alumno':
+        // todo activo
+        return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','id_carrera','id_semestre','estado'].includes(campo);
+
+      case 'Docente':
+        // sin semestre
+        return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','id_carrera','estado'].includes(campo);
+
+      case 'Bibliotecario':
+        // sin carrera ni semestre
+        return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','estado'].includes(campo);
+
+      case 'Visitante':
+        // sin matrícula, carrera ni semestre
+        return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','estado'].includes(campo);
+
+      default:
+        return true;
+    }
+  }
 
   getRolNombre(id_rol: number): string {
     const rol = this.roles.find((r) => r.id_rol === Number(id_rol));
     return rol ? rol.nombre_rol : '';
   }
 
-  /** 🧾 Guardar o editar */
+  /** ===========================
+   * 💾 Guardar o Editar usuario
+   * =========================== */
   guardarUsuario() {
     const user = this.nuevoUsuario;
     const isEdit = !!user.id_usuario;
@@ -167,20 +165,32 @@ campoActivo(campo: string): boolean {
     }
 
     // Validaciones por rol
-    if (rol === 'Alumno') {
+    if (rol === 'Administrador') {
+      // Todo permitido
+    }
+    else if (rol === 'Alumno') {
       if (!user.id_carrera || !user.id_semestre || !user.matricula || !user.telefono) {
         Swal.fire('Campos requeridos', 'Alumno debe tener carrera, semestre, matrícula y teléfono.', 'info');
         return;
       }
-    } else if (rol === 'Docente') {
-      if (!user.id_carrera) {
-        Swal.fire('Campos requeridos', 'Docente debe tener carrera.', 'info');
+    }
+    else if (rol === 'Docente') {
+      if (!user.id_carrera || !user.matricula || !user.telefono) {
+        Swal.fire('Campos requeridos', 'Docente debe tener carrera, matrícula y teléfono.', 'info');
         return;
       }
+      user.id_semestre = null; // no aplica semestre
+    }
+    else if (rol === 'Bibliotecario') {
+      if (!user.matricula || !user.telefono) {
+        Swal.fire('Campos requeridos', 'Bibliotecario debe tener matrícula y teléfono.', 'info');
+        return;
+      }
+      user.id_carrera = null;
       user.id_semestre = null;
-      user.matricula = null;
-    } else {
-      // Bibliotecario o Visitante
+    }
+    else if (rol === 'Visitante') {
+      // visitante no tiene matrícula, carrera ni semestre
       user.id_carrera = null;
       user.id_semestre = null;
       user.matricula = null;
@@ -202,37 +212,15 @@ campoActivo(campo: string): boolean {
     });
   }
 
+  /** ===========================
+   * ✏️ Editar o volver
+   * =========================== */
   editarUsuario(u: any) {
     this.nuevoUsuario = { ...u };
     this.editando = true;
   }
 
-  desactivarUsuario(id: number) {
-    Swal.fire({
-      title: '¿Desactivar usuario?',
-      text: 'El usuario pasará a estado inactivo.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#E53E3E',
-      cancelButtonColor: '#6B7280',
-      confirmButtonText: 'Sí, desactivar',
-    }).then((r) => {
-      if (r.isConfirmed) {
-        this.adminService.delete(id).subscribe({
-          next: (res) => {
-            Swal.fire('Hecho', res.message || 'Usuario desactivado.', 'success');
-            this.cargarUsuarios();
-          },
-          error: (err) =>
-            Swal.fire('Error', err?.error?.error || 'No se pudo desactivar.', 'error'),
-        });
-      }
-    });
-  }
-
   volverAlPerfil() {
     this.router.navigate(['/perfil']);
   }
-
-  
 }
