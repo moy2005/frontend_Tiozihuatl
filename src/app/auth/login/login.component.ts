@@ -499,7 +499,7 @@ async loginPassword() {
       });
 
       // Enviar al servidor para verificación
-      // ✅ Agregar rolSeleccionado al payload antes de enviar
+ 
 if (!this.rolSeleccionado) {
   Swal.fire({
     icon: 'warning',
@@ -512,8 +512,8 @@ if (!this.rolSeleccionado) {
 }
 
 const payloadCompleto = {
-  credential: correo,              // 👈 este campo lo espera el backend
-  rolSeleccionado: this.rolSeleccionado, // 👈 nuevo campo requerido
+  credential: correo,            
+  rolSeleccionado: this.rolSeleccionado, 
   assertionResponse: assertionPayload.assertionResponse,
 };
 
@@ -522,29 +522,34 @@ const result = await this.bio.authenticate(payloadCompleto).toPromise();
 console.log('✅ Resultado de autenticación:', result);
 
 
-      if (result?.token || result?.accessToken) {
-        const token = result.token || result.accessToken;
-        console.log('✅ Token JWT recibido');
-        localStorage.setItem('accessToken', token);
+  if (result?.token || result?.accessToken) {
+  const token = result.token || result.accessToken;
+  localStorage.setItem('accessToken', token);
 
-        if (result.user) {
-          localStorage.setItem('user', JSON.stringify(result.user));
-          console.log('✅ Datos de usuario guardados');
-        }
+  // ✅ Guardar usuario si existe
+  if (result.user) {
+    localStorage.setItem('user', JSON.stringify(result.user));
+  }
 
-        Swal.fire({
-          icon: 'success',
-          title: '¡Bienvenido!',
-          text:
-            tipo === 'HUELLA'
-              ? 'Autenticación con huella exitosa'
-              : 'Autenticación con PIN exitosa',
-          timer: 1500,
-          showConfirmButton: false,
-        });
+  // ✅ Guardar refreshToken vacío para evitar errores en guards
+  if (!localStorage.getItem('refreshToken')) {
+    localStorage.setItem('refreshToken', 'biometric-placeholder');
+  }
 
-        console.log('🚀 Redirigiendo al perfil...');
-        this.router.navigate(['/perfil']);
+  Swal.fire({
+    icon: 'success',
+    title: '¡Bienvenido!',
+    text:
+      result.user?.metodo_autenticacion === 'Biometría'
+        ? 'Autenticación con huella exitosa.'
+        : 'Autenticación exitosa.',
+    timer: 1500,
+    showConfirmButton: false,
+  });
+
+  this.router.navigate(['/perfil']);
+
+
       } else {
         console.log('❌ Error: No se recibió token del servidor');
         this.mostrarError('Error en autenticación biométrica');
