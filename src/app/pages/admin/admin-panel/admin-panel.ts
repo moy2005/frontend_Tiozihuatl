@@ -50,6 +50,38 @@ export class AdminPanelComponent implements OnInit {
     };
   }
 
+  cambiarEstado(usuario: any, nuevoEstado: 'Activo' | 'Inactivo') {
+    const accion = nuevoEstado === 'Activo' ? 'activar' : 'desactivar';
+
+    Swal.fire({
+      title: `¿Deseas ${accion} a este usuario?`,
+      text: `El usuario pasará a estado ${nuevoEstado}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: nuevoEstado === 'Activo' ? '#16A34A' : '#E53E3E',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: `Sí, ${accion}`,
+    }).then((r) => {
+      if (r.isConfirmed) {
+        const payload = { ...usuario, estado: nuevoEstado };
+
+        this.adminService.update(usuario.id_usuario, payload).subscribe({
+          next: (res) => {
+            Swal.fire(
+              'Hecho',
+              `Usuario ${nuevoEstado === 'Activo' ? 'activado' : 'desactivado'} correctamente.`,
+              'success'
+            );
+            this.cargarUsuarios();
+          },
+          error: (err) =>
+            Swal.fire('Error', err?.error?.error || 'No se pudo actualizar el estado.', 'error'),
+        });
+      }
+    });
+  }
+
+
   /** 🔄 Cargar datos */
   cargarUsuarios() {
     this.cargando = true;

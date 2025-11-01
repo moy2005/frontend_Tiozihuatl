@@ -36,10 +36,30 @@
               <td class="p-2">
                 <span [ngClass]="u.estado === 'Activo' ? 'text-green-600' : 'text-red-500'">{{ u.estado }}</span>
               </td>
-              <td class="p-2 text-center flex justify-center gap-2">
-                <button (click)="editarUsuario(u)" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Editar</button>
-                <button (click)="desactivarUsuario(u.id_usuario)" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Desactivar</button>
-              </td>
+             <td class="p-2 text-center flex justify-center gap-2">
+  <button 
+    (click)="editarUsuario(u)" 
+    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+    Editar
+  </button>
+
+  <!-- Botón dinámico de activar/desactivar -->
+  <button
+    *ngIf="u.estado === 'Activo'; else activarBtn"
+    (click)="cambiarEstado(u, 'Inactivo')"
+    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+    Desactivar
+  </button>
+
+  <ng-template #activarBtn>
+    <button
+      (click)="cambiarEstado(u, 'Activo')"
+      class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
+      Activar
+    </button>
+  </ng-template>
+</td>
+
             </tr>
           </tbody>
         </table>
