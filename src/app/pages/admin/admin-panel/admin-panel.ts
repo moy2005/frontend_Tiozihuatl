@@ -119,21 +119,36 @@ cargarCatalogos() {
 }
 
   /** 🧩 Verifica si el campo aplica según rol */
-  campoActivo(campo: string): boolean {
-    const rol = this.getRolNombre(this.nuevoUsuario.id_rol);
-    if (!rol) return false;
+/** 🧩 Control dinámico de campos por rol */
+campoActivo(campo: string): boolean {
+  const rol = this.getRolNombre(this.nuevoUsuario.id_rol);
+  if (!rol) return true; // por defecto, antes de seleccionar un rol, todo activo
 
-    switch (campo) {
-      case 'matricula':
-      case 'semestre':
-      case 'carrera':
-        if (rol === 'Alumno') return true;
-        if (rol === 'Docente' && campo === 'carrera') return true;
-        return false;
-      default:
-        return true;
-    }
+  switch (rol) {
+    case 'Administrador':
+      return true; // todos los campos activos
+
+    case 'Alumno':
+      // todos los campos activos
+      return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'matricula', 'id_carrera', 'id_semestre', 'estado'].includes(campo);
+
+    case 'Docente':
+      // sin semestre
+      return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'matricula', 'id_carrera', 'estado'].includes(campo);
+
+    case 'Bibliotecario':
+      // sin carrera ni semestre
+      return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'matricula', 'estado'].includes(campo);
+
+    case 'Visitante':
+      // sin matrícula, carrera ni semestre
+      return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'estado'].includes(campo);
+
+    default:
+      return true;
   }
+}
+
 
   getRolNombre(id_rol: number): string {
     const rol = this.roles.find((r) => r.id_rol === Number(id_rol));

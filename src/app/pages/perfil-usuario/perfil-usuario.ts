@@ -67,14 +67,9 @@ export class PerfilUsuarioComponent implements OnInit {
   }
 
   /** 🔒 Cambiar contraseña */
-   async cambiarContrasena() {
+  async cambiarContrasena() {
     if (!this.contrasenaActual || !this.nuevaContrasena) {
       Swal.fire('Campos incompletos', 'Debes llenar ambas contraseñas.', 'info');
-      return;
-    }
-
-    if (!this.validarPasswordFuerte()) {
-      Swal.fire('Contraseña débil', 'La nueva contraseña no cumple los requisitos mínimos de seguridad.', 'warning');
       return;
     }
 
@@ -84,15 +79,12 @@ export class PerfilUsuarioComponent implements OnInit {
       Swal.fire('Éxito', res?.message || 'Contraseña actualizada correctamente.', 'success');
       this.contrasenaActual = '';
       this.nuevaContrasena = '';
-      this.passwordStage = 0;
-      this.showPasswordTip = false;
     } catch (err: any) {
       Swal.fire('Error', err?.error?.error || 'Error al cambiar contraseña.', 'error');
     } finally {
       this.cargando = false;
     }
   }
-
 
   /** Mostrar u ocultar campos según rol */
   mostrarCampo(campo: string): boolean {
@@ -111,7 +103,7 @@ export class PerfilUsuarioComponent implements OnInit {
 
   editable(campo: string): boolean {
     const rol = this.user.rol;
-    if (rol === 'Administrador' || rol === 'Visitante') return true;
+    if (rol === 'Administrador' || rol=== 'Visitante') return true;
 
     // Solo correo y teléfono son editables para otros roles
     if (['correo', 'telefono'].includes(campo)) return true;
