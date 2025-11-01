@@ -499,9 +499,28 @@ async loginPassword() {
       });
 
       // Enviar al servidor para verificación
-      console.log('🔐 Verificando autenticación con el servidor...');
-      const result = await this.bio.authenticate(assertionPayload).toPromise();
-      console.log('✅ Resultado de autenticación:', result);
+      // ✅ Agregar rolSeleccionado al payload antes de enviar
+if (!this.rolSeleccionado) {
+  Swal.fire({
+    icon: 'warning',
+    title: 'Rol no seleccionado',
+    text: 'Por favor selecciona tu rol antes de iniciar sesión biométrica.',
+    confirmButtonColor: '#F59E0B',
+  });
+  this.cargando = false;
+  return;
+}
+
+const payloadCompleto = {
+  credential: correo,              // 👈 este campo lo espera el backend
+  rolSeleccionado: this.rolSeleccionado, // 👈 nuevo campo requerido
+  assertionResponse: assertionPayload.assertionResponse,
+};
+
+console.log('📤 Enviando datos de autenticación al servidor con rol:', this.rolSeleccionado);
+const result = await this.bio.authenticate(payloadCompleto).toPromise();
+console.log('✅ Resultado de autenticación:', result);
+
 
       if (result?.token || result?.accessToken) {
         const token = result.token || result.accessToken;
