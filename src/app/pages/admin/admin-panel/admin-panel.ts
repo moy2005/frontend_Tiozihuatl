@@ -63,7 +63,8 @@ export class AdminPanelComponent implements OnInit {
       confirmButtonText: `Sí, ${accion}`,
     }).then((r) => {
       if (r.isConfirmed) {
-        const payload = { ...usuario, estado: nuevoEstado };
+       const payload = { estado: nuevoEstado };
+
 
         this.adminService.update(usuario.id_usuario, payload).subscribe({
           next: (res) => {
