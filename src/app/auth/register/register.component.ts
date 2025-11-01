@@ -38,6 +38,7 @@ export class RegisterComponent {
     telefono: '',
     contrasena: '',
     confirmPassword: '',
+    palabra_secreta: '',
   };
 
   emailValid: boolean | null = null;
