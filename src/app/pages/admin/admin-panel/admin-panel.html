@@ -1,22 +1,22 @@
-<section class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 py-10 px-4">
+<section class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 py-6 sm:py-10 px-3 sm:px-4">
   <div class="max-w-[95%] mx-auto">
     <!-- Header -->
-    <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 mb-6">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600">
-            <i class="fas fa-users-cog text-2xl text-white"></i>
+    <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 mb-4 sm:mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex-shrink-0">
+            <i class="fas fa-users-cog text-xl sm:text-2xl text-white"></i>
           </div>
           <div>
-            <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+            <h2 class="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
               Panel de Administración
             </h2>
-            <p class="text-gray-600">Gestión de usuarios del sistema</p>
+            <p class="text-sm sm:text-base text-gray-600">Gestión de usuarios del sistema</p>
           </div>
         </div>
         <button 
           (click)="volverAlPerfil()" 
-          class="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-lg font-medium hover:brightness-110 transition-all duration-200 flex items-center gap-2">
+          class="w-full sm:w-auto bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium hover:brightness-110 transition-all duration-200 flex items-center justify-center gap-2">
           <i class="fas fa-arrow-left"></i>
           Volver al perfil
         </button>
@@ -24,27 +24,28 @@
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="cargando" class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-12 text-center">
-      <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
-      <p class="mt-4 text-gray-600 font-medium">Cargando usuarios...</p>
+    <div *ngIf="cargando" class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 sm:p-12 text-center">
+      <div class="inline-block animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-4 border-indigo-600 border-t-transparent"></div>
+      <p class="mt-4 text-sm sm:text-base text-gray-600 font-medium">Cargando usuarios...</p>
     </div>
 
     <!-- Users Table -->
     <div *ngIf="!cargando" class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden">
-      <div class="p-6 border-b border-gray-200 flex items-center justify-between">
-        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+      <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-2">
           <i class="fas fa-table text-indigo-600"></i>
           Lista de Usuarios
         </h3>
         <button 
           (click)="editando = false; nuevoUsuario = resetForm(); mostrarModal = true" 
-          class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:brightness-110 transition-all duration-200 flex items-center gap-2">
+          class="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold hover:brightness-110 transition-all duration-200 flex items-center justify-center gap-2">
           <i class="fas fa-plus-circle"></i>
           Nuevo Usuario
         </button>
       </div>
       
-      <div class="overflow-x-auto">
+      <!-- Desktop Table View (hidden on mobile) -->
+      <div class="hidden lg:block overflow-x-auto">
         <table class="min-w-full text-sm">
           <thead class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
             <tr>
@@ -129,33 +130,115 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Mobile/Tablet Card View (shown on mobile/tablet only) -->
+      <div class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let u of usuarios" class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-300 transition-all duration-200 shadow-sm">
+          <!-- User Header -->
+          <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-semibold text-gray-500">ID: {{ u.id_usuario }}</span>
+                <span 
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
+                  [ngClass]="u.estado === 'Activo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                  <i [ngClass]="u.estado === 'Activo' ? 'fas fa-check-circle' : 'fas fa-times-circle'" class="mr-1"></i>
+                  {{ u.estado }}
+                </span>
+              </div>
+              <h4 class="text-lg font-bold text-gray-800">{{ u.nombre }} {{ u.a_paterno }}</h4>
+              <p class="text-sm text-gray-600 mt-1">
+                <i class="fas fa-envelope text-indigo-500 mr-1"></i>
+                {{ u.correo }}
+              </p>
+            </div>
+          </div>
+
+          <!-- User Details -->
+          <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
+            <div>
+              <p class="text-gray-500 text-xs mb-1">
+                <i class="fas fa-shield-alt text-indigo-500 mr-1"></i>Rol
+              </p>
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
+                {{ u.rol }}
+              </span>
+            </div>
+            <div>
+              <p class="text-gray-500 text-xs mb-1">
+                <i class="fas fa-id-badge text-indigo-500 mr-1"></i>Matrícula
+              </p>
+              <p class="font-medium text-gray-800">{{ u.matricula || 'N/A' }}</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-500 text-xs mb-1">
+                <i class="fas fa-graduation-cap text-indigo-500 mr-1"></i>Carrera
+              </p>
+              <p class="font-medium text-gray-800">{{ u.carrera || 'N/A' }}</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-xs mb-1">
+                <i class="fas fa-calendar-alt text-indigo-500 mr-1"></i>Semestre
+              </p>
+              <p class="font-medium text-gray-800">{{ u.semestre || 'N/A' }}</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-2 pt-3 border-t border-gray-200">
+            <button 
+              (click)="editarUsuario(u); mostrarModal = true" 
+              class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all duration-200 flex items-center justify-center gap-2">
+              <i class="fas fa-edit"></i>
+              Editar
+            </button>
+
+            <button
+              *ngIf="u.estado === 'Activo'; else activarBtnMobile"
+              (click)="cambiarEstado(u, 'Inactivo')"
+              class="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all duration-200 flex items-center justify-center gap-2">
+              <i class="fas fa-ban"></i>
+              Desactivar
+            </button>
+
+            <ng-template #activarBtnMobile>
+              <button
+                (click)="cambiarEstado(u, 'Activo')"
+                class="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all duration-200 flex items-center justify-center gap-2">
+                <i class="fas fa-check"></i>
+                Activar
+              </button>
+            </ng-template>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Modal -->
-  <div *ngIf="mostrarModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" (click)="mostrarModal = false">
+  <div *ngIf="mostrarModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4" (click)="mostrarModal = false">
     <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
       <!-- Modal Header -->
-      <div class="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
-            <i [ngClass]="editando ? 'fas fa-user-edit' : 'fas fa-user-plus'"></i>
+      <div class="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 sm:p-6 rounded-t-2xl flex items-center justify-between z-10">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 flex-shrink-0">
+            <i [ngClass]="editando ? 'fas fa-user-edit' : 'fas fa-user-plus'" class="text-sm sm:text-base"></i>
           </div>
-          <h3 class="text-2xl font-bold">
+          <h3 class="text-xl sm:text-2xl font-bold">
             {{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}
           </h3>
         </div>
-        <button (click)="mostrarModal = false" class="text-white hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200">
-          <i class="fas fa-times text-xl"></i>
+        <button (click)="mostrarModal = false" class="text-white hover:bg-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center transition-all duration-200 flex-shrink-0">
+          <i class="fas fa-times text-lg sm:text-xl"></i>
         </button>
       </div>
 
       <!-- Modal Body -->
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <!-- Nombre -->
           <div>
-            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200"
+            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base"
                    [ngClass]="campoActivo('nombre') ? 'text-gray-700' : 'text-gray-400'">
               <i class="fas fa-user" [ngClass]="campoActivo('nombre') ? 'text-indigo-500' : 'text-gray-400'"></i>
               Nombre
@@ -164,7 +247,7 @@
               [(ngModel)]="nuevoUsuario.nombre" 
               placeholder="Nombre"
               [disabled]="!campoActivo('nombre')"
-              class="w-full border rounded-lg px-4 py-3 transition-all duration-200"
+              class="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base transition-all duration-200"
               [ngClass]="campoActivo('nombre') 
                 ? 'border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                 : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'"
@@ -173,7 +256,7 @@
 
           <!-- Apellido Paterno -->
           <div>
-            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200"
+            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base"
                    [ngClass]="campoActivo('a_paterno') ? 'text-gray-700' : 'text-gray-400'">
               <i class="fas fa-user-tag" [ngClass]="campoActivo('a_paterno') ? 'text-indigo-500' : 'text-gray-400'"></i>
               Apellido Paterno
@@ -182,7 +265,7 @@
               [(ngModel)]="nuevoUsuario.a_paterno" 
               placeholder="Apellido Paterno"
               [disabled]="!campoActivo('a_paterno')"
-              class="w-full border rounded-lg px-4 py-3 transition-all duration-200"
+              class="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base transition-all duration-200"
               [ngClass]="campoActivo('a_paterno') 
                 ? 'border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                 : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'"
@@ -191,7 +274,7 @@
 
           <!-- Apellido Materno -->
           <div>
-            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200"
+            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base"
                    [ngClass]="campoActivo('a_materno') ? 'text-gray-700' : 'text-gray-400'">
               <i class="fas fa-user-tag" [ngClass]="campoActivo('a_materno') ? 'text-indigo-500' : 'text-gray-400'"></i>
               Apellido Materno
@@ -200,7 +283,7 @@
               [(ngModel)]="nuevoUsuario.a_materno" 
               placeholder="Apellido Materno"
               [disabled]="!campoActivo('a_materno')"
-              class="w-full border rounded-lg px-4 py-3 transition-all duration-200"
+              class="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base transition-all duration-200"
               [ngClass]="campoActivo('a_materno') 
                 ? 'border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                 : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'"
@@ -208,8 +291,8 @@
           </div>
 
           <!-- Correo -->
-          <div>
-            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200"
+          <div class="sm:col-span-2 lg:col-span-1">
+            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base"
                    [ngClass]="campoActivo('correo') ? 'text-gray-700' : 'text-gray-400'">
               <i class="fas fa-envelope" [ngClass]="campoActivo('correo') ? 'text-indigo-500' : 'text-gray-400'"></i>
               Correo Electrónico
@@ -219,7 +302,7 @@
               placeholder="correo@ejemplo.com" 
               type="email"
               [disabled]="!campoActivo('correo')"
-              class="w-full border rounded-lg px-4 py-3 transition-all duration-200"
+              class="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base transition-all duration-200"
               [ngClass]="campoActivo('correo') 
                 ? 'border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                 : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'"
@@ -228,7 +311,7 @@
 
           <!-- Teléfono -->
           <div>
-            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200"
+            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base"
                    [ngClass]="campoActivo('telefono') ? 'text-gray-700' : 'text-gray-400'">
               <i class="fas fa-phone" [ngClass]="campoActivo('telefono') ? 'text-indigo-500' : 'text-gray-400'"></i>
               Teléfono
@@ -238,7 +321,7 @@
               placeholder="Teléfono" 
               type="tel"
               [disabled]="!campoActivo('telefono')"
-              class="w-full border rounded-lg px-4 py-3 transition-all duration-200"
+              class="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base transition-all duration-200"
               [ngClass]="campoActivo('telefono') 
                 ? 'border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                 : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'"
@@ -247,22 +330,22 @@
 
           <!-- Rol -->
           <div>
-            <label class="block text-gray-700 font-medium mb-2 flex items-center gap-2">
+            <label class="block text-gray-700 font-medium mb-2 flex items-center gap-2 text-sm sm:text-base">
               <i class="fas fa-shield-alt text-indigo-500"></i>
               Rol
             </label>
             <select 
               [(ngModel)]="nuevoUsuario.id_rol"
               (change)="nuevoUsuario.id_carrera = nuevoUsuario.id_semestre = nuevoUsuario.matricula = ''"
-              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900">
+              class="w-full border border-gray-300 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900">
               <option value="">Seleccionar Rol</option>
               <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
             </select>
           </div>
 
           <!-- Carrera -->
-          <div>
-            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200"
+          <div class="sm:col-span-2 lg:col-span-1">
+            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base"
                    [ngClass]="campoActivo('id_carrera') ? 'text-gray-700' : 'text-gray-400'">
               <i class="fas fa-graduation-cap" [ngClass]="campoActivo('id_carrera') ? 'text-indigo-500' : 'text-gray-400'"></i>
               Carrera
@@ -270,7 +353,7 @@
             <select
               [(ngModel)]="nuevoUsuario.id_carrera"
               [disabled]="!campoActivo('id_carrera')"
-              class="w-full border rounded-lg px-4 py-3 transition-all duration-200"
+              class="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base transition-all duration-200"
               [ngClass]="campoActivo('id_carrera') 
                 ? 'border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                 : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'">
@@ -281,7 +364,7 @@
 
           <!-- Semestre -->
           <div>
-            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200"
+            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base"
                    [ngClass]="campoActivo('id_semestre') ? 'text-gray-700' : 'text-gray-400'">
               <i class="fas fa-calendar-alt" [ngClass]="campoActivo('id_semestre') ? 'text-indigo-500' : 'text-gray-400'"></i>
               Semestre
@@ -289,7 +372,7 @@
             <select
               [(ngModel)]="nuevoUsuario.id_semestre"
               [disabled]="!campoActivo('id_semestre')"
-              class="w-full border rounded-lg px-4 py-3 transition-all duration-200"
+              class="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base transition-all duration-200"
               [ngClass]="campoActivo('id_semestre') 
                 ? 'border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                 : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'">
@@ -300,7 +383,7 @@
 
           <!-- Matrícula -->
           <div>
-            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200"
+            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base"
                    [ngClass]="campoActivo('matricula') ? 'text-gray-700' : 'text-gray-400'">
               <i class="fas fa-id-badge" [ngClass]="campoActivo('matricula') ? 'text-indigo-500' : 'text-gray-400'"></i>
               Matrícula
@@ -309,7 +392,7 @@
               [(ngModel)]="nuevoUsuario.matricula"
               placeholder="Matrícula"
               [disabled]="!campoActivo('matricula')"
-              class="w-full border rounded-lg px-4 py-3 transition-all duration-200"
+              class="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base transition-all duration-200"
               [ngClass]="campoActivo('matricula') 
                 ? 'border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                 : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'"
@@ -318,7 +401,7 @@
 
           <!-- Contraseña -->
           <div>
-            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200"
+            <label class="block font-medium mb-2 flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base"
                    [ngClass]="campoActivo('contrasena') ? 'text-gray-700' : 'text-gray-400'">
               <i class="fas fa-lock" [ngClass]="campoActivo('contrasena') ? 'text-indigo-500' : 'text-gray-400'"></i>
               Contraseña
@@ -328,7 +411,7 @@
               placeholder="Contraseña" 
               type="password"
               [disabled]="!campoActivo('contrasena')"
-              class="w-full border rounded-lg px-4 py-3 transition-all duration-200"
+              class="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base transition-all duration-200"
               [ngClass]="campoActivo('contrasena') 
                 ? 'border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                 : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'"
@@ -338,17 +421,17 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl flex justify-end gap-3 border-t border-gray-200">
+      <div class="sticky bottom-0 bg-gray-50 p-4 sm:p-6 rounded-b-2xl flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 border-t border-gray-200">
         <button 
           (click)="mostrarModal = false; nuevoUsuario = resetForm(); editando = false" 
-          class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:brightness-110 transition-all duration-200 flex items-center gap-2">
+          class="w-full sm:w-auto bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold hover:brightness-110 transition-all duration-200 flex items-center justify-center gap-2">
           <i class="fas fa-times"></i>
           Cancelar
         </button>
         
         <button 
           (click)="guardarUsuario()" 
-          class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:brightness-110 transition-all duration-200 flex items-center gap-2">
+          class="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold hover:brightness-110 transition-all duration-200 flex items-center justify-center gap-2">
           <i [ngClass]="editando ? 'fas fa-save' : 'fas fa-plus-circle'"></i>
           {{ editando ? 'Guardar Cambios' : 'Crear Usuario' }}
         </button>
