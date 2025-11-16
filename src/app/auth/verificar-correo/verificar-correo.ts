@@ -31,24 +31,30 @@ export class VerificarCorreoComponent implements OnInit {
   }
 
   verificar(token: string) {
-  this.auth.verifyEmailLink(token).subscribe({
-    next: () => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Correo verificado',
-        text: 'Ahora puedes continuar con tu registro.'
-      }).then(() =>
-        this.router.navigate(['/registro'], { queryParams: { skip: '1' }})
-      );
-    },
-    error: () => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'El enlace ya expiró o no es válido.'
-      }).then(() => this.router.navigate(['/login']));
-    }
-  });
+ this.auth.verifyEmailLink(token).subscribe({
+  next: () => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Correo verificado',
+      text: 'Ahora puedes continuar con tu registro.'
+    }).then(() =>
+      this.router.navigate(['/registro'], {
+        queryParams: {
+          skip: '1',
+          correo: this.route.snapshot.queryParams['correo'] || ''
+        }
+      })
+    );
+  },
+  error: () => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'El enlace ya expiró o no es válido.'
+    }).then(() => this.router.navigate(['/login']));
+  }
+});
+
 }
 
 }
