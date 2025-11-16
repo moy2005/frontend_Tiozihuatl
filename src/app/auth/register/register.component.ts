@@ -295,15 +295,31 @@ async registrar() {
   try {
 
     // ============================================================
-    // 🚫 1) Si NO USA BIOMETRÍA → Crear usuario normal
+    // 1) PRIMERO SIEMPRE: Crear usuario REAL (sin biometría)
+    // ============================================================
+    const payloadUsuario = {
+      correo: this.form.correo,
+      contrasena: this.form.contrasena,
+      palabra_secreta: this.form.palabra_secreta
+    };
+
+    await this.auth.finalizarRegistro(payloadUsuario).toPromise();
+
+    // ============================================================
+    // 2) SI NO USA BIOMETRÍA → TERMINAR AQUÍ
     // ============================================================
     if (!this.enrollBiometria) {
-      await this.crearUsuarioNormal();
+      Swal.fire({
+        icon: 'success',
+        title: 'Cuenta creada correctamente',
+        text: 'Ya puedes iniciar sesión.'
+      });
+      this.router.navigate(['/login']);
       return;
     }
 
     // ============================================================
-    // 🟦 2) Validar soporte biométrico antes de crear usuario
+    // 3) Validar soporte biométrico
     // ============================================================
     if (!window.PublicKeyCredential) {
       Swal.fire('Error', 'Tu navegador no admite huella digital.', 'error');
@@ -317,11 +333,11 @@ async registrar() {
     }
 
     // ============================================================
-    // 🟨 3) Solicitar opciones WebAuthn del backend
+    // 4) Solicitar opciones WebAuthn del backend
     // ============================================================
     const options = await this.bio.registerOptions({
       correo: this.form.correo,
-      tipo: 'HUELLA'
+      tipo: "HUELLA"
     }).toPromise();
 
     const challengeAB = this.base64ToArrayBuffer(options.challenge);
@@ -336,7 +352,7 @@ async registrar() {
     });
 
     // ============================================================
-    // 🟩 4) Intentar crear credencial biométrica
+    // 5) Crear credencial biométrica
     // ============================================================
     let cred: any;
     try {
@@ -349,8 +365,9 @@ async registrar() {
       });
     } catch (e) {
       Swal.close();
-      Swal.fire('Cancelado', 'No completaste la huella. No se creó la cuenta.', 'info');
-      return; // ⛔ NO crear usuario
+      Swal.fire('Cancelado', 'No completaste la huella. Tu cuenta fue creada, pero sin biometría.', 'info');
+      this.router.navigate(['/login']);
+      return;
     }
 
     Swal.close();
@@ -361,43 +378,47 @@ async registrar() {
     }
 
     // ============================================================
-    // 🟧 5) Preparar datos biométricos
+    // 6) Enviar biometría al backend
     // ============================================================
     const biometricPayload = {
-      credentialId: cred.id,
-      rawId: this.arrayBufferToBase64(cred.rawId),
-      type: cred.type,
-      response: {
-        clientDataJSON: this.arrayBufferToBase64(cred.response.clientDataJSON),
-        attestationObject: this.arrayBufferToBase64(cred.response.attestationObject)
+      correo: this.form.correo,
+      biometria: {
+        tipo: 'HUELLA',
+        challenge: options.challenge,
+        credentialData: {
+          id: cred.id,
+          rawId: this.arrayBufferToBase64(cred.rawId),
+          type: cred.type,
+          response: {
+            clientDataJSON: this.arrayBufferToBase64(cred.response.clientDataJSON),
+            attestationObject: this.arrayBufferToBase64(cred.response.attestationObject)
+          }
+        }
       }
     };
 
+    await this.bio.registerBiometric(biometricPayload).toPromise();
+
     // ============================================================
-    // 🟩 6) Crear usuario REAL + guardar biometría EN UN SOLO PASO
+    // 7) Todo OK
     // ============================================================
-    await this.bio.registerWithBiometric({
-  correo: this.form.correo,
-  biometria: {
-    tipo: 'HUELLA',
-    challenge: options.challenge,
-    credentialData: biometricPayload
-  }
-}).toPromise();
+    Swal.fire({
+      icon: "success",
+      title: "Registro completo",
+      text: "Tu cuenta fue creada y tu huella quedó registrada."
+    });
 
-
-    Swal.fire('Éxito', 'Registro completado con huella digital.', 'success');
-
-    localStorage.removeItem('correoPreRegistro');
-    this.router.navigate(['/login']);
+    localStorage.removeItem("correoPreRegistro");
+    this.router.navigate(["/login"]);
 
   } catch (err: any) {
     console.error(err);
-    Swal.fire('Error', err?.error?.error || 'No se pudo completar el registro.', 'error');
+    Swal.fire("Error", err?.error?.error || "No se pudo completar el registro.", "error");
   } finally {
     this.cargando = false;
   }
 }
+
 
 private async crearUsuarioNormal() {
   try {
@@ -409,12 +430,20 @@ private async crearUsuarioNormal() {
 
     await this.auth.finalizarRegistro(payload).toPromise();
 
-    Swal.fire('Cuenta creada', 'Ya puedes iniciar sesión.', 'success');
-    this.router.navigate(['/login']);
+    // ❌ NO navegues aquí
+    // ❌ NO muestres mensaje de cuenta creada
+    // ❌ NO cierres el flujo
+
   } catch (err: any) {
-    Swal.fire('Error', err?.error?.error || 'No se pudo crear la cuenta.', 'error');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error al crear cuenta',
+      text: err?.error?.error || 'No se pudo completar el registro.'
+    });
+    throw err; // <-- IMPORTANTE
   }
 }
+
 
 
 private async crearUsuario() {

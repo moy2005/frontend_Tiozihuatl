@@ -8,7 +8,7 @@ export class BiometricService {
 
   constructor(private http: HttpClient) {}
 
-registerWithBiometric(data: any) {
+registerBiometric(data: any) {
   return this.http.post<any>(`${this.api}/register/biometric`, data);
 }
 
