@@ -290,193 +290,133 @@ async nextStep() {
   }
 
   async registrar() {
-    this.cargando = true;
+  this.cargando = true;
 
-    try {
-      // Si no quiere biometría, crear usuario normal
-      if (!this.enrollBiometria) {
-        await this.crearUsuario();
-        return;
-      }
+  try {
+    // 1️⃣ PRIMERO SIEMPRE crear el usuario REAL (con contraseña)
+    await this.crearUsuario();
 
-      // Verificar soporte de WebAuthn
-      if (!window.PublicKeyCredential) {
-        Swal.fire({
-          icon: 'info',
-          title: 'No soportado',
-          text: 'Tu navegador no admite autenticación biométrica.',
-          confirmButtonColor: '#3B82F6',
-        });
-        this.cargando = false;
-        return;
-      }
+    // 2️⃣ Si NO quiere biometría, terminar aquí
+    if (!this.enrollBiometria) {
+      return;
+    }
 
-      // Verificar compatibilidad del dispositivo
-      const compatible = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-      if (!compatible) {
-        Swal.fire({
-          icon: 'info',
-          title: 'Huella no disponible',
-          text: 'Tu equipo no cuenta con lector de huella digital compatible.',
-          confirmButtonColor: '#3B82F6',
-        });
-        this.cargando = false;
-        return;
-      }
-
-      console.log('📋 Solicitando opciones de registro biométrico...');
-      const options = await this.bio.registerOptions({ 
-        correo: this.form.correo, 
-        tipo: 'HUELLA' 
-      }).toPromise();
-
-      if (!options) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error de servidor',
-          text: 'No se recibieron opciones de registro biométrico.',
-          confirmButtonColor: '#E53E3E',
-        });
-        this.cargando = false;
-        return;
-      }
-
-      console.log('📋 Opciones de registro biométrico recibidas');
-
-      const challengeArrayBuffer = this.base64ToArrayBuffer(options.challenge);
-      const userIdArrayBuffer = this.base64ToArrayBuffer(options.user.id);
-
-      console.log('🔑 Challenge convertido a ArrayBuffer, longitud:', challengeArrayBuffer.byteLength);
-      console.log('👤 UserID convertido a ArrayBuffer, longitud:', userIdArrayBuffer.byteLength);
-
-      let cred: any = null;
-      try {
-        console.log('🔐 Solicitando credencial biométrica (huella)...');
-        
-        // Mostrar mensaje al usuario
-        Swal.fire({
-          title: 'Registra tu huella',
-          text: 'Por favor, coloca tu dedo en el sensor de huella digital',
-          icon: 'info',
-          showConfirmButton: false,
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
-        });
-
-        cred = await navigator.credentials.create({
-          publicKey: {
-            ...options,
-            challenge: challengeArrayBuffer,
-            user: { ...options.user, id: userIdArrayBuffer },
-          },
-        });
-
-        Swal.close();
-        console.log('✅ Credencial biométrica creada exitosamente');
-      } catch (err: any) {
-        Swal.close();
-        console.error('❌ Error al crear la credencial biométrica:', err);
-        const msg =
-          err?.name === 'NotAllowedError'
-            ? 'Cancelaste el registro biométrico o no se detectó el lector.'
-            : 'Error inesperado durante la autenticación biométrica.';
-        Swal.fire({
-          icon: 'error',
-          title: 'Registro biométrico cancelado',
-          text: msg + ' No se creó ninguna cuenta.',
-          confirmButtonColor: '#E53E3E',
-        });
-        this.cargando = false;
-        return;
-      }
-
-      if (!cred) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Sin datos biométricos',
-          text: 'No se pudo obtener la información de autenticación. No se creó ninguna cuenta.',
-          confirmButtonColor: '#E53E3E',
-        });
-        this.cargando = false;
-        return;
-      }
-
-      console.log('📦 Datos de la credencial biométrica:', {
-        id: cred.id,
-        type: cred.type,
-        rawIdLength: cred.rawId.byteLength,
-        responseKeys: Object.keys(cred.response),
+    // ================================
+    // 3️⃣ VALIDAR DISPONIBILIDAD DE WEBAuthn
+    // ================================
+    if (!window.PublicKeyCredential) {
+      Swal.fire({
+        icon: 'info',
+        title: 'No soportado',
+        text: 'Tu navegador no admite autenticación biométrica.',
+        confirmButtonColor: '#3B82F6',
       });
+      return;
+    }
 
-      const biometricData = {
-        credentialId: cred.id,
-        rawId: this.arrayBufferToBase64(cred.rawId),
-        type: cred.type,
-        clientDataJSON: this.arrayBufferToBase64(
-          typeof cred.response.clientDataJSON === 'string'
-            ? this.stringToArrayBuffer(cred.response.clientDataJSON)
-            : cred.response.clientDataJSON
-        ),
-        attestationObject: this.arrayBufferToBase64(cred.response.attestationObject),
-      };
+    const compatible = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if (!compatible) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Huella no disponible',
+        text: 'Tu equipo no cuenta con lector de huella compatible.',
+        confirmButtonColor: '#3B82F6',
+      });
+      return;
+    }
 
-      console.log('📦 Datos biométricos preparados');
-      console.log('📝 Creando usuario con biometría en la base de datos...');
+    // ================================
+    // 4️⃣ SOLICITAR OPCIONES DEL BACKEND
+    // ================================
+    const options = await this.bio.registerOptions({
+      correo: this.form.correo,
+      tipo: 'HUELLA'
+    }).toPromise();
 
-      const registroPayload = {
-        ...this.form,
-        biometria: {
-          tipo: 'HUELLA',
-          challenge: options.challenge,
-          credentialData: {
-            id: biometricData.credentialId,
-            rawId: biometricData.rawId,
-            type: biometricData.type,
-            response: {
-              clientDataJSON: biometricData.clientDataJSON,
-              attestationObject: biometricData.attestationObject,
-            },
-          },
-        },
-      };
-
-      console.log('📤 Enviando registro completo al backend...');
-
-      try {
-        await this.bio.registerWithBiometric(registroPayload).toPromise();
-        console.log('✅ Usuario y biometría registrados exitosamente');
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Huella registrada',
-          text: 'Tu cuenta ha sido creada con huella digital exitosamente.',
-          confirmButtonColor: '#16A34A',
-        });
-
-        this.finalizarRegistro();
-      } catch (err: any) {
-        console.error('❌ Error al registrar usuario con biometría:', err);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error en el registro',
-          text: err?.error?.error || 'No se pudo completar el registro. Intenta nuevamente.',
-          confirmButtonColor: '#E53E3E',
-        });
-      }
-    } catch (err) {
-      console.error('❌ Error en el proceso de registro:', err);
+    if (!options) {
       Swal.fire({
         icon: 'error',
-        title: 'Error en biometría',
-        text: 'No se completó el registro. Intenta nuevamente.',
-        confirmButtonColor: '#E53E3E',
+        title: 'Error',
+        text: 'No se recibieron opciones de biometría.',
       });
-    } finally {
-      this.cargando = false;
+      return;
     }
+
+    const challengeArrayBuffer = this.base64ToArrayBuffer(options.challenge);
+    const userIdArrayBuffer = this.base64ToArrayBuffer(options.user.id);
+
+    // Mostrar pantalla de "pone tu dedo"
+    Swal.fire({
+      title: 'Registra tu huella',
+      text: 'Coloca tu dedo en el sensor',
+      icon: 'info',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    // ================================
+    // 5️⃣ OBTENER CREDENCIALES BIO
+    // ================================
+    const cred: any = await navigator.credentials.create({
+      publicKey: {
+        ...options,
+        challenge: challengeArrayBuffer,
+        user: { ...options.user, id: userIdArrayBuffer },
+      },
+    });
+
+    Swal.close();
+
+    if (!cred) {
+      Swal.fire('Error', 'No se pudo registrar huella.', 'error');
+      return;
+    }
+
+    // ================================
+    // 6️⃣ PREPARAR PAYLOAD
+    // ================================
+    const biometricData = {
+      credentialId: cred.id,
+      rawId: this.arrayBufferToBase64(cred.rawId),
+      type: cred.type,
+      response: {
+        clientDataJSON: this.arrayBufferToBase64(cred.response.clientDataJSON),
+        attestationObject: this.arrayBufferToBase64(cred.response.attestationObject),
+      },
+    };
+
+    // Enviar biometría al backend
+    await this.bio.registerWithBiometric({
+      correo: this.form.correo,
+      biometria: {
+        tipo: 'HUELLA',
+        challenge: options.challenge,
+        credentialData: biometricData,
+      },
+    }).toPromise();
+
+    // ================================
+    // 7️⃣ FINALIZAR
+    // ================================
+    Swal.fire({
+      icon: 'success',
+      title: 'Registro completo',
+      text: 'Tu cuenta fue creada con huella digital.',
+      confirmButtonColor: '#16A34A',
+    });
+
+    localStorage.removeItem('correoPreRegistro');
+    this.router.navigate(['/login']);
+
+  } catch (err: any) {
+    console.error(err);
+    Swal.fire('Error', err?.error?.error || 'Error en registro.', 'error');
+  } finally {
+    this.cargando = false;
   }
+}
+
 
 private async crearUsuario() {
   try {
