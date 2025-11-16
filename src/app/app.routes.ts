@@ -6,6 +6,7 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password'
 import { PerfilUsuarioComponent } from './pages/perfil-usuario/perfil-usuario';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminPanelComponent } from './pages/admin/admin-panel/admin-panel';
+import { VerificarCorreoComponent } from './auth/verificar-correo/verificar-correo';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -14,6 +15,8 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
+
+  { path: 'verificar-correo', component: VerificarCorreoComponent },
 
   // 🔐 Protegidas (todas con AuthGuard)
   { path: 'perfil', component: PerfilUsuarioComponent, canActivate: [AuthGuard] },
