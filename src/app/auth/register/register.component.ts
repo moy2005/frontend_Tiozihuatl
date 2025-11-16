@@ -88,21 +88,21 @@ export class RegisterComponent {
 
   ngOnInit() {
   this.route.queryParams.subscribe(params => {
-    if (params['skip'] === '1') {
-      console.log("🔵 Registro reanudado tras verificar correo");
+if (params['skip'] === '1') {
+  console.log("🔵 Registro reanudado tras verificar correo");
 
-      // Saltar al paso 2
-      this.step = 2;
+  this.step = 2;
 
-      // Opcional: bloquear el step 1
-      this.emailValid = true;
-      this.phoneValid = true;
+  this.emailValid = true;
+  this.phoneValid = true;
 
-      // Incluso podríamos rellenar el correo
-      if (params['correo']) {
-        this.form.correo = params['correo'];
-      }
-    }
+  // Recuperar el correo guardado en pre-registro
+  const correoGuardado = localStorage.getItem('correoPreRegistro');
+  if (correoGuardado) {
+    this.form.correo = correoGuardado;
+  }
+}
+
   });
 }
 
@@ -131,6 +131,8 @@ async nextStep() {
 
       // Guardamos el correo por si el backend lo necesita al regresar
       this.correoPreRegistro = this.form.correo;
+
+      localStorage.setItem('correoPreRegistro', this.form.correo);
 
       // NO cambiar de paso aquí
       return;
@@ -510,7 +512,9 @@ private async crearUsuario() {
       title: 'Registro completo',
       text: 'Tu cuenta fue creada con biometría.',
       confirmButtonColor: '#16A34A',
+      
     }).then(() => this.router.navigate(['/login']));
+     localStorage.removeItem('correoPreRegistro');
   }
 
   loginOAuth(provider: 'google' | 'facebook') {
