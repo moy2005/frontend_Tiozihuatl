@@ -110,9 +110,6 @@ export class AuthService {
   return this.http.post(`${this.api}/auth/pre-registro`, data);
 }
 
-verifyEmailCode(data: any) {
-  return this.http.post(`${this.api}/auth/verify-email-code`, data);
-}
 
 verifyEmailLink(token: string) {
   return this.http.get(`${this.api}/auth/verify-email?token=${token}`);

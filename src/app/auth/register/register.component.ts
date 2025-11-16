@@ -108,12 +108,12 @@ export class RegisterComponent {
 
 
 
- async nextStep() {
+async nextStep() {
   if (this.step === 1) {
     if (!this.validarDatosPersonales()) return;
 
     try {
-      // 1️⃣ Enviar pre-registro
+      // 1️⃣ Crear pre-registro
       const res: any = await this.auth.preRegistro({
         nombre: this.form.nombre,
         apaterno: this.form.apaterno,
@@ -122,46 +122,26 @@ export class RegisterComponent {
         telefono: this.form.telefono
       }).toPromise();
 
-      // 2️⃣ Guardamos el correo para verificar
-      this.correoPreRegistro = this.form.correo;
-
-      // 3️⃣ Pedir código con SweetAlert
-      const { value: codigo } = await Swal.fire({
-        title: 'Verificación de correo',
-        text: 'Revisa tu correo e ingresa el código de 6 dígitos',
-        input: 'text',
-        inputPlaceholder: 'Código de verificación',
-        inputAttributes: { maxlength: '6' },
-        showCancelButton: true,
-        confirmButtonText: 'Validar',
-        cancelButtonText: 'Cancelar'
+      Swal.fire({
+        icon: 'info',
+        title: 'Verifica tu correo',
+        text: 'Te enviamos un enlace de verificación. Revisa tu bandeja de entrada.',
+        confirmButtonText: 'OK'
       });
 
-      if (!codigo) {
-        Swal.fire('Cancelado', 'Debes ingresar el código para continuar.', 'info');
-        return;
-      }
+      // Guardamos el correo por si el backend lo necesita al regresar
+      this.correoPreRegistro = this.form.correo;
 
-      // 4️⃣ Validar código
-      await this.auth.verifyEmailCode({
-        correo: this.correoPreRegistro,
-        codigo
-      }).toPromise();
-
-      Swal.fire('Correo verificado', 'Puedes continuar con tu contraseña.', 'success');
-
-      // 5️⃣ Ahora sí, pasar al paso 2
-      this.step = 2;
+      // NO cambiar de paso aquí
+      return;
 
     } catch (error: any) {
-      Swal.fire('Error', error?.error?.error || 'No se pudo verificar el correo.', 'error');
+      Swal.fire('Error', error?.error?.error || 'No se pudo enviar el correo.', 'error');
       return;
     }
-
-    return;
   }
 
-  // Paso 2 normal
+  // Paso 2
   if (this.step === 2 && !this.validarPasswordFuerte()) return;
   this.step = 3;
 }
