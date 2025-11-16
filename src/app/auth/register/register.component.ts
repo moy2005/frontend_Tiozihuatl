@@ -377,13 +377,14 @@ async registrar() {
     // 🟩 6) Crear usuario REAL + guardar biometría EN UN SOLO PASO
     // ============================================================
     await this.bio.registerWithBiometric({
-      ...this.form,
-      biometria: {
-        tipo: 'HUELLA',
-        challenge: options.challenge,
-        credentialData: biometricPayload
-      }
-    }).toPromise();
+  correo: this.form.correo,
+  biometria: {
+    tipo: 'HUELLA',
+    challenge: options.challenge,
+    credentialData: biometricPayload
+  }
+}).toPromise();
+
 
     Swal.fire('Éxito', 'Registro completado con huella digital.', 'success');
 
