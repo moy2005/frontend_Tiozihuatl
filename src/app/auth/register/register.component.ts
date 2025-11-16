@@ -476,16 +476,33 @@ async nextStep() {
     }
   }
 
-  private async crearUsuario() {
-    await this.auth.register(this.form).toPromise();
+private async crearUsuario() {
+  try {
+    const payload = {
+      correo: this.form.correo,
+      contrasena: this.form.contrasena,
+      palabra_secreta: this.form.palabra_secreta
+    };
+
+    await this.auth.finalizarRegistro(payload).toPromise();
+
     Swal.fire({
       icon: 'success',
-      title: 'Registro exitoso',
-      text: 'Tu cuenta ha sido creada correctamente.',
-      confirmButtonColor: '#16A34A',
+      title: 'Cuenta creada correctamente',
+      text: 'Ya puedes iniciar sesión.'
     });
+
     this.router.navigate(['/login']);
+
+  } catch (err: any) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error al crear cuenta',
+      text: err?.error?.error || 'No se pudo completar el registro.'
+    });
   }
+}
+
 
   private finalizarRegistro() {
     Swal.fire({
