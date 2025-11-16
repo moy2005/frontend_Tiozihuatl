@@ -10,3 +10,4 @@ export class OauthService {
     window.location.href = `${this.api}/oauth/${provider}`;
   }
 }
+

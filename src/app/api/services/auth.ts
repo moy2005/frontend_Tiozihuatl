@@ -106,6 +106,15 @@ export class AuthService {
     localStorage.removeItem('user');
   }
 
+  preRegistro(data: any) {
+  return this.http.post(`${this.api}/auth/pre-registro`, data);
+}
+
+verifyEmailCode(data: any) {
+  return this.http.post(`${this.api}/auth/verify-email-code`, data);
+}
+
+
   // ===============================
   // Recuperación de contraseña
   // ===============================
