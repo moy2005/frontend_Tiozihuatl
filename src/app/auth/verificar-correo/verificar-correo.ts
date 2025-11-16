@@ -38,7 +38,7 @@ export class VerificarCorreoComponent implements OnInit {
           title: 'Correo verificado',
           text: 'Ahora puedes continuar con tu registro.'
         }).then(() =>
-          this.router.navigate(['/registro'], { queryParams: { verified: true } })
+          this.router.navigate(['/registro'], { queryParams: { skip: '1' }})
         );
       },
       error: () => {

@@ -7,6 +7,8 @@ import { AuthService } from '../../api/services/auth';
 import { BiometricService } from '../../api/services/biometric';
 import { OauthService } from '../../api/services/oauth';
 import { catchError } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
+
 
 interface PublicKeyCredential {
   id: string;
@@ -64,7 +66,8 @@ export class RegisterComponent {
     private auth: AuthService,
     private bio: BiometricService,
     private oauth: OauthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   hasUppercase(): boolean {
@@ -82,6 +85,28 @@ export class RegisterComponent {
   hasSpecialChar(): boolean {
     return this.specialCharRegex.test(this.form.contrasena);
   }
+
+  ngOnInit() {
+  this.route.queryParams.subscribe(params => {
+    if (params['skip'] === '1') {
+      console.log("🔵 Registro reanudado tras verificar correo");
+
+      // Saltar al paso 2
+      this.step = 2;
+
+      // Opcional: bloquear el step 1
+      this.emailValid = true;
+      this.phoneValid = true;
+
+      // Incluso podríamos rellenar el correo
+      if (params['correo']) {
+        this.form.correo = params['correo'];
+      }
+    }
+  });
+}
+
+
 
  async nextStep() {
   if (this.step === 1) {
@@ -143,10 +168,12 @@ export class RegisterComponent {
 
 
   prevStep() {
-    if (this.step > 1) {
-      this.step = (this.step - 1) as 1 | 2 | 3;
-    }
+  if (this.step === 2 && this.route.snapshot.queryParams['skip'] === '1') {
+    return; // evitar regresar al paso 1 después de verificación
   }
+  this.step = (this.step - 1) as 1 | 2 | 3;
+}
+
 
   irALogin() {
     this.router.navigate(['/login']);
