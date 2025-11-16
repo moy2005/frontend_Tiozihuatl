@@ -38,7 +38,7 @@ export class VerificarCorreoComponent implements OnInit {
       title: 'Correo verificado',
       text: 'Ahora puedes continuar con tu registro.'
     }).then(() =>
-      this.router.navigate(['/registro'], {
+      this.router.navigate(['/register'], {
         queryParams: {
           skip: '1',
           correo: this.route.snapshot.queryParams['correo'] || ''
