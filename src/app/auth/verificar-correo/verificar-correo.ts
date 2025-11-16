@@ -31,8 +31,8 @@ export class VerificarCorreoComponent implements OnInit {
   }
 
   verificar(token: string) {
-    this.auth.verifyEmailLink(token).subscribe({
-      next: (res: any) => {
+    this.auth.verifyEmailCode({ token }).subscribe({
+      next: () => {
         Swal.fire({
           icon: 'success',
           title: 'Correo verificado',
