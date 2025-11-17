@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,7 +10,9 @@ import { UserProfileService } from '../../api/services/user-profile.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './perfil-usuario.html',
-  styleUrls: ['./perfil-usuario.css']
+  styleUrls: ['./perfil-usuario.css'],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  encapsulation: ViewEncapsulation.None
 })
 export class PerfilUsuarioComponent implements OnInit {
   user: any = {};

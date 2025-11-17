@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit,CUSTOM_ELEMENTS_SCHEMA,ViewEncapsulation} from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -14,6 +14,8 @@ import { ElementRef, ViewChild } from '@angular/core';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
+   schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    encapsulation: ViewEncapsulation.None
 })
 export class LoginComponent implements OnInit {
   correo = '';
@@ -42,6 +44,10 @@ export class LoginComponent implements OnInit {
   irARegistro() {
     this.router.navigate(['/register']);
   }
+
+  togglePassword(input: HTMLInputElement) {
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
 
   irARecuperacionContrasena() {
     console.log('Redirigiendo a /forgot-password');

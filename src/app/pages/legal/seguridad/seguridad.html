@@ -1,0 +1,1987 @@
+  <style>
+    * { font-family: 'Montserrat', sans-serif; }
+    
+    .fade-in {
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .content-section {
+      scroll-margin-top: 120px;
+    }
+
+    .section-title {
+      border-left: 4px solid #3FA6E8;
+      padding-left: 1rem;
+    }
+  </style>
+
+<!-- ================= HERO SECTION ================= -->
+<section class="relative pt-32 pb-16 bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] text-white">
+  <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center"></div>
+  
+  <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 text-center fade-in">
+    <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold">
+      <ion-icon name="shield-checkmark-outline" class="text-lg"></ion-icon>
+      <span>Seguridad de la Información</span>
+    </div>
+    <h1 class="text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-md">
+      Lineamientos de Seguridad
+    </h1>
+    <p class="text-lg text-white/90 max-w-3xl mx-auto">
+      Sistema Integral Multiplataforma Institucional
+    </p>
+    <p class="text-sm text-white/80 mt-2">
+      Código: L-SI-IEST-001-2025 | Versión 1.0 | Estado: Vigente
+    </p>
+  </div>
+</section>
+
+<!-- ================= CONTROL DE DOCUMENTO ================= -->
+<section class="py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+      <div class="bg-gradient-to-r from-[#3FA6E8] to-[#2D8BE8] p-6">
+        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+          <ion-icon name="document-text-outline" class="text-3xl"></ion-icon>
+          Control de Documento
+        </h2>
+      </div>
+      <div class="p-6">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-[#3FA6E8]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <ion-icon name="code-outline" class="text-[#3FA6E8] text-xl"></ion-icon>
+            </div>
+            <div>
+              <div class="text-sm text-gray-600 font-medium">Código del Documento</div>
+              <div class="font-bold text-gray-900">L-SI-IEST-001-2025</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-[#3FA6E8]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <ion-icon name="git-branch-outline" class="text-[#3FA6E8] text-xl"></ion-icon>
+            </div>
+            <div>
+              <div class="text-sm text-gray-600 font-medium">Versión</div>
+              <div class="font-bold text-gray-900">1.0</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-[#3FA6E8]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <ion-icon name="person-outline" class="text-[#3FA6E8] text-xl"></ion-icon>
+            </div>
+            <div>
+              <div class="text-sm text-gray-600 font-medium">Responsable</div>
+              <div class="font-bold text-gray-900">Dirección General / Departamento de TI</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <ion-icon name="checkmark-circle-outline" class="text-green-600 text-xl"></ion-icon>
+            </div>
+            <div>
+              <div class="text-sm text-gray-600 font-medium">Estado</div>
+              <div class="font-bold text-green-600">Vigente</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INFORMACIÓN INSTITUCIONAL ================= -->
+<section class="py-12 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <div class="bg-gradient-to-br from-[#EAF6FF] to-white border-l-4 border-[#3FA6E8] rounded-lg p-8 shadow-sm">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <ion-icon name="business-outline" class="text-[#3FA6E8] text-3xl"></ion-icon>
+        Instituto de Estudios Superiores Tiozihuatl
+      </h2>
+      <div class="space-y-2 text-gray-700">
+        <p><strong>Domicilio:</strong> Carretera Huejutla - Chalahuiyapa S/N, C.P. 43000</p>
+        <p><strong>Ubicación:</strong> Huejutla de Reyes, Hidalgo, México</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TABLA DE CONTENIDOS ================= -->
+<section class="py-12 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-md">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <ion-icon name="list-outline" class="text-[#3FA6E8] text-3xl"></ion-icon>
+        Índice de Contenidos
+      </h3>
+      <div class="grid md:grid-cols-2 gap-3 text-sm">
+        <a  [routerLink]="['/privacidad']" fragment="intro"class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">1. Introducción y Objetivo</a>
+        <a [routerLink]="[]" fragment="alcance" class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">2. Alcance y Aplicabilidad</a>
+        <a [routerLink]="[]" fragment="normativa"  class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">3. Normativa y Referencias</a>
+        <a [routerLink]="[]" fragment="principios"  class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">4. Principios Fundamentales</a>
+        <a [routerLink]="[]" fragment="gobierno"  class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">5. Gobierno y Organización</a>
+        <a [routerLink]="[]" fragment="clasificacion"  class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">6. Clasificación de la Información</a>
+        <a [routerLink]="[]" fragment="fisica"  class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">7. Seguridad Física y Ambiental</a>
+        <a [routerLink]="[]" fragment="acceso"  class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">8. Control de Acceso</a>
+        <a [routerLink]="[]" fragment="desarollo"  class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">9. Seguridad en Desarrollo</a>
+        <a [routerLink]="[]" fragment="operaciones"  class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">10. Seguridad de Operaciones</a>
+        <a [routerLink]="[]" fragment="incidentes" class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">11. Gestión de Incidentes</a>
+        <a [routerLink]="[]" fragment="continuidad" class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">12. Continuidad del Negocio</a>
+        <a [routerLink]="[]" fragment="cumplimiento" class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">13. Cumplimiento y Auditoría</a>
+        <a [routerLink]="[]" fragment="capacitacion" class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">14. Capacitación</a>
+        <a [routerLink]="[]" fragment="sansiones" class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">15. Sanciones</a>
+        <a [routerLink]="[]" fragment="glosario" class="text-[#3FA6E8] hover:underline hover:text-[#2D8BE8] transition">16. Glosario</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1. INTRODUCCIÓN ================= -->
+<section id="intro" class="content-section py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">1. Introducción y Objetivo</h2>
+    
+    <div class="space-y-6">
+      <div class="bg-gradient-to-br from-[#EAF6FF] to-white rounded-lg p-6 border border-[#3FA6E8]/30">
+        <h3 class="text-xl font-bold text-gray-900 mb-3">1.1 Propósito</h3>
+        <p class="text-gray-700 leading-relaxed">
+          Los presentes <strong>Lineamientos de Seguridad de la Información</strong> establecen el marco normativo y las directrices técnicas para proteger los activos de información del Instituto de Estudios Superiores Tiozihuatl (IEST) en el contexto del Sistema Integral Multiplataforma.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="apps-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          Módulos Cubiertos
+        </h3>
+        <div class="grid md:grid-cols-2 gap-3">
+          <div class="flex items-center gap-2 text-gray-700">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8]"></ion-icon>
+            <span>Portal Web Institucional</span>
+          </div>
+          <div class="flex items-center gap-2 text-gray-700">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8]"></ion-icon>
+            <span>Módulo de Biblioteca Digital</span>
+          </div>
+          <div class="flex items-center gap-2 text-gray-700">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8]"></ion-icon>
+            <span>Venta de Revistas Digitales</span>
+          </div>
+          <div class="flex items-center gap-2 text-gray-700">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8]"></ion-icon>
+            <span>Foros Académicos</span>
+          </div>
+          <div class="flex items-center gap-2 text-gray-700">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8]"></ion-icon>
+            <span>Sistema de Recomendación</span>
+          </div>
+          <div class="flex items-center gap-2 text-gray-700">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8]"></ion-icon>
+            <span>Base de Datos Institucional</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">1.2 Objetivos Específicos</h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Garantizar la <strong>confidencialidad, integridad y disponibilidad</strong> de la información institucional</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Establecer controles de seguridad en todas las fases del ciclo de vida del software</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Prevenir, detectar y responder a incidentes de seguridad informática</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Cumplir con la normativa nacional e internacional en materia de seguridad</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Proteger los datos personales conforme a la LFPDPPP</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Minimizar riesgos derivados de amenazas internas y externas</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2. ALCANCE ================= -->
+<section id="alcance" class="content-section py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">2. Alcance y Aplicabilidad</h2>
+    
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+      <!-- Personas -->
+      <div class="bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] text-white rounded-xl p-6 shadow-lg">
+        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
+          <ion-icon name="people-outline" class="text-3xl"></ion-icon>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Personas</h3>
+        <ul class="space-y-1 text-sm text-white/90">
+          <li>• Personal administrativo</li>
+          <li>• Docentes</li>
+          <li>• Alumnos</li>
+          <li>• Bibliotecarios</li>
+          <li>• Proveedores</li>
+          <li>• Visitantes</li>
+        </ul>
+      </div>
+
+      <!-- Activos -->
+      <div class="bg-gradient-to-br from-[#2D8BE8] to-[#1D63F5] text-white rounded-xl p-6 shadow-lg">
+        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
+          <ion-icon name="server-outline" class="text-3xl"></ion-icon>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Activos</h3>
+        <ul class="space-y-1 text-sm text-white/90">
+          <li>• Información digital/física</li>
+          <li>• Sistemas de información</li>
+          <li>• Infraestructura TI</li>
+          <li>• Redes de datos</li>
+          <li>• Dispositivos móviles</li>
+        </ul>
+      </div>
+
+      <!-- Procesos -->
+      <div class="bg-gradient-to-br from-[#1D63F5] to-[#3FA6E8] text-white rounded-xl p-6 shadow-lg">
+        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
+          <ion-icon name="git-network-outline" class="text-3xl"></ion-icon>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Procesos</h3>
+        <ul class="space-y-1 text-sm text-white/90">
+          <li>• Desarrollo de software</li>
+          <li>• Operación de sistemas</li>
+          <li>• Gestión de usuarios</li>
+          <li>• Respaldo de datos</li>
+          <li>• Gestión de incidentes</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6">
+      <h3 class="text-xl font-bold text-red-900 mb-3 flex items-center gap-2">
+        <ion-icon name="close-circle-outline" class="text-2xl"></ion-icon>
+        Exclusiones
+      </h3>
+      <p class="text-red-800 mb-2">No aplican a:</p>
+      <ul class="list-disc pl-6 space-y-1 text-red-700">
+        <li>Información pública deliberadamente difundida por el Instituto</li>
+        <li>Sistemas personales no conectados a la red institucional</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. NORMATIVA ================= -->
+<section id="normativa" class="content-section py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">3. Normativa y Referencias</h2>
+    
+    <div class="space-y-6">
+      <!-- Legislación Nacional -->
+      <div class="bg-white rounded-lg p-6 border-2 border-[#3FA6E8]">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="flag-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          3.1 Legislación Nacional
+        </h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <ion-icon name="document-text-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="document-text-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Ley Federal del Derecho de Autor</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="document-text-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Código Penal Federal (delitos informáticos)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="document-text-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Normas Oficiales Mexicanas aplicables</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Estándares Internacionales -->
+      <div class="bg-gradient-to-br from-[#EAF6FF] to-white rounded-lg p-6 border border-[#3FA6E8]/30">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="globe-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          3.2 Estándares Internacionales
+        </h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <div class="font-bold text-gray-900 mb-1">ISO/IEC 27001:2013</div>
+            <p class="text-sm text-gray-600">Sistema de Gestión de Seguridad de la Información (SGSI)</p>
+          </div>
+          <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <div class="font-bold text-gray-900 mb-1">ISO/IEC 27002:2013</div>
+            <p class="text-sm text-gray-600">Código de prácticas para controles de seguridad</p>
+          </div>
+          <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <div class="font-bold text-gray-900 mb-1">NIST SP 800-53</div>
+            <p class="text-sm text-gray-600">Security and Privacy Controls</p>
+          </div>
+          <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <div class="font-bold text-gray-900 mb-1">OWASP Top 10</div>
+            <p class="text-sm text-gray-600">Riesgos de seguridad en aplicaciones web</p>
+          </div>
+          <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <div class="font-bold text-gray-900 mb-1">PCI-DSS</div>
+            <p class="text-sm text-gray-600">Estándar de seguridad de datos de tarjetas de pago</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Frameworks -->
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="construct-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          3.3 Frameworks de Desarrollo Seguro
+        </h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-center gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8]"></ion-icon>
+            <span>OWASP Software Assurance Maturity Model (SAMM)</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8]"></ion-icon>
+            <span>Microsoft Security Development Lifecycle (SDL)</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8]"></ion-icon>
+            <span>NIST Cybersecurity Framework</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4. PRINCIPIOS FUNDAMENTALES ================= -->
+<section id="principios" class="content-section py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">4. Principios Fundamentales de Seguridad</h2>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Confidencialidad -->
+      <div class="bg-white rounded-xl p-6 border-2 border-[#3FA6E8] hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-[#3FA6E8] rounded-lg flex items-center justify-center">
+            <ion-icon name="eye-off-outline" class="text-white text-2xl"></ion-icon>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Confidencialidad</h3>
+        </div>
+        <p class="text-gray-700 mb-3"><strong>Definición:</strong> La información solo es accesible por personas autorizadas.</p>
+        <div class="bg-[#EAF6FF] rounded-lg p-3">
+          <p class="text-sm text-gray-700 font-semibold mb-2">Implementación:</p>
+          <ul class="space-y-1 text-sm text-gray-600">
+            <li>• Cifrado de datos (SSL/TLS)</li>
+            <li>• Control de acceso basado en roles (RBAC)</li>
+            <li>• Clasificación de información</li>
+            <li>• Firmas de confidencialidad</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Integridad -->
+      <div class="bg-white rounded-xl p-6 border-2 border-[#2D8BE8] hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-[#2D8BE8] rounded-lg flex items-center justify-center">
+            <ion-icon name="shield-checkmark-outline" class="text-white text-2xl"></ion-icon>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Integridad</h3>
+        </div>
+        <p class="text-gray-700 mb-3"><strong>Definición:</strong> La información es exacta y completa, sin alteraciones no autorizadas.</p>
+        <div class="bg-blue-50 rounded-lg p-3">
+          <p class="text-sm text-gray-700 font-semibold mb-2">Implementación:</p>
+          <ul class="space-y-1 text-sm text-gray-600">
+            <li>• Validación de entradas de usuario</li>
+            <li>• Checksums y hashes</li>
+            <li>• Logs de auditoría inmutables</li>
+            <li>• Control de versiones</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Disponibilidad -->
+      <div class="bg-white rounded-xl p-6 border-2 border-[#1D63F5] hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-[#1D63F5] rounded-lg flex items-center justify-center">
+            <ion-icon name="cloud-done-outline" class="text-white text-2xl"></ion-icon>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Disponibilidad</h3>
+        </div>
+        <p class="text-gray-700 mb-3"><strong>Definición:</strong> Los sistemas están accesibles cuando se necesitan.</p>
+        <div class="bg-indigo-50 rounded-lg p-3">
+          <p class="text-sm text-gray-700 font-semibold mb-2">Implementación:</p>
+          <ul class="space-y-1 text-sm text-gray-600">
+            <li>• Uptime objetivo: 99.9%</li>
+            <li>• Redundancia de servidores</li>
+            <li>• Balanceo de carga</li>
+            <li>• Plan de recuperación ante desastres</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Autenticidad -->
+      <div class="bg-white rounded-xl p-6 border-2 border-[#14B8EB] hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-[#14B8EB] rounded-lg flex items-center justify-center">
+            <ion-icon name="finger-print-outline" class="text-white text-2xl"></ion-icon>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Autenticidad</h3>
+        </div>
+        <p class="text-gray-700 mb-3"><strong>Definición:</strong> Verificación de identidad de usuarios y origen de información.</p>
+        <div class="bg-cyan-50 rounded-lg p-3">
+          <p class="text-sm text-gray-700 font-semibold mb-2">Implementación:</p>
+          <ul class="space-y-1 text-sm text-gray-600">
+            <li>• Autenticación multifactor (MFA)</li>
+            <li>• Tokens JWT con expiración</li>
+            <li>• Firma digital de documentos</li>
+            <li>• Certificados SSL válidos</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- No Repudio -->
+      <div class="bg-white rounded-xl p-6 border-2 border-purple-500 hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+            <ion-icon name="receipt-outline" class="text-white text-2xl"></ion-icon>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">No Repudio</h3>
+        </div>
+        <p class="text-gray-700 mb-3"><strong>Definición:</strong> Imposibilidad de negar autoría o envío de información.</p>
+        <div class="bg-purple-50 rounded-lg p-3">
+          <p class="text-sm text-gray-700 font-semibold mb-2">Implementación:</p>
+          <ul class="space-y-1 text-sm text-gray-600">
+            <li>• Logs de auditoría detallados</li>
+            <li>• Timestamps en transacciones</li>
+            <li>• Registro de acciones críticas</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Trazabilidad -->
+      <div class="bg-white rounded-xl p-6 border-2 border-orange-500 hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+            <ion-icon name="trail-sign-outline" class="text-white text-2xl"></ion-icon>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Trazabilidad</h3>
+        </div>
+        <p class="text-gray-700 mb-3"><strong>Definición:</strong> Capacidad de rastrear las acciones realizadas en el sistema.</p>
+        <div class="bg-orange-50 rounded-lg p-3">
+          <p class="text-sm text-gray-700 font-semibold mb-2">Implementación:</p>
+          <ul class="space-y-1 text-sm text-gray-600">
+            <li>• Logs centralizados</li>
+            <li>• Correlación de eventos</li>
+            <li>• Retención de logs: 12 meses mínimo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5. GOBIERNO ================= -->
+<section id="gobierno" class="content-section py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">5. Gobierno y Organización de Seguridad</h2>
+    
+    <div class="space-y-6">
+      <!-- Comité de Seguridad -->
+      <div class="bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] text-white rounded-xl p-8">
+        <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+          <ion-icon name="people-circle-outline" class="text-3xl"></ion-icon>
+          5.1 Comité de Seguridad de la Información
+        </h3>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="font-bold mb-2 text-lg">Composición:</h4>
+            <ul class="space-y-1 text-sm text-white/90">
+              <li>• Dirección General (Presidente)</li>
+              <li>• Responsable de TI (Coordinador)</li>
+              <li>• Responsable de Protección de Datos</li>
+              <li>• Representante Académico</li>
+              <li>• Asesor Legal</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold mb-2 text-lg">Responsabilidades:</h4>
+            <ul class="space-y-1 text-sm text-white/90">
+              <li>• Aprobar políticas de seguridad</li>
+              <li>• Revisar incidentes mayores</li>
+              <li>• Autorizar inversiones</li>
+              <li>• Supervisar cumplimiento normativo</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roles -->
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">5.2 Roles y Responsabilidades</h3>
+        
+        <div class="space-y-4">
+          <div class="bg-[#EAF6FF] rounded-lg p-4">
+            <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <ion-icon name="briefcase-outline" class="text-[#3FA6E8]"></ion-icon>
+              A) Dirección General
+            </h4>
+            <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
+              <li>Aprobar políticas de seguridad</li>
+              <li>Asignar recursos para seguridad</li>
+              <li>Promover cultura de seguridad institucional</li>
+            </ul>
+          </div>
+
+          <div class="bg-blue-50 rounded-lg p-4">
+            <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <ion-icon name="construct-outline" class="text-[#3FA6E8]"></ion-icon>
+              B) Responsable de TI / Administrador del Sistema
+            </h4>
+            <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
+              <li>Implementar controles técnicos de seguridad</li>
+              <li>Gestionar usuarios y permisos</li>
+              <li>Monitorear infraestructura tecnológica</li>
+              <li>Coordinar respuesta a incidentes</li>
+              <li>Realizar respaldos periódicos</li>
+            </ul>
+          </div>
+
+          <div class="bg-green-50 rounded-lg p-4">
+            <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <ion-icon name="code-slash-outline" class="text-[#3FA6E8]"></ion-icon>
+              C) Desarrolladores
+            </h4>
+            <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
+              <li>Codificar siguiendo prácticas seguras (OWASP)</li>
+              <li>Validar todas las entradas de usuario</li>
+              <li>Documentar código y cambios</li>
+              <li>Participar en revisiones de seguridad</li>
+            </ul>
+          </div>
+
+          <div class="bg-purple-50 rounded-lg p-4">
+            <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <ion-icon name="library-outline" class="text-[#3FA6E8]"></ion-icon>
+              D) Bibliotecario
+            </h4>
+            <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
+              <li>Proteger información académica y registros</li>
+              <li>Reportar accesos no autorizados</li>
+              <li>Cumplir procedimientos de seguridad física</li>
+            </ul>
+          </div>
+
+          <div class="bg-yellow-50 rounded-lg p-4">
+            <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <ion-icon name="school-outline" class="text-[#3FA6E8]"></ion-icon>
+              E) Docentes y F) Alumnos
+            </h4>
+            <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
+              <li>Proteger credenciales de acceso</li>
+              <li>Usar recursos institucionales responsablemente</li>
+              <li>Reportar comportamientos sospechosos</li>
+              <li>No compartir cuentas de usuario</li>
+            </ul>
+          </div>
+
+          <div class="bg-red-50 rounded-lg p-4">
+            <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <ion-icon name="business-outline" class="text-[#3FA6E8]"></ion-icon>
+              G) Proveedores Externos
+            </h4>
+            <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
+              <li>Cumplir con políticas de seguridad del Instituto</li>
+              <li>Firmar acuerdos de confidencialidad</li>
+              <li>Notificar brechas en máximo 24 horas</li>
+              <li>Someterse a auditorías cuando se requiera</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6. CLASIFICACIÓN ================= -->
+<section id="clasificacion" class="content-section py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">6. Clasificación de la Información</h2>
+    
+    <div class="space-y-4">
+      <!-- Nivel 1: Pública -->
+      <div class="bg-white rounded-lg p-6 border-l-4 border-green-500">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <ion-icon name="globe-outline" class="text-green-500 text-2xl"></ion-icon>
+            NIVEL 1: PÚBLICA
+          </h3>
+          <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">Acceso Abierto</span>
+        </div>
+        <p class="text-gray-700 mb-2"><strong>Descripción:</strong> Información destinada a difusión abierta.</p>
+        <p class="text-sm text-gray-600 mb-2"><strong>Ejemplos:</strong> Noticias, convocatorias, programas académicos, calendario escolar</p>
+        <p class="text-sm text-gray-600"><strong>Controles:</strong> Mínimos, solo integridad de publicación</p>
+      </div>
+
+      <!-- Nivel 2: Interna -->
+      <div class="bg-white rounded-lg p-6 border-l-4 border-blue-500">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <ion-icon name="business-outline" class="text-blue-500 text-2xl"></ion-icon>
+            NIVEL 2: INTERNA
+          </h3>
+          <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">Uso Interno</span>
+        </div>
+        <p class="text-gray-700 mb-2"><strong>Descripción:</strong> Información de uso interno del Instituto.</p>
+        <p class="text-sm text-gray-600 mb-2"><strong>Ejemplos:</strong> Comunicados administrativos, procedimientos operativos, manuales de usuario</p>
+        <p class="text-sm text-gray-600"><strong>Controles:</strong> Acceso restringido a personal autorizado, no publicación externa</p>
+      </div>
+
+      <!-- Nivel 3: Confidencial -->
+      <div class="bg-white rounded-lg p-6 border-l-4 border-orange-500">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <ion-icon name="lock-closed-outline" class="text-orange-500 text-2xl"></ion-icon>
+            NIVEL 3: CONFIDENCIAL
+          </h3>
+          <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-semibold">Sensible</span>
+        </div>
+        <p class="text-gray-700 mb-2"><strong>Descripción:</strong> Información sensible cuya divulgación podría causar daño al Instituto.</p>
+        <p class="text-sm text-gray-600 mb-2"><strong>Ejemplos:</strong> Datos personales, historial de préstamos, información financiera, contratos, credenciales</p>
+        <div class="bg-orange-50 rounded-lg p-3 mt-3">
+          <p class="text-sm text-gray-700 font-semibold mb-1">Controles:</p>
+          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-600">
+            <li>Cifrado en tránsito y reposo</li>
+            <li>Acceso basado en necesidad de conocer</li>
+            <li>Logs de acceso obligatorios</li>
+            <li>Prohibición de copia no autorizada</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Nivel 4: Crítica -->
+      <div class="bg-white rounded-lg p-6 border-l-4 border-red-600">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <ion-icon name="alert-circle-outline" class="text-red-600 text-2xl"></ion-icon>
+            NIVEL 4: CRÍTICA
+          </h3>
+          <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">Máxima Protección</span>
+        </div>
+        <p class="text-gray-700 mb-2"><strong>Descripción:</strong> Información cuya pérdida causaría daño severo.</p>
+        <p class="text-sm text-gray-600 mb-2"><strong>Ejemplos:</strong> Código fuente, credenciales administrativas, llaves de cifrado, configuraciones de seguridad</p>
+        <div class="bg-red-50 rounded-lg p-3 mt-3">
+          <p class="text-sm text-gray-700 font-semibold mb-1">Controles:</p>
+          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-600">
+            <li>Cifrado fuerte (AES-256)</li>
+            <li>Autenticación multifactor obligatoria</li>
+            <li>Acceso limitado a personal específico</li>
+            <li>Auditoría continua</li>
+            <li>Prohibición de almacenamiento local</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-[#EAF6FF] to-white border border-[#3FA6E8]/30 rounded-lg p-6 mt-6">
+      <h3 class="text-lg font-bold text-gray-900 mb-3">6.2 Manejo y Destrucción</h3>
+      <div class="space-y-2 text-sm text-gray-700">
+        <p><strong>Confidencial y Crítica:</strong> Borrado seguro (mínimo 3 pasadas) o destrucción física certificada</p>
+        <p><strong>Interna:</strong> Eliminación estándar</p>
+        <p><strong>Pública:</strong> Sin restricciones especiales</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7. SEGURIDAD FÍSICA ================= -->
+<section id="fisica" class="content-section py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">7. Seguridad Física y Ambiental</h2>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="bg-white rounded-lg p-6 border-2 border-[#3FA6E8]">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="lock-closed-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          7.1 Control de Acceso Físico
+        </h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Sala de servidores: Acceso restringido con tarjeta/llave</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Videovigilancia en áreas críticas</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Registro de visitantes a áreas sensibles</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Escoltas obligatorias para personal externo</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 border-2 border-[#2D8BE8]">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="thermometer-outline" class="text-[#2D8BE8] text-2xl"></ion-icon>
+          7.2 Protección Ambiental
+        </h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#2D8BE8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Climatización adecuada (18-24°C)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#2D8BE8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Detectores de humo y sistemas contra incendios</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#2D8BE8] flex-shrink-0 mt-1"></ion-icon>
+            <span>UPS para servidores críticos</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#2D8BE8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Protección contra desastres naturales</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 border-2 border-[#1D63F5]">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="desktop-outline" class="text-[#1D63F5] text-2xl"></ion-icon>
+          7.3 Seguridad de Equipos
+        </h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#1D63F5] flex-shrink-0 mt-1"></ion-icon>
+            <span>Anclaje físico de equipos valiosos</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#1D63F5] flex-shrink-0 mt-1"></ion-icon>
+            <span>Política de escritorio limpio</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#1D63F5] flex-shrink-0 mt-1"></ion-icon>
+            <span>Bloqueo automático (5 min inactividad)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#1D63F5] flex-shrink-0 mt-1"></ion-icon>
+            <span>No instalación de software no autorizado</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 border-2 border-[#14B8EB]">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="phone-portrait-outline" class="text-[#14B8EB] text-2xl"></ion-icon>
+          7.4 Dispositivos Móviles
+        </h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#14B8EB] flex-shrink-0 mt-1"></ion-icon>
+            <span>Cifrado de dispositivos institucionales</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#14B8EB] flex-shrink-0 mt-1"></ion-icon>
+            <span>Políticas MDM cuando aplique</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#14B8EB] flex-shrink-0 mt-1"></ion-icon>
+            <span>Contraseña obligatoria</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#14B8EB] flex-shrink-0 mt-1"></ion-icon>
+            <span>Reporte inmediato de pérdida/robo</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 8. CONTROL DE ACCESO ================= -->
+<section id="acceso" class="content-section py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">8. Control de Acceso</h2>
+    
+    <div class="space-y-6">
+      <!-- Políticas de Contraseñas -->
+      <div class="bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] text-white rounded-xl p-8">
+        <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+          <ion-icon name="key-outline" class="text-3xl"></ion-icon>
+          8.2 Políticas de Contraseñas
+        </h3>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="font-bold mb-3 text-lg">✓ Requisitos Mínimos</h4>
+            <ul class="space-y-2 text-sm text-white/90">
+              <li>• Longitud: Mínimo 8 caracteres</li>
+              <li>• Al menos 1 letra mayúscula</li>
+              <li>• Al menos 1 letra minúscula</li>
+              <li>• Al menos 1 número</li>
+              <li>• Al menos 1 símbolo especial (@#$%&*)</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold mb-3 text-lg">⚙️ Gestión</h4>
+            <ul class="space-y-2 text-sm text-white/90">
+              <li>• Cambio obligatorio: Cada 90 días</li>
+              <li>• No reutilizar últimas 5 contraseñas</li>
+              <li>• Bloqueo: Después de 3 intentos fallidos</li>
+              <li>• Desbloqueo: Solo por Administrador</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-6 bg-white/10 rounded-lg p-4">
+          <h4 class="font-bold mb-2">❌ Prohibiciones</h4>
+          <div class="grid md:grid-cols-2 gap-2 text-sm text-white/90">
+            <div>• Información personal</div>
+            <div>• Contraseñas secuenciales</div>
+            <div>• Palabras del diccionario</div>
+            <div>• Compartir con terceros</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MFA -->
+      <div class="bg-white rounded-lg p-6 border-2 border-[#3FA6E8]">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="finger-print-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          8.3 Autenticación Multifactor (MFA)
+        </h3>
+        <div class="bg-[#EAF6FF] rounded-lg p-4 mb-4">
+          <p class="font-semibold text-gray-900 mb-2">Obligatoria para:</p>
+          <ul class="space-y-1 text-gray-700">
+            <li>• Administrador del sistema</li>
+            <li>• Bibliotecario</li>
+            <li>• Personal con acceso a datos confidenciales</li>
+          </ul>
+        </div>
+        <p class="font-semibold text-gray-900 mb-2">Métodos aceptados:</p>
+        <div class="grid md:grid-cols-3 gap-3">
+          <div class="bg-gray-50 rounded-lg p-3 text-center">
+            <ion-icon name="chatbox-outline" class="text-[#3FA6E8] text-3xl mb-1"></ion-icon>
+            <p class="text-sm text-gray-700 font-medium">Código SMS</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3 text-center">
+            <ion-icon name="phone-portrait-outline" class="text-[#3FA6E8] text-3xl mb-1"></ion-icon>
+            <p class="text-sm text-gray-700 font-medium">Apps de Autenticación</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3 text-center">
+            <ion-icon name="hardware-chip-outline" class="text-[#3FA6E8] text-3xl mb-1"></ion-icon>
+            <p class="text-sm text-gray-700 font-medium">Tokens Hardware</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RBAC -->
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="people-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          8.4 Control de Acceso Basado en Roles (RBAC)
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-[#3FA6E8] text-white">
+                <th class="p-3 text-left rounded-tl-lg">Rol</th>
+                <th class="p-3 text-left">Módulos Accesibles</th>
+                <th class="p-3 text-left rounded-tr-lg">Permisos</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              <tr class="border-b border-gray-200">
+                <td class="p-3 font-semibold">Administrador</td>
+                <td class="p-3">Todos</td>
+                <td class="p-3">Lectura, Escritura, Eliminación, Configuración</td>
+              </tr>
+              <tr class="border-b border-gray-200 bg-gray-50">
+                <td class="p-3 font-semibold">Bibliotecario</td>
+                <td class="p-3">Biblioteca Digital, Catálogo, Préstamos</td>
+                <td class="p-3">Lectura, Escritura, Gestión de préstamos</td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="p-3 font-semibold">Docente</td>
+                <td class="p-3">Biblioteca, Foros, Materiales</td>
+                <td class="p-3">Lectura, Escritura (propios), Moderación</td>
+              </tr>
+              <tr class="border-b border-gray-200 bg-gray-50">
+                <td class="p-3 font-semibold">Alumno</td>
+                <td class="p-3">Biblioteca, Foros, Préstamos</td>
+                <td class="p-3">Lectura, Participación, Solicitudes</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold">Visitante</td>
+                <td class="p-3">Portal Público, Venta Revistas</td>
+                <td class="p-3">Lectura, Compra</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Gestión de Sesiones -->
+      <div class="bg-gradient-to-br from-[#EAF6FF] to-white rounded-lg p-6 border border-[#3FA6E8]/30">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">8.5 Gestión de Sesiones</h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="flex items-start gap-3">
+            <ion-icon name="time-outline" class="text-[#3FA6E8] text-2xl flex-shrink-0"></ion-icon>
+            <div>
+              <p class="font-semibold text-gray-900">Tiempo de sesión</p>
+              <p class="text-sm text-gray-600">30 minutos de inactividad</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <ion-icon name="key-outline" class="text-[#3FA6E8] text-2xl flex-shrink-0"></ion-icon>
+            <div>
+              <p class="font-semibold text-gray-900">Tokens JWT</p>
+              <p class="text-sm text-gray-600">Expiración en 1 hora</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <ion-icon name="refresh-outline" class="text-[#3FA6E8] text-2xl flex-shrink-0"></ion-icon>
+            <div>
+              <p class="font-semibold text-gray-900">Renovación automática</p>
+              <p class="text-sm text-gray-600">Hasta 8 horas máximo</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <ion-icon name="phone-portrait-outline" class="text-[#3FA6E8] text-2xl flex-shrink-0"></ion-icon>
+            <div>
+              <p class="font-semibold text-gray-900">Sesiones concurrentes</p>
+              <p class="text-sm text-gray-600">Máximo 2 dispositivos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 9. DESARROLLO SEGURO ================= -->
+<section id="desarrollo" class="content-section py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">9. Seguridad en el Desarrollo de Software</h2>
+    
+    <div class="bg-gradient-to-br from-[#EAF6FF] to-white border-2 border-[#3FA6E8] rounded-xl p-8 mb-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <ion-icon name="code-slash-outline" class="text-[#3FA6E8] text-3xl"></ion-icon>
+        9.1 Ciclo de Vida de Desarrollo Seguro (SDLC)
+      </h3>
+      <p class="text-gray-700">Seguridad integrada en todas las fases del desarrollo</p>
+    </div>
+
+    <div class="space-y-4">
+      <!-- Fase 1 -->
+      <div class="bg-white rounded-lg p-6 border-l-4 border-blue-500 shadow-md">
+        <h4 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">1</span>
+          FASE 1: Análisis y Diseño
+        </h4>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <p class="font-semibold text-gray-900 mb-2">Actividades:</p>
+            <ul class="space-y-1 text-sm text-gray-700">
+              <li>• Identificación de riesgos</li>
+              <li>• Análisis de amenazas (STRIDE, DREAD)</li>
+              <li>• Definición de requerimientos</li>
+              <li>• Diseño de arquitectura segura</li>
+            </ul>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 mb-2">Entregables:</p>
+            <ul class="space-y-1 text-sm text-gray-700">
+              <li>• Matriz de riesgos</li>
+              <li>• Especificación de controles</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fase 2 -->
+      <div class="bg-white rounded-lg p-6 border-l-4 border-green-500 shadow-md">
+        <h4 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">2</span>
+          FASE 2: Desarrollo/Programación
+        </h4>
+        <div class="bg-green-50 rounded-lg p-4 mb-3">
+          <p class="font-semibold text-gray-900 mb-2">Prácticas Obligatorias:</p>
+          <div class="grid md:grid-cols-2 gap-2 text-sm text-gray-700">
+            <div>✓ Prevención de Inyección SQL</div>
+            <div>✓ Prevención de XSS</div>
+            <div>✓ Prevención de CSRF</div>
+            <div>✓ Gestión segura de sesiones</div>
+            <div>✓ Control de errores seguro</div>
+            <div>✓ Manejo seguro de archivos</div>
+          </div>
+        </div>
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded p-3">
+          <p class="text-sm text-yellow-800">
+            <strong>Ejemplo SQL Seguro:</strong> Siempre usar consultas parametrizadas, nunca concatenación directa
+          </p>
+        </div>
+      </div>
+
+      <!-- Fase 3 -->
+      <div class="bg-white rounded-lg p-6 border-l-4 border-purple-500 shadow-md">
+        <h4 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">3</span>
+          FASE 3: Pruebas
+        </h4>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-purple-50 rounded-lg p-3">
+            <p class="font-semibold text-gray-900 mb-2">Pruebas de Penetración</p>
+            <p class="text-sm text-gray-700">Simulación de ataques reales</p>
+            <p class="text-xs text-gray-600 mt-1">Frecuencia: Anualmente</p>
+          </div>
+          <div class="bg-purple-50 rounded-lg p-3">
+            <p class="font-semibold text-gray-900 mb-2">Escaneo de Vulnerabilidades</p>
+            <p class="text-sm text-gray-700">OWASP ZAP, Burp Suite, SonarQube</p>
+            <p class="text-xs text-gray-600 mt-1">Frecuencia: Mensual</p>
+          </div>
+          <div class="bg-purple-50 rounded-lg p-3">
+            <p class="font-semibold text-gray-900 mb-2">Revisión de Código</p>
+            <p class="text-sm text-gray-700">Code Review por pares</p>
+            <p class="text-xs text-gray-600 mt-1">Obligatorio antes de merge</p>
+          </div>
+          <div class="bg-purple-50 rounded-lg p-3">
+            <p class="font-semibold text-gray-900 mb-2">Análisis Estático (SAST)</p>
+            <p class="text-sm text-gray-700">Escaneo automatizado</p>
+            <p class="text-xs text-gray-600 mt-1">En CI/CD pipeline</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fase 4 -->
+      <div class="bg-white rounded-lg p-6 border-l-4 border-orange-500 shadow-md">
+        <h4 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">4</span>
+          FASE 4: Despliegue
+        </h4>
+        <div class="bg-orange-50 rounded-lg p-4">
+          <p class="font-semibold text-gray-900 mb-3">Checklist de Despliegue Seguro:</p>
+          <div class="grid md:grid-cols-2 gap-2 text-sm text-gray-700">
+            <div class="flex items-center gap-2">
+              <ion-icon name="checkmark-circle" class="text-orange-500"></ion-icon>
+              <span>Variables de entorno protegidas</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <ion-icon name="checkmark-circle" class="text-orange-500"></ion-icon>
+              <span>HTTPS habilitado y forzado</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <ion-icon name="checkmark-circle" class="text-orange-500"></ion-icon>
+              <span>Headers de seguridad configurados</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <ion-icon name="checkmark-circle" class="text-orange-500"></ion-icon>
+              <span>Modo debug deshabilitado</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <ion-icon name="checkmark-circle" class="text-orange-500"></ion-icon>
+              <span>Logs configurados</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <ion-icon name="checkmark-circle" class="text-orange-500"></ion-icon>
+              <span>Backups configurados y probados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fase 5 -->
+      <div class="bg-white rounded-lg p-6 border-l-4 border-red-500 shadow-md">
+        <h4 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center font-bold">5</span>
+          FASE 5: Mantenimiento
+        </h4>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-red-500 flex-shrink-0 mt-1"></ion-icon>
+            <span>Aplicación de parches de seguridad</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-red-500 flex-shrink-0 mt-1"></ion-icon>
+            <span>Monitoreo continuo de amenazas</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-red-500 flex-shrink-0 mt-1"></ion-icon>
+            <span>Actualización de dependencias</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="shield-checkmark-outline" class="text-red-500 flex-shrink-0 mt-1"></ion-icon>
+            <span>Respuesta a incidentes</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- OWASP Top 10 -->
+    <div class="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-500 rounded-xl p-8 mt-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <ion-icon name="warning-outline" class="text-red-500 text-3xl"></ion-icon>
+        9.3 Normativas OWASP Top 10 (2021)
+      </h3>
+      <p class="text-gray-700 mb-4">El desarrollo debe prevenir:</p>
+      <div class="grid md:grid-cols-2 gap-3">
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A01: Broken Access Control</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A02: Cryptographic Failures</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A03: Injection</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A04: Insecure Design</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A05: Security Misconfiguration</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A06: Vulnerable Components</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A07: Authentication Failures</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A08: Data Integrity Failures</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A09: Logging & Monitoring Failures</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-red-200">
+          <p class="font-bold text-red-900 text-sm">A10: Server-Side Request Forgery</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 10. OPERACIONES ================= -->
+<section id="operaciones" class="content-section py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">10. Seguridad de las Operaciones</h2>
+    
+    <div class="space-y-6">
+      <!-- Monitoreo y Logs -->
+      <div class="bg-white rounded-xl p-6 border-2 border-[#3FA6E8] shadow-lg">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="analytics-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          10.3 Monitoreo y Logs
+        </h3>
+        
+        <div class="grid md:grid-cols-2 gap-4 mb-4">
+          <div class="bg-[#EAF6FF] rounded-lg p-4">
+            <h4 class="font-bold text-gray-900 mb-2">Eventos a Registrar:</h4>
+            <ul class="space-y-1 text-sm text-gray-700">
+              <li>• Intentos de inicio de sesión</li>
+              <li>• Creación/modificación de cuentas</li>
+              <li>• Cambios en permisos</li>
+              <li>• Acceso a información confidencial</li>
+              <li>• Transacciones financieras</li>
+              <li>• Errores de aplicación</li>
+            </ul>
+          </div>
+          <div class="bg-blue-50 rounded-lg p-4">
+            <h4 class="font-bold text-gray-900 mb-2">Características:</h4>
+            <ul class="space-y-1 text-sm text-gray-700">
+              <li>• Formato: JSON estructurado</li>
+              <li>• Timestamp: UTC con zona horaria</li>
+              <li>• Solo lectura (inmutabilidad)</li>
+              <li>• Cifrado en tránsito y reposo</li>
+              <li>• Retención: 12 meses mínimo</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 rounded p-4">
+          <h4 class="font-bold text-orange-900 mb-2">Alertas Automáticas:</h4>
+          <div class="grid md:grid-cols-2 gap-2 text-sm text-orange-800">
+            <div>⚠️ Múltiples intentos fallidos de login</div>
+            <div>⚠️ Acceso fuera de horario</div>
+            <div>⚠️ Cambios en configuración de seguridad</div>
+            <div>⚠️ Escaneos de vulnerabilidades detectados</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gestión de Vulnerabilidades -->
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="bug-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          10.4 Gestión de Vulnerabilidades
+        </h3>
+        
+        <div class="grid md:grid-cols-4 gap-4">
+          <div class="bg-red-50 border-2 border-red-500 rounded-lg p-4 text-center">
+            <div class="text-3xl font-black text-red-600 mb-1">9.0-10.0</div>
+            <p class="text-sm text-red-900 font-semibold">CRÍTICA</p>
+            <p class="text-xs text-red-700 mt-1">Atención inmediata</p>
+          </div>
+          <div class="bg-orange-50 border-2 border-orange-500 rounded-lg p-4 text-center">
+            <div class="text-3xl font-black text-orange-600 mb-1">7.0-8.9</div>
+            <p class="text-sm text-orange-900 font-semibold">ALTA</p>
+            <p class="text-xs text-orange-700 mt-1">Corrección en 7 días</p>
+          </div>
+          <div class="bg-yellow-50 border-2 border-yellow-500 rounded-lg p-4 text-center">
+            <div class="text-3xl font-black text-yellow-600 mb-1">4.0-6.9</div>
+            <p class="text-sm text-yellow-900 font-semibold">MEDIA</p>
+            <p class="text-xs text-yellow-700 mt-1">Corrección en 30 días</p>
+          </div>
+          <div class="bg-green-50 border-2 border-green-500 rounded-lg p-4 text-center">
+            <div class="text-3xl font-black text-green-600 mb-1">0.1-3.9</div>
+            <p class="text-sm text-green-900 font-semibold">BAJA</p>
+            <p class="text-xs text-green-700 mt-1">Próximo mantenimiento</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Protección contra Malware -->
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="shield-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          10.5 Protección contra Malware
+        </h3>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="flex items-start gap-3">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] text-2xl flex-shrink-0"></ion-icon>
+            <div>
+              <p class="font-semibold text-gray-900">Antivirus actualizado</p>
+              <p class="text-sm text-gray-600">En servidores y estaciones</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] text-2xl flex-shrink-0"></ion-icon>
+            <div>
+              <p class="font-semibold text-gray-900">Escaneo en tiempo real</p>
+              <p class="text-sm text-gray-600">Archivos subidos al sistema</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] text-2xl flex-shrink-0"></ion-icon>
+            <div>
+              <p class="font-semibold text-gray-900">Filtrado de correos</p>
+              <p class="text-sm text-gray-600">Prevención de phishing</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seguridad de Redes -->
+      <div class="bg-gradient-to-br from-[#EAF6FF] to-white rounded-lg p-6 border border-[#3FA6E8]/30">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="git-network-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          10.6 Seguridad de Redes
+        </h3>
+        <div class="space-y-4">
+          <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <h4 class="font-bold text-gray-900 mb-2">A) Segmentación</h4>
+            <ul class="space-y-1 text-sm text-gray-700">
+              <li>• Red administrativa separada</li>
+              <li>• VLAN para servidores</li>
+              <li>• Red de invitados aislada</li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <h4 class="font-bold text-gray-900 mb-2">B) Firewall</h4>
+            <ul class="space-y-1 text-sm text-gray-700">
+              <li>• WAF (Web Application Firewall) configurado</li>
+              <li>• Reglas restrictivas por defecto</li>
+              <li>• Revisión trimestral de reglas</li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <h4 class="font-bold text-gray-900 mb-2">C) Protección DDoS</h4>
+            <ul class="space-y-1 text-sm text-gray-700">
+              <li>• Limitación de tasa de peticiones (rate limiting)</li>
+              <li>• CDN con protección DDoS</li>
+              <li>• Blacklisting de IPs sospechosas</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 11. INCIDENTES ================= -->
+<section id="incidentes" class="content-section py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">11. Gestión de Incidentes de Seguridad</h2>
+    
+    <div class="space-y-6">
+      <!-- Clasificación -->
+      <div class="bg-white rounded-xl p-6 border-2 border-[#3FA6E8]">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">11.2 Clasificación de Incidentes</h3>
+        <div class="space-y-3">
+          <div class="bg-red-50 border-l-4 border-red-600 rounded p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-red-900">CRÍTICO</span>
+              <span class="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-bold">< 1 HORA</span>
+            </div>
+            <p class="text-sm text-red-800">Compromiso de datos críticos, interrupción total del servicio</p>
+          </div>
+          
+          <div class="bg-orange-50 border-l-4 border-orange-500 rounded p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-orange-900">ALTO</span>
+              <span class="px-3 py-1 bg-orange-500 text-white rounded-full text-xs font-bold">< 4 HORAS</span>
+            </div>
+            <p class="text-sm text-orange-800">Compromiso de datos confidenciales, interrupción parcial</p>
+          </div>
+          
+          <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-yellow-900">MEDIO</span>
+              <span class="px-3 py-1 bg-yellow-500 text-white rounded-full text-xs font-bold">< 24 HORAS</span>
+            </div>
+            <p class="text-sm text-yellow-800">Vulnerabilidad explotada sin compromiso de datos</p>
+          </div>
+          
+          <div class="bg-green-50 border-l-4 border-green-500 rounded p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-green-900">BAJO</span>
+              <span class="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">< 72 HORAS</span>
+            </div>
+            <p class="text-sm text-green-800">Intento fallido de ataque, anomalía menor</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proceso de Gestión -->
+      <div class="bg-gradient-to-br from-[#EAF6FF] to-white rounded-lg p-6 border border-[#3FA6E8]/30">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">11.3 Proceso de Gestión de Incidentes</h3>
+        
+        <div class="space-y-3">
+          <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-gray-200">
+            <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-1">DETECCIÓN Y REPORTE</h4>
+              <p class="text-sm text-gray-700">Identificación del incidente y notificación inmediata al Administrador</p>
+              <p class="text-xs text-gray-600 mt-1">Canales: Correo, teléfono, formulario web</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-gray-200">
+            <div class="w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-1">CONTENCIÓN</h4>
+              <p class="text-sm text-gray-700">Aislar sistemas afectados, cambiar credenciales, bloquear IPs maliciosas</p>
+              <p class="text-xs text-gray-600 mt-1">Objetivo: Prevenir propagación del incidente</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-gray-200">
+            <div class="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-1">ERRADICACIÓN</h4>
+              <p class="text-sm text-gray-700">Eliminar causa raíz, limpiar malware, aplicar parches</p>
+              <p class="text-xs text-gray-600 mt-1">Objetivo: Eliminar amenaza completamente</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-gray-200">
+            <div class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">4</div>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-1">RECUPERACIÓN</h4>
+              <p class="text-sm text-gray-700">Restaurar sistemas desde respaldos, validar integridad, monitoreo intensivo</p>
+              <p class="text-xs text-gray-600 mt-1">Objetivo: Restablecimiento seguro de servicios</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-gray-200">
+            <div class="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">5</div>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-1">LECCIONES APRENDIDAS</h4>
+              <p class="text-sm text-gray-700">Documentación, análisis de causa raíz, actualización de procedimientos</p>
+              <p class="text-xs text-gray-600 mt-1">Objetivo: Mejora continua</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notificación -->
+      <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-6">
+        <h3 class="text-xl font-bold text-yellow-900 mb-3 flex items-center gap-2">
+          <ion-icon name="notifications-outline" class="text-2xl"></ion-icon>
+          11.4 Notificación de Incidentes
+        </h3>
+        <div class="space-y-3 text-sm text-yellow-800">
+          <div>
+            <p class="font-semibold mb-1">A usuarios afectados:</p>
+            <p>Incidentes que comprometen datos personales: <strong>máximo 72 horas</strong></p>
+          </div>
+          <div>
+            <p class="font-semibold mb-1">Notificación interna:</p>
+            <p>Dirección General: Inmediata para incidentes críticos</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 12. CONTINUIDAD ================= -->
+<section id="continuidad" class="content-section py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">12. Continuidad del Negocio y Respaldo</h2>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Respaldos -->
+      <div class="bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] text-white rounded-xl p-6 shadow-lg">
+        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
+          <ion-icon name="save-outline" class="text-3xl"></ion-icon>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Política de Respaldos</h3>
+        <ul class="space-y-2 text-sm text-white/90">
+          <li>• Respaldo completo: Semanal</li>
+          <li>• Respaldo incremental: Diario</li>
+          <li>• Almacenamiento: Múltiples ubicaciones</li>
+          <li>• Retención: 30 días mínimo</li>
+          <li>• Verificación: Mensual</li>
+          <li>• Cifrado: AES-256</li>
+        </ul>
+      </div>
+
+      <!-- Recuperación -->
+      <div class="bg-gradient-to-br from-[#2D8BE8] to-[#1D63F5] text-white rounded-xl p-6 shadow-lg">
+        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
+          <ion-icon name="refresh-outline" class="text-3xl"></ion-icon>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Plan de Recuperación</h3>
+        <div class="space-y-3">
+          <div class="bg-white/10 rounded-lg p-3">
+            <p class="font-semibold mb-1">RTO (Recovery Time Objective)</p>
+            <p class="text-2xl font-black">< 4 horas</p>
+          </div>
+          <div class="bg-white/10 rounded-lg p-3">
+            <p class="font-semibold mb-1">RPO (Recovery Point Objective)</p>
+            <p class="text-2xl font-black">< 24 horas</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg p-6 border border-gray-200 mt-6">
+      <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <ion-icon name="documents-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+        Pruebas de Recuperación
+      </h3>
+      <p class="text-gray-700 mb-3">Frecuencia: <strong>Semestral</strong></p>
+      <p class="text-sm text-gray-600">Incluye simulacros completos de recuperación ante desastres</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 13. CUMPLIMIENTO ================= -->
+<section id="cumplimiento" class="content-section py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">13. Cumplimiento y Auditoría</h2>
+    
+    <div class="space-y-6">
+      <div class="bg-gradient-to-br from-[#EAF6FF] to-white rounded-lg p-6 border border-[#3FA6E8]/30">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Auditorías de Seguridad</h3>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="bg-white rounded-lg p-4 border-2 border-[#3FA6E8] text-center">
+            <div class="text-3xl font-black text-[#3FA6E8] mb-1">Anual</div>
+            <p class="text-sm text-gray-700 font-semibold">Auditoría Externa</p>
+          </div>
+          <div class="bg-white rounded-lg p-4 border-2 border-[#2D8BE8] text-center">
+            <div class="text-3xl font-black text-[#2D8BE8] mb-1">Semestral</div>
+            <p class="text-sm text-gray-700 font-semibold">Auditoría Interna</p>
+          </div>
+          <div class="bg-white rounded-lg p-4 border-2 border-[#1D63F5] text-center">
+            <div class="text-3xl font-black text-[#1D63F5] mb-1">Continuo</div>
+            <p class="text-sm text-gray-700 font-semibold">Monitoreo Automático</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Indicadores de Cumplimiento</h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Porcentaje de usuarios con contraseñas seguras</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Tiempo de respuesta a incidentes</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Disponibilidad del sistema (uptime)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Vulnerabilidades corregidas en tiempo</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+            <span>Personal capacitado en seguridad</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 14. CAPACITACIÓN ================= -->
+<section id="capacitacion" class="content-section py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">14. Capacitación y Concientización</h2>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="bg-white rounded-lg p-6 border-2 border-[#3FA6E8]">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="school-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          Programa de Capacitación
+        </h3>
+        <div class="space-y-3">
+          <div class="bg-[#EAF6FF] rounded-lg p-3">
+            <p class="font-semibold text-gray-900 mb-1">Inducción</p>
+            <p class="text-sm text-gray-700">Para nuevo personal y usuarios</p>
+          </div>
+          <div class="bg-blue-50 rounded-lg p-3">
+            <p class="font-semibold text-gray-900 mb-1">Capacitación Anual</p>
+            <p class="text-sm text-gray-700">Actualización en políticas de seguridad</p>
+          </div>
+          <div class="bg-[#EAF6FF] rounded-lg p-3">
+            <p class="font-semibold text-gray-900 mb-1">Talleres Especializados</p>
+            <p class="text-sm text-gray-700">Para personal de TI y desarrolladores</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 border-2 border-[#2D8BE8]">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="bulb-outline" class="text-[#2D8BE8] text-2xl"></ion-icon>
+          Temas Clave
+        </h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-center gap-2">
+            <ion-icon name="arrow-forward" class="text-[#2D8BE8]"></ion-icon>
+            <span>Gestión de contraseñas seguras</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <ion-icon name="arrow-forward" class="text-[#2D8BE8]"></ion-icon>
+            <span>Identificación de phishing</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <ion-icon name="arrow-forward" class="text-[#2D8BE8]"></ion-icon>
+            <span>Protección de datos personales</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <ion-icon name="arrow-forward" class="text-[#2D8BE8]"></ion-icon>
+            <span>Uso responsable de recursos</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <ion-icon name="arrow-forward" class="text-[#2D8BE8]"></ion-icon>
+            <span>Reporte de incidentes</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 15. SANCIONES ================= -->
+<section id="sanciones" class="content-section py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">15. Sanciones y Consecuencias</h2>
+    
+    <div class="bg-red-50 border-2 border-red-500 rounded-xl p-8">
+      <div class="flex items-center gap-3 mb-4">
+        <ion-icon name="warning-outline" class="text-red-600 text-4xl"></ion-icon>
+        <h3 class="text-2xl font-bold text-red-900">Incumplimiento de Lineamientos</h3>
+      </div>
+      <p class="text-red-800 mb-4">El incumplimiento de estos lineamientos puede resultar en:</p>
+      
+      <div class="space-y-3">
+        <div class="bg-white rounded-lg p-4 border-l-4 border-red-600">
+          <h4 class="font-bold text-red-900 mb-2">Sanciones Administrativas</h4>
+          <ul class="list-disc pl-6 space-y-1 text-sm text-red-800">
+            <li>Amonestación verbal o escrita</li>
+            <li>Suspensión temporal de acceso al sistema</li>
+            <li>Revocación permanente de credenciales</li>
+            <li>Proceso disciplinario según reglamento institucional</li>
+          </ul>
+        </div>
+
+        <div class="bg-white rounded-lg p-4 border-l-4 border-orange-600">
+          <h4 class="font-bold text-orange-900 mb-2">Consecuencias Laborales/Académicas</h4>
+          <ul class="list-disc pl-6 space-y-1 text-sm text-orange-800">
+            <li>Para personal: Suspensión o terminación de contrato</li>
+            <li>Para alumnos: Sanciones académicas según reglamento</li>
+            <li>Para proveedores: Rescisión de contrato</li>
+          </ul>
+        </div>
+
+        <div class="bg-white rounded-lg p-4 border-l-4 border-purple-600">
+          <h4 class="font-bold text-purple-900 mb-2">Consecuencias Legales</h4>
+          <ul class="list-disc pl-6 space-y-1 text-sm text-purple-800">
+            <li>Acciones legales por daños causados</li>
+            <li>Denuncia ante autoridades competentes</li>
+            <li>Responsabilidad civil y/o penal</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-6 mt-6">
+      <h4 class="font-bold text-yellow-900 mb-2 flex items-center gap-2">
+        <ion-icon name="alert-circle-outline" class="text-xl"></ion-icon>
+        Nota Importante
+      </h4>
+      <p class="text-yellow-800 text-sm">
+        La gravedad de las sanciones dependerá de la naturaleza, intencionalidad y consecuencias del incumplimiento. 
+        Cada caso será evaluado individualmente por el Comité de Seguridad de la Información.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 16. GLOSARIO ================= -->
+<section id="glosario" class="content-section py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">16. Glosario de Términos</h2>
+    
+    <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-md">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <dl class="space-y-4">
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">ARCO</dt>
+              <dd class="text-sm text-gray-700">Derechos de Acceso, Rectificación, Cancelación y Oposición sobre datos personales</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">Cifrado</dt>
+              <dd class="text-sm text-gray-700">Proceso de convertir información en código para prevenir acceso no autorizado</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">CSRF</dt>
+              <dd class="text-sm text-gray-700">Cross-Site Request Forgery - Ataque que fuerza al usuario a ejecutar acciones no deseadas</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">DDoS</dt>
+              <dd class="text-sm text-gray-700">Distributed Denial of Service - Ataque que busca hacer un recurso no disponible</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">Firewall</dt>
+              <dd class="text-sm text-gray-700">Sistema que previene accesos no autorizados a una red</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">JWT</dt>
+              <dd class="text-sm text-gray-700">JSON Web Token - Estándar para crear tokens de acceso</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">Malware</dt>
+              <dd class="text-sm text-gray-700">Software malicioso diseñado para dañar o infiltrar sistemas</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">MFA</dt>
+              <dd class="text-sm text-gray-700">Multi-Factor Authentication - Autenticación de múltiples factores</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div>
+          <dl class="space-y-4">
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">OWASP</dt>
+              <dd class="text-sm text-gray-700">Open Web Application Security Project - Organización de seguridad en aplicaciones web</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">Phishing</dt>
+              <dd class="text-sm text-gray-700">Técnica fraudulenta para obtener información confidencial</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">RBAC</dt>
+              <dd class="text-sm text-gray-700">Role-Based Access Control - Control de acceso basado en roles</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">RPO</dt>
+              <dd class="text-sm text-gray-700">Recovery Point Objective - Punto de recuperación objetivo</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">RTO</dt>
+              <dd class="text-sm text-gray-700">Recovery Time Objective - Tiempo de recuperación objetivo</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">SSL/TLS</dt>
+              <dd class="text-sm text-gray-700">Protocolos de seguridad para comunicaciones cifradas</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">WAF</dt>
+              <dd class="text-sm text-gray-700">Web Application Firewall - Firewall de aplicaciones web</dd>
+            </div>
+            <div>
+              <dt class="font-bold text-[#3FA6E8] mb-1">XSS</dt>
+              <dd class="text-sm text-gray-700">Cross-Site Scripting - Vulnerabilidad que permite inyectar scripts maliciosos</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REVISIÓN Y ACTUALIZACIÓN ================= -->
+<section class="py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">17. Revisión y Actualización</h2>
+    
+    <div class="bg-gradient-to-br from-[#EAF6FF] to-white border-2 border-[#3FA6E8] rounded-xl p-8">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4">Periodicidad de Revisión</h3>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <ion-icon name="calendar-outline" class="text-[#3FA6E8] text-2xl flex-shrink-0"></ion-icon>
+              <div>
+                <p class="font-semibold text-gray-900">Revisión Ordinaria</p>
+                <p class="text-sm text-gray-700">Cada 12 meses</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <ion-icon name="alert-circle-outline" class="text-orange-500 text-2xl flex-shrink-0"></ion-icon>
+              <div>
+                <p class="font-semibold text-gray-900">Revisión Extraordinaria</p>
+                <p class="text-sm text-gray-700">Por cambios normativos o incidentes mayores</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4">Responsables</h3>
+          <ul class="space-y-2 text-gray-700">
+            <li class="flex items-start gap-2">
+              <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+              <span>Comité de Seguridad de la Información</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+              <span>Responsable de TI</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+              <span>Dirección General</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-6 bg-white rounded-lg p-4 border border-gray-200">
+        <h4 class="font-bold text-gray-900 mb-2">Control de Versiones</h4>
+        <p class="text-sm text-gray-700">
+          Todas las actualizaciones serán documentadas, fechadas y comunicadas a los usuarios afectados. 
+          Se mantendrá un historial de versiones para trazabilidad.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DECLARACIÓN FINAL ================= -->
+<section class="py-16 bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] text-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <div class="text-center mb-8">
+      <ion-icon name="shield-checkmark-outline" class="text-6xl mb-4"></ion-icon>
+      <h2 class="text-3xl font-bold mb-4">Compromiso Institucional</h2>
+    </div>
+
+    <div class="bg-white/10 backdrop-blur-md rounded-xl p-8 border border-white/20">
+      <p class="text-white/95 leading-relaxed text-center mb-6">
+        El <strong>Instituto de Estudios Superiores Tiozihuatl</strong> se compromete a mantener los más altos estándares 
+        de seguridad de la información, protegiendo los activos digitales y físicos de la institución, así como la 
+        privacidad de los datos personales de toda su comunidad.
+      </p>
+      <p class="text-white/95 leading-relaxed text-center">
+        Estos lineamientos son de cumplimiento obligatorio para todos los usuarios del Sistema Integral Multiplataforma 
+        y serán actualizados periódicamente para adaptarse a las mejores prácticas y requerimientos normativos vigentes.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4 mt-8">
+      <div class="bg-white/10 backdrop-blur-md rounded-lg p-4 text-center border border-white/20">
+        <ion-icon name="lock-closed-outline" class="text-4xl mb-2"></ion-icon>
+        <p class="font-semibold">Confidencialidad</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-md rounded-lg p-4 text-center border border-white/20">
+        <ion-icon name="shield-checkmark-outline" class="text-4xl mb-2"></ion-icon>
+        <p class="font-semibold">Integridad</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-md rounded-lg p-4 text-center border border-white/20">
+        <ion-icon name="cloud-done-outline" class="text-4xl mb-2"></ion-icon>
+        <p class="font-semibold">Disponibilidad</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INFORMACIÓN DE CONTACTO ================= -->
+<section class="py-16 bg-gray-50">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+      <div class="bg-gradient-to-r from-[#3FA6E8] to-[#2D8BE8] p-6">
+        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+          <ion-icon name="call-outline" class="text-3xl"></ion-icon>
+          Contacto para Consultas de Seguridad
+        </h2>
+      </div>
+      <div class="p-8">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-bold text-gray-900 mb-3">Departamento de TI / Seguridad</h3>
+            <div class="space-y-2 text-gray-700">
+              <div class="flex items-start gap-2">
+                <ion-icon name="mail-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+                <div>
+                  <p class="text-sm font-semibold">Correo Electrónico</p>
+                  <p class="text-sm">seguridad@instituto-tiozihuatl.edu.mx</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <ion-icon name="call-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+                <div>
+                  <p class="text-sm font-semibold">Teléfono</p>
+                  <p class="text-sm">[Pendiente de asignación]</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900 mb-3">Ubicación</h3>
+            <div class="flex items-start gap-2 text-gray-700">
+              <ion-icon name="location-outline" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
+              <div>
+                <p class="text-sm">Carretera Huejutla - Chalahuiyapa S/N</p>
+                <p class="text-sm">C.P. 43000, Huejutla de Reyes, Hidalgo</p>
+                <p class="text-sm">México</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 bg-[#EAF6FF] rounded-lg p-4">
+          <p class="text-sm text-gray-700">
+            <strong>Para reportar incidentes de seguridad:</strong> Comuníquese inmediatamente con el Administrador del Sistema 
+            o envíe un correo a la dirección de seguridad indicada. Los incidentes críticos deben reportarse dentro de la primera hora.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= APROBACIÓN Y VIGENCIA ================= -->
+<section class="py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <div class="bg-gradient-to-br from-gray-50 to-white border-2 border-gray-300 rounded-xl p-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Aprobación y Vigencia</h2>
+      
+      <div class="grid md:grid-cols-3 gap-6 mb-6">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-[#3FA6E8] rounded-full flex items-center justify-center mx-auto mb-3">
+            <ion-icon name="document-text-outline" class="text-white text-3xl"></ion-icon>
+          </div>
+          <p class="font-semibold text-gray-900">Código</p>
+          <p class="text-sm text-gray-600">L-SI-IEST-001-2025</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-[#2D8BE8] rounded-full flex items-center justify-center mx-auto mb-3">
+            <ion-icon name="git-branch-outline" class="text-white text-3xl"></ion-icon>
+          </div>
+          <p class="font-semibold text-gray-900">Versión</p>
+          <p class="text-sm text-gray-600">1.0</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+            <ion-icon name="checkmark-done-outline" class="text-white text-3xl"></ion-icon>
+          </div>
+          <p class="font-semibold text-gray-900">Estado</p>
+          <p class="text-sm text-green-600 font-bold">VIGENTE</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <p class="text-sm text-gray-700 text-center mb-4">
+          Estos lineamientos han sido revisados y aprobados por el Comité de Seguridad de la Información 
+          del Instituto de Estudios Superiores Tiozihuatl y entran en vigor a partir de su fecha de publicación.
+        </p>
+        <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+          <div class="text-center p-3 bg-gray-50 rounded">
+            <p class="font-semibold text-gray-900">Fecha de Emisión</p>
+            <p>Enero 2025</p>
+          </div>
+          <div class="text-center p-3 bg-gray-50 rounded">
+            <p class="font-semibold text-gray-900">Próxima Revisión</p>
+            <p>Enero 2026</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 text-center">
+        <p class="text-sm text-gray-600">
+          <strong>Aprobado por:</strong> Dirección General del Instituto de Estudios Superiores Tiozihuatl
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="bg-white border-t-2 border-gray-100 py-10">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+      
+      <div class="flex items-center gap-4">
+        <img 
+          src="logo1.png" 
+          alt="Logo del Instituto Tiozihuatl" 
+          class="w-10 h-10 rounded-lg border border-gray-200 object-contain"
+        />
+        <div class="text-sm">
+          <div class="font-bold text-gray-900 text-base">Instituto de Estudios Superiores Tiozihuatl</div>
+          <div class="text-gray-600">Sistema Integral Multiplataforma</div>
+        </div>
+      </div>
+
+      <div class="text-sm text-gray-600 text-center md:text-right">
+        <div class="font-semibold text-gray-800">© 2025 Todos los derechos reservados</div>
+        <div class="mt-1">Lineamientos de Seguridad de la Información | Versión 1.0</div>
+      </div>
+    </div>
+  </div>
+</footer>

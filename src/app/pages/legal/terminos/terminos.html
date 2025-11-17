@@ -1,0 +1,797 @@
+  <style>
+    * { 
+      font-family: 'Montserrat', sans-serif; 
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: linear-gradient(white);
+      min-height: 100vh;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      position: fixed;
+      top: 88px;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #3FA6E8, #2D8BE8);
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.1s ease;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in-up {
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    /* Cards */
+    .content-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 1rem;
+      transition: all 0.4s ease;
+      border: 1px solid rgba(4, 22, 33, 0.1);
+    }
+
+    .content-card:hover {
+      box-shadow: 0 12px 40px rgba(63, 166, 232, 0.15);
+      transform: translateY(-4px);
+    }
+
+    /* Section titles */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 3px solid #E8F3FA;
+    }
+
+    .section-number {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #3FA6E8 0%, #2D8BE8 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      box-shadow: 0 8px 20px rgba(63, 166, 232, 0.3);
+    }
+
+    /* Highlight boxes */
+    .info-highlight {
+      background: linear-gradient(135deg, #EBF8FF 0%, #F0F9FF 100%);
+      border-left: 5px solid #3FA6E8;
+      padding: 1.75rem;
+      border-radius: 12px;
+      margin: 2rem 0;
+      box-shadow: 0 4px 12px rgba(63, 166, 232, 0.08);
+    }
+
+    .warning-highlight {
+      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+      border-left: 5px solid #F59E0B;
+      padding: 1.75rem;
+      border-radius: 12px;
+      margin: 2rem 0;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);
+    }
+
+    .success-highlight {
+      background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+      border-left: 5px solid #10B981;
+      padding: 1.75rem;
+      border-radius: 12px;
+      margin: 2rem 0;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+    }
+
+    /* Custom list */
+    .custom-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .custom-list li {
+      position: relative;
+      padding-left: 2.5rem;
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+
+    .custom-list li:before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: #3FA6E8;
+      font-weight: bold;
+      font-size: 1.4rem;
+      top: -2px;
+    }
+
+    /* Contact grid */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: start;
+      gap: 1rem;
+      padding: 1.25rem;
+      background: #F9FAFB;
+      border-radius: 12px;
+      border: 1px solid #E5E7EB;
+      transition: all 0.3s ease;
+    }
+
+    .contact-item:hover {
+      background: #EBF8FF;
+      border-color: #3FA6E8;
+      transform: translateX(4px);
+    }
+
+    .contact-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #3FA6E8, #2D8BE8);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(63, 166, 232, 0.3);
+    }
+
+
+    /* Mega menu improvements */
+    .group:hover .group-hover\:opacity-100 {
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+
+  </style>
+
+<!-- ================= MAIN CONTENT ================= -->
+<main class="pb-20">
+  <section class="relative pt-20 pb-10 bg-[#3FA6E8] text-white">
+    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center"></div>
+    <!-- Header -->
+    <div class="text-center mb-16 fade-in-up">
+       <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold">
+        <ion-icon name="shield-checkmark-outline" class="text-lg"></ion-icon>
+        <span>Documento Legal</span>
+      </div>
+      <h1 class="text-5xl md:text-6xl font-extrabold text-white-900 mb-6 tracking-tight">
+        Términos y Condiciones
+      </h1>
+      <p class="text-xl text-white-900 max-w-3xl mx-auto leading-relaxed">
+        Términos y condiciones que rigen el uso de la Biblioteca Digital del Instituto de Estudios Superiores Tiozihuatl
+      </p>
+      <div class="flex items-center justify-center gap-6 mt-8 text-sm text-gray-500">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm">
+          <ion-icon name="calendar-outline" class="text-lg text-blue-600"></ion-icon>
+          <span>Última actualización: Noviembre/2025</span>
+        </div>
+        <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm">
+          <ion-icon name="document-text-outline" class="text-lg text-blue-600"></ion-icon>
+          <span>Conforme a LFPC</span>
+        </div>
+      </div>
+    </div>
+
+
+ </section>
+  <div class="max-w-5xl mx-auto px-6 py-12">
+
+    <!-- 1. INFORMACIÓN GENERAL -->
+    <section id="seccion-1" class="content-card fade-in-up">
+      <div class="section-title">
+        <div class="section-number">1</div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Información General</h2>
+          <p class="text-base text-gray-600 mt-2">Datos institucionales del responsable de la plataforma</p>
+        </div>
+      </div>
+
+      <div class="text-gray-700 leading-relaxed space-y-6 text-base">
+        <p class="text-lg">
+          El Instituto de Estudios Superiores Tiozihuatl, con domicilio en <strong>Dr. Gea González 6, Centro, 43000 Huejutla, Hgo., México</strong>, a través de su directora Mtra. Araceli Galindo Hernández y con contacto vía correo electrónico [pendiente] y teléfono [pendiente] es responsable de la operación y administración de la Biblioteca Digital.
+        </p>
+
+        <p class="text-lg">
+          El Instituto se dedica a la educación de nivel <strong>Licenciatura en Enfermería</strong> con tipo de sostenimiento Privado que opera en el turno Discontinuo.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. ACEPTACIÓN -->
+    <section id="seccion-2" class="content-card fade-in-up">
+      <div class="section-title">
+        <div class="section-number">2</div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Aceptación de Términos</h2>
+          <p class="text-base text-gray-600 mt-2">Compromiso del usuario al utilizar la plataforma</p>
+        </div>
+      </div>
+
+      <div class="text-gray-700 leading-relaxed space-y-6 text-base">
+        <p class="text-lg">
+          Al acceder y utilizar la Biblioteca Digital del Instituto de Estudios Superiores Tiozihuatl, el usuario acepta en su totalidad estos Términos y Condiciones.
+        </p>
+
+        <div class="warning-highlight">
+          <div class="flex items-start gap-4">
+            <ion-icon name="warning" class="text-3xl text-amber-600 flex-shrink-0 mt-1"></ion-icon>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-3 text-lg">Importante</h4>
+              <p class="text-base">
+                La aceptación puede darse mediante registro en la plataforma, clic en el botón de aceptación o cualquier otro mecanismo habilitado.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-lg">
+          Los términos están sujetos a cambios; se recomienda revisarlos periódicamente para mantenerse informado sobre las actualizaciones.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3. COMPRAS Y PRECIOS -->
+    <section id="seccion-3" class="content-card fade-in-up">
+      <div class="section-title">
+        <div class="section-number">3</div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Compras y Precios</h2>
+          <p class="text-base text-gray-600 mt-2">Proceso para adquirir materiales digitales</p>
+        </div>
+      </div>
+
+      <div class="text-gray-700 leading-relaxed space-y-8 text-base">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="card" class="text-2xl text-blue-600"></ion-icon>
+            Proceso de Pago
+          </h3>
+          <p class="text-lg">
+            El usuario podrá seleccionar los materiales digitales disponibles (revistas y libros) desde el catálogo en línea del sistema integral de biblioteca. Una vez elegido el recurso, el sistema mostrará el precio correspondiente, el usuario procederá al pago mediante las opciones habilitadas y, tras la confirmación de pago por la plataforma, se le otorgará acceso inmediato al material adquirido.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="pricetag" class="text-2xl text-blue-600"></ion-icon>
+            Precio Final
+          </h3>
+          <p class="text-lg">
+            Todos los precios publicados en el sistema corresponden al <strong>precio final</strong>, ya incluyen los impuestos aplicables (IVA), el total a pagar se desglosa antes de confirmar la compra.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="wallet" class="text-2xl text-blue-600"></ion-icon>
+            Formas de Pago
+          </h3>
+          <p class="mb-4 text-lg">Los pagos de materiales digitales podrán realizarse mediante:</p>
+          <ul class="custom-list text-base">
+            <li>Tarjetas de crédito y débito</li>
+            <li>Transferencia bancaria</li>
+          </ul>
+
+          <div class="success-highlight mt-6">
+            <div class="flex items-start gap-4">
+              <ion-icon name="shield-checkmark" class="text-3xl text-green-600 flex-shrink-0 mt-1"></ion-icon>
+              <div>
+                <h4 class="font-bold text-gray-900 mb-3 text-lg">Seguridad en los Pagos</h4>
+                <p class="text-base">
+                  Los cobros se procesan de forma segura a través de terceros autorizados; el Instituto no almacena información sensible de tarjetas o cuentas bancarias.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="gift" class="text-2xl text-blue-600"></ion-icon>
+            Promociones
+          </h3>
+          <p class="text-lg">
+            En caso de que el Instituto ofrezca descuentos o promociones, estos serán anunciados en el portal oficial de la biblioteca o mediante comunicación de correo electrónico. Dichos beneficios estarán sujetos a condiciones específicas como vigencia, restricciones de uso y aplicabilidad sobre ciertos materiales.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. ENVÍOS -->
+    <section id="seccion-4" class="content-card fade-in-up">
+      <div class="section-title">
+        <div class="section-number">4</div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Envíos y Entregas</h2>
+          <p class="text-base text-gray-600 mt-2">Acceso a materiales digitales</p>
+        </div>
+      </div>
+
+      <div class="text-gray-700 leading-relaxed space-y-8 text-base">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="globe" class="text-2xl text-blue-600"></ion-icon>
+            Cobertura Geográfica
+          </h3>
+          <p class="text-lg">
+            El acceso a los materiales digitales adquiridos a través del sistema integral de biblioteca está disponible para <strong>todos los usuarios registrados</strong>, sin importar su ubicación geográfica, siempre que cuenten con conexión a internet.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="time" class="text-2xl text-blue-600"></ion-icon>
+            Tiempo de Entrega
+          </h3>
+          <div class="success-highlight">
+            <div class="flex items-center gap-4">
+              <ion-icon name="rocket" class="text-4xl text-green-600"></ion-icon>
+              <div>
+                <h4 class="font-bold text-gray-900 text-lg mb-2">Entrega Inmediata</h4>
+                <p class="text-base">
+                  La entrega de los materiales digitales es <strong>inmediata</strong> una vez confirmado el pago de manera digital. El usuario podrá acceder a los recursos desde su cuenta dentro del sistema de biblioteca.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="cash" class="text-2xl text-blue-600"></ion-icon>
+            Costos de Envíos
+          </h3>
+          <p class="text-lg">
+            Al tratarse de productos digitales, <strong>no existen costos de envío adicionales</strong>.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="alert-circle" class="text-2xl text-blue-600"></ion-icon>
+            Incidencias en la Entrega
+          </h3>
+          <p class="text-lg">
+            En caso de que el usuario no pueda acceder al material adquirido dentro del plazo <strong>[pendiente de plazo]</strong> horas después de haber completado su compra, deberá comunicarse al área de soporte técnico del Instituto mediante los canales oficiales (correo electrónico y teléfono). El Instituto se compromete a resolver la incidencia a la brevedad posible.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. DEVOLUCIONES -->
+    <section id="seccion-5" class="content-card fade-in-up">
+      <div class="section-title">
+        <div class="section-number">5</div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Devoluciones y Cambios</h2>
+          <p class="text-base text-gray-600 mt-2">Condiciones para solicitar reembolsos</p>
+        </div>
+      </div>
+
+      <div class="text-gray-700 leading-relaxed space-y-8 text-base">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="document-text" class="text-2xl text-blue-600"></ion-icon>
+            Condiciones Generales
+          </h3>
+          <p class="mb-4 text-lg">
+            Dado que los materiales adquiridos corresponden a contenido digital, <strong>no se admiten devoluciones ni cambios</strong> una vez confirmada la compra, salvo en los siguientes casos excepcionales:
+          </p>
+          <ul class="custom-list text-base">
+            <li>Error en la transacción (cargo duplicado, error en el recurso asignado)</li>
+            <li>Imposibilidad técnica comprobada de acceder al material adquirido</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="calendar" class="text-2xl text-blue-600"></ion-icon>
+            Plazo de Solicitud
+          </h3>
+          <p class="text-lg">
+            En los casos mencionados, el usuario deberá presentar la solicitud de devolución o aclaración dentro de los <strong>[pendiente de días]</strong> días hábiles posteriores a la compra.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="checkmark-done" class="text-2xl text-blue-600"></ion-icon>
+            Condiciones para Aceptar Devoluciones
+          </h3>
+          <p class="mb-4 text-lg">Para solicitar una devolución, el usuario deberá:</p>
+          <ul class="custom-list text-base">
+            <li>Presentar el comprobante de pago o transacción</li>
+            <li>Especificar el motivo de la solicitud</li>
+            <li>Acreditar la imposibilidad de acceso o el error técnico (captura de pantalla, mensaje de error, etc.)</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="cash-outline" class="text-2xl text-blue-600"></ion-icon>
+            Costos de Devolución
+          </h3>
+          <p class="text-lg">
+            En caso de reembolso autorizado, el Instituto asumirá los costos de la devolución y el importe será reintegrado al mismo método de pago utilizado por el usuario dentro de un plazo aproximado de <strong>[pendiente]</strong> días hábiles.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CANCELACIONES -->
+    <section id="seccion-6" class="content-card fade-in-up">
+      <div class="section-title">
+        <div class="section-number">6</div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Cancelación de Compras</h2>
+          <p class="text-base text-gray-600 mt-2">Procedimientos para cancelar transacciones</p>
+        </div>
+      </div>
+
+      <div class="text-gray-700 leading-relaxed space-y-8 text-base">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="person" class="text-2xl text-blue-600"></ion-icon>
+            Por Parte del Usuario
+          </h3>
+          <p class="text-lg">
+            El usuario puede solicitar la cancelación de compras de materiales digitales dentro de un plazo <strong>[pendiente]</strong> hábiles posteriores a la transacción, siempre que el material no haya sido entregado o descargado. La solicitud debe enviarse al correo electrónico <strong>[pendiente]</strong> o al teléfono <strong>[pendiente]</strong>.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="business" class="text-2xl text-blue-600"></ion-icon>
+            Por Parte del Instituto
+          </h3>
+          <p class="text-lg">
+            El Instituto se reserva el derecho de cancelar una compra o transacción en caso de fallas en el pago, errores en la información proporcionada por el usuario o indisponibilidad del material. En estos casos, se notificará al usuario y se realizará la devolución correspondiente.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <ion-icon name="receipt" class="text-2xl text-blue-600"></ion-icon>
+            Condiciones y Cargos
+          </h3>
+          <p class="text-lg">
+            No se aplicarán cargos por cancelación dentro del plazo indicado. Para cancelaciones fuera de este plazo o por causas atribuibles al usuario, se evaluará caso por caso y el Instituto informará sobre posibles cargos administrativos, si aplican.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. GARANTÍAS -->
+    <section id="seccion-7" class="content-card fade-in-up">
+      <div class="section-title">
+        <div class="section-number">7</div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Garantías y Responsabilidades</h2>
+          <p class="text-base text-gray-600 mt-2">Compromisos y limitaciones del servicio</p>
+        </div>
+      </div>
+
+      <div class="text-gray-700 leading-relaxed space-y-6 text-base">
+        <p class="text-lg">
+          La Biblioteca Digital garantiza el <strong>acceso seguro y funcional</strong> a los materiales digitales (libros electrónicos, artículos, revistas) durante el tiempo en que estén disponibles en la plataforma.
+        </p>
+
+        <div class="info-highlight">
+          <div class="flex items-start gap-4">
+            <ion-icon name="headset" class="text-3xl text-blue-600 flex-shrink-0 mt-1"></ion-icon>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-3 text-lg">Soporte Técnico</h4>
+              <p class="text-base">
+                En caso de fallas técnicas que impidan el acceso a los materiales o errores en la entrega digital, los usuarios pueden contactar al Instituto a través de correo electrónico <strong>[pendiente]</strong> o teléfono <strong>[pendiente]</strong> para solicitar reparación, reembolso o reemplazo del material afectado.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="warning-highlight">
+          <div class="flex items-start gap-4">
+            <ion-icon name="warning" class="text-3xl text-amber-600 flex-shrink-0 mt-1"></ion-icon>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-3 text-lg">Exclusiones de Garantía</h4>
+              <p class="text-base mb-3">La garantía <strong>no cubre</strong> daños derivados de:</p>
+              <ul class="text-base space-y-2">
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-600 font-bold mt-1">•</span>
+                  <span>Mal uso o negligencia del usuario</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-600 font-bold mt-1">•</span>
+                  <span>Acceso indebido o no autorizado</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-600 font-bold mt-1">•</span>
+                  <span>Problemas externos fuera del control del Instituto</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-600 font-bold mt-1">•</span>
+                  <span>Errores del usuario o fallas de dispositivos personales</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-lg">
+          El Instituto <strong>no se hace responsable</strong> por daños directos, indirectos o consecuentes derivados del uso indebido de los materiales digitales o de la plataforma.
+        </p>
+      </div>
+    </section>
+
+    <!-- 8. MARCO LEGAL -->
+    <section id="seccion-8" class="content-card fade-in-up">
+      <div class="section-title">
+        <div class="section-number">8</div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Marco Legal</h2>
+          <p class="text-base text-gray-600 mt-2">Normativa aplicable y derechos del consumidor</p>
+        </div>
+      </div>
+
+      <div class="text-gray-700 leading-relaxed space-y-6 text-base">
+        <p class="text-lg">
+          La Biblioteca Digital del Instituto de Estudios Superiores Tiozihuatl cumple con la <strong >Ley Federal de Protección al Consumidor (LFPC)</strong> y demás normas aplicables en México.
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-6 mt-8">
+          <div class="info-highlight">
+            <div class="flex items-start gap-4">
+              <ion-icon name="people" class="text-3xl text-blue-600 flex-shrink-0 mt-1"></ion-icon>
+              <div>
+                <h4 class="font-bold text-gray-900 mb-3 text-lg">Derechos del Consumidor</h4>
+                <p class="text-base">
+                  Los usuarios tienen derecho a recibir los materiales y servicios en condiciones óptimas, así como a solicitar la cancelación de compras o servicios cuando corresponda.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-highlight">
+            <div class="flex items-start gap-4">
+              <ion-icon name="chatbox-ellipses" class="text-3xl text-blue-600 flex-shrink-0 mt-1"></ion-icon>
+              <div>
+                <h4 class="font-bold text-gray-900 mb-3 text-lg">Quejas y Reclamaciones</h4>
+                <p class="text-base">
+                  Los usuarios pueden presentar inconformidades ante la <strong>Procuraduría Federal del Consumidor (PROFECO)</strong> en caso de irregularidades.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-highlight">
+            <div class="flex items-start gap-4">
+              <ion-icon name="hammer" class="text-3xl text-blue-600 flex-shrink-0 mt-1"></ion-icon>
+              <div>
+                <h4 class="font-bold text-gray-900 mb-3 text-lg">Resolución de Conflictos</h4>
+                <p class="text-base">
+                  Cualquier conflicto se resolverá conforme a la legislación mexicana vigente, en los tribunales competentes del Estado de Hidalgo.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-highlight">
+            <div class="flex items-start gap-4">
+              <ion-icon name="shield-half" class="text-3xl text-blue-600 flex-shrink-0 mt-1"></ion-icon>
+              <div>
+                <h4 class="font-bold text-gray-900 mb-3 text-lg">Limitación de Responsabilidad</h4>
+                <p class="text-base">
+                  El Instituto no se hace responsable por daños derivados del uso indebido de la plataforma.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. MODIFICACIONES -->
+    <section id="seccion-9" class="content-card fade-in-up">
+      <div class="section-title">
+        <div class="section-number">9</div>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Modificaciones de los Términos</h2>
+          <p class="text-base text-gray-600 mt-2">Actualizaciones y cambios en las políticas</p>
+        </div>
+      </div>
+
+      <div class="text-gray-700 leading-relaxed space-y-6 text-base">
+        <p class="text-lg">
+          El Instituto de Estudios Superiores Tiozihuatl puede modificar estos Términos y Condiciones en cualquier momento. Las actualizaciones se comunicarán mediante el sitio web de la Biblioteca Digital o notificaciones electrónicas.
+        </p>
+
+        <div class="info-highlight">
+          <div class="flex items-start gap-4">
+            <ion-icon name="refresh" class="text-3xl text-blue-600 flex-shrink-0 mt-1"></ion-icon>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-3 text-lg">Recomendación</h4>
+              <p class="text-base">
+                Se recomienda a los usuarios revisar periódicamente la versión vigente de los Términos y Condiciones para mantenerse informados sobre cualquier cambio que pueda afectar el uso de la plataforma.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-gray-50 to-blue-50 border-l-4 border-blue-400 p-6 rounded-lg shadow-sm">
+          <p class="text-base text-gray-700 font-semibold flex items-center gap-3">
+            <ion-icon name="calendar" class="text-2xl text-blue-600"></ion-icon>
+            <span><strong>Última actualización:</strong> Noviembre/2025</span>
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<!-- ================= CONTACTO ================= -->
+<section class="py-20 relative overflow-hidden" style="background: linear-gradient(135deg, #3FA6E8 0%, #2D8BE8 100%);">
+  <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;"></div>
+  
+  <div class="max-w-6xl mx-auto px-6 relative z-10">
+    <!-- Header -->
+    <div class="text-center text-white mb-16">
+      <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg border border-white/30">
+        <ion-icon name="mail-open" class="text-5xl"></ion-icon>
+      </div>
+      <h3 class="text-4xl md:text-5xl font-bold mb-4">¿Tienes dudas?</h3>
+      <p class="text-lg text-white/90 max-w-2xl mx-auto">
+        Contáctanos para resolver cualquier inquietud sobre los Términos y Condiciones
+      </p>
+    </div>
+
+    <!-- Cards de contacto -->
+    <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <!-- Correo -->
+      <div class="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
+        <div class="w-16 h-16 bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] rounded-xl flex items-center justify-center mx-auto mb-5 shadow-md group-hover:scale-110 transition-transform duration-300">
+          <ion-icon name="mail" class="text-4xl text-white"></ion-icon>
+        </div>
+        <div class="text-center">
+          <h4 class="font-bold text-gray-900 text-lg mb-2">Correo Electrónico</h4>
+          <p class="text-gray-600 text-sm mb-3">Escríbenos tus dudas</p>
+          <p class="text-gray-900 font-semibold">[Pendiente]</p>
+        </div>
+      </div>
+
+      <!-- Teléfono -->
+      <div class="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
+        <div class="w-16 h-16 bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] rounded-xl flex items-center justify-center mx-auto mb-5 shadow-md group-hover:scale-110 transition-transform duration-300">
+          <ion-icon name="call" class="text-4xl text-white"></ion-icon>
+        </div>
+        <div class="text-center">
+          <h4 class="font-bold text-gray-900 text-lg mb-2">Teléfono</h4>
+          <p class="text-gray-600 text-sm mb-3">Llámanos directamente</p>
+          <p class="text-gray-900 font-semibold">[Pendiente]</p>
+        </div>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
+        <div class="w-16 h-16 bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] rounded-xl flex items-center justify-center mx-auto mb-5 shadow-md group-hover:scale-110 transition-transform duration-300">
+          <ion-icon name="location" class="text-4xl text-white"></ion-icon>
+        </div>
+        <div class="text-center">
+          <h4 class="font-bold text-gray-900 text-lg mb-2">Ubicación</h4>
+          <p class="text-gray-600 text-sm mb-3">Visítanos en</p>
+          <p class="text-gray-900 font-semibold">Dr. Gea González 6, Centro, 43000 Huejutla, Hgo., México</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="mt-12 max-w-3xl mx-auto bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
+      <div class="flex flex-col md:flex-row items-center justify-center gap-8 text-white">
+        <div class="flex items-center gap-3">
+          <ion-icon name="time-outline" class="text-3xl"></ion-icon>
+          <div>
+            <p class="font-semibold">Horario de atención</p>
+            <p class="text-sm text-white/80">Lunes a Viernes, 8:00 AM - 6:00 PM</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="bg-white border-t-2 border-gray-100 py-10 ">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+      
+      <div class="flex items-center gap-4">
+           <img 
+            src="logo1.png" 
+            alt="Logo del Instituto Tiozihuatl" 
+            class="w-10 h-10 rounded-lg border border-gray-200 object-contain"
+          />
+        <div class="text-sm">
+          <div class="font-bold text-gray-900 text-base">Instituto de Estudios Superiores Tiozihuatl</div>
+          <div class="text-gray-600">Sistema Integral Multiplataforma</div>
+        </div>
+      </div>
+
+      <div class="text-sm text-gray-600 text-center md:text-right">
+        <div class="font-semibold text-gray-800">© 2025 Todos los derechos reservados</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Fade in on scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.fade-in-up').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+    observer.observe(el);
+  });
+</script>
+

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,CUSTOM_ELEMENTS_SCHEMA,ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,6 +11,8 @@ import { AdminUserService } from '../../../api/services/admin-user.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './admin-panel.html',
   styleUrls: ['./admin-panel.css'],
+   schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  encapsulation: ViewEncapsulation.None
 })
 export class AdminPanelComponent implements OnInit {
   usuarios: any[] = [];
