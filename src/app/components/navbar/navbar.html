@@ -1,6 +1,17 @@
 <style>
     * { font-family: 'Montserrat', sans-serif; }
     
+    /* SOLUCIÓN: Margen superior para compensar navbar fijo */
+    body {
+        padding-top: 52px; /* Altura del navbar en desktop */
+    }
+
+    @media (max-width: 640px) {
+        body {
+            padding-top: 40px; /* Altura del navbar en móvil */
+        }
+    }
+
     .fade-in {
       animation: fadeIn 1s ease-in-out forwards;
     }
@@ -34,6 +45,7 @@
     #menu-toggle {
       display: none;
     }
+
 
     /* Botón hamburguesa - oculto por defecto */
     .hamburger-btn {
