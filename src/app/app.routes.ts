@@ -19,6 +19,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'verificar-correo', component: VerificarCorreoComponent },
+  
   { path: 'privacidad', component: Privacidad},
   {path: 'terminos', component: Terminos},
   {path: 'seguridad', component: Seguridad},

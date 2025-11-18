@@ -59,6 +59,11 @@ export class RegisterComponent {
   enrollBiometria = false;
   tipoBiometria: 'HUELLA' | null = null; // solo HUELLA ahora
 
+  aceptoTerminos = false;
+  aceptoPrivacidad = false;
+  aceptoSeguridad = false;
+  todosCheckboxesAceptados = false;
+
   private uppercaseRegex = /[A-Z]/;
   private lowercaseRegex = /[a-z]/;
   private numberRegex = /\d/;
@@ -71,6 +76,26 @@ export class RegisterComponent {
     private router: Router,
     private route: ActivatedRoute
   ) {}
+
+
+    validarCheckboxes() {
+    this.todosCheckboxesAceptados = 
+      this.aceptoTerminos && 
+      this.aceptoPrivacidad && 
+      this.aceptoSeguridad;
+  }
+
+  abrirTerminos() {
+    this.router.navigate(['/terminos'], { queryParams: { from: 'register' } });
+  }
+
+  abrirPrivacidad() {
+    this.router.navigate(['/privacidad'], { queryParams: { from: 'register' } });
+  }
+
+  abrirSeguridad() {
+    this.router.navigate(['/seguridad'], { queryParams: { from: 'register' } });
+  }
 
   hasUppercase(): boolean {
     return this.uppercaseRegex.test(this.form.contrasena);
@@ -290,6 +315,8 @@ async nextStep() {
     }
     return btoa(binary);
   }
+
+
 
 async registrar() {
   this.cargando = true;

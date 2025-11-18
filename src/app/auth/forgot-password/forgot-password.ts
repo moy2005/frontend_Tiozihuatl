@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,CUSTOM_ELEMENTS_SCHEMA,ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,6 +10,8 @@ import { AuthService } from '../../api/services/auth';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './forgot-password.html',
+     schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    encapsulation: ViewEncapsulation.None
 })
 export class ForgotPasswordComponent {
   correo = '';
