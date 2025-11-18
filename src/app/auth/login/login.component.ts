@@ -14,8 +14,9 @@ import { ElementRef, ViewChild } from '@angular/core';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
-   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    encapsulation: ViewEncapsulation.None
+   styleUrls: ['./login.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  encapsulation: ViewEncapsulation.None
 })
 export class LoginComponent implements OnInit {
   correo = '';

@@ -26,6 +26,7 @@ interface PublicKeyCredential {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './register.component.html',
+   styleUrls: ['./register.component.css'],
    schemas: [CUSTOM_ELEMENTS_SCHEMA],
     encapsulation: ViewEncapsulation.None
 })

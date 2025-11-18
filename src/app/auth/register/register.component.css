@@ -6,3 +6,700 @@
   animation: fade-in 0.5s ease-in-out;
 }
 
+
+    /* ===== ESTILOS DEL DISEÑO AZUL ===== */
+    :root {
+      --form-azul: #3FA6E8;
+      --form-azul-borde: #345EC8;
+    }
+
+    .login-page {
+      --azul-fondo: #e0f2fe;
+      --azul-contenedor: #3FA6E8;
+      --azul-interior: #E7EEFF;
+      --azul-input: #FFFFFF;
+      --azul-boton: #3FA6E8;
+      --azul-boton-hover: #1D3E8D;
+      --texto-blanco: #FFFFFF;
+      --texto-suave: rgba(255,255,255,0.85);
+      --gris-placeholder: #B6C4E2;
+      --gris-border: #D2DCF5;
+
+      font-family: "Inter", sans-serif !important;
+      background: var(--azul-fondo);
+    }
+
+    .login-page h1, 
+    .login-page h2, 
+    .login-page h3 {
+      font-family: "Montserrat", sans-serif !important;
+    }
+
+    /* PANEL AZUL PRINCIPAL */
+    .login-page .login-container {
+      background: var(--azul-contenedor);
+      border-radius: 24px;
+      padding: 2.2rem;
+      border: 1px solid #3FA6E8;
+      box-shadow: 0 12px 28px rgba(47,77,160,0.25), 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    /* PANEL INTERIOR */
+    .login-page .login-inner {
+      background: var(--azul-interior);
+      padding: 2rem;
+      border-radius: 18px;
+      border: 1px solid #CBD8F7;
+      box-shadow: inset 0 0 8px rgba(255,255,255,0.4);
+    }
+
+    /* TITULO */
+    .login-page .login-title {
+      color: var(--texto-blanco);
+    }
+
+    /* INPUTS */
+    .login-page .input-wrapper {
+      position: relative;
+    }
+
+    .login-page .input-field {
+      background: var(--azul-input);
+      border: 1px solid var(--gris-border);
+      border-radius: 12px;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.9rem;
+      color: #374151;
+      transition: 0.25s ease;
+    }
+
+    .login-page .input-field:focus {
+      border-color: var(--azul-contenedor);
+      box-shadow: 0 0 0 3px rgba(63,111,213,0.25);
+      background: white;
+      outline: none;
+    }
+
+    /* Estados de validación */
+    .login-page .input-valid {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
+
+    .login-page .input-invalid {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    /* BOTÓN PRINCIPAL */
+    .login-page .btn-primary {
+      background: var(--azul-boton);
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      transition: 0.25s ease;
+      box-shadow: 0 6px 16px rgba(36,74,166,0.35);
+      border: none;
+      cursor: pointer;
+    }
+
+    .login-page .btn-primary:hover:not(:disabled) {
+      background: var(--azul-boton-hover);
+      transform: translateY(-2px);
+    }
+
+    .login-page .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* BOTONES SECUNDARIOS */
+    .login-page .btn-secondary {
+      background: #2D8BE8;
+      color: white;
+      font-weight: 600;
+      padding: 0.65rem 1rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      transition: 0.25s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .login-page .btn-secondary:hover:not(:disabled) {
+      background: #1D6BC8;
+      transform: translateY(-1px);
+    }
+
+    .login-page .btn-google {
+      background: #dc2626;
+    }
+
+    .login-page .btn-google:hover:not(:disabled) {
+      background: #b91c1c;
+    }
+
+    .login-page .btn-facebook {
+      background: #1e3a8a;
+    }
+
+    .login-page .btn-facebook:hover:not(:disabled) {
+      background: #1e40af;
+    }
+
+    /* BOTÓN GHOST */
+    .login-page .btn-ghost {
+      background: transparent;
+      color: #2C3A6A;
+      font-weight: 600;
+      padding: 0.65rem 1rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      transition: 0.25s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .login-page .btn-ghost:hover {
+      background: rgba(63, 166, 232, 0.1);
+      color: var(--azul-boton);
+    }
+
+    /* LABELS */
+    .login-page .label-text {
+      color: #2C3A6A;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* LINKS */
+    .login-page .link-acento {
+      color: var(--azul-boton);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .login-page .link-acento:hover {
+      text-decoration: underline;
+    }
+
+    /* STEPPER */
+    .login-page .step-circle {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .login-page .step-active {
+      background: var(--azul-boton);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(63, 166, 232, 0.2);
+    }
+
+    .login-page .step-completed {
+      background: linear-gradient(135deg, #3FA6E8, #1D3E8D);
+      color: white;
+    }
+
+    .login-page .step-inactive {
+      background: #E5E7EB;
+      color: #9CA3AF;
+    }
+
+    .login-page .step-line {
+      flex: 1;
+      height: 3px;
+      margin: 0 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .login-page .step-line-active {
+      background: linear-gradient(to right, #3FA6E8, #1D3E8D);
+    }
+
+    .login-page .step-line-inactive {
+      background: #E5E7EB;
+    }
+
+    /* HEADER DE SECCIÓN */
+    .login-page .section-header {
+      background: rgba(63, 166, 232, 0.1);
+      border: 1px solid rgba(63, 166, 232, 0.2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* CARD BIOMÉTRICA */
+    .login-page .biometric-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border: 2px solid #D2DCF5;
+      border-radius: 16px;
+      padding: 1.5rem;
+      background: white;
+    }
+
+    .login-page .biometric-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(63, 166, 232, 0.15);
+      border-color: #3FA6E8;
+    }
+
+    .login-page .biometric-card.selected {
+      background: linear-gradient(135deg, rgba(63, 166, 232, 0.08), rgba(29, 62, 141, 0.08));
+      border-color: #3FA6E8;
+      box-shadow: 0 0 0 3px rgba(63, 166, 232, 0.2);
+    }
+
+    /* INFO BOX */
+    .login-page .info-box {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 12px;
+      padding: 1rem;
+      color: #1E40AF;
+    }
+
+    /* PASSWORD STRENGTH */
+    .login-page .strength-bar {
+      height: 6px;
+      border-radius: 999px;
+      background: #E5E7EB;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .login-page .strength-fill {
+      height: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .login-page .strength-weak {
+      width: 33%;
+      background: #ef4444;
+    }
+
+    .login-page .strength-medium {
+      width: 66%;
+      background: #f59e0b;
+    }
+
+    .login-page .strength-strong {
+      width: 100%;
+      background: #10b981;
+    }
+
+    /* ANIMACIÓN */
+    .animate-fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* VALIDACIÓN ICONS */
+    .validation-icon {
+      position: absolute;
+      right: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .login-page input[type="checkbox"]:checked {
+      background-color: #3FA6E8;
+      border-color: #3FA6E8;
+    }
+
+    .login-page input[type="checkbox"]:focus {
+      ring: 2px solid #3FA6E8;
+      ring-opacity: 0.2;
+    }
+
+    /* ========== ESTILOS RESPONSIVOS ========== */
+
+    /* Tablets y pantallas medianas (hasta 1024px) */
+    @media (max-width: 1024px) {
+      .login-page .login-container {
+        padding: 1.75rem;
+      }
+
+      .login-page .login-inner {
+        padding: 1.5rem;
+      }
+
+      .login-page .login-title {
+        font-size: 1.75rem;
+      }
+
+      .login-page .step-circle {
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 0.875rem;
+      }
+
+      .login-page .step-line {
+        margin: 0 0.5rem;
+      }
+    }
+
+    /* Tablets pequeñas (hasta 768px) */
+    @media (max-width: 768px) {
+      .login-page {
+        padding: 1rem;
+        padding-top: 6rem;
+      }
+
+      .login-page .login-container {
+        padding: 1.5rem;
+        border-radius: 20px;
+      }
+
+      .login-page .login-inner {
+        padding: 1.25rem;
+        border-radius: 16px;
+      }
+
+      .login-page .login-title {
+        font-size: 1.5rem;
+      }
+
+      /* Stepper responsivo */
+      .login-page .step-circle {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.75rem;
+      }
+
+      .login-page .step-line {
+        margin: 0 0.375rem;
+        height: 2px;
+      }
+
+      /* Labels de pasos más pequeños */
+      .login-page .step-circle + span {
+        font-size: 0.7rem !important;
+        width: auto !important;
+        max-width: 80px;
+      }
+
+      /* Section headers */
+      .login-page .section-header {
+        padding: 0.875rem;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .login-page .section-header h2 {
+        font-size: 1rem;
+      }
+
+      .login-page .section-header p {
+        font-size: 0.8rem;
+      }
+
+      /* Botones más compactos */
+      .login-page .btn-primary,
+      .login-page .btn-secondary,
+      .login-page .btn-ghost {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+      }
+
+      /* Cards biométricas */
+      .login-page .biometric-card {
+        padding: 1.25rem;
+      }
+
+      .login-page .biometric-card h3 {
+        font-size: 1rem;
+      }
+
+      .login-page .biometric-card p {
+        font-size: 0.8rem;
+      }
+
+      .login-page .biometric-card .w-16 {
+        width: 3.5rem;
+        height: 3.5rem;
+      }
+
+      .login-page .biometric-card ion-icon {
+        font-size: 2rem !important;
+      }
+    }
+
+    /* Móviles (hasta 640px) */
+    @media (max-width: 640px) {
+      .login-page {
+        padding: 0.75rem;
+        padding-top: 5rem;
+      }
+
+      .login-page .login-container {
+        padding: 1.25rem;
+        border-radius: 18px;
+      }
+
+      .login-page .login-inner {
+        padding: 1rem;
+        border-radius: 14px;
+      }
+
+      /* Logo más pequeño */
+      .login-page .w-20 img {
+        width: 10rem !important;
+        height: 10rem !important;
+      }
+
+      .login-page .login-title {
+        font-size: 1.375rem;
+        margin-top: 0.75rem !important;
+      }
+
+      /* Stepper vertical en móvil */
+      .login-page .step-circle {
+        width: 1.875rem;
+        height: 1.875rem;
+        font-size: 0.7rem;
+      }
+
+      .login-page .step-line {
+        margin: 0 0.25rem;
+        height: 2px;
+      }
+
+      .login-page .step-circle + span {
+        font-size: 0.625rem !important;
+        max-width: 60px;
+        line-height: 1.2;
+      }
+
+      /* Grid de inputs a 1 columna */
+      .login-page .grid-cols-3 {
+        grid-template-columns: 1fr !important;
+      }
+
+      .login-page .md\:col-span-2 {
+        grid-column: span 1 !important;
+      }
+
+      /* Labels más pequeños */
+      .login-page .label-text {
+        font-size: 0.8rem;
+      }
+
+      /* Inputs más compactos */
+      .login-page .input-field {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.85rem;
+      }
+
+      /* Mensajes de validación */
+      .login-page .text-xs {
+        font-size: 0.7rem !important;
+      }
+
+      /* Section headers */
+      .login-page .section-header {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .login-page .section-header ion-icon {
+        font-size: 1.5rem !important;
+      }
+
+      .login-page .section-header h2 {
+        font-size: 0.95rem;
+      }
+
+      .login-page .section-header p {
+        font-size: 0.75rem;
+      }
+
+      /* Botones */
+      .login-page .btn-primary,
+      .login-page .btn-secondary,
+      .login-page .btn-ghost {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+      }
+
+      /* Grid de botones OAuth */
+      .login-page .grid-cols-2 {
+        gap: 0.5rem !important;
+      }
+
+      /* Info boxes */
+      .login-page .info-box {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+      }
+
+      /* Password strength */
+      .login-page .strength-bar {
+        height: 5px;
+      }
+
+      /* Cards biométricas más compactas */
+      .login-page .biometric-card {
+        padding: 1rem;
+      }
+
+      .login-page .biometric-card .w-16 {
+        width: 3rem;
+        height: 3rem;
+      }
+
+      .login-page .biometric-card ion-icon {
+        font-size: 1.75rem !important;
+      }
+
+      .login-page .biometric-card h3 {
+        font-size: 0.9rem;
+      }
+
+      .login-page .biometric-card p {
+        font-size: 0.75rem;
+      }
+
+      .login-page .biometric-card .w-6 {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+
+      /* Checkboxes */
+      .login-page input[type="checkbox"] {
+        width: 1rem !important;
+        height: 1rem !important;
+      }
+
+      .login-page input[type="checkbox"] + label {
+        font-size: 0.8rem !important;
+      }
+
+      /* Espaciado de formularios */
+      .login-page .space-y-5 {
+        gap: 1rem !important;
+      }
+
+      .login-page .space-y-4 {
+        gap: 0.875rem !important;
+      }
+
+      /* Botones de navegación (Atrás/Continuar) */
+      .login-page .flex.justify-between {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .login-page .flex.justify-between > button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .login-page .flex.justify-center > button {
+        width: 100%;
+      }
+    }
+
+    /* Móviles muy pequeños (hasta 375px) */
+    @media (max-width: 375px) {
+      .login-page {
+        padding: 0.5rem;
+        padding-top: 4.5rem;
+      }
+
+      .login-page .login-container {
+        padding: 1rem;
+      }
+
+      .login-page .login-inner {
+        padding: 0.875rem;
+      }
+
+      .login-page .login-title {
+        font-size: 1.25rem;
+      }
+
+      .login-page .step-circle {
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.65rem;
+      }
+
+      .login-page .step-circle + span {
+        font-size: 0.55rem !important;
+        max-width: 50px;
+      }
+
+      .login-page .btn-primary,
+      .login-page .btn-secondary,
+      .login-page .btn-ghost {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.75rem;
+      }
+
+      .login-page .biometric-card {
+        padding: 0.875rem;
+      }
+
+      .login-page .biometric-card .w-16 {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+
+      .login-page .biometric-card ion-icon {
+        font-size: 1.5rem !important;
+      }
+    }
+
+    /* Landscape en móviles */
+    @media (max-height: 600px) and (orientation: landscape) {
+      .login-page {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      .login-page .login-container {
+        padding: 1rem;
+      }
+
+      .login-page .login-inner {
+        padding: 1rem;
+      }
+
+      .login-page .w-20 img {
+        width: 8rem !important;
+        height: 8rem !important;
+      }
+
+      .login-page .section-header {
+        margin-bottom: 0.75rem;
+      }
+
+      .login-page .space-y-5,
+      .login-page .space-y-4 {
+        gap: 0.75rem !important;
+      }
+    }
