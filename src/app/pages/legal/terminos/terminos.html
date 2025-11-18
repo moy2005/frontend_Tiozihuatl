@@ -6,26 +6,16 @@
       box-sizing: border-box;
     }
     
-    html {
-      scroll-behavior: smooth;
-    }
+  
 
     body {
       background: linear-gradient(white);
-      min-height: 100vh;
+
     }
 
-    /* Progress bar */
-    .progress-bar {
-      position: fixed;
-      top: 88px;
-      left: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #3FA6E8, #2D8BE8);
-      width: 0%;
-      z-index: 1000;
-      transition: width 0.1s ease;
-    }
+
+     /* SOLUCIÓN: Agrega padding-top al body para compensar el navbar fijo */
+  
 
     /* Animations */
     @keyframes fadeInUp {
@@ -67,6 +57,18 @@
       padding-bottom: 1.5rem;
       border-bottom: 3px solid #E8F3FA;
     }
+
+
+    .progress-bar {
+  position: fixed;
+  top: 0; /* Empieza desde el top real */
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3FA6E8, #2D8BE8);
+  width: 0%;
+  z-index: 1000;
+  transition: width 0.1s ease;
+}
 
     .section-number {
       width: 56px;
@@ -182,8 +184,8 @@
 
 <!-- ================= MAIN CONTENT ================= -->
 <main class="pb-20">
-  <section class="relative pt-20 pb-10 bg-[#3FA6E8] text-white">
-    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center"></div>
+  <section class="relative pt-12 pb-10 bg-[#3FA6E8] text-white">
+  <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center"></div>
     <!-- Header -->
     <div class="text-center mb-16 fade-in-up">
        <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold">
