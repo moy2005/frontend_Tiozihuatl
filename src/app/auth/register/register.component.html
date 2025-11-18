@@ -441,47 +441,53 @@
             </div>
           </div>
 
-          <!-- Checkboxes de términos y políticas -->
-          <div class="space-y-2 sm:space-y-3 mt-4 sm:mt-6">
-            <div class="flex items-start gap-2 sm:gap-3">
-              <input
-                type="checkbox"
-                id="terminos"
-                [(ngModel)]="aceptoTerminos"
-                class="mt-1 w-4 h-4 text-[#3FA6E8] bg-gray-100 border-gray-300 rounded focus:ring-[#3FA6E8] focus:ring-2"
-                (change)="validarCheckboxes()">
-              <label for="terminos" class="text-xs sm:text-sm text-[#2C3A6A] cursor-pointer">
-                He leído y acepto los 
-                <a (click)="abrirTerminos()" class="link-acento font-semibold">Términos y Condiciones</a>
-              </label>
-            </div>
+        <!-- Checkboxes de términos y políticas -->
+<div class="space-y-2 sm:space-y-3 mt-4 sm:mt-6">
+  <div class="flex items-start gap-2 sm:gap-3">
+    <input
+      type="checkbox"
+      id="terminos"
+      [(ngModel)]="aceptoTerminos"
+      class="mt-1 w-4 h-4 text-[#3FA6E8] bg-gray-100 border-gray-300 rounded focus:ring-[#3FA6E8] focus:ring-2"
+      (change)="validarCheckboxes()">
+    <label for="terminos" class="text-xs sm:text-sm text-[#2C3A6A] cursor-pointer">
+      He leído y acepto los 
+      <a href="https://frontiozihuatl.netlify.app/terminos" target="_blank" rel="noopener noreferrer" class="link-acento font-semibold">
+        Términos y Condiciones
+      </a>
+    </label>
+  </div>
 
-            <div class="flex items-start gap-2 sm:gap-3">
-              <input
-                type="checkbox"
-                id="privacidad"
-                [(ngModel)]="aceptoPrivacidad"
-                class="mt-1 w-4 h-4 text-[#3FA6E8] bg-gray-100 border-gray-300 rounded focus:ring-[#3FA6E8] focus:ring-2"
-                (change)="validarCheckboxes()">
-              <label for="privacidad" class="text-xs sm:text-sm text-[#2C3A6A] cursor-pointer">
-                He leído y acepto la 
-                <a (click)="abrirPrivacidad()" class="link-acento font-semibold">Política de Privacidad</a>
-              </label>
-            </div>
+  <div class="flex items-start gap-2 sm:gap-3">
+    <input
+      type="checkbox"
+      id="privacidad"
+      [(ngModel)]="aceptoPrivacidad"
+      class="mt-1 w-4 h-4 text-[#3FA6E8] bg-gray-100 border-gray-300 rounded focus:ring-[#3FA6E8] focus:ring-2"
+      (change)="validarCheckboxes()">
+    <label for="privacidad" class="text-xs sm:text-sm text-[#2C3A6A] cursor-pointer">
+      He leído y acepto la 
+      <a href="https://frontiozihuatl.netlify.app/privacidad" target="_blank" rel="noopener noreferrer" class="link-acento font-semibold">
+        Política de Privacidad
+      </a>
+    </label>
+  </div>
 
-            <div class="flex items-start gap-2 sm:gap-3">
-              <input
-                type="checkbox"
-                id="seguridad"
-                [(ngModel)]="aceptoSeguridad"
-                class="mt-1 w-4 h-4 text-[#3FA6E8] bg-gray-100 border-gray-300 rounded focus:ring-[#3FA6E8] focus:ring-2"
-                (change)="validarCheckboxes()">
-              <label for="seguridad" class="text-xs sm:text-sm text-[#2C3A6A] cursor-pointer">
-                He leído y acepto las 
-                <a (click)="abrirSeguridad()" class="link-acento font-semibold">Políticas de Seguridad</a>
-              </label>
-            </div>
-          </div>
+  <div class="flex items-start gap-2 sm:gap-3">
+    <input
+      type="checkbox"
+      id="seguridad"
+      [(ngModel)]="aceptoSeguridad"
+      class="mt-1 w-4 h-4 text-[#3FA6E8] bg-gray-100 border-gray-300 rounded focus:ring-[#3FA6E8] focus:ring-2"
+      (change)="validarCheckboxes()">
+    <label for="seguridad" class="text-xs sm:text-sm text-[#2C3A6A] cursor-pointer">
+      He leído y acepto las 
+      <a href="https://frontiozihuatl.netlify.app/seguridad" target="_blank" rel="noopener noreferrer" class="link-acento font-semibold">
+        Políticas de Seguridad
+      </a>
+    </label>
+  </div>
+</div>
 
           <!-- Información adicional -->
           <div class="info-box">
