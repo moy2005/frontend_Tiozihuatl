@@ -15,6 +15,7 @@ import { AuthService } from '../../api/services/auth';
 })
 export class ForgotPasswordComponent {
   correo = '';
+  palabra_secreta = '';
   cargando = false;
 
   constructor(private auth: AuthService, private router: Router) {}
@@ -24,36 +25,46 @@ export class ForgotPasswordComponent {
   }
 
   async enviarCorreo() {
-    if (!this.correo) {
-      Swal.fire('Correo requerido', 'Ingresa tu correo para continuar.', 'info');
+    // 🟦 Validar ambos campos antes de enviar
+    if (!this.correo || !this.palabra_secreta) {
+      Swal.fire(
+        'Datos requeridos',
+        'Ingresa tu correo y tu palabra secreta.',
+        'info'
+      );
       return;
     }
 
     this.cargando = true;
+
     try {
+      // 🟦 Enviar ambos datos al backend
       const res: any = await this.auth
-        .forgotPassword({ correo: this.correo })
+        .forgotPassword({
+          correo: this.correo,
+          palabra_secreta: this.palabra_secreta
+        })
         .toPromise();
 
       const mensaje = res?.message || '';
 
-      // 🚫 Caso: demasiados intentos
+      // 🚫 Límite de intentos activado
       if (mensaje.includes("varios")) {
         Swal.fire({
           icon: 'warning',
           title: 'Límite alcanzado',
           text: mensaje,
-          confirmButtonColor: '#F59E0B',
+          confirmButtonColor: '#F59E0B'
         });
         return;
       }
 
-      // ✔ Caso normal
+      // ✔ Caso normal (el backend nunca dirá si la palabra o correo están mal)
       Swal.fire({
         icon: 'success',
-        title: 'Correo enviado',
-        text: mensaje, // “Si el correo está registrado…”
-        confirmButtonColor: '#3B82F6',
+        title: 'Solicitud enviada',
+        text: mensaje,
+        confirmButtonColor: '#3B82F6'
       });
 
     } catch (err: any) {

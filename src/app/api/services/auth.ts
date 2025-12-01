@@ -125,7 +125,7 @@ finalizarRegistro(data: any) {
 // ===============================
 
 // 1) Enviar correo con enlace
-forgotPassword(payload: { correo: string }) {
+forgotPassword(payload: { correo: string, palabra_secreta: string }) {
   return this.http.post(`${this.api}/password/forgot`, payload);
 }
 
