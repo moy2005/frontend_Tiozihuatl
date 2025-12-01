@@ -25,7 +25,6 @@ export class ForgotPasswordComponent {
   }
 
   async enviarCorreo() {
-    // 🟦 Validar ambos campos antes de enviar
     if (!this.correo || !this.palabra_secreta) {
       Swal.fire(
         'Datos requeridos',
@@ -38,7 +37,6 @@ export class ForgotPasswordComponent {
     this.cargando = true;
 
     try {
-      // 🟦 Enviar ambos datos al backend
       const res: any = await this.auth
         .forgotPassword({
           correo: this.correo,
@@ -46,9 +44,20 @@ export class ForgotPasswordComponent {
         })
         .toPromise();
 
+      // 🟦 CASO: palabra secreta incorrecta
+      if (res?.error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Palabra secreta incorrecta',
+          text: res.message,
+          confirmButtonColor: '#DC2626'
+        });
+        return;
+      }
+
       const mensaje = res?.message || '';
 
-      // 🚫 Límite de intentos activado
+      // 🚫 límite de intentos activado
       if (mensaje.includes("varios")) {
         Swal.fire({
           icon: 'warning',
@@ -59,7 +68,7 @@ export class ForgotPasswordComponent {
         return;
       }
 
-      // ✔ Caso normal (el backend nunca dirá si la palabra o correo están mal)
+      // ✔ Caso correcto
       Swal.fire({
         icon: 'success',
         title: 'Solicitud enviada',
