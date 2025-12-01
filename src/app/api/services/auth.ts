@@ -120,14 +120,23 @@ finalizarRegistro(data: any) {
 }
 
 
-  // ===============================
-  // Recuperación de contraseña
-  // ===============================
-  forgotPassword(payload: { correo: string }) {
-    return this.http.post(`${this.api}/password/forgot`, payload);
-  }
+// ===============================
+// Recuperación de contraseña
+// ===============================
 
-  resetPassword(payload: { codigo: string; nuevaContrasena: string }) {
-    return this.http.post(`${this.api}/password/reset`, payload);
-  }
+// 1) Enviar correo con enlace
+forgotPassword(payload: { correo: string }) {
+  return this.http.post(`${this.api}/password/forgot`, payload);
+}
+
+// 2) Validar token del enlace
+validateToken(token: string) {
+  return this.http.get(`${this.api}/password/validate?token=${token}`);
+}
+
+// 3) Restablecer contraseña usando token
+resetPassword(payload: { token: string; nuevaContrasena: string }) {
+  return this.http.post(`${this.api}/password/reset`, payload);
+}
+
 }
