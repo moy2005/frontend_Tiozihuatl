@@ -153,7 +153,7 @@ export class LoginComponent implements OnInit {
 
  rolSeleccionado = ''; // ✅ nuevo campo
 
-async loginPassword() {
+ async loginPassword() {
   if (!this.correo || !this.contrasena || !this.rolSeleccionado) {
     Swal.fire({
       icon: 'warning',
@@ -174,6 +174,7 @@ async loginPassword() {
       })
       .toPromise();
 
+    // === LOGIN EXITOSO ===
     const access = res?.accessToken || res?.token;
     const refresh = res?.refreshToken;
 
@@ -184,18 +185,66 @@ async loginPassword() {
         localStorage.setItem('user', JSON.stringify(res.user));
       }
 
-    this.router.navigate(['/perfil']);
-
-    } else {
-      this.mostrarError('Credenciales inválidas o token no generado.');
+      this.router.navigate(['/perfil']);
+      return;
     }
+
+    this.mostrarError('Credenciales inválidas o token no generado.');
   } catch (err: any) {
-    const msg = err?.error?.error || 'Error en el inicio de sesión';
-    this.mostrarError(msg);
+    const msg = err?.error?.error?.toString().toLowerCase() || '';
+
+    // 🟥 1) Cuenta bloqueada actualmente
+    if (msg.includes('bloqueada') || msg.includes('bloqueado')) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Cuenta bloqueada',
+        text: err.error.error,
+        confirmButtonColor: '#EF4444',
+      });
+      return;
+    }
+
+    // 🟥 2) Contraseña incorrecta
+    if (msg.includes('contraseña incorrecta')) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Contraseña incorrecta',
+        text: 'La contraseña no coincide. Si fallas varias veces tu cuenta será bloqueada.',
+        confirmButtonColor: '#F59E0B',
+      });
+      return;
+    }
+
+    // 🟥 3) Usuario no encontrado
+    if (msg.includes('usuario no encontrado')) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Usuario no encontrado',
+        text: 'No existe ningún usuario con esas credenciales.',
+        confirmButtonColor: '#3B82F6',
+      });
+      return;
+    }
+
+    // 🟥 4) Rol inválido
+    if (msg.includes('rol no coincide')) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Rol incorrecto',
+        text: 'El rol seleccionado no pertenece a esta cuenta.',
+        confirmButtonColor: '#3B82F6',
+      });
+      return;
+    }
+
+    // 🟥 5) Otros errores
+    this.mostrarError(err?.error?.error || 'Error en el inicio de sesión.');
+
   } finally {
     this.cargando = false;
   }
 }
+
 
 
   /** Cambiar modo entre contraseña y SMS */

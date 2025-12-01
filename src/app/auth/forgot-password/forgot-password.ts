@@ -48,7 +48,7 @@ export class ForgotPasswordComponent {
       if (res?.error) {
         Swal.fire({
           icon: 'error',
-          title: 'Palabra secreta incorrecta',
+          title: 'Error',
           text: res.message,
           confirmButtonColor: '#DC2626'
         });
