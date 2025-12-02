@@ -65,6 +65,12 @@ export class RegisterComponent {
   aceptoSeguridad = false;
   todosCheckboxesAceptados = false;
 
+  // Agregar después de las otras propiedades (línea ~50)
+mostrarContrasena = false;
+mostrarConfirmPassword = false;
+
+
+
   private uppercaseRegex = /[A-Z]/;
   private lowercaseRegex = /[a-z]/;
   private numberRegex = /\d/;
@@ -85,6 +91,15 @@ export class RegisterComponent {
       this.aceptoPrivacidad && 
       this.aceptoSeguridad;
   }
+
+  // Agregar antes del método registrar() (línea ~350 aprox)
+toggleMostrarContrasena() {
+  this.mostrarContrasena = !this.mostrarContrasena;
+}
+
+toggleMostrarConfirmPassword() {
+  this.mostrarConfirmPassword = !this.mostrarConfirmPassword;
+}
 
   abrirTerminos() {
     this.router.navigate(['/terminos'], { queryParams: { from: 'register' } });
@@ -270,6 +285,22 @@ async nextStep() {
     }
     return true;
   }
+
+  onPastePassword(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') || '';
+  const max = 8;
+
+  if (pasted.length > max) {
+    event.preventDefault(); // ❌ NO permite el pegado
+    Swal.fire({
+      icon: 'warning',
+      text: `La contraseña solo puede tener máximo ${max} caracteres.`,
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+}
+
 
   onPasswordInput() {
     const pass = this.form.contrasena;

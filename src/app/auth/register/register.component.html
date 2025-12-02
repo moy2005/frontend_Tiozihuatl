@@ -172,6 +172,7 @@
                   <ion-icon *ngIf="phoneValid && !phoneExists" name="checkmark-circle" class="text-lg sm:text-xl text-green-500"></ion-icon>
                 </div>
               </div>
+
               <p *ngIf="phoneValid === false && !phoneExists" class="text-xs text-red-600 flex items-center gap-1">
                 <ion-icon name="alert-circle-outline"></ion-icon>
                 Debe tener 10 dígitos
@@ -242,16 +243,27 @@
                 <ion-icon name="lock-closed-outline" class="text-sm"></ion-icon>
                 Contraseña
               </label>
-              <input
-                id="contrasena"
-                type="password"
-                [(ngModel)]="form.contrasena"
-                name="contrasena"
-                (input)="onPasswordInput()"
-                minlength="8"
-                maxlength="8"
-                placeholder="Ingresa tu contraseña"
-                class="input-field w-full" />
+            
+          <div class="input-wrapper relative">
+  <input
+    id="contrasena"
+    [type]="mostrarContrasena ? 'text' : 'password'"
+    [(ngModel)]="form.contrasena"
+    name="contrasena"
+    minlength="8"
+    maxlength="8"
+    (paste)="onPastePassword($event)"
+    (input)="onPasswordInput()"
+    placeholder="Ingresa tu contraseña"
+    class="input-field w-full pr-10" />
+  <button
+    type="button"
+    (click)="toggleMostrarContrasena()"
+    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#3FA6E8] transition-colors">
+    <ion-icon [name]="mostrarContrasena ? 'eye-off-outline' : 'eye-outline'" class="text-xl"></ion-icon>
+  </button>
+</div>
+
 
               <div class="space-y-2 mt-2">
                 <div class="flex items-center justify-between text-xs">
@@ -311,19 +323,30 @@
                 <ion-icon name="lock-closed-outline" class="text-sm"></ion-icon>
                 Confirmar Contraseña
               </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                [(ngModel)]="form.confirmPassword"
-                name="confirmPassword"
-                minlength="8"
-                maxlength="8"
-                placeholder="Repite tu contraseña"
-                [ngClass]="{
-                  'input-invalid': form.confirmPassword && form.contrasena !== form.confirmPassword,
-                  'input-valid': form.confirmPassword && form.contrasena === form.confirmPassword
-                }"
-                class="input-field w-full" />
+
+          <div class="input-wrapper relative">
+  <input
+    id="confirmPassword"
+    [type]="mostrarConfirmPassword ? 'text' : 'password'"
+    [(ngModel)]="form.confirmPassword"
+    name="confirmPassword"
+    minlength="8"
+    maxlength="8"
+    placeholder="Repite tu contraseña"
+    [ngClass]="{
+      'input-invalid': form.confirmPassword && form.contrasena !== form.confirmPassword,
+      'input-valid': form.confirmPassword && form.contrasena === form.confirmPassword
+    }"
+    class="input-field w-full pr-10" />
+  <button
+    type="button"
+    (click)="toggleMostrarConfirmPassword()"
+    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#3FA6E8] transition-colors">
+    <ion-icon [name]="mostrarConfirmPassword ? 'eye-off-outline' : 'eye-outline'" class="text-xl"></ion-icon>
+  </button>
+</div>
+
+
               <p *ngIf="form.confirmPassword && form.contrasena !== form.confirmPassword" class="text-xs text-red-600 flex items-center gap-1">
                 <ion-icon name="alert-circle-outline"></ion-icon>
                 Las contraseñas no coinciden
