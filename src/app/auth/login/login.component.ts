@@ -46,6 +46,30 @@ export class LoginComponent implements OnInit {
     this.router.navigate(['/register']);
   }
 
+// Método para sanitizar inputs y prevenir XSS
+sanitizeInput(value: string): string {
+  if (!value) return '';
+  
+  // Eliminar caracteres peligrosos
+  return value
+    .replace(/[<>]/g, '') // Elimina < y >
+    .replace(/['"]/g, '') // Elimina comillas simples y dobles
+    .replace(/javascript:/gi, '') // Elimina javascript:
+    .replace(/on\w+=/gi, '') // Elimina eventos como onclick=
+    .replace(/script/gi, '') // Elimina la palabra script
+    .trim();
+}
+
+// Método para bloquear caracteres peligrosos en tiempo real
+bloquearCaracteresPeligrosos(event: KeyboardEvent) {
+  const caracteresProhibidos = ['<', '>', '"', "'", '`'];
+  
+  if (caracteresProhibidos.includes(event.key)) {
+    event.preventDefault(); // ❌ Bloquea la tecla
+  }
+}
+
+
   togglePassword(input: HTMLInputElement) {
   input.type = input.type === 'password' ? 'text' : 'password';
 }
@@ -154,6 +178,13 @@ export class LoginComponent implements OnInit {
  rolSeleccionado = ''; // ✅ nuevo campo
 
  async loginPassword() {
+
+  // Sanitizar inputs antes de validar
+  this.correo = this.sanitizeInput(this.correo);
+  this.contrasena = this.sanitizeInput(this.contrasena);
+  this.rolSeleccionado = this.sanitizeInput(this.rolSeleccionado);
+
+
   if (!this.correo || !this.contrasena || !this.rolSeleccionado) {
     Swal.fire({
       icon: 'warning',
@@ -259,6 +290,10 @@ export class LoginComponent implements OnInit {
 
   /** Enviar OTP por SMS */
   async enviarSMS() {
+  
+    // Sanitizar teléfono
+  this.telefono = this.sanitizeInput(this.telefono);
+
     if (!this.telefono || this.telefono.length < 8) {
       Swal.fire({
         icon: 'warning',
@@ -405,7 +440,7 @@ export class LoginComponent implements OnInit {
     this.cargando = true;
     try {
       console.log('🔐 Iniciando login biométrico...');
-      const correo = this.correo.trim();
+      const correo = this.sanitizeInput(this.correo.trim());
 
       if (!correo) {
         console.log('❌ Error: Correo no proporcionado');

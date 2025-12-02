@@ -35,6 +35,8 @@
                   [(ngModel)]="correo"
                   name="correo"
                   required
+                  (keydown)="bloquearCaracteresPeligrosos($event)"
+                  (input)="correo = sanitizeInput(correo)"
                   class="input-field w-full"
                   placeholder="Ejemplo: 2025001234" />
                 <ion-icon name="id-card-outline" class="input-icon"></ion-icon>
@@ -55,7 +57,11 @@
                   type="password"
                   [(ngModel)]="contrasena"
                   name="contrasena"
+                  maxlength="8"
+                  minlength="8"
                   required
+                  (keydown)="bloquearCaracteresPeligrosos($event)"
+                  (input)="contrasena = sanitizeInput(contrasena)"
                   class="input-field w-full pr-14"
                   placeholder="••••••••" />
                 <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
@@ -123,6 +129,8 @@
                   name="telefono"
                   maxlength="10"
                   required
+                  (keydown)="bloquearCaracteresPeligrosos($event)"
+                  (input)="telefono = sanitizeInput(telefono)"
                   class="input-field w-full"
                   placeholder="Ejemplo: 7711813520" />
                 <ion-icon name="call-outline" class="input-icon"></ion-icon>
