@@ -216,12 +216,14 @@ async nextStep() {
   }
 
   validarCorreoLocal() {
+    this.form.correo = this.sanitizeInput(this.form.correo);
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     this.emailValid = regex.test(this.form.correo);
     if (this.emailValid) this.verificarCorreoBD();
   }
 
   validarTelefonoLocal() {
+    this.form.telefono = this.sanitizeInput(this.form.telefono); 
     const regex = /^[0-9]{10}$/;
     this.phoneValid = regex.test(this.form.telefono);
     if (this.phoneValid) this.verificarTelefonoBD();
@@ -301,8 +303,23 @@ async nextStep() {
   }
 }
 
+// Método para sanitizar inputs y prevenir XSS
+sanitizeInput(value: string): string {
+  if (!value) return '';
+  
+  // Eliminar caracteres peligrosos
+  return value
+    .replace(/[<>]/g, '') // Elimina < y >
+    .replace(/['"]/g, '') // Elimina comillas simples y dobles
+    .replace(/javascript:/gi, '') // Elimina javascript:
+    .replace(/on\w+=/gi, '') // Elimina eventos como onclick=
+    .replace(/script/gi, '') // Elimina la palabra script
+    .trim();
+}
+
 
   onPasswordInput() {
+    this.form.contrasena = this.sanitizeInput(this.form.contrasena);
     const pass = this.form.contrasena;
     this.showPasswordTip = true;
     if (!pass) {
@@ -348,10 +365,28 @@ async nextStep() {
     return btoa(binary);
   }
 
+  bloquearCaracteresPeligrosos(event: KeyboardEvent) {
+  const caracteresProhibidos = ['<', '>', '"', "'", '`'];
+  
+  if (caracteresProhibidos.includes(event.key)) {
+    event.preventDefault(); // ❌ Simplemente no deja escribir
+  }
+}
+
 
 
 async registrar() {
   this.cargando = true;
+
+   // Sanitizar todos los campos antes de enviar
+  this.form.nombre = this.sanitizeInput(this.form.nombre);
+  this.form.apaterno = this.sanitizeInput(this.form.apaterno);
+  this.form.amaterno = this.sanitizeInput(this.form.amaterno);
+  this.form.correo = this.sanitizeInput(this.form.correo);
+  this.form.telefono = this.sanitizeInput(this.form.telefono);
+  this.form.contrasena = this.sanitizeInput(this.form.contrasena);
+  this.form.palabra_secreta = this.sanitizeInput(this.form.palabra_secreta);
+
 
   try {
 
@@ -479,6 +514,8 @@ async registrar() {
     this.cargando = false;
   }
 }
+
+
 
 
 private async crearUsuarioNormal() {
