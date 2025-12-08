@@ -10,9 +10,10 @@ import { VerificarCorreoComponent } from './auth/verificar-correo/verificar-corr
 import { Privacidad } from './pages/legal/privacidad/privacidad';
 import { Terminos } from './pages/legal/terminos/terminos';
 import { Seguridad } from './pages/legal/seguridad/seguridad';
+import { InicioComponent } from './pages/inicio/inicio';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', redirectTo: '/inicio', pathMatch: 'full' },
 
   // 🔓 Públicas
   { path: 'login', component: LoginComponent },
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   {path:'reset-password', component: ResetPasswordComponent},
   { path: 'verificar-correo', component: VerificarCorreoComponent },
+  { path: 'inicio',component: InicioComponent},
   
   { path: 'privacidad', component: Privacidad},
   {path: 'terminos', component: Terminos},
@@ -31,6 +33,6 @@ export const routes: Routes = [
   // 🧑‍💼 Panel de administrador (solo rol "Administrador")
   { path: 'admin-panel', component: AdminPanelComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'] }, },
 
-  { path: '**', redirectTo: '/login' },
+  { path: '**', redirectTo: '/inicio' },
 ];
 

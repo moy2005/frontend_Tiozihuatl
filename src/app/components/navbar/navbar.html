@@ -184,7 +184,7 @@
 <body class="bg-white text-gray-900 overflow-x-hidden">
 
 <!-- ================= NAVBAR ================= -->
-<nav class="fixed top-0 left-0 right-0 z-50 bg-[#3FA6E8] shadow-lg">
+<nav class="fixed top-0 left-0 right-0 z-50 bg-[#3FA6E8]">
   <!-- Checkbox para controlar el menú -->
   <input type="checkbox" id="menu-toggle" />
 
@@ -215,13 +215,12 @@
 
       <!-- Desktop Navigation -->
       <div class="desktop-nav flex items-center space-x-2">
-        <button 
-          onclick="window.location.href='inicio.html'" 
-          class="relative nav-link flex items-center gap-1 px-4 py-2 rounded-lg text-white font-semibold text-sm bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-300">
-          <ion-icon name="home-outline" class="text-lg"></ion-icon>
-          <span>Inicio</span>
-          <span class="absolute inset-0 rounded-lg border border-white/20 hover:border-white/40 transition-all duration-300"></span>
-        </button>
+        <!-- Botón Inicio - con routerLink -->
+<a routerLink="/inicio" 
+   class="relative nav-link flex items-center gap-1 px-4 py-2 rounded-lg text-white font-semibold text-sm bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.15)]">
+  <ion-icon name="home-outline" class="text-lg"></ion-icon>
+  <span>Inicio</span>
+</a>
 
         <!-- Instituto Menu -->
         <div class="relative group">
