@@ -1,0 +1,104 @@
+<div class="admin-layout">
+  <!-- Overlay para mobile -->
+  <div 
+    class="sidebar-overlay" 
+    [class.active]="sidebarState === 'open' && isMobile"
+    (click)="closeSidebar()">
+  </div>
+
+  <!-- Sidebar -->
+  <aside 
+    class="sidebar"
+    [class.sidebar-open]="sidebarState === 'open'"
+    [class.sidebar-collapsed]="sidebarState === 'collapsed'"
+    [class.sidebar-hidden]="sidebarState === 'hidden'">
+    
+    <!-- Logo Section -->
+    <div class="sidebar-header">
+      <div class="logo-container" *ngIf="sidebarState === 'open'">
+        <div class="logo-icon">
+          <ion-icon name="library-outline"></ion-icon>
+        </div>
+        <div class="logo-text">
+          <h1>Panel Admin</h1>
+        </div>
+      </div>
+      <div class="logo-icon-minimal" *ngIf="sidebarState === 'collapsed'">
+        <ion-icon name="library-outline"></ion-icon>
+      </div>
+      <div class="logo-icon-minimal hidden-state" *ngIf="sidebarState === 'hidden'">
+        <ion-icon name="library-outline"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      <a 
+        *ngFor="let item of menuItems"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="onNavItemClick()">
+        <div class="nav-icon">
+          <ion-icon [name]="item.icon"></ion-icon>
+        </div>
+        <span class="nav-label">{{ item.label }}</span>
+        <span class="nav-badge" *ngIf="item.badge">{{ item.badge }}</span>
+      </a>
+    </nav>
+
+    <!-- User Section -->
+    <div class="sidebar-footer">
+      <div class="user-section">
+        <div class="user-avatar">
+          <ion-icon name="person"></ion-icon>
+        </div>
+        <div class="user-info">
+          <p class="user-name">{{ currentUser?.nombre || 'Admin' }}</p>
+          <p class="user-role">Administrador</p>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <button (click)="goToProfile()" class="footer-btn" title="Ver perfil">
+          <ion-icon name="settings-outline"></ion-icon>
+        </button>
+        <button (click)="logout()" class="footer-btn logout-btn" title="Cerrar sesión">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-content" 
+       [class.main-content-full]="sidebarState === 'hidden'"
+       [class.main-content-collapsed]="sidebarState === 'collapsed'"
+       [class.main-content-open]="sidebarState === 'open'">
+    
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="toggle-btn" (click)="toggleSidebar()" [title]="getToggleButtonTitle()">
+        <ion-icon [name]="getToggleButtonIcon()"></ion-icon>
+      </button>
+
+      <div class="topbar-actions">
+        <button class="topbar-btn" title="Notificaciones">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <span class="notification-dot"></span>
+        </button>
+        <button class="topbar-btn" (click)="showHiddenSidebar()" title="Mostrar menú" *ngIf="sidebarState === 'hidden'">
+          <ion-icon name="menu-outline"></ion-icon>
+        </button>
+        <button class="topbar-btn" (click)="goToProfile()" title="Perfil">
+          <ion-icon name="person-circle-outline"></ion-icon>
+        </button>
+      </div>
+    </header>
+
+    <!-- Router Outlet - Aquí se cargan los componentes hijos -->
+    <main class="content-area">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

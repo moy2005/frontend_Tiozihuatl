@@ -1,0 +1,128 @@
+<div class="dashboard-container">
+  <!-- Welcome Header -->
+  <section class="welcome-section">
+    <div class="welcome-content">
+      <div class="welcome-icon">
+        <ion-icon name="sparkles"></ion-icon>
+      </div>
+      <div class="welcome-text">
+        <h1 class="welcome-title">{{ greeting }}, {{ userName }}</h1>
+        <p class="welcome-date">{{ formattedDate }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Cards Grid -->
+  <section class="stats-grid">
+    <div *ngFor="let stat of stats" class="stat-card" [style.--card-color]="stat.color">
+      <div class="stat-icon">
+        <ion-icon [name]="stat.icon"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-title">{{ stat.title }}</p>
+        <div class="stat-value-row">
+          <h2 class="stat-value">{{ stat.value }}</h2>
+          <span class="stat-trend" [class.trend-up]="stat.trendUp" [class.trend-down]="!stat.trendUp" *ngIf="stat.trend">
+            <ion-icon [name]="stat.trendUp ? 'trending-up' : 'trending-down'"></ion-icon>
+            {{ stat.trend }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="dashboard-grid">
+    <!-- Quick Actions -->
+    <section class="quick-actions-section">
+      <div class="section-header">
+        <div class="header-icon">
+          <ion-icon name="flash"></ion-icon>
+        </div>
+        <h2 class="section-title">Acciones Rápidas</h2>
+      </div>
+      
+      <div class="quick-actions-grid">
+        <button 
+          *ngFor="let action of quickActions" 
+          class="quick-action-btn"
+          (click)="navigateTo(action.route)"
+          [style.--action-color]="action.color">
+          <div class="action-icon">
+            <ion-icon [name]="action.icon"></ion-icon>
+          </div>
+          <span class="action-label">{{ action.label }}</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="recent-activity-section">
+      <div class="section-header">
+        <div class="header-icon">
+          <ion-icon name="time"></ion-icon>
+        </div>
+        <h2 class="section-title">Actividad Reciente</h2>
+      </div>
+
+      <div class="activity-list">
+        <div *ngFor="let activity of recentActivity" class="activity-item">
+          <div class="activity-icon" [style.background]="activity.color">
+            <ion-icon [name]="activity.icon"></ion-icon>
+          </div>
+          <div class="activity-content">
+            <p class="activity-text">
+              <strong>{{ activity.user }}</strong> {{ activity.action }}
+            </p>
+            <span class="activity-time">{{ activity.time }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- System Overview -->
+  <section class="system-overview">
+    <div class="section-header">
+      <div class="header-icon">
+        <ion-icon name="analytics"></ion-icon>
+      </div>
+      <h2 class="section-title">Resumen del Sistema</h2>
+    </div>
+
+    <div class="overview-grid">
+      <div class="overview-card">
+        <div class="overview-header">
+          <ion-icon name="server" class="overview-icon"></ion-icon>
+          <h3>Estado del Servidor</h3>
+        </div>
+        <div class="status-indicator status-online">
+          <span class="status-dot"></span>
+          <span>En línea</span>
+        </div>
+      </div>
+
+      <div class="overview-card">
+        <div class="overview-header">
+          <ion-icon name="shield-checkmark" class="overview-icon"></ion-icon>
+          <h3>Seguridad</h3>
+        </div>
+        <div class="status-indicator status-secure">
+          <span class="status-dot"></span>
+          <span>Protegido</span>
+        </div>
+      </div>
+
+      <div class="overview-card">
+        <div class="overview-header">
+          <ion-icon name="cloud-done" class="overview-icon"></ion-icon>
+          <h3>Backup</h3>
+        </div>
+        <div class="status-indicator status-synced">
+          <span class="status-dot"></span>
+          <span>Sincronizado</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

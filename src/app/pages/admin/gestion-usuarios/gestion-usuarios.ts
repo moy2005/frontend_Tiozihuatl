@@ -9,12 +9,12 @@ import { AdminUserService } from '../../../api/services/admin-user.service';
   selector: 'app-admin-panel',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './admin-panel.html',
-  styleUrls: ['./admin-panel.css'],
+  templateUrl: './gestion-usuarios.html',
+  styleUrls: ['./gestion-usuarios.css'],
    schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
-export class AdminPanelComponent implements OnInit {
+export class GestionUsuariosComponent implements OnInit {
   usuarios: any[] = [];
   roles: any[] = [];
   carreras: any[] = [];
