@@ -1,0 +1,49 @@
+<div class="p-6 max-w-4xl">
+  <h1 class="text-2xl font-semibold text-blue-800 mb-6">
+    Gestión de Contáctanos
+  </h1>
+
+  <div *ngIf="cargando" class="text-gray-500">
+    Cargando...
+  </div>
+
+  <div *ngIf="!cargando" class="bg-blue-50 p-6 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <input class="p-2 border rounded" placeholder="Teléfono"
+           [(ngModel)]="contacto.telefono" />
+
+    <input class="p-2 border rounded" placeholder="Correo"
+           [(ngModel)]="contacto.correo" />
+
+    <input class="p-2 border rounded" placeholder="Dirección"
+           [(ngModel)]="contacto.direccion" />
+
+    <input class="p-2 border rounded" placeholder="Horario"
+           [(ngModel)]="contacto.horario" />
+
+    <input class="p-2 border rounded" placeholder="Facebook"
+           [(ngModel)]="contacto.facebook" />
+
+    <input class="p-2 border rounded" placeholder="Instagram"
+           [(ngModel)]="contacto.instagram" />
+
+    <input class="p-2 border rounded" placeholder="Twitter"
+           [(ngModel)]="contacto.twitter" />
+
+    <input class="p-2 border rounded" placeholder="WhatsApp"
+           [(ngModel)]="contacto.whatsapp" />
+
+    <select class="p-2 border rounded"
+            [(ngModel)]="contacto.estado">
+      <option value="Activo">Activo</option>
+      <option value="Inactivo">Inactivo</option>
+    </select>
+
+  </div>
+
+  <button
+    class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+    (click)="guardar()">
+    Guardar cambios
+  </button>
+</div>

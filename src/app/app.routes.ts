@@ -13,6 +13,8 @@ import { InicioComponent } from './pages/inicio/inicio';
 import { AdminLayoutComponent } from './pages/admin/admin-layout/admin-layout';
 import { AdminDashboardComponent } from './pages/admin/admin-dashboard/admin-dashboard';
 import { GestionUsuariosComponent } from './pages/admin/gestion-usuarios/gestion-usuarios';
+import { GestionFaqComponent } from './pages/admin/gestion-faq/gestion-faq';
+import { GestionContactoComponent } from './pages/admin/gestion-contacto/gestion-contacto';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -44,8 +46,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'usuarios', component: GestionUsuariosComponent },
-      //{ path: 'preguntas', component: AdminPreguntasComponent },
-      //{ path: 'contactos', component: AdminContactosComponent },
+      { path: 'preguntas', component: GestionFaqComponent },
+      { path: 'contactos', component: GestionContactoComponent },
       //{ path: 'libros', component: AdminLibrosComponent },
       //{ path: 'revistas', component: AdminRevistasComponent },
       //{ path: 'noticias', component: AdminNoticiasComponent },

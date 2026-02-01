@@ -125,9 +125,11 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
           showConfirmButton: false,
         });
 
-        // Redirigir al dashboard
         setTimeout(() => {
-          this.router.navigate(['/perfil']);
+          // ✅ Navegar con skipLocationChange para forzar recarga del navbar
+          this.router.navigate(['/perfil']).then(() => {
+            window.location.reload();
+          });
         }, 2000);
       }
 
@@ -216,7 +218,9 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
         localStorage.setItem('user', JSON.stringify(res.user));
       }
 
-      this.router.navigate(['/perfil']);
+       this.router.navigate(['/perfil']).then(() => {
+          window.location.reload();
+        });
       return;
     }
 
@@ -362,7 +366,9 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
           showConfirmButton: false,
         });
 
-        this.router.navigate(['/perfil']);
+        this.router.navigate(['/perfil']).then(() => {
+          window.location.reload();
+        });
       } else {
         this.otp = '';
         this.otpInputFocused = false;
@@ -638,7 +644,9 @@ console.log('✅ Resultado de autenticación:', result);
     showConfirmButton: false,
   });
 
-  this.router.navigate(['/perfil']);
+  this.router.navigate(['/perfil']).then(() => {
+          window.location.reload();
+        });
 
 
       } else {

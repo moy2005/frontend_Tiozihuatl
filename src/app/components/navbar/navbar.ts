@@ -1,16 +1,133 @@
-import { Component,CUSTOM_ELEMENTS_SCHEMA,ViewEncapsulation } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { UserProfileService } from '../../api/services/user-profile.service';
+import Swal from 'sweetalert2';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, CommonModule],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
-export class Navbar {
+export class Navbar implements OnInit {
+  isAuthenticated = false;
+  userName = ''; // Solo nombre, sin apellidos
+  userRole = '';
 
+  constructor(
+    private router: Router,
+    private userService: UserProfileService
+  ) {
+    // ✅ Recargar navbar después de cada navegación (especialmente después del login)
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.verificarAutenticacion();
+      });
+  }
+
+  ngOnInit() {
+    this.verificarAutenticacion();
+  }
+
+  /** 🔐 Verificar si hay sesión activa */
+  verificarAutenticacion() {
+    const token = localStorage.getItem('accessToken');
+    
+    if (token) {
+      this.isAuthenticated = true;
+      this.obtenerDatosUsuario();
+    } else {
+      this.isAuthenticated = false;
+      this.userName = '';
+      this.userRole = '';
+    }
+  }
+
+  /** 👤 Obtener datos del usuario logueado */
+  async obtenerDatosUsuario() {
+    try {
+      const res = await this.userService.getProfile().toPromise();
+      
+      // ✅ SOLO el nombre (sin apellidos)
+      this.userName = res.nombre || 'Usuario';
+      this.userRole = res.rol || '';
+      
+      console.log('✅ Usuario autenticado:', this.userName, '- Rol:', this.userRole);
+      
+    } catch (err: any) {
+      console.error('❌ Error al obtener perfil:', err);
+      
+      // Si el token es inválido, cerrar sesión silenciosamente
+      if (err.status === 401 || err.status === 403) {
+        this.cerrarSesionSilencioso();
+      }
+    }
+  }
+
+  /** 🚪 Cerrar sesión con confirmación */
+  cerrarSesion() {
+    Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: 'Tu sesión actual se cerrará.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: 'Sí, salir',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.cerrarSesionSilencioso();
+        
+        Swal.fire({
+          icon: 'success',
+          title: '¡Hasta pronto!',
+          text: 'Has cerrado sesión correctamente.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  }
+
+  /** 🔒 Cerrar sesión silencioso (sin confirmación) */
+  private cerrarSesionSilencioso() {
+    localStorage.clear();
+    this.isAuthenticated = false;
+    this.userName = '';
+    this.userRole = '';
+    this.router.navigate(['/login']);
+  }
+
+  /** 👤 Ir al perfil */
+  irPerfil() {
+    this.router.navigate(['/perfil']);
+  }
+
+  /** 🎛️ Ir al panel admin (solo para Administrador) */
+  irPanelAdmin() {
+    this.router.navigate(['/admin']);
+  }
+
+  /** ✅ Verificar si es administrador */
+  esAdmin(): boolean {
+    return this.userRole === 'Administrador';
+  }
+
+  /** 📝 Obtener iniciales del nombre */
+  getIniciales(): string {
+    if (!this.userName) return 'U';
+    
+    const palabras = this.userName.trim().split(' ');
+    if (palabras.length >= 2) {
+      return (palabras[0][0] + palabras[1][0]).toUpperCase();
+    }
+    return palabras[0][0].toUpperCase();
+  }
 }
-

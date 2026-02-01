@@ -1,0 +1,125 @@
+/* Animaciones para el modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fixed.inset-0 {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.fixed.inset-0 > div:last-child > div {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Límite de líneas para descripción */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Mejora visual de inputs con focus */
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Estilos para SweetAlert2 (opcional, para consistencia) */
+.swal2-popup {
+  border-radius: 12px !important;
+  font-family: inherit;
+}
+
+.swal2-confirm {
+  border-radius: 8px !important;
+  padding: 10px 24px !important;
+}
+
+.swal2-cancel {
+  border-radius: 8px !important;
+  padding: 10px 24px !important;
+}
+
+/* Transiciones suaves para hover effects */
+button,
+a {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Loading spinner personalizado */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Mejora de accesibilidad */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Backdrop blur para el modal */
+.fixed.inset-0 > div:first-child {
+  backdrop-filter: blur(2px);
+}
+
+/* Scroll personalizado para el modal */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .fixed.inset-0 > div:last-child {
+    padding: 1rem;
+  }
+  
+  .fixed.inset-0 > div:last-child > div {
+    margin: 0;
+  }
+}
