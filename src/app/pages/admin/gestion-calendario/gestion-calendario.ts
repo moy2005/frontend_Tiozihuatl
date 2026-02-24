@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CloudinaryService } from '../../../api/services/cloudinary.service';
+import { environment } from '../../../api/environments/environment.prod'
 
 @Component({
   selector: 'app-gestion-calendario',
@@ -14,7 +15,9 @@ import { CloudinaryService } from '../../../api/services/cloudinary.service';
 })
 export class GestionCalendarioComponent implements OnInit {
 
-  private api = 'http://localhost:4000/api/calendar/admin';
+  private api = `${environment.apiUrl}/calendar/admin`;
+
+  //private api = 'http://localhost:4000/api/calendar/admin';
 
   calendars: any[] = [];
   selectedFile!: File;

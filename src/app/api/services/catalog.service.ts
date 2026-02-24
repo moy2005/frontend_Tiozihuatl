@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment.prod';
 
 export interface Libro {
    id: number;
@@ -25,7 +26,9 @@ export interface Libro {
 })
 export class CatalogService {
 
-  private readonly API_URL = 'http://localhost:4000/api/catalog';
+  //private readonly API_URL = 'http://localhost:4000/api/catalog';
+  
+  private readonly API_URL = `${environment.apiUrl}/catalog`;
 
   constructor(private http: HttpClient) {}
 
