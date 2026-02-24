@@ -61,12 +61,6 @@ export class AdminLayoutComponent implements OnInit {
       label: 'Noticias',
       icon: 'megaphone-outline',
       route: '/admin/noticias'
-    },
-
-    {
-      label: 'Calendario',
-      icon: 'calendar-outline',
-      route: '/admin/calendario'
     }
   ];
 

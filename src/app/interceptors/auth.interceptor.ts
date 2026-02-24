@@ -1,54 +1,10 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-
-/**
- * 🔐 Auth Interceptor (functional)
- * Agrega Authorization a backend
- * EXCLUYE Cloudinary para evitar CORS
- */
-export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
-
-  // 🚫 NO interceptar Cloudinary
-  if (req.url.includes('api.cloudinary.com')) {
-    return next(req);
-  }
-
-  const token = localStorage.getItem('accessToken');
-
-  if (token) {
-    const authReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    return next(authReq);
-  }
-
-  return next(req);
-};
-
-
-
-
-
-
-
-
-
-
-
-
-/*import { inject } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpInterceptorFn } from '@angular/common/http';
 import { AuthService } from '../api/services/auth';
 import { catchError, switchMap, throwError } from 'rxjs';
 
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-    // 🚫 No interceptar peticiones a Cloudinary
-  if (req.url.includes('api.cloudinary.com')) {
-    return next.handle(req);
-  }
   const accessToken = localStorage.getItem('accessToken');
 
   // 🔹 Añade el header Authorization automáticamente
@@ -81,4 +37,3 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
-*/
