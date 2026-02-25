@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CatalogService, Libro } from '../../../api/services/catalog.service.js';
 import { SafeUrlPipe } from '../../../pipes/safe-url.pipe';
+import { environment } from '../../../api/environments/environment';
 
 @Component({
   selector: 'app-catalogo',
@@ -80,7 +81,8 @@ export class CatalogoComponent implements OnInit {
   abrirPdf(libro: Libro) {
   if (!libro.id) return;
 
-  this.pdfSeleccionado = `http://localhost:4000/api/catalog/libros/${libro.id}/pdf`;
+ // this.pdfSeleccionado = `http://localhost:4000/api/catalog/libros/${libro.id}/pdf`;
+  this.pdfSeleccionado =  `${environment.apiUrl}/catalog/libros/${libro.id}/pdf`;
 }
   
   cerrarPdf() {

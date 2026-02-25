@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface LibroFormato {
   tipo: 'FISICO' | 'DIGITAL';
@@ -46,7 +47,8 @@ export class CatalogAdminService {
 
   constructor(private http: HttpClient) {}
 
-  private readonly API_URL = 'http://localhost:4000/api/catalog/admin';
+  //private readonly API_URL = 'http://localhost:4000/api/catalog/admin';
+  private readonly API_URL = `${environment.apiUrl}/catalog/admin`;
 
   /** ➕ Crear libro */
   crearLibro(data: LibroAdmin) {
