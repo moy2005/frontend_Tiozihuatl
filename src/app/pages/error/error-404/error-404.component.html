@@ -1,0 +1,116 @@
+<!-- Fondo geométrico animado -->
+<div class="geometric-bg">
+  <div class="circle circle-1 spin-slow"></div>
+  <div class="circle circle-2 float-animation"></div>
+  <div class="circle circle-3 pulse-animation"></div>
+</div>
+
+<main class="relative flex-1 flex items-center justify-center px-6 py-16 min-h-screen">
+  <div class="max-w-6xl mx-auto text-center">
+    
+    <!-- Número del error con animación -->
+    <div class="fade-in-up mb-8">
+      <div class="inline-block relative">
+        <h1 class="text-[180px] sm:text-[220px] md:text-[280px] lg:text-[250px] font-black leading-none text-gray-900 ">
+          404
+        </h1>
+      </div>
+    </div>
+
+    <!-- Título y descripción -->
+    <div class="fade-in-up mb-8" style="animation-delay: 0.3s;">
+      <h2 class="text-4xl md:text-5xl font-extrabold mb-4 text-gray-900">
+        ¡Página no encontrada!
+      </h2>
+      <p class="text-lg md:text-xl text-gray-600 mb-3 max-w-2xl mx-auto">
+        Lo sentimos, la página que estás buscando no existe o fue movida a otra ubicación.
+      </p>
+      <p class="text-base text-gray-500 max-w-xl mx-auto">
+        Verifica la URL o utiliza los enlaces de navegación para encontrar lo que necesitas.
+      </p>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="fade-in-up flex flex-col sm:flex-row gap-5 justify-center mb-16" style="animation-delay: 0.5s;">
+      <button 
+        routerLink="/inicio"
+        class="btn-primary inline-flex items-center gap-3 px-10 py-5 rounded-xl text-white font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300">
+        <ion-icon name="home" class="text-2xl"></ion-icon>
+        <span>Ir al Inicio</span>
+      </button>
+
+      <button 
+        (click)="goBack()"
+        class="btn-secondary inline-flex items-center gap-3 px-10 py-5 rounded-xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300">
+        <ion-icon name="arrow-back" class="text-2xl"></ion-icon>
+        <span>Página Anterior</span>
+      </button>
+    </div>
+
+    <!-- Enlaces útiles / Secciones principales -->
+    <div class="fade-in-up" style="animation-delay: 0.7s;">
+      <p class="text-sm font-semibold text-gray-700 mb-6 uppercase tracking-wide">
+        Secciones principales
+      </p>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        
+        <!-- Card: Información Institucional -->
+        <a routerLink="/inf-institucional" class="card-link bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300">
+          <div class="w-16 h-16 bg-gradient-to-r from-[#14B8EB] to-[#2CC3F5] rounded-xl flex items-center justify-center mb-4 mx-auto">
+            <ion-icon name="business-outline" class="text-4xl text-white"></ion-icon>
+          </div>
+          <h3 class="font-bold text-lg mb-2 text-gray-900">Información Institucional</h3>
+          <p class="text-sm text-gray-600">Noticias, eventos y documentos oficiales</p>
+        </a>
+
+        <!-- Card: Biblioteca Digital -->
+        <a routerLink="/catalogo_libros" class="card-link bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300">
+          <div class="w-16 h-16 bg-gradient-to-r from-[#14B8EB] to-[#2CC3F5] rounded-xl flex items-center justify-center mb-4 mx-auto">
+            <ion-icon name="library-outline" class="text-4xl text-white"></ion-icon>
+          </div>
+          <h3 class="font-bold text-lg mb-2 text-gray-900">Biblioteca Digital</h3>
+          <p class="text-sm text-gray-600">Catálogo de libros y recursos académicos</p>
+        </a>
+
+        <!-- Card: Revistas Digitales -->
+        <a routerLink="/venta-revistas" class="card-link bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300">
+          <div class="w-16 h-16 bg-gradient-to-r from-[#14B8EB] to-[#2CC3F5] rounded-xl flex items-center justify-center mb-4 mx-auto">
+            <ion-icon name="cart-outline" class="text-4xl text-white"></ion-icon>
+          </div>
+          <h3 class="font-bold text-lg mb-2 text-gray-900">Revistas Digitales</h3>
+          <p class="text-sm text-gray-600">Compra y consulta publicaciones</p>
+        </a>
+
+        <!-- Card: Contacto -->
+        <a routerLink="/contacto" class="card-link bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300">
+          <div class="w-16 h-16 bg-gradient-to-r from-[#14B8EB] to-[#2CC3F5] rounded-xl flex items-center justify-center mb-4 mx-auto">
+            <ion-icon name="mail-outline" class="text-4xl text-white"></ion-icon>
+          </div>
+          <h3 class="font-bold text-lg mb-2 text-gray-900">Contacto</h3>
+          <p class="text-sm text-gray-600">Comunícate con nosotros</p>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="relative z-10 bg-white border-t border-gray-200 py-8">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+      <div class="flex items-center gap-4">
+        <img src="assets/logo.png" alt="Logo Instituto Tiozihuatl" class="w-12 h-12 rounded-lg object-contain">
+        <div>
+          <div class="font-bold text-gray-900">Instituto de Estudios Superiores Tiozihuatl</div>
+          <div class="text-sm text-gray-600">Sistema Integral Multiplataforma</div>
+        </div>
+      </div>
+      <div class="text-sm text-gray-600">
+        © 2025 Todos los derechos reservados
+      </div>
+    </div>
+  </div>
+</footer>

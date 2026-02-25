@@ -1,0 +1,95 @@
+
+/* Efectos de botones */
+.btn-primary {
+  background: linear-gradient(135deg, #3FA6E8 0%, #2D8BE8 100%);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(29, 99, 245, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  border: 2px solid #40CFFF;
+  color: #40CFFF;
+  transition: all 0.3s;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: #40CFFF;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(64, 207, 255, 0.3);
+}
+
+.btn-warning {
+  background: white;
+  border: 2px solid #40CFFF;
+  color: #40CFFF;
+  transition: all 0.3s;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-warning:hover {
+  background: #40CFFF;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(64, 207, 255, 0.3);
+}
+
+/* Card effect */
+.card-link {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.card-link:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-color: rgba(64, 207, 255, 0.4);
+}
+
+/* Loading dots */
+.loading-dots span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #141414;
+  margin: 0 4px;
+}
