@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CatalogService, Libro } from '../../../api/services/catalog.service.js';
 import { SafeUrlPipe } from '../../../pipes/safe-url.pipe';
-import { environment } from '../../../api/environments/environment';
+import { environment } from '../../../api/environments/environment.prod.js';
 
 @Component({
   selector: 'app-catalogo',

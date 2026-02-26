@@ -116,21 +116,6 @@ export class GestionCatalogoComponent implements OnInit {
     this.mensajeErrorArchivo = '';
     this.pdfSeleccionado = file;
   }
- /* onPdfSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
-
-    if (file.type !== 'application/pdf') {
-      this.mensaje = 'Solo se permiten archivos PDF';
-      this.pdfSeleccionado = null;
-      return;
-    }
-
-    this.pdfSeleccionado = file;
-  }*/
 
   /** 💾 Guardar libro (crear o editar) */
   guardarLibro(): void {
