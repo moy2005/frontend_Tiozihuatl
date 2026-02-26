@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CloudinaryService } from '../../../api/services/cloudinary.service';
-import { environment } from '../../../api/environments/environment'
+import { environment } from '../../../api/environments/environment.prod'
 
 @Component({
   selector: 'app-gestion-calendario',
