@@ -1,0 +1,54 @@
+<div class="pdf-viewer-wrapper">
+
+  <div class="viewer-header">
+
+    <span class="doc-title">
+      {{ magazine?.titulo || 'Documento' }}
+    </span>
+
+    <div class="header-controls">
+
+      <button class="icon-btn" (click)="zoomOut()" title="Reducir zoom">
+        −
+      </button>
+
+      <button class="icon-btn" (click)="zoomIn()" title="Aumentar zoom">
+        +
+      </button>
+
+      <button class="icon-btn" (click)="toggleTheme()" title="Modo claro / oscuro">
+        🌗
+      </button>
+
+      <button class="icon-btn" (click)="toggleFullscreen()" title="Pantalla completa">
+        ⛶
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- Área PDF vertical estilo Drive -->
+  <div class="pdf-container" id="pdfContainer"></div>
+
+
+  <div class="floating-bar">
+
+  <span>Página</span>
+
+  <span class="page-number">
+    {{ currentPage }}
+  </span>
+
+  <span>de</span>
+
+  <span>{{ totalPages }}</span>
+
+  <div class="divider"></div>
+
+  <button (click)="zoomOut()">−</button>
+  <button (click)="zoomIn()">+</button>
+
+</div>
+
+</div>

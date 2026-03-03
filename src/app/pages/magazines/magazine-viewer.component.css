@@ -1,0 +1,180 @@
+/* ===== Fondo general ===== */
+.pdf-viewer-wrapper {
+  min-height: 100vh;
+  background: #1e1e1e;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Barra superior ===== */
+.viewer-header {
+  height: 60px;
+  background: #2b2b2b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  color: white;
+  font-size: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+
+.doc-title {
+  font-weight: 500;
+}
+
+
+/* ===== Contenedor PDF ===== */
+
+#pdfCanvas {
+  background: white;
+  border-radius: 6px;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.6),
+    0 8px 20px rgba(0,0,0,0.4);
+  max-width: 850px;
+  width: 100%;
+}
+
+
+
+.pdf-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 0;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.pdf-container canvas {
+  box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.pdf-container canvas:hover {
+  transform: scale(1.01);
+}
+
+.light-mode {
+  background: #f4f4f4 !important;
+}
+
+.light-mode .viewer-header {
+  background: #ffffff;
+  color: #000;
+}
+
+.light-mode .pdf-viewer-wrapper {
+  background: #f4f4f4;
+}
+
+.light-mode {
+  background: #f4f4f4 !important;
+}
+
+.light-mode .viewer-header {
+  background: #ffffff;
+  color: #000;
+}
+
+.light-mode .pdf-viewer-wrapper {
+  background: #f4f4f4;
+}
+
+/* ===== Header Controls ===== */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ===== Botones estilo moderno ===== */
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+/* Hover elegante */
+.icon-btn:hover {
+  background: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59,130,246,0.5);
+}
+
+/* Active */
+.icon-btn:active {
+  transform: scale(0.95);
+}
+
+/* Light mode */
+.light-mode .icon-btn {
+  background: rgba(0,0,0,0.06);
+  color: #111;
+}
+
+.light-mode .icon-btn:hover {
+  background: #2563eb;
+  color: white;
+}
+
+
+/* ===== Floating Bar estilo Drive ===== */
+.floating-bar {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(40,40,40,0.85);
+  backdrop-filter: blur(12px);
+  color: white;
+  padding: 12px 22px;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.floating-bar button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: 0.2s;
+}
+
+.floating-bar button:hover {
+  color: #3b82f6;
+  transform: scale(1.2);
+}
+
+.page-number {
+  background: rgba(255,255,255,0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255,255,255,0.2);
+}

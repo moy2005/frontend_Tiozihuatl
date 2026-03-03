@@ -1,0 +1,254 @@
+.admin-content {
+  --azul-fondo: #E3F2FD;
+  --azul-principal: #2196F3;
+  --azul-hover: #1976D2;
+  --azul-border: #90CAF9;
+
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--azul-fondo);
+  font-family: "Inter", sans-serif;
+}
+
+/* CARD */
+.card-azul {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 2px solid var(--azul-border);
+  box-shadow: 0 8px 24px rgba(33,150,243,0.15);
+}
+
+/* TITULO */
+.page-title {
+  color: var(--azul-hover);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* TABLA */
+.revistas-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.revistas-table thead {
+  background: var(--azul-principal);
+  color: white;
+}
+
+.revistas-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.revistas-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--azul-border);
+}
+
+.revistas-table tbody tr:hover {
+  background: rgba(33,150,243,0.08);
+  transition: 0.2s;
+}
+
+.title-cell {
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* BADGES */
+.badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.badge-success {
+  background: #4CAF50;
+}
+
+.badge-danger {
+  background: #F44336;
+}
+
+.badge-warning {
+  background: #FF9800;
+}
+
+.badge-gray {
+  background: #607D8B;
+}
+
+.text-muted {
+  color: #9CA3AF;
+}
+
+.empty-row {
+  text-align: center;
+  padding: 2rem;
+  color: #64748B;
+}
+
+/* BOTONES */
+.btn-primary,
+.btn-success,
+.btn-danger,
+.btn-gray {
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-primary {
+  background: var(--azul-principal);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--azul-hover);
+}
+
+.btn-success {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-danger {
+  background: #F44336;
+  color: white;
+}
+
+.btn-gray {
+  background: #607D8B;
+  color: white;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(33,150,243,0.4);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: white;
+  width: 600px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  background: var(--azul-principal);
+  color: white;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  padding: 1rem;
+  background: #F8FBFF;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--azul-hover);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 10px;
+  border: 2px solid var(--azul-border);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* LOADING */
+.loading-spinner {
+  border: 5px solid #E3F2FD;
+  border-top: 5px solid var(--azul-hover);
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.portada-thumb {
+  width: 60px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+.badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.badge-success {
+  background-color: #22c55e;
+  color: white;
+}
+
+.badge-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.badge-warning {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.badge-danger {
+  background-color: #ef4444;
+  color: white;
+}

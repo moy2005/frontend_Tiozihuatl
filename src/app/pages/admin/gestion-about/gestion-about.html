@@ -1,0 +1,159 @@
+<div class="p-6 max-w-7xl mx-auto">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">
+      Gestión · Quiénes Somos
+    </h1>
+
+    <button
+      class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+             transition-all shadow-md flex items-center gap-2"
+      (click)="nuevoAbout()"
+      [disabled]="cargando">
+      + Nuevo Contenido
+    </button>
+  </div>
+
+  <!-- Loader -->
+  <div *ngIf="cargando && abouts.length === 0" class="text-center py-12">
+    <div class="animate-spin h-10 w-10 border-b-2 border-blue-600 rounded-full mx-auto"></div>
+    <p class="mt-3 text-gray-600">Cargando contenido...</p>
+  </div>
+
+  <!-- Tabla -->
+  <div *ngIf="!cargando || abouts.length > 0" class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full">
+      <thead class="bg-blue-600 text-white">
+        <tr>
+          <th class="px-6 py-4 text-left">Tipo</th>
+          <th class="px-6 py-4 text-left">Título</th>
+          <th class="px-6 py-4 text-left">Estado</th>
+          <th class="px-6 py-4 text-left w-40">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y">
+        <tr *ngIf="abouts.length === 0">
+          <td colspan="4" class="text-center py-10 text-gray-500">
+            No hay contenido registrado
+          </td>
+        </tr>
+
+        <tr *ngFor="let item of abouts" class="hover:bg-gray-50">
+          <td class="px-6 py-4 font-semibold">{{ item.type }}</td>
+          <td class="px-6 py-4">{{ item.title }}</td>
+          <td class="px-6 py-4">
+            <span
+              class="px-3 py-1 rounded-full text-xs font-medium"
+              [ngClass]="item.status === 'Activo'
+                ? 'bg-green-100 text-green-700'
+                : 'bg-gray-200 text-gray-600'">
+              {{ item.status }}
+            </span>
+          </td>
+          <td class="px-6 py-4 flex gap-2">
+            <button
+              class="px-3 py-1 text-blue-600 border border-blue-200 rounded hover:bg-blue-50"
+              (click)="editarAbout(item)">
+              Editar
+            </button>
+            <button
+              class="px-3 py-1 text-red-600 border border-red-200 rounded hover:bg-red-50"
+              (click)="eliminarAbout(item.id_about)">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MODAL -->
+  <div *ngIf="mostrarModal" class="fixed inset-0 z-50 flex items-center justify-center">
+
+    <!-- Overlay -->
+    <div
+      class="absolute inset-0 bg-black bg-opacity-50"
+      (click)="cancelar()">
+    </div>
+
+    <!-- Modal -->
+    <div
+      class="relative bg-white rounded-xl shadow-xl max-w-2xl w-full z-10"
+      (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="bg-blue-600 text-white px-6 py-4 rounded-t-xl flex justify-between">
+        <h2 class="text-lg font-bold">
+          {{ aboutForm.id_about ? 'Editar Contenido' : 'Nuevo Contenido' }}
+        </h2>
+        <button (click)="cancelar()">✕</button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6 space-y-4">
+
+        <div>
+          <label class="font-semibold text-sm">Tipo</label>
+          <select
+            [(ngModel)]="aboutForm.type"
+            [disabled]="guardando"
+            class="w-full border rounded-lg px-4 py-2">
+            <option value="MISION">Misión</option>
+            <option value="VISION">Visión</option>
+            <option value="VALORES">Valores</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="font-semibold text-sm">Título *</label>
+          <input
+            [(ngModel)]="aboutForm.title"
+            [disabled]="guardando"
+            class="w-full border rounded-lg px-4 py-2"
+            placeholder="Ej. Nuestra Misión">
+        </div>
+
+        <div>
+          <label class="font-semibold text-sm">Contenido *</label>
+          <textarea
+            [(ngModel)]="aboutForm.content"
+            [disabled]="guardando"
+            rows="5"
+            class="w-full border rounded-lg px-4 py-2"
+            placeholder="Texto descriptivo..."></textarea>
+        </div>
+
+        <div>
+          <label class="font-semibold text-sm">Estado</label>
+          <select
+            [(ngModel)]="aboutForm.status"
+            [disabled]="guardando"
+            class="w-full border rounded-lg px-4 py-2">
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-end gap-3">
+        <button
+          class="px-4 py-2 bg-gray-200 rounded"
+          (click)="cancelar()"
+          [disabled]="guardando">
+          Cancelar
+        </button>
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded"
+          (click)="guardarAbout()"
+          [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

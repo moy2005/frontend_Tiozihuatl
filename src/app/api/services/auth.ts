@@ -10,7 +10,9 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  /** 🔹 Registro de usuario */
+  // ==========================================================
+  // 🔹 Registro de usuario
+  // ==========================================================
   register(data: {
     nombre: string;
     apaterno: string;
@@ -34,7 +36,9 @@ export class AuthService {
     );
   }
 
-  /** 🔹 Login tradicional */
+  // ==========================================================
+  // 🔹 Login
+  // ==========================================================
   login(data: {
     credential: string;
     contrasena: string;
@@ -43,9 +47,12 @@ export class AuthService {
     return this.http.post(`${this.api}/auth/login`, data);
   }
 
-  /** 🔹 Logout — cierra sesión y limpia datos */
+  // ==========================================================
+  // 🔹 Logout
+  // ==========================================================
   logout(): Observable<any> {
     const token = localStorage.getItem('accessToken');
+
     if (!token) {
       this.clearSession();
       return throwError(() => new Error('No hay sesión activa.'));
@@ -66,14 +73,14 @@ export class AuthService {
       );
   }
 
-  /** 🔄 Refresh token seguro */
+  // ==========================================================
+  // 🔄 Refresh token
+  // ==========================================================
   refreshToken(): Observable<any> {
     const refresh = localStorage.getItem('refreshToken');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    // 🚫 Si no hay datos válidos, no continuar
     if (!refresh || !user?.id) {
-      console.warn('⚠️ Sin refresh token o usuario, cerrando sesión.');
       this.clearSession();
       return throwError(() => new Error('Sesión expirada.'));
     }
@@ -85,58 +92,69 @@ export class AuthService {
         if (res?.accessToken && res?.refreshToken) {
           localStorage.setItem('accessToken', res.accessToken);
           localStorage.setItem('refreshToken', res.refreshToken);
-          console.log('✅ Tokens actualizados correctamente');
         } else {
-          console.warn('⚠️ Tokens inválidos en respuesta, cerrando sesión.');
           this.clearSession();
         }
       }),
       catchError((err) => {
-        console.error('❌ Error al renovar tokens:', err);
         this.clearSession();
         return throwError(() => err);
       })
     );
   }
 
-  /** 🔧 Limpia el almacenamiento local */
-  clearSession() {
+  // ==========================================================
+  // 🔐 ESTADO DE SESIÓN (CLAVE PARA BREADCRUMBS / NAVBAR)
+  // ==========================================================
+  isLoggedIn(): boolean {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    return !!accessToken && !!refreshToken;
+  }
+
+  // ==========================================================
+  // 👤 USUARIO ACTUAL
+  // ==========================================================
+  getUser(): any {
+    return JSON.parse(localStorage.getItem('user') || '{}');
+  }
+
+  // ==========================================================
+  // 🔧 Limpia sesión
+  // ==========================================================
+  clearSession(): void {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
   }
 
+  // ==========================================================
+  // 🔹 Pre-registro / verificación
+  // ==========================================================
   preRegistro(data: any) {
-  return this.http.post(`${this.api}/auth/pre-registro`, data);
-}
+    return this.http.post(`${this.api}/auth/pre-registro`, data);
+  }
 
+  verifyEmailLink(token: string) {
+    return this.http.get(`${this.api}/auth/verify-email?token=${token}`);
+  }
 
-verifyEmailLink(token: string) {
-  return this.http.get(`${this.api}/auth/verify-email?token=${token}`);
-}
+  finalizarRegistro(data: any) {
+    return this.http.post(`${this.api}/auth/finalizar-registro`, data);
+  }
 
-finalizarRegistro(data: any) {
-  return this.http.post(`${this.api}/auth/finalizar-registro`, data);
-}
+  // ==========================================================
+  // 🔑 Recuperación de contraseña
+  // ==========================================================
+  forgotPassword(payload: { correo: string; palabra_secreta: string }) {
+    return this.http.post(`${this.api}/password/forgot`, payload);
+  }
 
+  validateToken(token: string) {
+    return this.http.get(`${this.api}/password/validate?token=${token}`);
+  }
 
-// ===============================
-// Recuperación de contraseña
-// ===============================
-
-// 1) Enviar correo con enlace
-forgotPassword(payload: { correo: string, palabra_secreta: string }) {
-  return this.http.post(`${this.api}/password/forgot`, payload);
-}
-
-// 2) Validar token del enlace
-validateToken(token: string) {
-  return this.http.get(`${this.api}/password/validate?token=${token}`);
-}
-
-// 3) Restablecer contraseña usando token
-resetPassword(payload: { token: string; nuevaContrasena: string }) {
-  return this.http.post(`${this.api}/password/reset`, payload);
-}
-
+  resetPassword(payload: { token: string; nuevaContrasena: string }) {
+    return this.http.post(`${this.api}/password/reset`, payload);
+  }
 }

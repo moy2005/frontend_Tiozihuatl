@@ -58,6 +58,11 @@ export class AdminLayoutComponent implements OnInit {
       route: '/admin/revistas'
     },
     {
+    label: 'Quiénes Somos',
+    icon: 'information-circle-outline',
+    route: '/admin/about'
+    },
+    {
       label: 'Noticias',
       icon: 'megaphone-outline',
       route: '/admin/noticias'

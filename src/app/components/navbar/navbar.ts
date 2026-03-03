@@ -4,6 +4,10 @@ import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { UserProfileService } from '../../api/services/user-profile.service';
 import Swal from 'sweetalert2';
 import { filter } from 'rxjs/operators';
+import { CartService }  from '../../api/services/cart.service';
+import { Subject } from 'rxjs';
+
+
 
 @Component({
   selector: 'app-navbar',
@@ -18,10 +22,15 @@ export class Navbar implements OnInit {
   isAuthenticated = false;
   userName = ''; // Solo nombre, sin apellidos
   userRole = '';
+  cartCount = 0;
+  badgeAnimate = false;
+  private badgeTrigger = new Subject<void>();
+  badgeTrigger$ = this.badgeTrigger.asObservable();
 
   constructor(
     private router: Router,
-    private userService: UserProfileService
+    private userService: UserProfileService,
+    private cartService: CartService 
   ) {
     // ✅ Recargar navbar después de cada navegación (especialmente después del login)
     this.router.events
@@ -31,9 +40,16 @@ export class Navbar implements OnInit {
       });
   }
 
-  ngOnInit() {
-    this.verificarAutenticacion();
-  }
+  
+
+ ngOnInit() {
+  this.verificarAutenticacion();
+
+  // 🔥 Escuchar cambios del carrito
+  this.cartService.cart$.subscribe(cart => {
+    this.cartCount = cart.length;
+  });
+}
 
   /** 🔐 Verificar si hay sesión activa */
   verificarAutenticacion() {
@@ -48,6 +64,10 @@ export class Navbar implements OnInit {
       this.userRole = '';
     }
   }
+    triggerBadge() {
+    this.badgeTrigger.next();
+  }
+  
 
   /** 👤 Obtener datos del usuario logueado */
   async obtenerDatosUsuario() {
@@ -108,6 +128,11 @@ export class Navbar implements OnInit {
   /** 👤 Ir al perfil */
   irPerfil() {
     this.router.navigate(['/perfil']);
+  }
+
+  triggerBadgeAnimation() {
+    this.badgeAnimate = true;
+    setTimeout(() => this.badgeAnimate = false, 300);
   }
 
   /** 🎛️ Ir al panel admin (solo para Administrador) */

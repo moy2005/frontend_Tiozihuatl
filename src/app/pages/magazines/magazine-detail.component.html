@@ -1,0 +1,79 @@
+<div class="detalle-overlay">
+
+      <div class="detalle-card" *ngIf="magazine">
+        <!-- Imagen -->
+      <div class="detalle-cover">
+     <img
+      *ngIf="magazine.pdf_public_id"
+      [src]="getPdfCover(magazine.pdf_public_id)"
+      alt="Portada revista">
+        </div>
+    <!-- Información -->
+    <div class="detalle-content">
+
+      <h2 class="detalle-title">
+        {{ magazine.titulo }}
+      </h2>
+
+      <p class="detalle-description">
+        {{ magazine.descripcion }}
+      </p>
+
+      <div class="detalle-price">
+        ${{ magazine.precio }}
+      </div>
+
+      <div 
+        class="stock-badge"
+        [ngClass]="{
+          'stock-available': magazine.stock > 0,
+          'stock-empty': magazine.stock === 0
+        }">
+
+        {{ magazine.stock > 0 ? 'Disponible' : 'Agotado' }}
+      </div>
+
+      <button 
+        *ngIf="!hasPurchased"
+        (click)="addToCart()"
+        [disabled]="magazine.stock === 0"
+        class="btn-buy"
+        [ngClass]="{ 'btn-disabled': magazine.stock === 0 }">
+        🛒 Agregar al carrito
+      </button>
+
+      <button 
+        *ngIf="hasPurchased"
+        (click)="openReader()"
+        class="btn-buy bg-blue-600 hover:bg-blue-700">
+        📖 Leer ahora
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div 
+  *ngIf="showAddedMessage"
+  class="fixed top-6 right-6 bg-green-600 text-white px-6 py-3 rounded-xl shadow-xl z-50 animate-fade">
+  ✔ Revista agregada al carrito
+</div>
+
+<!-- ================= VISOR PDF ================= -->
+<div *ngIf="showReader" class="pdf-overlay">
+
+  <div class="pdf-header">
+    <h3>{{ magazine.titulo }}</h3>
+    <button (click)="closeReader()">✕</button>
+  </div>
+
+  <div class="pdf-container">
+    <iframe
+      [src]="safePdfUrl"
+      class="pdf-frame">
+    </iframe>
+  </div>
+
+</div>

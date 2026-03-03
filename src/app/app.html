@@ -1,5 +1,8 @@
 @if (mostrarNavbar()) {
   <app-navbar></app-navbar>
 }
+@if (mostrarBreadcrumbs()) {
+  <app-breadcrumbs></app-breadcrumbs>
+}
 
 <router-outlet />

@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { UserProfileService } from '../../api/services/user-profile.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../api/environments/environment';
 
 @Component({
   selector: 'app-perfil-usuario',
@@ -20,11 +22,18 @@ export class PerfilUsuarioComponent implements OnInit {
   editando = false;
   contrasenaActual = '';
   nuevaContrasena = '';
+  purchasedMagazines: any[] = [];
+  loadingPurchases = false;
 
-  constructor(private userService: UserProfileService, private router: Router) {}
+  constructor(
+    private userService: UserProfileService, 
+    private router: Router,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
     this.obtenerPerfil();
+    this.cargarRevistasCompradas(); // NUEVO
   }
 
   /** 🧠 Obtener datos del perfil */
@@ -67,6 +76,30 @@ export class PerfilUsuarioComponent implements OnInit {
       this.cargando = false;
     }
   }
+
+  abrirRevista(id: number) {
+    this.router.navigate(['/magazines/view', id]);
+  }
+
+
+  async cargarRevistasCompradas() {
+
+  this.loadingPurchases = true;
+
+  this.http.get<any[]>(
+    `${environment.apiUrl}/magazines/my-purchases`
+  ).subscribe({
+    next: (data) => {
+      this.purchasedMagazines = data;
+      this.loadingPurchases = false;
+    },
+    error: () => {
+      this.loadingPurchases = false;
+    }
+  });
+
+}
+
 
   /** 🔒 Cambiar contraseña */
   async cambiarContrasena() {
@@ -135,7 +168,9 @@ export class PerfilUsuarioComponent implements OnInit {
   irPanelAdmin() {
     this.router.navigate(['/admin']);
   }
-
+  irALectura(idRevista: number) {
+  this.router.navigate(['/magazines/view', idRevista]);
+}
 
   passwordStage = 0;
   showPasswordTip = false;

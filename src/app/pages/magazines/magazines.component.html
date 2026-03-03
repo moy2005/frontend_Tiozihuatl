@@ -1,0 +1,142 @@
+<div class="store-container">
+
+  <!-- 🔹 RESUMEN DEL CARRITO -->
+  <div class="bg-white shadow-md rounded-xl p-4 mb-6 flex justify-between items-center">
+    <div class="font-semibold text-gray-700">
+      🛒 {{ cartCount }} artículos en el carrito
+    </div>
+
+    <button 
+      (click)="toggleCart()"
+      class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+      Ver carrito
+    </button>
+  </div>
+
+  <h2 class="store-title">📚 Tienda de Revistas</h2>
+
+  <div *ngIf="loading">Cargando catálogo...</div>
+
+  <div class="grid" *ngIf="!loading">
+
+    <div class="card" *ngFor="let m of magazines">
+
+      <img 
+        [src]="getPdfCover(m.pdf_public_id)" 
+        class="cover">
+
+      <h3>{{ m.titulo }}</h3>
+
+      <p class="price">${{ m.precio }}</p>
+
+      <div class="actions">
+        <a [routerLink]="['/magazines', m.id_magazine]" class="btn-view">
+          Ver detalle
+        </a>
+
+       <button 
+        *ngIf="!isPurchased(m.id_magazine)"
+        (click)="addToCart(m)" 
+        class="btn-cart">
+        Comprar
+      </button>
+
+      <a 
+        *ngIf="isPurchased(m.id_magazine)"
+        [routerLink]="['/magazines', m.id_magazine]"
+        class="btn-view bg-green-600 hover:bg-green-700">
+        Leer ahora
+      </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===================================== -->
+<!-- 🛒 OVERLAY -->
+<!-- ===================================== -->
+<div 
+  *ngIf="cartOpen"
+  class="fixed inset-0 bg-black/50 z-40"
+  (click)="closeCart()">
+</div>
+
+<!-- ===================================== -->
+<!-- 🛒 DRAWER LATERAL -->
+<!-- ===================================== -->
+<div 
+  class="fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300"
+  [class.translate-x-full]="!cartOpen">
+
+  <div class="p-6 flex justify-between items-center border-b">
+    <h2 class="text-xl font-bold">🛒 Tu Carrito</h2>
+    <button (click)="closeCart()" class="text-gray-500 hover:text-black text-xl">✕</button>
+  </div>
+
+  <div class="p-6 flex flex-col gap-4 overflow-y-auto h-[65%]">
+
+    <div *ngFor="let item of cartItems" class="flex justify-between items-center border-b pb-3">
+      <div>
+        <p class="font-semibold">{{ item.titulo }}</p>
+        <p class="text-sm text-gray-500">${{ item.precio }}</p>
+      </div>
+      <button (click)="removeItem(item.id)" class="text-red-500 text-sm hover:underline">
+        Eliminar
+      </button>
+    </div>
+
+    <div *ngIf="cartItems.length === 0" class="text-center text-gray-400 mt-10">
+      Tu carrito está vacío
+    </div>
+
+  </div>
+
+  <div class="p-6 border-t bg-gray-50">
+    <div class="flex justify-between font-bold text-lg mb-4">
+      <span>Total:</span>
+      <span>${{ total }}</span>
+    </div>
+
+    <button 
+      (click)="simulatePayment()"
+      [disabled]="processingPayment"
+      class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex justify-center items-center gap-2">
+
+      <span *ngIf="!processingPayment">💳 Pagar ahora</span>
+
+      <span *ngIf="processingPayment" class="flex items-center gap-2">
+        <span class="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
+        Procesando...
+      </span>
+
+    </button>
+  </div>
+</div>
+
+<!-- ===================================== -->
+<!-- 💳 MODAL PAGO EXITOSO -->
+<!-- ===================================== -->
+<div 
+  *ngIf="paymentSuccess"
+  class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
+
+  <div class="bg-white p-10 rounded-2xl shadow-2xl text-center w-96 animate-fade">
+
+    <div class="text-green-500 text-5xl mb-4">✔</div>
+
+    <h2 class="text-2xl font-bold mb-2">Pago exitoso</h2>
+    <p class="text-gray-500 mb-6">
+      Gracias por tu compra.
+    </p>
+
+    <button 
+      (click)="paymentSuccess = false"
+      class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+      Continuar
+    </button>
+
+  </div>
+</div>

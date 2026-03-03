@@ -289,7 +289,7 @@
         </a>
 
         <!-- Quiénes Somos -->
-        <a routerLink="/quienes-somos" 
+        <a routerLink="/about" 
            class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
           <ion-icon name="people-outline" class="text-lg"></ion-icon>
           <span>Quiénes Somos</span>
@@ -392,13 +392,20 @@
         </div>
 
         <!-- Tienda -->
-        <button 
-          onclick="window.location.href='venta-revistas.html'" 
-          class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
-          <ion-icon name="cart-outline" class="text-lg"></ion-icon>
-          <span>Tienda</span>
-        </button>
+      <button 
+        routerLink="/magazines"
+        class="relative nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white">
+        
+        <ion-icon name="cart-outline" class="text-lg"></ion-icon>
+        <span>Tienda</span>
 
+       <span 
+        *ngIf="cartCount > 0"
+        [class.animate-bounce]="badgeAnimate"
+        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+        {{ cartCount }}
+      </span>
+      </button>
         <!-- Espaciador -->
         <div class="flex-grow"></div>
 

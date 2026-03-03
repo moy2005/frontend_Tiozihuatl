@@ -1,0 +1,32 @@
+<nav
+  *ngIf="showBreadcrumbs"
+  class="bg-gray-50 px-4 py-3 rounded-md mb-4"
+  aria-label="Breadcrumb"
+>
+  <ol class="flex items-center space-x-2 text-sm text-gray-600">
+    <li>
+      <a
+        routerLink="/perfil"
+        class="text-blue-600 hover:text-blue-800 font-medium"
+      >
+        Inicio
+      </a>
+    </li>
+
+    <li *ngFor="let crumb of breadcrumbs; let last = last" class="flex items-center">
+      <span class="mx-2 text-gray-400">/</span>
+
+      <a
+        *ngIf="!last"
+        [routerLink]="crumb.url"
+        class="text-blue-600 hover:text-blue-800 font-medium"
+      >
+        {{ crumb.label }}
+      </a>
+
+      <span *ngIf="last" class="text-gray-800 font-semibold">
+        {{ crumb.label }}
+      </span>
+    </li>
+  </ol>
+</nav>

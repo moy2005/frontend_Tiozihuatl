@@ -1,0 +1,303 @@
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+    <div class="card-azul mb-6">
+      <div class="flex justify-between items-center flex-wrap gap-4">
+        <h2 class="page-title flex items-center gap-3">
+          <ion-icon name="book-outline"></ion-icon>
+          Gestión de Revistas
+        </h2>
+
+        <button
+          class="btn-success flex items-center gap-2"
+          (click)="openModal()"
+          [disabled]="loading">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Nueva Revista
+        </button>
+      </div>
+    </div>
+
+    <!-- =========================
+         TABS
+    ========================== -->
+    <div class="flex gap-4 mb-6">
+     <button class="btn-primary"
+        (click)="cambiarVista('revistas')">
+  📚 Revistas
+    </button>
+
+    <button class="btn-gray"
+            (click)="cambiarVista('auditoria')">
+      🛡 Auditoría
+    </button>
+
+    </div>
+
+    <!-- =========================================================
+         SECCIÓN REVISTAS
+    ========================================================== -->
+    <div *ngIf="vista === 'revistas'">
+
+      <!-- LOADING -->
+      <div *ngIf="loading && magazines.length === 0" class="card-azul text-center py-12">
+        <div class="loading-spinner"></div>
+        <p class="mt-4 text-[#5A6B8C] font-medium">Cargando revistas...</p>
+      </div>
+
+      <!-- TABLA -->
+      <div *ngIf="!loading" class="card-azul overflow-hidden">
+
+        <div class="overflow-x-auto">
+          <table class="revistas-table">
+            <thead class="table-header">
+              <tr>
+                <th>Título</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Descuento</th>
+                <th>Portada</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngIf="magazines.length === 0">
+                <td colspan="6" class="empty-row">
+                  No hay revistas registradas
+                </td>
+              </tr>
+
+              <tr *ngFor="let mag of magazines; trackBy: trackById">
+
+                <td class="title-cell">
+                  {{ mag.titulo }}
+                </td>
+
+                <td>
+                  $ {{ mag.precio }}
+                </td>
+
+                <td>
+                  <span
+                    class="badge"
+                    [ngClass]="mag.stock > 0 ? 'badge-success' : 'badge-danger'">
+                    {{ mag.stock > 0 ? mag.stock + ' disponibles' : 'Sin stock' }}
+                  </span>
+                </td>
+
+                <td>
+                  <span
+                    class="badge"
+                    [ngClass]="mag.estado === 'Activa' ? 'badge-success' : 'badge-gray'">
+                    {{ mag.estado }}
+                  </span>
+                </td>
+
+                <td>
+                  <span
+                    *ngIf="mag.descuento_activo"
+                    class="badge badge-warning">
+                    Activo
+                  </span>
+                  <span *ngIf="!mag.descuento_activo" class="text-muted">
+                    —
+                  </span>
+                </td>
+
+                <td class="actions-cell">
+                  <button
+                    class="btn-primary"
+                    (click)="editMagazine(mag)">
+                    Editar
+                  </button>
+
+                  <button
+                  *ngIf="mag.id_revista"
+                  [ngClass]="mag.estado === 'Activa' ? 'btn-danger' : 'btn-success'"
+                  (click)="toggleMagazine(mag.id_revista!)"
+                >
+                  {{ mag.estado === 'Activa' ? 'Desactivar' : 'Activar' }}
+                </button>
+                </td>
+
+                <td>
+                  <img 
+                    *ngIf="mag.portada_url"
+                    [src]="mag.portada_url"
+                    class="portada-thumb"
+                  />
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =========================================================
+         SECCIÓN AUDITORÍA
+    ========================================================== -->
+    <div *ngIf="vista === 'auditoria'" class="card-azul">
+
+      <!-- FILTROS -->
+      <div class="flex flex-wrap gap-4 mb-6">
+
+        <input
+          type="text"
+          [(ngModel)]="filtros.usuario"
+          placeholder="Buscar por usuario"
+          class="input-field w-60" />
+
+        <input
+          type="date"
+          [(ngModel)]="filtros.fecha_inicio"
+          class="input-field" />
+
+        <input
+          type="date"
+          [(ngModel)]="filtros.fecha_fin"
+          class="input-field" />
+
+        <button
+          class="btn-primary"
+          (click)="aplicarFiltros()">
+          Filtrar
+        </button>
+
+        <button
+          class="btn-gray"
+          (click)="limpiarFiltros()">
+          Limpiar
+        </button>
+
+      </div>
+
+      <!-- LOADING AUDITORÍA -->
+      <div *ngIf="cargandoAuditoria" class="text-center py-8">
+        <div class="loading-spinner"></div>
+      </div>
+      <p class="text-sm text-muted mb-2">
+        Total registros: {{ auditoria.length }}
+      </p>
+
+
+      <!-- TABLA AUDITORÍA -->
+      <div *ngIf="!cargandoAuditoria" class="overflow-x-auto">
+        <table class="revistas-table">
+          <thead class="table-header">
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Descripción</th>
+              <th>IP</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngIf="auditoria.length === 0">
+              <td colspan="6" class="empty-row">
+                No hay registros de auditoría
+              </td>
+            </tr>
+
+            <tr *ngFor="let log of auditoria">
+              <td>{{ log.id_auditoria }}</td>
+              <td>{{ log.usuario }}</td>
+
+             <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'badge-success': log.accion === 'COMPRA',
+                  'badge-primary': log.accion === 'UPDATE_REVISTA',
+                  'badge-warning': log.accion === 'DESACTIVAR_REVISTA',
+                  'badge-danger': log.accion === 'DELETE_REVISTA'
+                }"
+              >
+                {{
+                  log.accion === 'UPDATE_REVISTA'
+                    ? 'EDITADO'
+                    : log.accion === 'DESACTIVAR_REVISTA'
+                    ? 'DESACTIVADO'
+                    : log.accion === 'DELETE_REVISTA'
+                    ? 'ELIMINADO'
+                    : log.accion
+                }}
+              </span>
+            </td>
+
+              <td>{{ log.descripcion }}</td>
+              <td>{{ log.ip_address }}</td>
+              <td>{{ log.fecha | date:'short' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- =========================================================
+       MODAL CREAR / EDITAR
+  ========================================================== -->
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h3>
+          {{ form.id_revista ? 'Editar Revista' : 'Nueva Revista' }}
+        </h3>
+        <button (click)="closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label>Título</label>
+          <input [(ngModel)]="form.titulo" />
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea rows="4" [(ngModel)]="form.descripcion"></textarea>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Precio</label>
+            <input type="number" [(ngModel)]="form.precio" />
+          </div>
+
+          <div class="form-group">
+            <label>Stock</label>
+            <input type="number" [(ngModel)]="form.stock" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>PDF</label>
+          <input type="file" (change)="onFileSelected($event)" />
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-gray" (click)="closeModal()">Cancelar</button>
+        <button class="btn-success" (click)="saveMagazine()">Guardar</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

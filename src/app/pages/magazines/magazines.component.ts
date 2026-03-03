@@ -1,0 +1,155 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MagazinesService } from '../../api/services/magazines.service';
+import { CartService } from '../../api/services/cart.service';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http'
+import { environment } from '../../../app/api/environments/environment';
+
+@Component({
+  selector: 'app-magazines',
+  standalone: true,
+  imports: [CommonModule, RouterModule,HttpClientModule],
+  templateUrl: './magazines.component.html',
+  styleUrls: ['./magazines.component.css']
+})
+export class MagazinesComponent implements OnInit {
+
+  magazines: any[] = [];
+  loading = true;
+  cartCount = 0;
+  cartOpen = false;
+  cartItems: any[] = [];
+  total = 0;
+  paymentSuccess = false;
+  paymentRejected = false;
+  processingPayment = false;
+  purchasedIds: number[] = [];
+  purchasedMagazines: any[] = [];
+
+  constructor(
+    private magazineService: MagazinesService,
+    private cartService: CartService,
+    private http: HttpClient
+  ) {}
+ ngOnInit(): void {
+    this.loadMagazines();
+    this.updateCart();
+
+    this.cartService.cart$.subscribe(() => {
+      this.updateCart();
+    });
+
+      this.cartService.cart$.subscribe(cart => {
+        this.cartCount = cart.length;
+      });
+    }
+
+    loadPurchases() {
+    this.http.get<any[]>(
+      `${environment.apiUrl}/magazines/my-purchases`
+    ).subscribe(data => {
+      this.purchasedMagazines = data;
+    });
+  }
+
+   loadMagazines() {
+    this.magazineService.getCatalog().subscribe((res: any) => {
+      this.magazines = res.data;
+      this.loading = false;
+    });
+  }
+    toggleCart() {
+    this.cartOpen = !this.cartOpen;
+  }
+
+  closeCart() {
+    this.cartOpen = false;
+  }
+
+  private getAuthHeaders() {
+    const token = localStorage.getItem('accessToken');
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
+
+  updateCart() {
+  this.cartItems = this.cartService.getItems();
+
+  this.cartCount = this.cartItems.length;
+
+  this.total = this.cartItems.reduce((sum, item) => {
+    return sum + (Number(item.precio) || 0);
+  }, 0);
+}
+  removeItem(id: number) {
+    this.cartService.remove(id);
+    this.updateCart();
+  }
+
+ simulatePayment() {
+
+  if (this.cartItems.length === 0) return;
+
+  this.processingPayment = true;
+
+  const aprobado = Math.random() > 0.2; // 80% éxito
+
+  setTimeout(() => {
+
+      if (!aprobado) {
+        this.processingPayment = false;
+        this.paymentRejected = true;
+        return;
+      }
+
+    this.http.post(
+      `${environment.apiUrl}/magazines/complete-purchase`,
+      { items: this.cartItems },
+      { headers: this.getAuthHeaders() }
+    )
+    .subscribe({
+      next: () => {
+        console.log("Pago guardado en backend");
+        this.processingPayment = false;
+        this.paymentSuccess = true;
+        this.cartService.clear();
+        this.updateCart();
+      },
+      error: (err) => {
+        console.log("Error backend:", err);
+        this.processingPayment = false;
+        this.paymentRejected = true;
+      }
+    });
+
+    }, 1500); // simulación de procesamiento
+
+  }
+  isPurchased(id: number): boolean {
+    return this.purchasedIds.includes(id);
+  }
+
+
+  getPdfCover(publicId: string): string {
+    if (!publicId) return 'assets/no-image.png';
+
+    const cleanId = publicId.replace('.pdf', '');
+
+    return `https://res.cloudinary.com/dtfto3sgm/image/upload/pg_1,w_300,h_400,c_fill/${cleanId}.jpg`;
+  }
+
+ addToCart(magazine: any) {
+    this.cartService.add({
+      id: magazine.id_magazine,
+      titulo: magazine.titulo,
+      precio: Number(magazine.precio),
+      quantity: 1
+    });
+
+    this.updateCart();
+  }
+}
+

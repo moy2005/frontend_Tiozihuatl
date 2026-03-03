@@ -435,6 +435,7 @@
         </div>
       </div>
 
+
       <!-- Sidebar -->
       <div class="space-y-4 sm:space-y-6">
         <!-- Role Card -->
@@ -541,5 +542,79 @@
         </div>
       </div>
     </div>
+
+
+      <!-- ================================================= -->
+  <!-- 📚 TUS REVISTAS - HISTORIAL DE COMPRA -->
+  <!-- ================================================= -->
+
+  <div *ngIf="!cargando" class="card-azul mt-6">
+    
+    <h2 class="section-title mb-4">
+      <ion-icon name="book-outline" class="text-[#3FA6E8]"></ion-icon>
+      Tus Revistas
+    </h2>
+
+    <!-- Cargando -->
+    <div *ngIf="loadingPurchases" class="text-center py-6 text-[#5A6B8C]">
+      Cargando revistas...
+    </div>
+
+    <!-- Sin compras -->
+    <div *ngIf="!loadingPurchases && purchasedMagazines.length === 0"
+        class="text-center py-6 text-[#5A6B8C]">
+      Aún no has comprado revistas.
+    </div>
+
+    <!-- Tabla horizontal -->
+    <div *ngIf="!loadingPurchases && purchasedMagazines.length > 0"
+        class="overflow-x-auto">
+
+      <table class="w-full text-sm text-left border-collapse">
+        
+        <thead>
+          <tr class="bg-[#EEF4FF] text-[#2C3A6A]">
+            <th class="p-3 border-b">Revista</th>
+            <th class="p-3 border-b">Precio</th>
+            <th class="p-3 border-b">Fecha Compra</th>
+            <th class="p-3 border-b text-center">Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let mag of purchasedMagazines"
+              class="hover:bg-[#F9FAFB] transition">
+
+            <td class="p-3 border-b font-medium">
+              {{ mag.titulo }}
+            </td>
+
+            <td class="p-3 border-b text-[#3FA6E8] font-semibold">
+              ${{ mag.precio }}
+            </td>
+
+            <td class="p-3 border-b">
+              {{ mag.fecha_compra | date:'mediumDate' }}
+            </td>
+
+            <td class="p-3 border-b text-center">
+              <button
+              class="btn-primary"
+              (click)="irALectura(mag.id_revista)">
+              Leer
+            </button>
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
   </div>
 </section>
