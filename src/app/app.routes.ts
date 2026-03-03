@@ -21,6 +21,18 @@ import { AboutComponent } from './pages/about/about.component';
 import { GestionRevistasComponent } from './pages/admin/gestion-revistas/gestion-revistas.component';
 
 
+import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
+import { GestionCatalogoComponent} from './pages/admin/gestion-catalogo/gestion-catalogo';
+
+// Componentes de error
+import { Error400Component } from './pages/error/error-400/error-400.component';
+import { Error404Component } from './pages/error/error-404/error-404.component';
+import { Error500Component } from './pages/error/error-500/error-500.component';
+
+//Calendario
+import { GestionCalendarioComponent } from './pages/admin/gestion-calendario/gestion-calendario'
+
+
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
 
@@ -30,15 +42,17 @@ export const routes: Routes = [
    },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
-  {path:'reset-password', component: ResetPasswordComponent},
+  { path:'reset-password', component: ResetPasswordComponent},
   { path: 'verificar-correo', component: VerificarCorreoComponent },
   { path: 'inicio',component: InicioComponent},
 
   { path: 'about', component: AboutComponent },
   
   { path: 'privacidad', component: Privacidad},
-  {path: 'terminos', component: Terminos},
-  {path: 'seguridad', component: Seguridad},
+  { path: 'terminos', component: Terminos},
+  { path: 'seguridad', component: Seguridad},
+
+  { path: 'catalogo', component: CatalogoComponent},
 
   
 
@@ -99,15 +113,22 @@ export const routes: Routes = [
       { path: 'usuarios', component: GestionUsuariosComponent},
       { path: 'preguntas', component: GestionFaqComponent},
       { path: 'contactos', component: GestionContactoComponent },
-      {path: 'about',component: GestionAboutComponent},
-      {path: 'revistas',component: GestionRevistasComponent,canActivate: [AuthGuard],data: { roles: ['Administrador'] } },
 
-      //{ path: 'libros', component: AdminLibrosComponent },
+      { path: 'about', component: GestionAboutComponent },
+      { path: 'revistas', component: GestionRevistasComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'] } },
+      { path: 'libros', component: GestionCatalogoComponent },
+      { path: 'calendario', component: GestionCalendarioComponent },
+
       //{ path: 'revistas', component: AdminRevistasComponent },
       //{ path: 'noticias', component: AdminNoticiasComponent },
     ]
   },
+    // Rutas de error específicas (públicas)
+  { path: 'error-400', component: Error400Component },
+  { path: 'error-404', component: Error404Component },
+  { path: 'error-500', component: Error500Component },
 
-  { path: '**', redirectTo: '/inicio' },
+
+  { path: '**', redirectTo: '/error-404' },
 ];
 

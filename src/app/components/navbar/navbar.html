@@ -250,6 +250,21 @@
       }
       
     }
+    /* Estilo para el lema debajo del nombre */
+    .institution-lema {
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      color: rgba(255, 255, 255, 0.92);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); /* sutil sombra para contraste */
+    }
+
+    /* Responsive: más pequeño en móvil */
+    @media (max-width: 640px) {
+      .institution-lema {
+        font-size: 0.7rem;
+      }
+}
 </style>
 
 <body class="bg-white text-gray-900 overflow-x-hidden">
@@ -268,10 +283,16 @@
           class="w-16 h-16 rounded-lg shadow-sm"
         />
         
-        <!-- Nombre de la institución (al lado del logo) -->
-        <div class="institution-name">
-          Instituto de Estudios Superiores Tiozihuatl
+        <div class="text-center">
+          <div class="institution-name text-sm font-bold text-white">
+            Instituto de Estudios Superiores Tiozihuatl
+          </div>
+          <!-- LEMA: justo abajo del nombre -->
+          <div class="text-white text-xs italic opacity-90 mt-1">
+            Vocación, Fe y Esperanza
+          </div>
         </div>
+        
       </div>
     </div>
   </div>
@@ -358,7 +379,7 @@
 
           <div class="absolute left-0 top-full mt-3 w-[420px] p-6 bg-white rounded-2xl shadow-2xl opacity-0 invisible transform -translate-y-3 transition-all duration-300 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 z-[70] border border-gray-100">
             <div class="grid grid-cols-1 gap-3">
-              <a href="catalogo_libros.html" class="flex items-center gap-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-all duration-300 group/item">
+              <a href="/biblioteca/catalogo" class="flex items-center gap-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-all duration-300 group/item">
                 <div class="w-12 h-12 bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] rounded-xl flex items-center justify-center shadow-md group-hover/item:shadow-lg group-hover/item:scale-110 transition-all">
                   <ion-icon name="book-outline" class="text-white text-2xl"></ion-icon>
                 </div>
@@ -547,7 +568,7 @@
           <ion-icon name="chevron-down-outline" class="text-lg mobile-dropdown-icon"></ion-icon>
         </label>
         <div class="mobile-dropdown-content ml-4 mt-1">
-          <a href="catalogo_libros.html" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all">
+          <a  routerLink="/catalogo" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all">
             <ion-icon name="book-outline" class="text-lg"></ion-icon>
             <div>
               <div class="font-medium text-sm">Catálogo de Libros</div>

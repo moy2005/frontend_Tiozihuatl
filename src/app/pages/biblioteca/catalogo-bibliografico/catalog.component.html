@@ -1,0 +1,141 @@
+<style></style>
+<header class="header-catalogo">
+  <div class="header-content">
+    <h1>Biblioteca Digital Tiozihuatl</h1>
+    <p class="eslogan">Tu conocimiento en enfermería, al alcance de un clic</p>
+
+    <div class="search-container">
+      <input 
+        type="text"
+        class="search-box"
+        placeholder="Buscar por título o autor..."
+        [(ngModel)]="search"
+        (input)="cargarCatalogo()">
+
+       <button class="search-icon">
+        <ion-icon name="search-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- 🔽 FILTROS -->
+<div class="biblioteca-layout">
+ <!-- FILTROS SIDEBAR -->
+  <aside class="filtros">
+    <h3> 
+      <ion-icon name="funnel-outline"></ion-icon>
+      Filtros
+    </h3>
+    
+    <div class="filtro-group">
+      <label>
+         <ion-icon name="book-outline"></ion-icon>
+         Materia
+      </label>
+      <select [(ngModel)]="filtroMateria" (change)="cargarCatalogo()">
+        <option value="">Todas las materias</option>
+        <option *ngFor="let m of materias" [value]="m.nombre">
+          {{ m.nombre }}
+        </option>
+      </select>
+    </div>
+
+    <div class="filtro-group">
+      <label>
+         <ion-icon name="layers-outline"></ion-icon>
+         Formato
+      </label>
+      <select [(ngModel)]="filtroFormato" (change)="cargarCatalogo()">
+        <option value="">Todos los formatos</option>
+        <option value="FISICO">Físico</option>
+        <option value="DIGITAL">Digital</option>
+        <option value="AMBOS">Ambos</option>
+      </select>
+    </div>
+
+    <div class="filtro-group">
+      <label>
+        <ion-icon name="swap-vertical-outline"></ion-icon>
+        Ordenar por autor
+      </label>
+      <select [(ngModel)]="ordenAutor" (change)="cargarCatalogo()">
+        <option value="">Sin orden</option>
+        <option value="ASC">A-Z</option>
+        <option value="DESC">Z-A</option>
+      </select>
+    </div>
+  </aside>
+
+  <!-- 📚 CARDS -->
+  <section class="catalogo-container">
+
+    <article *ngFor="let libro of libros" class="libro-card">
+
+      <!-- Preview PDF -->
+      <div class="book-cover">
+
+        <div *ngIf="libro.previewUrl; else placeholder">
+          <img [src]="libro.previewUrl" class="pdf-preview">
+        </div>
+
+        <ng-template #placeholder>
+          <div class="placeholder-cover">
+            📚
+            <span *ngIf="libro.tiene_digital">Cargando portada...</span>
+            <span *ngIf="!libro.tiene_digital">Solo físico</span>
+          </div>
+        </ng-template>
+
+      </div>
+
+      <div class="libro-content">
+
+        <h3>{{ libro.titulo }}</h3>
+
+        <div class="libro-info">
+          <p><strong>Autor:</strong> {{ libro.autor }}</p>
+          <p><strong>Editorial:</strong> {{ libro.editorial }}</p>
+        </div>
+
+        <div class="badge-container">
+          <span *ngIf="libro.tiene_fisico" class="badge fisico">
+            📦 Físico ({{ libro.disponibles || 0 }})
+          </span>
+
+          <span *ngIf="libro.tiene_digital" class="badge digital">
+            💻 Digital
+          </span>
+        </div>
+
+        <div class="acciones">
+          <button
+            *ngIf="libro.tiene_digital"
+            class="btn"
+            (click)="abrirPdf(libro)">
+            Ver PDF
+          </button>
+                  <button
+          *ngIf="libro.tiene_fisico"
+          class="btn secondary"
+          disabled>
+          Préstamo
+        </button>
+        </div>
+
+      </div>
+
+    </article>
+
+  </section>
+
+</div>
+
+<!-- MODAL PDF -->
+<div class="pdf-overlay" *ngIf="pdfSeleccionado" (click)="cerrarPdf()">
+  <div class="pdf-modal" (click)="$event.stopPropagation()">
+    <button class="cerrar" (click)="cerrarPdf()">✖</button>
+    <iframe [src]="pdfSeleccionado | safeUrl"></iframe>
+    
+  </div>
+</div>

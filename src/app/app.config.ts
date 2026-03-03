@@ -9,10 +9,13 @@ import { provideHttpClient, withFetch,withInterceptors } from '@angular/common/h
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
+import { ErrorInterceptor } from './interceptors/error.interceptor';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(withInterceptors([AuthInterceptor])),
+    //provideHttpClient(withInterceptors([AuthInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([AuthInterceptor,ErrorInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
       provideRouter(

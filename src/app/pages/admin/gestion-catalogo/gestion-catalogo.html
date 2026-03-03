@@ -1,0 +1,965 @@
+<style>
+/* gestion-catalogo.css - DISEÑO PROFESIONAL MEJORADO */
+
+.catalogo-admin {
+  /* Paleta de azules vibrantes */
+  --azul-fondo: #E3F2FD;
+  --azul-contenedor: #2196F3;
+  --azul-interior: #BBDEFB;
+  --azul-input: #FFFFFF;
+  --azul-boton: #1976D2;
+  --azul-boton-hover: #1565C0;
+  --azul-accent: #03A9F4;
+  --azul-border: #90CAF9;
+  --texto-blanco: #FFFFFF;
+  --gris-border: #B3E5FC;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+  --warning-border: #fbbf24;
+
+  min-height: 100vh;
+  padding: 1.5rem;
+  background: var(--azul-fondo);
+  font-family: "Inter", sans-serif !important;
+}
+
+.catalogo-admin h1, 
+.catalogo-admin h2, 
+.catalogo-admin h3 {
+  font-family: "Montserrat", sans-serif !important;
+}
+
+.contenedor-gestion {
+  max-width: 100%;
+  margin: 0;
+}
+
+/* ============================================
+   TÍTULO PRINCIPAL
+   ============================================ */
+.titulo-principal {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FBFF 100%);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(33, 150, 243, 0.2);
+  border: 2px solid var(--azul-border);
+  color: var(--azul-boton);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  text-shadow: 1px 1px 2px rgba(33, 150, 243, 0.1);
+  border-bottom: 3px solid var(--azul-accent);
+}
+
+/* ============================================
+   MENSAJE
+   ============================================ */
+.mensaje {
+  background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%);
+  color: #4CAF50;
+  border-left: 4px solid #4CAF50;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+/* ============================================
+   HEADER LISTA
+   ============================================ */
+.header-lista {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FBFF 100%);
+  padding: 1.5rem 2rem;
+  border-radius: 20px 20px 0 0;
+  border: 2px solid var(--azul-border);
+  border-bottom: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 8px 24px rgba(33, 150, 243, 0.2);
+  position: relative;
+}
+
+.header-lista::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--azul-accent);
+}
+
+.header-lista h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--azul-boton);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-nuevo {
+  background: #4CAF50;
+  color: white;
+  font-weight: 700;
+  padding: 0.7rem 1.4rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-nuevo:hover {
+  background: #388E3C;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+}
+
+/* ============================================
+   TABLA ADAPTATIVA
+   ============================================ */
+.tabla-wrapper {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FBFF 100%);
+  border: 2px solid var(--azul-border);
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(33, 150, 243, 0.2);
+}
+
+.tabla-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.tabla-libros {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px; /* Mínimo para que no se comprima demasiado */
+}
+
+.tabla-libros thead {
+  background: var(--azul-contenedor);
+  color: white;
+  position: relative;
+}
+
+.tabla-libros thead::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--azul-accent);
+}
+
+.tabla-libros th {
+  padding: 1.2rem 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  position: relative;
+  white-space: nowrap;
+}
+
+.tabla-libros th::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tabla-libros th:last-child::after {
+  display: none;
+}
+
+.tabla-libros tbody tr {
+  border-bottom: 1px solid var(--azul-border);
+  transition: all 0.2s ease;
+}
+
+.tabla-libros tbody tr:hover {
+  background: rgba(33, 150, 243, 0.08);
+  border-color: var(--azul-contenedor);
+}
+
+.tabla-libros tbody tr:last-child {
+  border-bottom: none;
+}
+
+.tabla-libros td {
+  padding: 1.125rem 1rem;
+  font-size: 0.875rem;
+  color: #1E293B;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+/* Hacer que el título sea flexible */
+.tabla-libros td:first-child {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tabla-libros td strong {
+  font-weight: 700;
+  color: var(--azul-boton);
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badges-container {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-block;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  animation: fadeIn 0.3s ease;
+  white-space: nowrap;
+}
+
+.badge-fisico {
+  background: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.badge-digital {
+  background: var(--azul-accent);
+  box-shadow: 0 2px 8px rgba(3, 169, 244, 0.3);
+}
+
+.badge-activo {
+  background: #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.badge-inactivo {
+  background: #F44336;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+/* ============================================
+   BOTONES DE ACCIONES
+   ============================================ */
+.acciones-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-accion {
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  white-space: nowrap;
+}
+
+.btn-editar {
+  background: var(--azul-boton);
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.4);
+}
+
+.btn-editar:hover {
+  background: var(--azul-boton-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.5);
+}
+
+.btn-desactivar {
+  background: #F44336;
+  box-shadow: 0 4px 16px rgba(244, 67, 54, 0.4);
+}
+
+.btn-desactivar:hover {
+  background: #D32F2F;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(25, 118, 210, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+  padding-top: 5rem;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 56rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(33, 150, 243, 0.3);
+  margin-bottom: 2rem;
+}
+
+.modal-header {
+  background: var(--azul-contenedor);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  position: relative;
+}
+
+.modal-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--azul-accent);
+}
+
+.modal-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.btn-cerrar-modal {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.25rem;
+  color: white;
+}
+
+.btn-cerrar-modal:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.modal-body {
+  padding: 2rem;
+  background: linear-gradient(180deg, #F8FBFF 0%, #E3F2FD 100%);
+}
+
+/* ============================================
+   WARNING EN MODAL - MUY VISIBLE
+   ============================================ */
+.warning-box,
+.mensaje-warning,
+.alert-warning {
+  background: var(--warning-bg);
+  border: 2px solid var(--warning-border);
+  border-left: 4px solid var(--warning);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  animation: slideDown 0.3s ease;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.warning-box::before,
+.mensaje-warning::before,
+.alert-warning::before {
+  content: '⚠️';
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.warning-box p,
+.mensaje-warning p,
+.alert-warning p {
+  margin: 0;
+  color: #92400e;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.warning-box strong,
+.mensaje-warning strong,
+.alert-warning strong {
+  color: #78350f;
+  font-weight: 700;
+}
+
+/* ============================================
+   FORMULARIO
+   ============================================ */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  color: var(--azul-boton);
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-group input,
+.form-group select {
+  background: var(--azul-input);
+  border: 2px solid var(--azul-border);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  font-size: 0.9rem;
+  color: #1976D2;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--azul-contenedor);
+  box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.2);
+  background: white;
+  transform: translateY(-1px);
+}
+
+.checkbox-group {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: white;
+  border: 2px solid var(--azul-border);
+  border-radius: 12px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--azul-contenedor);
+}
+
+.checkbox-item label {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--azul-boton);
+  cursor: pointer;
+}
+
+/* ============================================
+   MODAL FOOTER
+   ============================================ */
+.modal-footer {
+  background: linear-gradient(180deg, #F8FBFF 0%, #E3F2FD 100%);
+  border-top: 2px solid var(--azul-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+}
+
+.btn-modal {
+  font-weight: 700;
+  padding: 0.7rem 1.4rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-cancelar-modal {
+  background: #607D8B;
+  color: white;
+  box-shadow: 0 4px 16px rgba(96, 125, 139, 0.4);
+}
+
+.btn-cancelar-modal:hover {
+  background: #455A64;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(96, 125, 139, 0.5);
+}
+
+.btn-guardar-modal {
+  background: var(--azul-boton);
+  color: white;
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.4);
+}
+
+.btn-guardar-modal:hover:not(:disabled) {
+  background: var(--azul-boton-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.5);
+}
+
+.btn-guardar-modal:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+.tabla-scroll::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.tabla-scroll::-webkit-scrollbar-track,
+.modal-content::-webkit-scrollbar-track {
+  background: var(--azul-interior);
+  border-radius: 10px;
+}
+
+.tabla-scroll::-webkit-scrollbar-thumb,
+.modal-content::-webkit-scrollbar-thumb {
+  background: var(--azul-contenedor);
+  border-radius: 10px;
+  border: 2px solid var(--azul-interior);
+}
+
+.tabla-scroll::-webkit-scrollbar-thumb:hover,
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: var(--azul-boton);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 640px) {
+  .catalogo-admin {
+    padding: 1rem;
+  }
+  
+  .titulo-principal {
+    font-size: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .header-lista {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    padding: 1rem;
+  }
+  
+  .btn-nuevo {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tabla-libros {
+    min-width: 100%;
+    font-size: 0.8125rem;
+  }
+
+  .tabla-libros th,
+  .tabla-libros td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .tabla-libros td:first-child {
+    max-width: 150px;
+  }
+  
+  .modal-overlay {
+    padding-top: 3rem;
+  }
+  
+  .modal-content {
+    max-height: calc(100vh - 4rem);
+  }
+  
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 1.25rem;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .btn-modal {
+    width: 100%;
+  }
+  
+  .checkbox-group {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .acciones-cell {
+    flex-direction: column;
+  }
+  
+  .btn-accion {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1024px) {
+  .catalogo-admin {
+    padding: 2rem;
+  }
+  
+  .titulo-principal,
+  .header-lista,
+  .tabla-wrapper {
+    padding: 2rem;
+  }
+}
+</style>
+
+<section class="catalogo-admin">
+
+  <div class="contenedor-gestion">
+    
+    <!-- TÍTULO PRINCIPAL -->
+    <h2 class="titulo-principal">Gestión de Catálogo</h2>
+
+    <!-- MENSAJE -->
+    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+
+    <!-- HEADER CON BOTÓN -->
+    <div class="header-lista">
+      <h3>
+        <ion-icon name="list-outline"></ion-icon>
+        Lista de Libros
+      </h3>
+      <button class="btn-nuevo" type="button" (click)="abrirModal()">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        Nuevo Libro
+      </button>
+    </div>
+
+    <!-- TABLA -->
+    <div class="tabla-wrapper">
+      <div class="tabla-scroll">
+        <table class="tabla-libros">
+          
+          <thead>
+            <tr>
+              <th>
+                <ion-icon name="book-outline"></ion-icon>
+                Título
+              </th>
+              <th>
+                <ion-icon name="person-outline"></ion-icon>
+                Autor
+              </th>
+              <th>
+                <ion-icon name="business-outline"></ion-icon>
+                Editorial
+              </th>
+              <th>
+                <ion-icon name="school-outline"></ion-icon>
+                Materia
+              </th>
+              <th>
+                <ion-icon name="albums-outline"></ion-icon>
+                Formato
+              </th>
+              <th>
+                <ion-icon name="power-outline"></ion-icon>
+                Estado
+              </th>
+              <th>
+                <ion-icon name="settings-outline"></ion-icon>
+                Acciones
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let libro of libros">
+              
+              <!-- Título -->
+              <td><strong>{{ libro.titulo }}</strong></td>
+
+              <!-- Autor -->
+              <td>{{ libro.autor }}</td>
+
+              <!-- Editorial -->
+              <td>{{ libro.editorial || 'N/A' }}</td>
+
+              <!-- Materia -->
+              <td>{{ libro.materias}}</td>
+
+              <!-- Formato -->
+              <td>
+                <div class="badges-container">
+                  <span class="badge badge-fisico" *ngIf="libro.tiene_fisico">
+                    Físico ({{ libro.disponibles }})
+                  </span>
+                  <span class="badge badge-digital" *ngIf="libro.tiene_digital">
+                    Digital
+                  </span>
+                  <span *ngIf="!libro.tiene_fisico && !libro.tiene_digital">N/A</span>
+                </div>
+              </td>
+
+              <!-- Estado -->
+              <td>
+                <span 
+                  class="badge"
+                  [ngClass]="libro.activo === 1 ? 'badge-activo' : 'badge-inactivo'">
+                  {{ libro.activo === 1 ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+
+              <!-- Acciones -->
+              <td>
+                <div class="acciones-cell">
+                  <button class="btn-accion btn-editar" (click)="editarLibro(libro)">
+                    <ion-icon name="create-outline"></ion-icon>
+                    Editar
+                  </button>
+
+                
+                <button 
+                  class="btn-accion btn-desactivar"
+                  (click)="cambiarEstado(libro)">
+                  <ion-icon 
+                    [name]="libro.activo === 1 
+                      ? 'close-circle-outline' 
+                      : 'checkmark-circle-outline'">
+                  </ion-icon>
+                  {{ libro.activo === 1 ? 'Activo' : 'Inactivo' }}
+                </button>
+                </div>
+              </td>
+
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <h3>
+          <ion-icon [name]="modoEdicion ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+          {{ modoEdicion ? 'Editar Libro' : 'Nuevo Libro' }}
+        </h3>
+        <button class="btn-cerrar-modal" type="button" (click)="cerrarModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="guardarLibro()" #form="ngForm">
+
+          <div class="form-grid">
+            
+            <div class="form-group full-width">
+              <label>
+                <ion-icon name="book-outline"></ion-icon>
+                Título
+              </label>
+              <input type="text" [(ngModel)]="nuevoLibro.titulo" name="titulo" placeholder="Título del libro" required />
+            </div>
+
+            <div class="form-group">
+              <label>
+                <ion-icon name="person-outline"></ion-icon>
+                Autor
+              </label>
+              <input type="text" [(ngModel)]="nuevoLibro.autor" name="autor" placeholder="Nombre del autor" required />
+            </div>
+
+            <div class="form-group">
+              <label>
+                <ion-icon name="business-outline"></ion-icon>
+                Editorial
+              </label>
+              <input type="text" [(ngModel)]="nuevoLibro.editorial" name="editorial" placeholder="Editorial" />
+            </div>
+
+            <div class="form-group">
+              <label>
+                <ion-icon name="school-outline"></ion-icon>
+                Materia
+              </label>
+              <select [(ngModel)]="nuevoLibro.materia_id" name="materia_id" required>
+                <option value="0">Seleccione una materia</option>
+                <option *ngFor="let m of materias" [value]="m.id">{{ m.nombre }}</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" [(ngModel)]="nuevoLibro.tiene_fisico" (change)="formatosEditados=true" name="tiene_fisico" id="check-fisico" />
+              <label for="check-fisico">
+                <ion-icon name="cube-outline"></ion-icon>
+                Físico
+              </label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" [(ngModel)]="nuevoLibro.tiene_digital" (change)="formatosEditados=true" name="tiene_digital" id="check-digital" />
+              <label for="check-digital">
+                <ion-icon name="cloud-download-outline"></ion-icon>
+                Digital
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="nuevoLibro.tiene_fisico">
+            <label>
+              <ion-icon name="pricetags-outline"></ion-icon>
+              Total de ejemplares
+            </label>
+            <input type="number" min="1" [(ngModel)]="nuevoLibro.total" name="total" placeholder="Cantidad" />
+          </div>
+
+          <div class="form-group" *ngIf="nuevoLibro.tiene_digital">
+            <label>
+              <ion-icon name="document-attach-outline"></ion-icon>
+              Archivo PDF
+            </label>
+            <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" />
+            
+             <!-- 🔶 WARNING VISUAL -->
+              <div class="warning-archivo" *ngIf="mensajeErrorArchivo">
+                <ion-icon name="warning-outline"></ion-icon>
+                {{ mensajeErrorArchivo }}
+              </div>
+
+              <small>
+                Límite actual permitido: 10MB
+              </small>
+
+            <small *ngIf="pdfActual && modoEdicion">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              PDF actual: {{ pdfActual.split('/').pop() }}
+            </small>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancelar-modal" (click)="cerrarModal()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+          Cancelar
+        </button>
+        <button type="button" class="btn-guardar-modal" (click)="guardarLibro()" [disabled]="cargando || mensajeErrorArchivo">
+          <ion-icon [name]="modoEdicion ? 'checkmark-circle-outline' : 'add-circle-outline'"></ion-icon>
+          {{ modoEdicion ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</section>
