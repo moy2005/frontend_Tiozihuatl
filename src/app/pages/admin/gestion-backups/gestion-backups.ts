@@ -151,33 +151,38 @@ export class GestionBackupsComponent implements OnInit {
   }
 
 
-  describirCron(expr: string): string {
-    if (!expr) return '—';
-    const partes = expr.trim().split(/\s+/);
-    if (partes.length < 5) return expr;
+describirCron(expr: string): string {
+  if (!expr) return '—';
+  const partes = expr.trim().split(/\s+/);
+  if (partes.length < 5) return expr;
 
-    const min      = partes[0];
-    const hora     = partes[1];
-    const diasExpr = partes[4];
+  const min      = partes[0];
+  const hora     = partes[1];
+  const diasExpr = partes[4];
 
-    if (hora.startsWith('*/')) {
-      const h = hora.replace('*/', '');
-      return `Cada ${h} hora${Number(h) !== 1 ? 's' : ''}`;
-    }
-
-    const horaFmt = `${hora.padStart(2, '0')}:${min.padStart(2, '0')}`;
-
-    if (diasExpr !== '*') {
-      const nombresDias: Record<string, string> = {
-        '0': 'Dom', '1': 'Lun', '2': 'Mar',
-        '3': 'Mié', '4': 'Jue', '5': 'Vie', '6': 'Sáb'
-      };
-      const nombres = diasExpr.split(',').map(d => nombresDias[d] ?? d).join(', ');
-      return `${nombres} a las ${horaFmt}`;
-    }
-
-    return `Todos los días a las ${horaFmt}`;
+  if (hora.startsWith('*/')) {
+    const h = hora.replace('*/', '');
+    return `Cada ${h} hora${Number(h) !== 1 ? 's' : ''}`;
   }
+
+  // Convertir UTC a hora local
+  const fechaUTC = new Date();
+  fechaUTC.setUTCHours(Number(hora), Number(min), 0, 0);
+  const horaLocal = fechaUTC.getHours();
+  const minLocal  = fechaUTC.getMinutes();
+  const horaFmt   = `${String(horaLocal).padStart(2, '0')}:${String(minLocal).padStart(2, '0')}`;
+
+  if (diasExpr !== '*') {
+    const nombresDias: Record<string, string> = {
+      '0': 'Dom', '1': 'Lun', '2': 'Mar',
+      '3': 'Mié', '4': 'Jue', '5': 'Vie', '6': 'Sáb'
+    };
+    const nombres = diasExpr.split(',').map(d => nombresDias[d] ?? d).join(', ');
+    return `${nombres} a las ${horaFmt}`;
+  }
+
+  return `Todos los días a las ${horaFmt}`;
+}
 
   // ----------------------------------------------------------------
   // GENERADOR CRON (interno)
