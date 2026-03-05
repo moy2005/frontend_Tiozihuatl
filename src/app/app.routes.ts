@@ -15,6 +15,20 @@ import { AdminDashboardComponent } from './pages/admin/admin-dashboard/admin-das
 import { GestionUsuariosComponent } from './pages/admin/gestion-usuarios/gestion-usuarios';
 import { GestionFaqComponent } from './pages/admin/gestion-faq/gestion-faq';
 import { GestionContactoComponent } from './pages/admin/gestion-contacto/gestion-contacto';
+import { ContactanosComponent } from './pages/contactanos/contactanos';
+import { GestionNoticiasComponent } from './pages/admin/gestion-noticias/gestion-noticias';
+import { NoticiasComponent } from './pages/noticias/noticias';
+import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
+import { GestionCatalogoComponent} from './pages/admin/gestion-catalogo/gestion-catalogo';
+import { GestionCalendarioComponent } from './pages/admin/gestion-calendario/gestion-calendario'
+
+// Componentes de error
+import { Error400Component } from './pages/error/error-400/error-400.component';
+import { Error404Component } from './pages/error/error-404/error-404.component';
+import { Error500Component } from './pages/error/error-500/error-500.component';
+import { GestionPrestamosComponent } from './pages/admin/gestion-prestamos/gestion-prestamos';
+
+import {GestionBackupsComponent} from './pages/admin/gestion-backups/gestion-backups';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -26,10 +40,17 @@ export const routes: Routes = [
   {path:'reset-password', component: ResetPasswordComponent},
   { path: 'verificar-correo', component: VerificarCorreoComponent },
   { path: 'inicio',component: InicioComponent},
-  
   { path: 'privacidad', component: Privacidad},
   {path: 'terminos', component: Terminos},
   {path: 'seguridad', component: Seguridad},
+  {path: 'contactanos',component: ContactanosComponent},
+  {path:'noticias',component:NoticiasComponent},
+
+  { path: 'catalogo', component: CatalogoComponent, canActivate: [AuthGuard],
+    data: {
+      roles: ['Alumno', 'Administrador', 'Docente','Bibliotecario'] // los que sí pueden
+      }
+  },
 
   // 🔐 Protegidas (todas con AuthGuard)
   { path: 'perfil', component: PerfilUsuarioComponent, canActivate: [AuthGuard] },
@@ -48,12 +69,20 @@ export const routes: Routes = [
       { path: 'usuarios', component: GestionUsuariosComponent },
       { path: 'preguntas', component: GestionFaqComponent },
       { path: 'contactos', component: GestionContactoComponent },
-      //{ path: 'libros', component: AdminLibrosComponent },
+      { path:'noticias',component:GestionNoticiasComponent},
+      { path: 'libros', component: GestionCatalogoComponent },
+      { path : 'calendario', component: GestionCalendarioComponent },
+      { path : 'prestamos', component:GestionPrestamosComponent },
+      { path : 'backups', component:GestionBackupsComponent },
       //{ path: 'revistas', component: AdminRevistasComponent },
-      //{ path: 'noticias', component: AdminNoticiasComponent },
     ]
   },
+  
+  // Rutas de error específicas (públicas)
+  { path: 'error-400', component: Error400Component },
+  { path: 'error-404', component: Error404Component },
+  { path: 'error-500', component: Error500Component },
 
-  { path: '**', redirectTo: '/inicio' },
+  { path: '**', redirectTo: '/error-404' },
 ];
 

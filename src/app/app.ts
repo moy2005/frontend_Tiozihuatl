@@ -2,16 +2,18 @@ import { Component, signal } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Navbar } from './components/navbar/navbar';
+import {Footer} from './components/footer/footer'
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Navbar],
+  imports: [RouterOutlet, Navbar,Footer],
   templateUrl: './app.html',
 })
 export class App {
 
   mostrarNavbar = signal(true);
+  mostrarFooter = signal(true);
 
   constructor(
     private router: Router,
@@ -33,6 +35,7 @@ while (currentRoute) {
 }
 
 this.mostrarNavbar.set(!hideNavbar);
+this.mostrarFooter.set(!hideNavbar)
       });
   }
 }

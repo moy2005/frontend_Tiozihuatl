@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { environment } from '../environments/environment.prod';
+import { API_URL } from '../api.config';
 
 @Injectable({ providedIn: 'root' })
 export class ContactService {
-  private api = `${environment.apiUrl}/contact/admin`;
+  private api = `${API_URL}/contact`;
 
   constructor(private http: HttpClient) {}
 
@@ -19,15 +19,20 @@ export class ContactService {
 
   /** 📄 Obtener info de contacto (admin) */
   getContactInfo() {
-    return this.http.get<any>(this.api, {
+    return this.http.get<any>(`${this.api}/admin`, {
       headers: this.getAuthHeaders(),
     });
   }
 
   /** 💾 Guardar / actualizar info de contacto */
   saveContactInfo(data: any) {
-    return this.http.post(this.api, data, {
+    return this.http.post(`${this.api}/admin`, data, {
       headers: this.getAuthHeaders(),
     });
+  }
+
+  //PUBLIC
+  getPublicContactInfo() {
+    return this.http.get<any>(`${this.api}`);
   }
 }

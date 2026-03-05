@@ -11,6 +11,11 @@ interface MenuItem {
   badge?: number;
 }
 
+// Medidas del collapsed nav
+const ITEM_HEIGHT = 56;   // altura de cada item en px
+const ITEM_GAP    = 8;    // gap entre items
+const NOTCH_R     = 14;   // radio de la escotadura cóncava
+
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
@@ -21,140 +26,78 @@ interface MenuItem {
   encapsulation: ViewEncapsulation.None
 })
 export class AdminLayoutComponent implements OnInit {
-  sidebarState: SidebarState = 'open';
+  sidebarState: SidebarState = 'collapsed'; // Desktop arranca en collapsed
   isMobile = false;
   currentUser: any = null;
 
+  // Para el label flotante con position:fixed
+  hoveredItemIndex: number = -1;
+  labelTop: number = 0;
+
   menuItems: MenuItem[] = [
-    {
-      label: 'Dashboard',
-      icon: 'grid-outline',
-      route: '/admin/dashboard'
-    },
-    {
-      label: 'Usuarios',
-      icon: 'people-outline',
-      route: '/admin/usuarios'
-    },
-    {
-      label: 'Preguntas',
-      icon: 'help-circle-outline',
-      route: '/admin/preguntas'
-    },
-    {
-      label: 'Contactos',
-      icon: 'mail-outline',
-      route: '/admin/contactos',
-      badge: 5
-    },
-    {
-      label: 'Libros',
-      icon: 'book-outline',
-      route: '/admin/libros'
-    },
-    {
-      label: 'Revistas',
-      icon: 'newspaper-outline',
-      route: '/admin/revistas'
-    },
-    {
-      label: 'Noticias',
-      icon: 'megaphone-outline',
-      route: '/admin/noticias'
-    }
+    { label: 'Dashboard',  icon: 'grid-outline',         route: '/admin/dashboard' },
+    { label: 'Usuarios',   icon: 'people-outline',        route: '/admin/usuarios' },
+    { label: 'Preguntas',  icon: 'help-circle-outline',   route: '/admin/preguntas' },
+    { label: 'Contactos',  icon: 'mail-outline',          route: '/admin/contactos', badge: 5 },
+    { label: 'Noticias',   icon: 'megaphone-outline',     route: '/admin/noticias' },
+    { label: 'Libros',     icon: 'book-outline',          route: '/admin/libros' },
+    { label: 'Calendario', icon: 'calendar-outline',      route: '/admin/calendario' },
+    { label: 'Revistas',   icon: 'newspaper-outline',     route: '/admin/revistas' },
+    { label: 'Préstamos',  icon: 'library-outline',       route: '/admin/prestamos' },
+    { label: 'Respaldos',  icon: 'download-outline',      route: '/admin/backups' },
   ];
 
   constructor(private router: Router) {}
 
   ngOnInit() {
-    // Obtener datos del usuario desde localStorage o servicio
     const userData = localStorage.getItem('usuario');
-    if (userData) {
-      this.currentUser = JSON.parse(userData);
-    }
-
-    // Verificar si es móvil al cargar
+    if (userData) this.currentUser = JSON.parse(userData);
     this.checkScreenSize();
-    
-    // En mobile, sidebar oculto por defecto
-    if (this.isMobile) {
-      this.sidebarState = 'hidden';
-    }
   }
 
   @HostListener('window:resize')
-  onResize() {
-    this.checkScreenSize();
-  }
+  onResize() { this.checkScreenSize(); }
 
   checkScreenSize() {
     const wasMobile = this.isMobile;
     this.isMobile = window.innerWidth <= 1024;
-    
-    // Si cambió de desktop a móvil, ocultar sidebar
+
     if (!wasMobile && this.isMobile) {
       this.sidebarState = 'hidden';
-    }
-    // Si cambió de móvil a desktop, abrir sidebar (si estaba oculto)
-    else if (wasMobile && !this.isMobile && this.sidebarState === 'hidden') {
-      this.sidebarState = 'open';
+    } else if (wasMobile && !this.isMobile) {
+      this.sidebarState = 'collapsed';
     }
   }
 
   toggleSidebar() {
-    // Ciclo: open -> collapsed -> hidden -> open
-    if (this.sidebarState === 'open') {
-      this.sidebarState = 'collapsed';
-    } else if (this.sidebarState === 'collapsed') {
-      this.sidebarState = 'hidden';
+    if (this.isMobile) {
+      this.sidebarState = this.sidebarState === 'open' ? 'hidden' : 'open';
     } else {
-      this.sidebarState = 'open';
+      this.sidebarState = this.sidebarState === 'collapsed' ? 'hidden' : 'collapsed';
     }
   }
 
   showHiddenSidebar() {
-    // Botón especial para mostrar sidebar cuando está completamente oculto
-    if (this.isMobile) {
-      this.sidebarState = 'open';
-    } else {
-      this.sidebarState = 'open';
-    }
+    this.sidebarState = this.isMobile ? 'open' : 'collapsed';
   }
 
-  closeSidebar() {
-    // Solo cerrar completamente en móvil
-    if (this.isMobile) {
-      this.sidebarState = 'hidden';
-    }
-  }
+  closeSidebar() { if (this.isMobile) this.sidebarState = 'hidden'; }
 
   getToggleButtonIcon(): string {
-    if (this.sidebarState === 'open') {
-      return 'chevron-back-outline';
-    } else if (this.sidebarState === 'collapsed') {
-      return 'chevron-forward-outline';
-    } else {
-      return 'menu-outline';
-    }
+    if (this.sidebarState === 'open') return 'chevron-back-outline';
+    if (this.sidebarState === 'collapsed') return 'chevron-forward-outline';
+    return 'menu-outline';
   }
 
   getToggleButtonTitle(): string {
-    if (this.sidebarState === 'open') {
-      return 'Contraer menú';
-    } else if (this.sidebarState === 'collapsed') {
-      return 'Ocultar menú';
-    } else {
-      return 'Mostrar menú';
-    }
+    if (this.sidebarState === 'open') return 'Cerrar menú';
+    if (this.sidebarState === 'collapsed') return 'Ocultar menú';
+    return 'Mostrar menú';
   }
 
-  getStateIndicatorClass(): string {
-    return `state-${this.sidebarState}`;
-  }
+  getStateIndicatorClass(): string { return `state-${this.sidebarState}`; }
 
-  isActiveRoute(route: string): boolean {
-    return this.router.url.startsWith(route);
-  }
+  isActiveRoute(route: string): boolean { return this.router.url.startsWith(route); }
 
   logout() {
     localStorage.removeItem('token');
@@ -162,15 +105,49 @@ export class AdminLayoutComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  goToProfile() {
-    this.router.navigate(['/perfil']);
+  goToProfile() { this.router.navigate(['/perfil']); }
+
+  onNavItemClick() { if (this.isMobile) this.sidebarState = 'hidden'; }
+
+  // ─── Hover para label flotante fixed ───────────────────────────────────────
+
+  onItemMouseEnter(event: MouseEvent, index: number) {
+    const el = event.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    this.labelTop = rect.top + rect.height / 2;
+    this.hoveredItemIndex = index;
   }
 
-  // Método para manejar clics en items del menú
-  onNavItemClick() {
-    // En móvil, ocultar el sidebar después de hacer clic
-    if (this.isMobile) {
-      this.sidebarState = 'hidden';
+  onItemMouseLeave() {
+    this.hoveredItemIndex = -1;
+  }
+
+  // ─── SVG dinámico para collapsed ───────────────────────────────────────────
+
+  getCollapsedNavHeight(): number {
+    return this.menuItems.length * (ITEM_HEIGHT + ITEM_GAP);
+  }
+
+  getActiveIndex(): number {
+    return this.menuItems.findIndex(item => this.router.url.startsWith(item.route));
+  }
+
+  getCollapsedSidebarPath(): string {
+    const W = 80;
+    const H = this.getCollapsedNavHeight();
+    const R = 16;
+    const NR = NOTCH_R;
+
+    const activeIdx = this.getActiveIndex();
+
+    if (activeIdx === -1) {
+      return `M ${R} 0 L ${W-R} 0 Q ${W} 0 ${W} ${R} L ${W} ${H-R} Q ${W} ${H} ${W-R} ${H} L ${R} ${H} Q 0 ${H} 0 ${H-R} L 0 ${R} Q 0 0 ${R} 0 Z`;
     }
+
+    const itemCenter  = activeIdx * (ITEM_HEIGHT + ITEM_GAP) + ITEM_HEIGHT / 2 + 4;
+    const notchTop    = itemCenter - 30;
+    const notchBottom = itemCenter + 30;
+
+    return `M ${R} 0 L ${W-R} 0 Q ${W} 0 ${W} ${R} L ${W} ${notchTop-NR} Q ${W} ${notchTop} ${W-NR} ${notchTop} L ${W-NR} ${notchBottom} Q ${W} ${notchBottom} ${W} ${notchBottom+NR} L ${W} ${H-R} Q ${W} ${H} ${W-R} ${H} L ${R} ${H} Q 0 ${H} 0 ${H-R} L 0 ${R} Q 0 0 ${R} 0 Z`;
   }
 }

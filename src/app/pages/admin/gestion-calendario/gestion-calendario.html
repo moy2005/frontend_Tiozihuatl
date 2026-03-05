@@ -1,0 +1,270 @@
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
+
+    <!-- ============================================================
+         HEADER
+    ============================================================ -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h2 class="page-title">
+          <ion-icon name="calendar-outline"></ion-icon>
+          Gestión de Calendario
+        </h2>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TABLA DE CALENDARIOS
+    ============================================================ -->
+    <div class="content-card overflow-hidden">
+
+      <!-- Cabecera del card -->
+      <div class="seccion-titulo">
+        <h3>
+          <ion-icon name="calendar-outline"></ion-icon>
+          Lista de Calendarios
+        </h3>
+        <button class="btn-primary" (click)="abrirModal()">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Nuevo Calendario
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="cargando" class="content-card text-center py-12">
+        <div class="loading-spinner inline-block"></div>
+        <p class="mt-4 text-gray-600 font-medium">Cargando calendarios...</p>
+      </div>
+
+      <!-- Sin resultados -->
+      <div *ngIf="!cargando && calendars.length === 0" class="sin-resultados">
+        <ion-icon name="calendar-outline"></ion-icon>
+        No hay calendarios registrados
+      </div>
+
+      <!-- Vista Desktop -->
+      <div *ngIf="!cargando && calendars.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell"><ion-icon name="text-outline"></ion-icon> Título</th>
+              <th class="th-cell"><ion-icon name="document-outline"></ion-icon> Tipo</th>
+              <th class="th-cell"><ion-icon name="toggle-outline"></ion-icon> Estado</th>
+              <th class="th-cell text-center"><ion-icon name="settings-outline"></ion-icon> Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of calendars" class="table-row">
+
+              <td class="td-cell font-medium text-gray-900">{{ c.titulo }}</td>
+
+              <td class="td-cell">
+                <span class="badge-estado"
+                  [ngClass]="c.tipo === 'PDF' ? 'badge-pdf' : 'badge-img'">
+                  <ion-icon [name]="c.tipo === 'PDF' ? 'document-text-outline' : 'image-outline'"></ion-icon>
+                  {{ c.tipo }}
+                </span>
+              </td>
+
+              <td class="td-cell">
+                <span class="badge-estado"
+                  [ngClass]="c.activo ? 'badge-activo' : 'badge-cancelado'">
+                  <ion-icon [name]="c.activo ? 'checkmark-circle-outline' : 'close-circle-outline'"></ion-icon>
+                  {{ c.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+
+                  <button
+                    (click)="editar(c)"
+                    class="btn-icon btn-icon-primary"
+                    title="Editar calendario">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+
+                  <button
+                    *ngIf="c.activo"
+                    (click)="toggleStatus(c)"
+                    class="btn-icon btn-icon-warning"
+                    title="Desactivar">
+                    <ion-icon name="pause-outline"></ion-icon>
+                  </button>
+
+                  <button
+                    *ngIf="!c.activo"
+                    (click)="toggleStatus(c)"
+                    class="btn-icon btn-icon-success"
+                    title="Activar">
+                    <ion-icon name="play-outline"></ion-icon>
+                  </button>
+
+                  <button
+                    (click)="delete(c)"
+                    class="btn-icon btn-icon-danger"
+                    title="Eliminar">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+
+                </div>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Vista Mobile / Tablet -->
+      <div *ngIf="!cargando && calendars.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let c of calendars" class="prestamo-card">
+
+          <div class="card-header">
+            <div class="flex-1">
+              <div class="flex flex-wrap items-center gap-2 mb-1">
+                <span class="badge-estado"
+                  [ngClass]="c.tipo === 'PDF' ? 'badge-pdf' : 'badge-img'">
+                  <ion-icon [name]="c.tipo === 'PDF' ? 'document-text-outline' : 'image-outline'"></ion-icon>
+                  {{ c.tipo }}
+                </span>
+                <span class="badge-estado"
+                  [ngClass]="c.activo ? 'badge-activo' : 'badge-cancelado'">
+                  <ion-icon [name]="c.activo ? 'checkmark-circle-outline' : 'close-circle-outline'"></ion-icon>
+                  {{ c.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+              <p class="card-nombre">{{ c.titulo }}</p>
+            </div>
+          </div>
+
+          <div class="card-acciones">
+            <button
+              (click)="editar(c)"
+              class="btn-icon-mobile btn-icon-primary flex-1">
+              <ion-icon name="create-outline"></ion-icon>
+              <span>Editar</span>
+            </button>
+
+            <button
+              *ngIf="c.activo"
+              (click)="toggleStatus(c)"
+              class="btn-icon-mobile btn-icon-warning flex-1">
+              <ion-icon name="pause-outline"></ion-icon>
+              <span>Desactivar</span>
+            </button>
+
+            <button
+              *ngIf="!c.activo"
+              (click)="toggleStatus(c)"
+              class="btn-icon-mobile btn-icon-success flex-1">
+              <ion-icon name="play-outline"></ion-icon>
+              <span>Activar</span>
+            </button>
+
+            <button
+              (click)="delete(c)"
+              class="btn-icon-mobile btn-icon-danger flex-1">
+              <ion-icon name="trash-outline"></ion-icon>
+              <span>Eliminar</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       MODAL — Crear / Editar Calendario
+  ============================================================ -->
+  <div *ngIf="mostrarModal"
+    class="modal-overlay"
+    (click)="cerrarModal()">
+
+    <div class="modal-container"
+      (click)="$event.stopPropagation()">
+
+      <!-- Header modal -->
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <ion-icon [name]="modoEdicion ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+          {{ modoEdicion ? 'Editar Calendario' : 'Nuevo Calendario' }}
+        </h3>
+        <button (click)="cerrarModal()" class="btn-close" [disabled]="guardando">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Loading overlay al guardar -->
+      <div *ngIf="guardando" class="upload-loading-overlay">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"></div>
+          <p class="mt-4 text-white font-semibold text-lg">Guardando calendario...</p>
+          <p class="text-blue-200 text-sm">Por favor espere...</p>
+        </div>
+      </div>
+
+      <!-- Body modal -->
+      <div class="modal-body">
+
+        <!-- Título -->
+        <div class="modal-field">
+          <label class="modal-label">
+            <ion-icon name="text-outline"></ion-icon>
+            Título del Calendario
+          </label>
+          <input
+            [(ngModel)]="titulo"
+            type="text"
+            placeholder="Ej: Calendario Escolar 2025"
+            class="modal-input">
+        </div>
+
+        <!-- Archivo -->
+        <div class="modal-field">
+          <label class="modal-label">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            Archivo (PDF o Imagen)
+          </label>
+
+          <label class="upload-zone" for="fileInput">
+            <ion-icon name="document-attach-outline" class="upload-icon"></ion-icon>
+            <span class="upload-nombre">
+              {{ archivoNombre || 'Haz clic para seleccionar un archivo' }}
+            </span>
+            <span class="upload-hint">PDF, JPG, PNG, WEBP</span>
+            <input
+              id="fileInput"
+              type="file"
+              (change)="onFileChange($event)"
+              accept=".pdf,image/*"
+              class="hidden">
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Footer modal -->
+      <div class="modal-footer">
+        <button
+          (click)="cerrarModal()"
+          class="btn-secondary"
+          [disabled]="guardando">
+          <ion-icon name="close-outline"></ion-icon>
+          Cancelar
+        </button>
+        <button
+          (click)="guardar()"
+          class="btn-primary"
+          [disabled]="guardando">
+          <ion-icon [name]="modoEdicion ? 'save-outline' : 'add-circle-outline'"></ion-icon>
+          {{ modoEdicion ? 'Guardar Cambios' : 'Crear Calendario' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { environment } from '../environments/environment.prod';
+import { API_URL } from '../api.config';
 
 @Injectable({ providedIn: 'root' })
 export class UserProfileService {
-  private api = `${environment.apiUrl}/users/profile`;
+  private api = `${API_URL}/users/profile`;
 
   constructor(private http: HttpClient) {}
 

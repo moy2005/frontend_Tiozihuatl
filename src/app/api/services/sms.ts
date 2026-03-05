@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment.prod';
+import { API_URL } from '../api.config';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class SmsService {
-  private api = environment.apiUrl;
+  private api = `${API_URL}`;
 
   constructor(private http: HttpClient) {}
 

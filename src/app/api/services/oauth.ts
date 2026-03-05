@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../environments/environment.prod';
+import { API_URL } from '../api.config';
 
 @Injectable({ providedIn: 'root' })
 export class OauthService {
-  private api = environment.apiUrl;
+  private api = `${API_URL}`;
 
   login(provider: 'google' | 'facebook') {
     // Redirección directa

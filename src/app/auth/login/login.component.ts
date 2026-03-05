@@ -183,7 +183,7 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
 
   // Sanitizar inputs antes de validar
   this.correo = this.sanitizeInput(this.correo);
-  this.contrasena = this.sanitizeInput(this.contrasena);
+  //this.contrasena = this.sanitizeInput(this.contrasena);
   this.rolSeleccionado = this.sanitizeInput(this.rolSeleccionado);
 
 

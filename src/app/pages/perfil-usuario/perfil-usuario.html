@@ -1,545 +1,738 @@
-<section class="perfil-page min-h-screen p-4 sm:p-6 pt-32">
-  <style>
-    /* ===== ESTILOS DEL DISEÑO AZUL ===== */
-    .perfil-page {
-      --azul-fondo: #EEF4FF;
-      --azul-contenedor: #3FA6E8;
-      --azul-interior: #E7EEFF;
-      --azul-input: #FFFFFF;
-      --azul-boton: #3FA6E8;
-      --azul-boton-hover: #1D3E8D;
-      --texto-blanco: #FFFFFF;
-      --texto-suave: rgba(255,255,255,0.85);
-      --gris-placeholder: #B6C4E2;
-      --gris-border: #D2DCF5;
+<section class="perfil-page">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
-      font-family: "Inter", sans-serif !important;
-      background: var(--azul-fondo);
-    }
+/* ── RESET & BASE ─────────────────────────────── */
+.perfil-page *, .perfil-page *::before, .perfil-page *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.perfil-page ion-icon { pointer-events: none; display: block; }
 
-    .perfil-page h1, 
-    .perfil-page h2, 
-    .perfil-page h3 {
-      font-family: "Montserrat", sans-serif !important;
-    }
+.perfil-page {
+  font-family: 'Outfit', sans-serif;
+  background: #F2F6FB;
+  min-height: 100vh;
+  padding: 5.5rem 1rem 3rem;
+  color: #1C2B3A;
+}
 
-    /* CARDS */
-    .perfil-page .card-azul {
-      background: white;
-      border-radius: 20px;
-      padding: 1.5rem;
-      box-shadow: 0 8px 20px rgba(63, 166, 232, 0.12);
-      border: 1px solid #E1ECFF;
-    }
+/* ── WRAPPER ──────────────────────────────────── */
+.pf-wrap { max-width: 960px; margin: 0 auto; }
 
-    /* INPUTS */
-    .perfil-page .input-field {
-      background: var(--azul-input);
-      border: 1px solid var(--gris-border);
-      border-radius: 12px;
-      padding: 0.7rem 0.9rem;
-      font-size: 0.9rem;
-      color: #374151;
-      transition: 0.25s ease;
-      width: 100%;
-    }
+/* ══════════════════════════════════════════════
+   HERO BANNER
+══════════════════════════════════════════════ */
+.pf-hero {
+  background: #3FA6E8;
+  border-radius: 18px 18px 0 0;
+  padding: 2.75rem 2.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
 
-    .perfil-page .input-field:focus {
-      border-color: var(--azul-contenedor);
-      box-shadow: 0 0 0 3px rgba(63,111,213,0.25);
-      background: white;
-      outline: none;
-    }
+/* Círculos decorativos — muy sutiles */
+.pf-hero::before {
+  content: '';
+  position: absolute;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  border: 48px solid rgba(255,255,255,0.04);
+  top: -100px; right: -80px;
+  pointer-events: none;
+}
+.pf-hero::after {
+  content: '';
+  position: absolute;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  border: 28px solid rgba(255,255,255,0.035);
+  top: 30px; right: 160px;
+  pointer-events: none;
+}
 
-    .perfil-page .input-field:disabled {
-      background: #F3F4F6;
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
+/* Contenido hero */
+.pf-hero-inner {
+  display: flex;
+  align-items: center;      /* ← centrado vertical, no pegado al fondo */
+  gap: 1.25rem;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 1.75rem;
+}
 
-    /* BOTONES */
-    .perfil-page .btn-primary {
-      background: var(--azul-boton);
-      color: white;
-      font-weight: 600;
-      padding: 0.7rem 1.5rem;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      transition: 0.25s ease;
-      box-shadow: 0 4px 12px rgba(63, 166, 232, 0.3);
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
+/* Ícono sin fondo ni borde — centrado en el hero */
+.pf-avatar {
+  flex-shrink: 0;
+  margin-bottom: 0;
+  line-height: 0;
+  /* lo empujamos un poco hacia arriba respecto al centro */
+  align-self: flex-end;
+  margin-bottom: -24px;
+}
+.pf-avatar ion-icon {
+  font-size: 7.5rem;
+  color: rgba(255,255,255,0.82);
+  display: block;
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.2));
+}
 
-    .perfil-page .btn-primary:hover:not(:disabled) {
-      background: var(--azul-boton-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(63, 166, 232, 0.4);
-    }
+/* Nombre */
+.pf-hero-text {
+  padding-bottom: 0;
+  flex: 1;
+}
+.pf-hero-name {
+  font-size: clamp(1.55rem, 3.8vw, 2.2rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6rem;
+}
+.pf-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.pf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.71rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.pf-chip ion-icon { font-size: 0.72rem; }
 
-    .perfil-page .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
+/* Botón admin en hero */
+.pf-hero-action {
+  padding-bottom: 0;
+  flex-shrink: 0;
+  align-self: center;
+}
+.btn-hero-admin {
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.84);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-hero-admin:hover { background: rgba(255,255,255,0.16); }
+.btn-hero-admin ion-icon { font-size: 0.88rem; }
 
-    .perfil-page .btn-success {
-      background: #10b981;
-      color: white;
-      font-weight: 600;
-      padding: 0.7rem 1.5rem;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      transition: 0.25s ease;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-      border: none;
-      cursor: pointer;
-    }
+/* ══════════════════════════════════════════════
+   BARRA BLANCA DE TRANSICIÓN
+══════════════════════════════════════════════ */
+.pf-topbar {
+  background: #FFFFFF;
+  border-bottom: 1px solid #E4EDF6;
+  height: 48px;   /* espacio para el avatar sobreexpuesto */
+}
 
-    .perfil-page .btn-success:hover {
-      background: #059669;
-      transform: translateY(-2px);
-    }
+/* ══════════════════════════════════════════════
+   CUERPO 2 COLUMNAS
+══════════════════════════════════════════════ */
+.pf-body {
+  background: #FFFFFF;
+  border-radius: 0 0 18px 18px;
+  padding: 2rem 2.5rem 2.5rem;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 2.25rem;
+  align-items: start;
+}
 
-    .perfil-page .btn-danger {
-      background: #ef4444;
-      color: white;
-      font-weight: 600;
-      padding: 0.7rem 1.5rem;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      transition: 0.25s ease;
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-      border: none;
-      cursor: pointer;
-    }
+/* ══════════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════════ */
+.pf-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
-    .perfil-page .btn-danger:hover {
-      background: #dc2626;
-      transform: translateY(-2px);
-    }
+.pf-side-block {
+  background: #F7FAFD;
+  border: 1px solid #E4EDF6;
+  border-radius: 11px;
+  overflow: hidden;
+}
+.pf-side-block-title {
+  padding: 0.52rem 0.9rem;
+  border-bottom: 1px solid #E4EDF6;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5A7A9A;
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+}
+.pf-side-block-title ion-icon { font-size: 0.78rem; }
 
-    .perfil-page .btn-admin {
-      background: #14b8a6;
-      color: white;
-      font-weight: 600;
-      padding: 0.7rem 1.5rem;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      transition: 0.25s ease;
-      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
-      border: none;
-      cursor: pointer;
-    }
+.pf-side-row {
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid #EEF3F8;
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+}
+.pf-side-row:last-child { border-bottom: none; }
+.pf-side-label {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8AAABB;
+}
+.pf-side-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1C2B3A;
+}
 
-    .perfil-page .btn-admin:hover {
-      background: #0d9488;
-      transform: translateY(-2px);
-    }
+/* ══════════════════════════════════════════════
+   CONTRASEÑA (sidebar)
+══════════════════════════════════════════════ */
+.pf-pass-block {
+  background: #F7FAFD;
+  border: 1px solid #E4EDF6;
+  border-radius: 11px;
+  overflow: hidden;
+}
+.pf-pass-title {
+  padding: 0.52rem 0.9rem;
+  border-bottom: 1px solid #E4EDF6;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5A7A9A;
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+}
+.pf-pass-title ion-icon { font-size: 0.78rem; }
+.pf-pass-body {
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
 
-    /* LABELS */
-    .perfil-page .label-text {
-      color: #2C3A6A;
-      font-weight: 600;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
+/* Fuerza contraseña */
+.pf-strength {
+  background: #EEF3F8;
+  border: 1px solid #DDE8F2;
+  border-radius: 8px;
+  padding: 0.7rem;
+}
+.pf-strength-lbl {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8AAABB;
+  margin-bottom: 0.5rem;
+}
+.pf-bars { display: flex; gap: 3px; margin-bottom: 0.6rem; }
+.pf-bar {
+  flex: 1; height: 4px;
+  background: #C8D9EA;
+  border-radius: 2px;
+  transition: background 0.25s;
+}
+.pf-bar.weak   { background: #B85C5C; }
+.pf-bar.medium { background: #C4943A; }
+.pf-bar.strong { background: #3A7A50; }
 
-    /* BADGE ROL */
-    .perfil-page .badge-rol {
-      background: linear-gradient(135deg, rgba(63, 166, 232, 0.15), rgba(29, 62, 141, 0.15));
-      border: 2px solid #3FA6E8;
-      border-radius: 12px;
-      padding: 1rem;
-      text-align: center;
-    }
+.pf-checks { display: flex; flex-direction: column; gap: 0.2rem; }
+.pf-check {
+  display: flex;
+  align-items: center;
+  gap: 0.36rem;
+  font-size: 0.72rem;
+  font-weight: 500;
 
-    .perfil-page .badge-rol-text {
-      font-weight: 700;
-      font-size: 1.25rem;
-      color: var(--azul-boton);
-    }
+  color: #9AB0C0;
+  transition: color 0.2s;
+}
+.pf-check.ok { color: #3A7A50; }
+.pf-check ion-icon { font-size: 0.76rem; }
 
-    /* PASSWORD STRENGTH */
-    .perfil-page .strength-container {
-      background: #F9FAFB;
-      border: 1px solid #E5E7EB;
-      border-radius: 12px;
-      padding: 1rem;
-    }
+/* ══════════════════════════════════════════════
+   PANEL PRINCIPAL
+══════════════════════════════════════════════ */
+.pf-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
 
-    .perfil-page .strength-bar-wrapper {
-      display: flex;
-      gap: 0.25rem;
-      margin-bottom: 0.75rem;
-    }
+.pf-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid #E4EDF6;
+  margin-bottom: 1.1rem;
+}
+.pf-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1A3A5C;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.pf-section-title ion-icon { font-size: 1.05rem; color: #5A96C8; }
 
-    .perfil-page .strength-segment {
-      flex: 1;
-      height: 8px;
-      border-radius: 999px;
-      background: #E5E7EB;
-      transition: all 0.3s ease;
-    }
+/* Aviso */
+.pf-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  background: #F0F6FC;
+  border-left: 3px solid #8ABEDD;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 1.1rem;
+}
+.pf-notice ion-icon { color: #5A96C8; font-size: 0.88rem; margin-top: 2px; flex-shrink: 0; }
+.pf-notice p { font-size: 0.73rem; color: #3A6080; font-weight: 500; line-height: 1.45; }
 
-    .perfil-page .strength-segment.active-weak {
-      background: #ef4444;
-    }
+/* Grid de campos */
+.pf-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem 1.1rem;
+}
+.pf-field-full { grid-column: 1 / -1; }
 
-    .perfil-page .strength-segment.active-medium {
-      background: #f59e0b;
-    }
+.pf-field { display: flex; flex-direction: column; gap: 0.25rem; }
+.pf-field-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8AAABB;
+}
+.pf-field-static {
+  padding: 0.55rem 0.82rem;
+  background: #F2F6FB;
+  border: 1px solid #DDE8F2;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #3A5570;
+}
+.pf-field-input {
+  padding: 0.55rem 0.82rem;
+  background: #FFFFFF;
+  border: 1.5px solid #C0D4E8;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #1C2B3A;
+  font-family: 'Outfit', sans-serif;
+  width: 100%;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.pf-field-input:focus {
+  outline: none;
+  border-color: #5A96C8;
+  box-shadow: 0 0 0 3px rgba(90,150,200,0.12);
+}
 
-    .perfil-page .strength-segment.active-strong {
-      background: #10b981;
-    }
+/* ══════════════════════════════════════════════
+   BOTONES
+══════════════════════════════════════════════ */
+.pf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.36rem;
+  padding: 0.52rem 1.1rem;
+  font-size: 0.79rem;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.pf-btn ion-icon { font-size: 0.9rem; }
+.pf-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pf-btn-full { width: 100%; }
 
-    /* HEADER TITLE */
-    .perfil-page .page-title {
-      color: var(--azul-boton);
-      font-size: 1.875rem;
-      font-weight: 700;
-    }
+.pf-btn-primary { background: #2A6096; color: #FFFFFF; }
+.pf-btn-primary:hover:not(:disabled) { background: #1A3A5C; }
 
-    /* SECTION TITLE */
-    .perfil-page .section-title {
-      color: #2C3A6A;
-      font-size: 1.25rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+.pf-btn-save { background: #2E6B3E; color: #FFFFFF; }
+.pf-btn-save:hover:not(:disabled) { background: #1E4A2A; }
 
-    /* LOADING */
-    .perfil-page .loading-spinner {
-      border: 4px solid #E5E7EB;
-      border-top-color: var(--azul-boton);
-      border-radius: 50%;
-      width: 3rem;
-      height: 3rem;
-      animation: spin 1s linear infinite;
-    }
+.pf-btn-outline {
+  background: transparent;
+  color: #2A6096;
+  border: 1.5px solid #A8C8E4;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.9rem;
+}
+.pf-btn-outline:hover { background: #F0F6FC; }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+.pf-btn-ghost {
+  background: #EEF3F8;
+  color: #5A7A9A;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.9rem;
+}
+.pf-btn-ghost:hover { background: #DDE8F2; }
 
-    /* RESPONSIVE */
-    @media (max-width: 640px) {
-      .perfil-page .card-azul {
-        padding: 1rem;
-      }
-      
-      .perfil-page .page-title {
-        font-size: 1.5rem;
-      }
-      
-      .perfil-page .section-title {
-        font-size: 1rem;
-      }
-    }
-  </style>
+/* ══════════════════════════════════════════════
+   LOADING
+══════════════════════════════════════════════ */
+.pf-loading {
+  background: #FFFFFF;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4.5rem 1rem;
+  gap: 1rem;
+}
+.pf-spinner {
+  width: 2.25rem; height: 2.25rem;
+  border: 3px solid #DDE8F2;
+  border-top-color: #2A6096;
+  border-radius: 50%;
+  animation: pf-spin 0.7s linear infinite;
+}
+@keyframes pf-spin { to { transform: rotate(360deg); } }
+.pf-loading p { font-size: 0.84rem; color: #7A94AA; font-weight: 500; }
 
-  <div class="max-w-5xl mx-auto">
-    <!-- Header -->
-    <div class="card-azul mb-4 sm:mb-6">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-3 sm:gap-4">
-          <div class="inline-flex items-center justify-center w-12 h-12 sm:w-14 md:w-16 sm:h-14 md:h-16 rounded-full bg-gradient-to-br from-[#3FA6E8] to-[#1D3E8D] flex-shrink-0">
-            <ion-icon name="person" class="text-2xl sm:text-3xl text-white"></ion-icon>
-          </div>
-          <div>
-            <h1 class="page-title">
-              Mi Perfil
-            </h1>
-            <p class="text-sm sm:text-base text-[#5A6B8C]">Gestiona tu información personal</p>
-          </div>
-        </div>
-        <div class="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
-          <button
-            *ngIf="user.rol === 'Administrador'"
-            (click)="irPanelAdmin()"
-            class="btn-admin flex-1 sm:flex-none flex items-center justify-center gap-2">
-            <ion-icon name="settings-outline"></ion-icon>
-            <span class="hidden xs:inline">Panel Admin</span>
-            <span class="xs:hidden">Admin</span>
-          </button>
-          <button
-            (click)="cerrarSesion()"
-            class="btn-danger flex-1 sm:flex-none flex items-center justify-center gap-2">
-            <ion-icon name="log-out-outline"></ion-icon>
-            <span class="hidden xs:inline">Cerrar sesión</span>
-            <span class="xs:hidden">Salir</span>
-          </button>
-        </div>
-      </div>
-    </div>
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
 
-    <!-- Loading State -->
-    <div *ngIf="cargando" class="card-azul text-center py-12">
-      <div class="loading-spinner inline-block"></div>
-      <p class="mt-4 text-sm sm:text-base text-[#5A6B8C] font-medium">Cargando información...</p>
-    </div>
+/* Tablet */
+@media (max-width: 760px) {
+  .perfil-page { padding-top: 4.5rem; padding-left: 0.75rem; padding-right: 0.75rem; }
+  .pf-hero { padding: 2rem 1.5rem 0; border-radius: 14px 14px 0 0; }
+  .pf-hero-inner { gap: 1rem; }
+  .pf-avatar ion-icon { font-size: 5.5rem; }
+  .pf-avatar { margin-bottom: -18px; }
+  .pf-hero-action { display: none; }
+  .pf-topbar { height: 42px; }
+  .pf-body {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    border-radius: 0 0 14px 14px;
+  }
+  /* En tablet/mobile, sidebar en fila */
+  .pf-sidebar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+  }
+  .pf-pass-block { grid-column: 1 / -1; }
+  .pf-admin-mobile-btn { display: flex !important; }
+}
 
-    <!-- Main Content -->
-    <div *ngIf="!cargando" class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-      <!-- User Info Card -->
-      <div class="lg:col-span-2 card-azul">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-          <h2 class="section-title">
-            <ion-icon name="id-card-outline" class="text-[#3FA6E8]"></ion-icon>
-            <span class="hidden xs:inline">Información Personal</span>
-            <span class="xs:hidden">Info Personal</span>
-          </h2>
-          <button
-            *ngIf="!editando"
-            (click)="habilitarEdicion()"
-            class="btn-primary w-full sm:w-auto">
-            <ion-icon name="create-outline"></ion-icon>
-            Editar
-          </button>
-          <button
-            *ngIf="editando"
-            (click)="guardarCambios()"
-            class="btn-success w-full sm:w-auto flex items-center justify-center gap-2">
-            <ion-icon name="save-outline"></ion-icon>
-            Guardar
-          </button>
-        </div>
+/* Mobile */
+@media (max-width: 520px) {
+  .perfil-page { padding-top: 4.25rem; padding-left: 0.5rem; padding-right: 0.5rem; }
+  .pf-hero { padding: 1.5rem 1rem 0; }
+  .pf-hero-inner { flex-wrap: nowrap; }
+  .pf-hero-name { font-size: 1.25rem; }
+  .pf-avatar ion-icon { font-size: 4.25rem; }
+  .pf-avatar { margin-bottom: -14px; }
+  .pf-topbar { height: 36px; }
+  .pf-body { padding: 1rem; gap: 1.25rem; }
+  .pf-sidebar { grid-template-columns: 1fr; }
+  .pf-pass-block { grid-column: 1; }
+  .pf-fields { grid-template-columns: 1fr; }
+  .pf-field-full { grid-column: 1; }
+  .pf-section-head { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+  .pf-section-head div { display: flex; gap: 0.4rem; width: 100%; }
+  .pf-section-head div .pf-btn { flex: 1; }
+}
+</style>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          <!-- Nombre -->
-          <div *ngIf="mostrarCampo('nombre')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="person-outline" class="text-[#3FA6E8]"></ion-icon>
-              Nombre
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.nombre"
-              [disabled]="!editando || !editable('nombre')"
-              class="input-field"
-              placeholder="Ingresa tu nombre"
-            />
-          </div>
+<div class="pf-wrap">
 
-          <!-- Apellido Paterno -->
-          <div *ngIf="mostrarCampo('a_paterno')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="person-outline" class="text-[#3FA6E8]"></ion-icon>
-              Apellido Paterno
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.a_paterno"
-              [disabled]="!editando || !editable('a_paterno')"
-              class="input-field"
-              placeholder="Apellido paterno"
-            />
-          </div>
-
-          <!-- Apellido Materno -->
-          <div *ngIf="mostrarCampo('a_materno')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="person-outline" class="text-[#3FA6E8]"></ion-icon>
-              Apellido Materno
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.a_materno"
-              [disabled]="!editando || !editable('a_materno')"
-              class="input-field"
-              placeholder="Apellido materno"
-            />
-          </div>
-
-          <!-- Correo -->
-          <div *ngIf="mostrarCampo('correo')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="mail-outline" class="text-[#3FA6E8]"></ion-icon>
-              Correo Electrónico
-            </label>
-            <input
-              type="email"
-              [(ngModel)]="user.correo"
-              [disabled]="!editando || !editable('correo')"
-              class="input-field"
-              placeholder="correo@ejemplo.com"
-            />
-          </div>
-
-          <!-- Teléfono -->
-          <div *ngIf="mostrarCampo('telefono')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="call-outline" class="text-[#3FA6E8]"></ion-icon>
-              Teléfono
-            </label>
-            <input
-              type="tel"
-              [(ngModel)]="user.telefono"
-              [disabled]="!editando || !editable('telefono')"
-              class="input-field"
-              placeholder="Número de teléfono"
-            />
-          </div>
-
-          <!-- Matrícula -->
-          <div *ngIf="mostrarCampo('matricula')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="id-card-outline" class="text-[#3FA6E8]"></ion-icon>
-              Matrícula
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.matricula"
-              disabled
-              class="input-field"
-            />
-          </div>
-
-          <!-- Carrera -->
-          <div *ngIf="mostrarCampo('carrera')" class="sm:col-span-2">
-            <label class="label-text">
-              <ion-icon name="school-outline" class="text-[#3FA6E8]"></ion-icon>
-              Carrera
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.carrera"
-              disabled
-              class="input-field"
-            />
-          </div>
-
-          <!-- Semestre -->
-          <div *ngIf="mostrarCampo('semestre')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="calendar-outline" class="text-[#3FA6E8]"></ion-icon>
-              Semestre
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.semestre"
-              disabled
-              class="input-field"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Sidebar -->
-      <div class="space-y-4 sm:space-y-6">
-        <!-- Role Card -->
-        <div class="card-azul">
-          <h3 class="section-title mb-3 sm:mb-4">
-            <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8]"></ion-icon>
-            Rol del Usuario
-          </h3>
-          <div class="badge-rol">
-            <p class="badge-rol-text">
-              {{ user.rol }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Password Change Card -->
-        <div class="card-azul">
-          <h3 class="section-title mb-3 sm:mb-4">
-            <ion-icon name="lock-closed-outline" class="text-[#3FA6E8]"></ion-icon>
-            Cambiar Contraseña
-          </h3>
-          
-          <div class="space-y-3 sm:space-y-4">
-            <div>
-              <label class="label-text">
-                <ion-icon name="key-outline" class="text-[#7A8CC5]"></ion-icon>
-                Contraseña Actual
-              </label>
-              <input
-                type="password"
-                [(ngModel)]="contrasenaActual"
-                class="input-field"
-                placeholder="Contraseña actual"
-              />
-            </div>
-
-            <div>
-              <label class="label-text">
-                <ion-icon name="lock-open-outline" class="text-[#7A8CC5]"></ion-icon>
-                Nueva Contraseña
-              </label>
-              <input
-                type="password"
-                [(ngModel)]="nuevaContrasena"
-                (input)="onPasswordInput()"
-                class="input-field"
-                placeholder="Nueva contraseña"
-              />
-            </div>
-
-            <!-- Password Strength Indicator -->
-            <div *ngIf="showPasswordTip" class="strength-container">
-              <p class="text-xs sm:text-sm font-semibold text-[#2C3A6A] mb-2">Seguridad de la contraseña:</p>
-              
-              <div class="strength-bar-wrapper">
-                <div class="strength-segment"
-                     [ngClass]="{
-                       'active-weak': passwordStage >= 1,
-                       'active-medium': passwordStage >= 2,
-                       'active-strong': passwordStage >= 3
-                     }"></div>
-                <div class="strength-segment"
-                     [ngClass]="{
-                       'active-medium': passwordStage >= 2,
-                       'active-strong': passwordStage >= 3
-                     }"></div>
-                <div class="strength-segment"
-                     [ngClass]="{'active-strong': passwordStage >= 3}"></div>
-              </div>
-
-              <div class="space-y-1 text-xs">
-                <div class="flex items-center gap-2" [ngClass]="hasLowercase() ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="hasLowercase() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Minúsculas (a-z)</span>
-                </div>
-                <div class="flex items-center gap-2" [ngClass]="hasUppercase() ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="hasUppercase() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Mayúsculas (A-Z)</span>
-                </div>
-                <div class="flex items-center gap-2" [ngClass]="hasNumber() ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="hasNumber() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Números (0-9)</span>
-                </div>
-                <div class="flex items-center gap-2" [ngClass]="hasSpecialChar() ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="hasSpecialChar() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Caracteres especiales (@$!%*?&)</span>
-                </div>
-                <div class="flex items-center gap-2" [ngClass]="nuevaContrasena.length >= 8 ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="nuevaContrasena.length >= 8 ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Mínimo 8 caracteres</span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              (click)="cambiarContrasena()"
-              [disabled]="cargando || !validarPasswordFuerte()"
-              class="btn-primary w-full">
-              <ion-icon name="sync-outline"></ion-icon>
-              <span class="hidden xs:inline">{{ cargando ? 'Actualizando...' : 'Actualizar Contraseña' }}</span>
-              <span class="xs:hidden">{{ cargando ? 'Actualizando...' : 'Actualizar' }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- LOADING -->
+  <div *ngIf="cargando" class="pf-loading">
+    <div class="pf-spinner"></div>
+    <p>Cargando tu información...</p>
   </div>
+
+  <ng-container *ngIf="!cargando">
+
+    <!-- ═══════════ HERO ═══════════ -->
+    <div class="pf-hero">
+      <div class="pf-hero-inner">
+
+        <!-- Ícono plano — sin fondo ni borde, sobresale hacia abajo -->
+        <div class="pf-avatar">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+
+        <!-- Nombre + chips -->
+        <div class="pf-hero-text">
+          <h1 class="pf-hero-name">
+            {{ user.nombre }} {{ user.a_paterno }} {{ user.a_materno }}
+          </h1>
+          <div class="pf-hero-chips">
+            <span class="pf-chip">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              {{ user.rol }}
+            </span>
+            <span *ngIf="user.matricula" class="pf-chip">
+              <ion-icon name="id-card-outline"></ion-icon>
+              {{ user.matricula }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Botón admin (solo desktop) -->
+        <div *ngIf="user.rol === 'Administrador'" class="pf-hero-action">
+          <button (click)="irPanelAdmin()" class="btn-hero-admin">
+            <ion-icon name="settings-outline"></ion-icon>
+            Panel de administración
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Transición blanca -->
+    <div class="pf-topbar"></div>
+
+    <!-- ═══════════ CUERPO ═══════════ -->
+    <div class="pf-body">
+
+      <!-- ── SIDEBAR ── -->
+      <div class="pf-sidebar">
+
+        <!-- Datos de cuenta -->
+        <div class="pf-side-block">
+          <div class="pf-side-block-title">
+            <ion-icon name="card-outline"></ion-icon>
+            Cuenta
+          </div>
+          <div class="pf-side-row">
+            <span class="pf-side-label">Acceso</span>
+            <span class="pf-side-value">{{ user.rol }}</span>
+          </div>
+          <div *ngIf="mostrarCampo('matricula') && user.matricula" class="pf-side-row">
+            <span class="pf-side-label">Matrícula</span>
+            <span class="pf-side-value">{{ user.matricula }}</span>
+          </div>
+          <div *ngIf="mostrarCampo('semestre') && user.semestre" class="pf-side-row">
+            <span class="pf-side-label">Semestre</span>
+            <span class="pf-side-value">{{ user.semestre }}</span>
+          </div>
+        </div>
+
+       
+
+        <!-- Contraseña -->
+        <div class="pf-pass-block">
+          <div class="pf-pass-title">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            Cambiar contraseña
+          </div>
+          <div class="pf-pass-body">
+
+            <div class="pf-field">
+              <label class="pf-field-label">Contraseña actual</label>
+              <input type="password" [(ngModel)]="contrasenaActual"
+                     class="pf-field-input" placeholder="••••••••" />
+            </div>
+
+            <div class="pf-field">
+              <label class="pf-field-label">Nueva contraseña</label>
+              <input type="password" [(ngModel)]="nuevaContrasena"
+                     (input)="onPasswordInput()"
+                     class="pf-field-input" placeholder="••••••••" />
+            </div>
+
+            <div *ngIf="showPasswordTip" class="pf-strength">
+              <div class="pf-strength-lbl">Nivel de seguridad</div>
+              <div class="pf-bars">
+                <div class="pf-bar" [ngClass]="passwordStage >= 1 ? (passwordStage === 1 ? 'weak' : passwordStage === 2 ? 'medium' : 'strong') : ''"></div>
+                <div class="pf-bar" [ngClass]="passwordStage >= 2 ? (passwordStage === 2 ? 'medium' : 'strong') : ''"></div>
+                <div class="pf-bar" [ngClass]="passwordStage >= 3 ? 'strong' : ''"></div>
+              </div>
+              <div class="pf-checks">
+                <div class="pf-check" [class.ok]="hasLowercase()">
+                  <ion-icon [name]="hasLowercase() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  Minúsculas
+                </div>
+                <div class="pf-check" [class.ok]="hasUppercase()">
+                  <ion-icon [name]="hasUppercase() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  Mayúsculas
+                </div>
+                <div class="pf-check" [class.ok]="hasNumber()">
+                  <ion-icon [name]="hasNumber() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  Números
+                </div>
+                <div class="pf-check" [class.ok]="hasSpecialChar()">
+                  <ion-icon [name]="hasSpecialChar() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  Caracteres especiales
+                </div>
+                <div class="pf-check" [class.ok]="nuevaContrasena.length >= 8">
+                  <ion-icon [name]="nuevaContrasena.length >= 8 ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  8 caracteres mínimo
+                </div>
+              </div>
+            </div>
+
+            <button (click)="cambiarContrasena()"
+                    [disabled]="cargando || !validarPasswordFuerte()"
+                    class="pf-btn pf-btn-primary pf-btn-full">
+              <ion-icon name="sync-outline"></ion-icon>
+              {{ cargando ? 'Actualizando...' : 'Actualizar contraseña' }}
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+      <!-- FIN SIDEBAR -->
+
+      <!-- ── PANEL PRINCIPAL ── -->
+      <div class="pf-main">
+
+        <!-- Botón admin visible en mobile -->
+        <div *ngIf="user.rol === 'Administrador'"
+             class="pf-admin-mobile-btn"
+             style="display:none;">
+          <button (click)="irPanelAdmin()" class="pf-btn pf-btn-primary pf-btn-full">
+            <ion-icon name="settings-outline"></ion-icon>
+            Panel de administración
+          </button>
+        </div>
+
+        <!-- Información personal -->
+        <div>
+          <div class="pf-section-head">
+            <span class="pf-section-title">
+              <ion-icon name="id-card-outline"></ion-icon>
+              Información personal
+            </span>
+            <div style="display:flex; gap:0.45rem; flex-wrap:wrap;">
+              <button *ngIf="!editando" (click)="habilitarEdicion()" class="pf-btn pf-btn-outline">
+                <ion-icon name="create-outline"></ion-icon>
+                Editar
+              </button>
+              <ng-container *ngIf="editando">
+                <button (click)="guardarCambios()" [disabled]="cargando" class="pf-btn pf-btn-save">
+                  <ion-icon name="checkmark-outline"></ion-icon>
+                  Guardar
+                </button>
+                <button (click)="editando = false" class="pf-btn pf-btn-ghost">
+                  Cancelar
+                </button>
+              </ng-container>
+            </div>
+          </div>
+
+          <div class="pf-notice">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <p>Los campos con fondo gris son gestionados por la institución y no pueden editarse directamente.</p>
+          </div>
+
+          <div class="pf-fields">
+
+            <div *ngIf="mostrarCampo('nombre')" class="pf-field">
+              <label class="pf-field-label">Nombre</label>
+              <input *ngIf="editando && editable('nombre')" type="text"
+                     [(ngModel)]="user.nombre" class="pf-field-input" placeholder="Tu nombre" />
+              <div *ngIf="!editando || !editable('nombre')" class="pf-field-static">
+                {{ user.nombre || '—' }}
+              </div>
+            </div>
+
+            <div *ngIf="mostrarCampo('a_paterno')" class="pf-field">
+              <label class="pf-field-label">Apellido paterno</label>
+              <input *ngIf="editando && editable('a_paterno')" type="text"
+                     [(ngModel)]="user.a_paterno" class="pf-field-input" placeholder="Apellido paterno" />
+              <div *ngIf="!editando || !editable('a_paterno')" class="pf-field-static">
+                {{ user.a_paterno || '—' }}
+              </div>
+            </div>
+
+            <div *ngIf="mostrarCampo('a_materno')" class="pf-field">
+              <label class="pf-field-label">Apellido materno</label>
+              <input *ngIf="editando && editable('a_materno')" type="text"
+                     [(ngModel)]="user.a_materno" class="pf-field-input" placeholder="Apellido materno" />
+              <div *ngIf="!editando || !editable('a_materno')" class="pf-field-static">
+                {{ user.a_materno || '—' }}
+              </div>
+            </div>
+
+            <div *ngIf="mostrarCampo('correo')" class="pf-field">
+              <label class="pf-field-label">Correo electrónico</label>
+              <input *ngIf="editando && editable('correo')" type="email"
+                     [(ngModel)]="user.correo" class="pf-field-input" placeholder="correo@ejemplo.com" />
+              <div *ngIf="!editando || !editable('correo')" class="pf-field-static">
+                {{ user.correo || '—' }}
+              </div>
+            </div>
+
+            <div *ngIf="mostrarCampo('telefono')" class="pf-field">
+              <label class="pf-field-label">Teléfono de contacto</label>
+              <input *ngIf="editando && editable('telefono')" type="tel"
+                     [(ngModel)]="user.telefono" class="pf-field-input" placeholder="Número de teléfono" />
+              <div *ngIf="!editando || !editable('telefono')" class="pf-field-static">
+                {{ user.telefono || '—' }}
+              </div>
+            </div>
+
+            <div *ngIf="mostrarCampo('matricula')" class="pf-field">
+              <label class="pf-field-label">Matrícula</label>
+              <div class="pf-field-static">{{ user.matricula || '—' }}</div>
+            </div>
+
+            <div *ngIf="mostrarCampo('carrera')" class="pf-field pf-field-full">
+              <label class="pf-field-label">Carrera</label>
+              <div class="pf-field-static">{{ user.carrera || '—' }}</div>
+            </div>
+
+            <div *ngIf="mostrarCampo('semestre')" class="pf-field">
+              <label class="pf-field-label">Semestre</label>
+              <div class="pf-field-static">
+                {{ user.semestre ? user.semestre + '° semestre' : '—' }}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <!-- FIN PANEL PRINCIPAL -->
+
+    </div>
+
+  </ng-container>
+
+</div>
 </section>

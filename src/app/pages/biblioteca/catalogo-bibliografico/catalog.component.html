@@ -1,0 +1,247 @@
+<style></style>
+<header class="header-catalogo">
+  <div class="header-content">
+    <h1>Biblioteca Digital Tiozihuatl</h1>
+    <p class="eslogan">Tu conocimiento en enfermería, al alcance de un clic</p>
+
+    <div class="search-container">
+      <input 
+        type="text"
+        class="search-box"
+        placeholder="Buscar por título o autor..."
+        [(ngModel)]="search"
+        (input)="cargarCatalogo()">
+
+       <button class="search-icon">
+        <ion-icon name="search-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- FILTROS -->
+<div class="biblioteca-layout">
+  <!-- FILTROS SIDEBAR -->
+  <aside class="filtros">
+    <h3> 
+      <ion-icon name="funnel-outline"></ion-icon>
+      Filtros
+    </h3>
+    
+    <div class="filtro-group">
+      <label>
+         <ion-icon name="book-outline"></ion-icon>
+         Materia
+      </label>
+      <select [(ngModel)]="filtroMateria" (change)="cargarCatalogo()">
+        <option value="">Todas las materias</option>
+        <option *ngFor="let m of materias" [value]="m.nombre">
+          {{ m.nombre }}
+        </option>
+      </select>
+    </div>
+
+    <div class="filtro-group">
+      <label>
+         <ion-icon name="layers-outline"></ion-icon>
+         Formato
+      </label>
+      <select [(ngModel)]="filtroFormato" (change)="cargarCatalogo()">
+        <option value="">Todos los formatos</option>
+        <option value="FISICO">Físico</option>
+        <option value="DIGITAL">Digital</option>
+        <option value="AMBOS">Ambos</option>
+      </select>
+    </div>
+
+    <div class="filtro-group">
+      <label>
+        <ion-icon name="swap-vertical-outline"></ion-icon>
+        Ordenar por autor
+      </label>
+      <select [(ngModel)]="ordenAutor" (change)="cargarCatalogo()">
+        <option value="">Sin orden</option>
+        <option value="ASC">A-Z</option>
+        <option value="DESC">Z-A</option>
+      </select>
+    </div>
+  </aside>
+
+  <!-- CARDS -->
+  <section class="catalogo-container">
+
+    <article *ngFor="let libro of libros" class="libro-card">
+
+      <!-- Preview PDF -->
+      <div class="book-cover">
+
+        <div *ngIf="libro.previewUrl; else placeholder">
+          <img [src]="libro.previewUrl" class="pdf-preview">
+        </div>
+
+        <ng-template #placeholder>
+          <div class="placeholder-cover">
+            <ion-icon name="book-outline" class="placeholder-icon"></ion-icon>
+            <span *ngIf="libro.tiene_digital">Cargando portada...</span>
+            <span *ngIf="!libro.tiene_digital">Solo físico</span>
+          </div>
+        </ng-template>
+
+      </div>
+
+      <div class="libro-content">
+
+        <h3>{{ libro.titulo }}</h3>
+
+        <div class="libro-info">
+          <p><strong>Autor:</strong> {{ libro.autor }}</p>
+          <p><strong>Editorial:</strong> {{ libro.editorial }}</p>
+        </div>
+
+        <div class="badge-container">
+          <span *ngIf="libro.tiene_fisico" class="badge fisico">
+            <ion-icon name="cube-outline"></ion-icon>
+            Físico ({{ libro.disponibles || 0 }})
+          </span>
+
+          <span *ngIf="libro.tiene_digital" class="badge digital">
+            <ion-icon name="laptop-outline"></ion-icon>
+            Digital
+          </span>
+        </div>
+
+        <div class="acciones">
+          <button
+            *ngIf="libro.tiene_digital"
+            class="btn"
+            (click)="abrirPdf(libro)">
+            Ver PDF
+          </button>
+          <button
+            *ngIf="libro.tiene_fisico"
+            class="btn prestamo-btn"
+            [disabled]="(libro.disponibles ?? 0) === 0"
+            [class.agotado]="(libro.disponibles ?? 0) === 0"
+            (click)="abrirModalPrestamo(libro)">
+            {{ (libro.disponibles ?? 0) === 0 ? 'Sin stock' : 'Solicitar préstamo' }}
+          </button>
+        </div>
+
+      </div>
+
+    </article>
+
+  </section>
+
+</div>
+
+<!-- MODAL PDF -->
+<div class="pdf-overlay" *ngIf="pdfSeleccionado" (click)="cerrarPdf()">
+  <div class="pdf-modal" (click)="$event.stopPropagation()">
+    <button class="cerrar" (click)="cerrarPdf()">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+    <iframe [src]="pdfSeleccionado | safeUrl"></iframe>
+  </div>
+</div>
+
+
+<!-- MODAL PRÉSTAMO -->
+<div class="prestamo-overlay" *ngIf="modalPrestamo" (click)="cerrarModalPrestamo()">
+  <div class="prestamo-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="prestamo-modal-header">
+      <h3>
+        <ion-icon name="book-outline"></ion-icon>
+        Solicitar Préstamo
+      </h3>
+      <button class="cerrar-prestamo" (click)="cerrarModalPrestamo()" [disabled]="prestamoCargando">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Estado: éxito -->
+    <div *ngIf="prestamoExitoso" class="prestamo-exito">
+      <div class="exito-icono">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </div>
+      <h4>¡Préstamo registrado!</h4>
+      <p>Tu préstamo de <strong>{{ libroSeleccionado?.titulo }}</strong> ha sido registrado exitosamente.</p>
+      <p class="vencimiento">
+        <ion-icon name="calendar-outline"></ion-icon>
+        Debes devolver el libro <strong>hoy antes de las 16:00 hrs</strong>
+      </p>
+      <p class="nota-horario">
+        <ion-icon name="time-outline"></ion-icon>
+        Recoge tu libro en biblioteca de 10:00 a 15:30 hrs.
+      </p>
+      <button class="btn-cerrar-exito" (click)="cerrarModalPrestamo()">Entendido</button>
+    </div>
+
+    <!-- Estado: formulario -->
+    <div *ngIf="!prestamoExitoso" class="prestamo-body">
+
+      <!-- Info del libro -->
+      <div class="prestamo-libro-info">
+        <div class="libro-icon">
+          <ion-icon name="book-outline"></ion-icon>
+        </div>
+        <div>
+          <p class="libro-titulo">{{ libroSeleccionado?.titulo }}</p>
+          <p class="libro-autor">{{ libroSeleccionado?.autor }}</p>
+        </div>
+      </div>
+
+      <!-- Detalles del préstamo -->
+      <div class="prestamo-detalles">
+        <div class="detalle-item">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <div>
+            <span class="detalle-label">Fecha de devolución</span>
+            <span class="detalle-valor">Hoy antes de las 16:00 hrs</span>
+          </div>
+        </div>
+        <div class="detalle-item">
+          <ion-icon name="cube-outline"></ion-icon>
+          <div>
+            <span class="detalle-label">Ejemplares disponibles</span>
+            <span class="detalle-valor">{{ libroSeleccionado?.disponibles ?? 0 }}</span>
+          </div>
+        </div>
+        <div class="detalle-item">
+          <ion-icon name="time-outline"></ion-icon>
+          <div>
+            <span class="detalle-label">Horario de atención</span>
+            <span class="detalle-valor">Lunes a viernes · 10:00 – 16:00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="prestamo-error" *ngIf="prestamoError">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        {{ prestamoError }}
+      </div>
+
+      <!-- Acciones -->
+      <div class="prestamo-footer">
+        <button class="btn-cancelar-prestamo" (click)="cerrarModalPrestamo()" [disabled]="prestamoCargando">
+          Cancelar
+        </button>
+        <button class="btn-confirmar-prestamo" (click)="confirmarPrestamo()" [disabled]="prestamoCargando">
+          <span *ngIf="!prestamoCargando">
+            <ion-icon name="checkmark-outline"></ion-icon>
+            Confirmar préstamo
+          </span>
+          <span *ngIf="prestamoCargando">
+            <ion-icon name="hourglass-outline"></ion-icon>
+            Procesando...
+          </span>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>

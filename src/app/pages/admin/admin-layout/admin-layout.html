@@ -6,6 +6,14 @@
     (click)="closeSidebar()">
   </div>
 
+  <!-- Label flotante FIXED — fuera del sidebar, se mueve con JS -->
+  <div 
+    class="collapsed-label-fixed"
+    [class.visible]="hoveredItemIndex >= 0 && sidebarState === 'collapsed'"
+    [style.top.px]="labelTop">
+    {{ hoveredItemIndex >= 0 ? menuItems[hoveredItemIndex].label : '' }}
+  </div>
+
   <!-- Sidebar -->
   <aside 
     class="sidebar"
@@ -17,34 +25,81 @@
     <div class="sidebar-header">
       <div class="logo-container" *ngIf="sidebarState === 'open'">
         <div class="logo-icon">
-          <ion-icon name="library-outline"></ion-icon>
+          <ion-icon name="settings-outline"></ion-icon>
         </div>
         <div class="logo-text">
           <h1>Panel Admin</h1>
         </div>
       </div>
       <div class="logo-icon-minimal" *ngIf="sidebarState === 'collapsed'">
-        <ion-icon name="library-outline"></ion-icon>
+        <ion-icon name="settings-outline"></ion-icon>
       </div>
       <div class="logo-icon-minimal hidden-state" *ngIf="sidebarState === 'hidden'">
-        <ion-icon name="library-outline"></ion-icon>
+        <ion-icon name="settings-outline"></ion-icon>
       </div>
     </div>
 
     <!-- Navigation Menu -->
     <nav class="sidebar-nav">
-      <a 
-        *ngFor="let item of menuItems"
-        [routerLink]="item.route"
-        routerLinkActive="active"
-        class="nav-item"
-        (click)="onNavItemClick()">
-        <div class="nav-icon">
-          <ion-icon [name]="item.icon"></ion-icon>
+
+      <!-- COLLAPSED: SVG sidebar con escotaduras + items activos -->
+      <ng-container *ngIf="sidebarState === 'collapsed'">
+        <div class="collapsed-nav-wrapper">
+
+          <!-- SVG de fondo azul con escotaduras dinámicas -->
+          <svg class="collapsed-sidebar-svg"
+               [attr.viewBox]="'0 0 80 ' + getCollapsedNavHeight()"
+               xmlns="http://www.w3.org/2000/svg"
+               [attr.height]="getCollapsedNavHeight()">
+            <path [attr.d]="getCollapsedSidebarPath()" fill="#0288D1"/>
+          </svg>
+
+          <!-- Items -->
+          <div class="collapsed-items">
+            <div
+              *ngFor="let item of menuItems; let i = index"
+              class="collapsed-item"
+              [class.collapsed-item-active]="isActiveRoute(item.route)"
+              [routerLink]="item.route"
+              (click)="onNavItemClick()"
+              (mouseenter)="onItemMouseEnter($event, i)"
+              (mouseleave)="onItemMouseLeave()">
+
+              <!-- Forma activa -->
+              <svg *ngIf="isActiveRoute(item.route)"
+                   class="active-shape-svg"
+                   viewBox="0 0 80 60"
+                   xmlns="http://www.w3.org/2000/svg">
+                <path d="M 40 0 A 30 30 0 0 0 40 60 L 80 60 L 80 0 Z" fill="#03A9F4"/>
+              </svg>
+
+              <!-- Ícono -->
+              <div class="collapsed-icon" [class.collapsed-icon-active]="isActiveRoute(item.route)">
+                <ion-icon [name]="item.icon"></ion-icon>
+                <span class="nav-badge-dot" *ngIf="item.badge"></span>
+              </div>
+            </div>
+          </div>
+
         </div>
-        <span class="nav-label">{{ item.label }}</span>
-        <span class="nav-badge" *ngIf="item.badge">{{ item.badge }}</span>
-      </a>
+      </ng-container>
+
+      <!-- OPEN: items normales con texto -->
+      <ng-container *ngIf="sidebarState !== 'collapsed'">
+        <a 
+          *ngFor="let item of menuItems"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="onNavItemClick()">
+          <div class="nav-icon">
+            <ion-icon [name]="item.icon"></ion-icon>
+          </div>
+          <span class="nav-label">{{ item.label }}</span>
+          <span class="nav-badge" *ngIf="item.badge">{{ item.badge }}</span>
+        </a>
+      </ng-container>
+
     </nav>
 
     <!-- User Section -->
@@ -58,9 +113,7 @@
           <p class="user-role">Administrador</p>
         </div>
       </div>
-
       <div class="footer-actions">
-       
         <button (click)="logout()" class="footer-btn logout-btn" title="Cerrar sesión">
           <ion-icon name="log-out-outline"></ion-icon>
         </button>
@@ -74,12 +127,10 @@
        [class.main-content-collapsed]="sidebarState === 'collapsed'"
        [class.main-content-open]="sidebarState === 'open'">
     
-    <!-- Top Bar -->
     <header class="topbar">
       <button class="toggle-btn" (click)="toggleSidebar()" [title]="getToggleButtonTitle()">
         <ion-icon [name]="getToggleButtonIcon()"></ion-icon>
       </button>
-
       <div class="topbar-actions">
         <button class="topbar-btn" title="Notificaciones">
           <ion-icon name="notifications-outline"></ion-icon>
@@ -94,7 +145,6 @@
       </div>
     </header>
 
-    <!-- Router Outlet - Aquí se cargan los componentes hijos -->
     <main class="content-area">
       <router-outlet></router-outlet>
     </main>

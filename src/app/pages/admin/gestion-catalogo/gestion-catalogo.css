@@ -1,0 +1,727 @@
+/* ============================================
+   GESTIÓN DE CATÁLOGO - DISEÑO PROFESIONAL
+   ============================================ */
+
+/* Variables de Color */
+.admin-content {
+  --color-fondo: #E3F2FD;
+  --color-contenedor: #FFFFFF;
+  --color-borde: #BBDEFB;
+  --color-primario: #2196F3;
+  --color-primario-hover: #1976D2;
+  --color-secundario: #607D8B;
+  --color-exito: #4CAF50;
+  --color-peligro: #F44336;
+  --color-info: #03A9F4;
+  --color-texto: #1E293B;
+  --color-texto-secundario: #64748B;
+  --color-gris-claro: #F0F8FF;
+  --color-azul-suave: #E3F2FD;
+  --color-azul-medio: #90CAF9;
+  --color-amarillo: #FFC107;
+
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--color-fondo);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--color-texto);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.admin-content .header-section {
+  background: linear-gradient(var(--color-info));
+  border: 1px solid var(--color-borde);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-content .page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+/* ============================================
+   MENSAJE ÉXITO
+   ============================================ */
+.admin-content .mensaje {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(76, 175, 80, 0.08);
+  color: var(--color-exito);
+  border: 1px solid var(--color-exito);
+  padding: 0.875rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0;
+}
+
+/* ============================================
+   CONTENEDORES
+   ============================================ */
+.admin-content .content-card {
+  background: var(--color-contenedor);
+  border: 1px solid var(--color-borde);
+  overflow: hidden;
+}
+
+/* ============================================
+   TABLA
+   ============================================ */
+.admin-content table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-content .table-header {
+  background: linear-gradient(var(--color-info));
+  border-bottom: 2px solid var(--color-primario);
+}
+
+.admin-content .th-cell {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.admin-content .th-cell ion-icon {
+  vertical-align: middle;
+  margin-right: 0.25rem;
+}
+
+.admin-content .td-cell {
+  padding: 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: middle;
+}
+
+.admin-content .table-row:hover {
+  background: var(--color-azul-suave);
+}
+
+.admin-content .table-row:last-child .td-cell {
+  border-bottom: none;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.admin-content .badge-estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-content .badges-container {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.admin-content .badge-fisico {
+  color: var(--color-amarillo);
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid var(--color-amarillo);
+}
+
+.admin-content .badge-digital {
+  color: var(--color-info);
+  background: rgba(3, 169, 244, 0.1);
+  border: 1px solid var(--color-info);
+}
+
+.admin-content .badge-activo {
+  color: var(--color-exito);
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid var(--color-exito);
+}
+
+.admin-content .badge-inactivo {
+  color: var(--color-peligro);
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid var(--color-peligro);
+}
+
+/* ============================================
+   BOTONES PRINCIPALES
+   ============================================ */
+.admin-content .btn-primary {
+  background: var(--color-info);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-content .btn-primary:hover:not(:disabled) {
+  background: var(--color-primario-hover);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.admin-content .btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.admin-content .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-content .btn-secondary {
+  background: white;
+  color: #475569;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-content .btn-secondary:hover:not(:disabled) {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+}
+
+.admin-content .btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   BOTONES DE ICONOS (ACCIONES)
+   ============================================ */
+.admin-content .btn-icon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.admin-content .btn-icon ion-icon {
+  font-size: 1.125rem;
+}
+
+/* Tooltip en hover */
+.admin-content .btn-icon::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-0.5rem);
+  background: var(--color-texto);
+  color: white;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+.admin-content .btn-icon:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-0.25rem);
+}
+
+/* Colores de botones de iconos */
+.admin-content .btn-icon-primary {
+  color: var(--color-primario);
+  border-color: var(--color-primario);
+}
+
+.admin-content .btn-icon-primary:hover {
+  background: var(--color-primario);
+  color: white;
+}
+
+.admin-content .btn-icon-success {
+  color: var(--color-exito);
+  border-color: var(--color-exito);
+}
+
+.admin-content .btn-icon-success:hover {
+  background: var(--color-exito);
+  color: white;
+}
+
+.admin-content .btn-icon-danger {
+  color: var(--color-peligro);
+  border-color: var(--color-peligro);
+}
+
+.admin-content .btn-icon-danger:hover {
+  background: var(--color-peligro);
+  color: white;
+}
+
+/* Botones de iconos para móvil */
+.admin-content .btn-icon-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-content .btn-icon-mobile ion-icon {
+  font-size: 1rem;
+}
+
+/* ============================================
+   LOADING
+   ============================================ */
+.admin-content .loading-spinner {
+  border: 4px solid var(--color-borde);
+  border-top-color: var(--color-primario);
+  width: 3rem;
+  height: 3rem;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   UPLOAD LOADING OVERLAY
+   ============================================ */
+.admin-content .upload-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(33, 150, 243, 0.95);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 12px;
+}
+
+.admin-content .upload-loading-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.admin-content .upload-loading-overlay .loading-spinner {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto;
+}
+
+/* ============================================
+   MODALES
+   ============================================ */
+.admin-content .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 41, 59, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+  padding-top: 5rem;
+  overflow-y: auto;
+}
+
+.admin-content .modal-container {
+  background: #FFFFFF;
+  width: 100%;
+  max-width: 56rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  border: none;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.admin-content .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #E5E7EB;
+  background: #FFFFFF;
+}
+
+.admin-content .modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-content .modal-title ion-icon {
+  font-size: 1.5rem;
+  color: var(--color-primario);
+}
+
+.admin-content .btn-close {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F1F5F9;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-content .btn-close:hover {
+  background: #E2E8F0;
+}
+
+.admin-content .btn-close ion-icon {
+  font-size: 1.5rem;
+  color: #64748B;
+}
+
+.admin-content .modal-body {
+  padding: 2rem;
+  background: #F8FAFC;
+}
+
+.admin-content .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #E5E7EB;
+  background: #FFFFFF;
+}
+
+/* ============================================
+   FORMULARIOS
+   ============================================ */
+.admin-content .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.admin-content .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-content .form-group-full {
+  grid-column: 1 / -1;
+}
+
+.admin-content .form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.admin-content .form-input {
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #1E293B;
+  background: white;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.admin-content .form-input:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
+  background: white;
+}
+
+.admin-content .form-input::placeholder {
+  color: #94A3B8;
+}
+
+.admin-content .form-input-file {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  color: #1E293B;
+  background: white;
+  border: 2px dashed #CBD5E1;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.admin-content .form-input-file:hover {
+  border-color: var(--color-primario);
+  background: var(--color-azul-suave);
+}
+
+.admin-content .form-input-file:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
+}
+
+/* ============================================
+   CHECKBOXES
+   ============================================ */
+.admin-content .checkbox-group {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  grid-column: 1 / -1;
+}
+
+.admin-content .checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-content .checkbox-item input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  cursor: pointer;
+  accent-color: var(--color-primario);
+}
+
+.admin-content .checkbox-item label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ============================================
+   WARNING ARCHIVO
+   ============================================ */
+.admin-content .warning-archivo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid var(--color-amarillo);
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.admin-content .warning-archivo ion-icon {
+  font-size: 1rem;
+  color: var(--color-amarillo);
+  flex-shrink: 0;
+}
+
+.admin-content .form-group small {
+  font-size: 0.75rem;
+  color: #94A3B8;
+  margin-top: 0.375rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.admin-content .form-group small ion-icon {
+  font-size: 0.875rem;
+  color: var(--color-exito);
+}
+
+/* ============================================
+   CARDS MÓVILES
+   ============================================ */
+.admin-content .libro-card-mobile {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0F8FF 100%);
+  border: 1px solid var(--color-borde);
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.admin-content .libro-card-mobile:hover {
+  border-color: var(--color-primario);
+  box-shadow: 0 4px 6px rgba(33, 150, 243, 0.15);
+}
+
+/* ============================================
+   UTILIDADES DE TEXTO
+   ============================================ */
+.admin-content .text-xs {
+  font-size: 0.75rem;
+}
+
+.admin-content .text-sm {
+  font-size: 0.875rem;
+}
+
+.admin-content .text-gray-500 {
+  color: #64748B;
+}
+
+.admin-content .text-gray-600 {
+  color: #475569;
+}
+
+.admin-content .text-blue-200 {
+  color: #BBDEFB;
+}
+
+.admin-content .text-blue-500 {
+  color: var(--color-info);
+}
+
+.admin-content .text-red-500 {
+  color: var(--color-peligro);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 640px) {
+  .admin-content {
+    padding: 1rem;
+  }
+
+  .admin-content .header-section {
+    padding: 1rem;
+  }
+
+  .admin-content .page-title {
+    font-size: 1.5rem;
+  }
+
+  .admin-content .modal-overlay {
+    padding-top: 3rem;
+  }
+
+  .admin-content .modal-container {
+    max-height: calc(100vh - 4rem);
+  }
+
+  .admin-content .modal-header,
+  .admin-content .modal-body,
+  .admin-content .modal-footer {
+    padding: 1.25rem;
+  }
+
+  .admin-content .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-content .form-group-full {
+    grid-column: 1;
+  }
+
+  .admin-content .checkbox-group {
+    flex-direction: column;
+    gap: 0.75rem;
+    grid-column: 1;
+  }
+
+  .admin-content .modal-footer {
+    flex-direction: column;
+  }
+
+  .admin-content .btn-primary,
+  .admin-content .btn-secondary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 641px) {
+  .admin-content .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================
+   SCROLL PERSONALIZADO
+   ============================================ */
+.admin-content .modal-container::-webkit-scrollbar,
+.admin-content .overflow-x-auto::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-content .modal-container::-webkit-scrollbar-track,
+.admin-content .overflow-x-auto::-webkit-scrollbar-track {
+  background: var(--color-gris-claro);
+}
+
+.admin-content .modal-container::-webkit-scrollbar-thumb,
+.admin-content .overflow-x-auto::-webkit-scrollbar-thumb {
+  background: var(--color-borde);
+  border-radius: 4px;
+}
+
+.admin-content .modal-container::-webkit-scrollbar-thumb:hover,
+.admin-content .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primario);
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+.admin-content ion-icon {
+  pointer-events: none;
+}
+
+.admin-content * {
+  box-sizing: border-box;
+}

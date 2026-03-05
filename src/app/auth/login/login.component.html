@@ -6,7 +6,7 @@
       <!-- HEADER -->
       <div class="flex flex-col items-center mb-6 text-center">
         <div class="w-24 h-24 flex items-center justify-center">
-          <img src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1763396639/logo1_mgnz23.png" 
+          <img src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png" 
                class="w-60 h-60 object-contain drop-shadow-lg" 
                alt="Logo Instituto"
                loading="lazy" />
@@ -26,6 +26,27 @@
           
           <!-- LOGIN NORMAL -->
           <form (ngSubmit)="loginPassword()" class="space-y-5" *ngIf="!smsMode">
+
+                        <!-- Selección de Rol -->
+            <div>
+              <label class="label-text">Rol de Usuario</label>
+              <div class="input-wrapper">
+                <select
+                  [(ngModel)]="rolSeleccionado"
+                  name="rolSeleccionado"
+                  required
+                  class="input-field w-full pr-12">
+                  <option value="" disabled selected>Selecciona un rol</option>
+                  <option value="Administrador">Administrador</option>
+                  <option value="Docente">Docente</option>
+                  <option value="Alumno">Alumno</option>
+                  <option value="Bibliotecario">Bibliotecario</option>
+                  <option value="Visitante">Visitante</option>
+                </select>
+                <ion-icon name="people-outline" class="input-icon"></ion-icon>
+              </div>
+            </div>
+            
             <!-- Campo Matrícula/Correo -->
             <div>
               <label class="label-text">Matrícula</label>
@@ -38,7 +59,7 @@
                   (keydown)="bloquearCaracteresPeligrosos($event)"
                   (input)="correo = sanitizeInput(correo)"
                   class="input-field w-full"
-                  placeholder="Ejemplo: 2025001234" />
+                  placeholder="Ejemplo: 20250012" />
                 <ion-icon name="id-card-outline" class="input-icon"></ion-icon>
               </div>
               <!-- Mensaje para visitantes -->
@@ -60,8 +81,7 @@
                   maxlength="8"
                   minlength="8"
                   required
-                  (keydown)="bloquearCaracteresPeligrosos($event)"
-                  (input)="contrasena = sanitizeInput(contrasena)"
+        
                   class="input-field w-full pr-14"
                   placeholder="••••••••" />
                 <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
@@ -71,26 +91,6 @@
                   class="input-validation">
                   <ion-icon [name]="passwordInput.type === 'password' ? 'eye-outline' : 'eye-off-outline'" class="text-xl text-gray-500"></ion-icon>
                 </button>
-              </div>
-            </div>
-
-            <!-- Selección de Rol -->
-            <div>
-              <label class="label-text">Rol de Usuario</label>
-              <div class="input-wrapper">
-                <select
-                  [(ngModel)]="rolSeleccionado"
-                  name="rolSeleccionado"
-                  required
-                  class="input-field w-full pr-12">
-                  <option value="" disabled selected>Selecciona un rol</option>
-                  <option value="Administrador">Administrador</option>
-                  <option value="Docente">Docente</option>
-                  <option value="Alumno">Alumno</option>
-                  <option value="Bibliotecario">Bibliotecario</option>
-                  <option value="Visitante">Visitante</option>
-                </select>
-                <ion-icon name="people-outline" class="input-icon"></ion-icon>
               </div>
             </div>
 
@@ -107,7 +107,7 @@
               </ng-template>
             </button>
 
-            <!-- Enlace a login por SMS -->
+            <!-- Enlace a login por SMS
             <button
               type="button"
               (click)="cambiarModoSMS(true)"
@@ -116,6 +116,7 @@
                 <ion-icon name="chatbubble-outline"></ion-icon> Iniciar sesión por SMS
               </span>
             </button>
+             -->
           </form>
 
           <!-- LOGIN POR SMS -->
@@ -225,12 +226,14 @@
 
        <!-- OTROS MÉTODOS -->
 <div class="space-y-4">
+   <!-- OTROS MÉTODOS 
   <button
     (click)="loginBiometria()"
     [disabled]="cargando"
     class="btn-secondary w-full flex justify-center items-center gap-2">
     <ion-icon name="finger-print-outline"></ion-icon> Usar biometría
   </button>
+  -->
 
   <!-- Separador "O continuar con" -->
   <div class="relative my-5">

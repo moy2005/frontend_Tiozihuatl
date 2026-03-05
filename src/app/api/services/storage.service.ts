@@ -1,0 +1,34 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
+import { API_URL } from '../api.config';
+
+// 👇 NUEVA INTERFAZ QUE COINCIDE CON EL BACKEND
+export interface UploadPdfResponse {
+  success: boolean;
+  message: string;
+  data: {
+    public_id: string;
+    secure_url: string;
+    format: string;
+    size: number;
+    created_at: string;
+  };
+}
+
+@Injectable({ providedIn: 'root' })
+export class StorageService {
+  private baseUrl = `${API_URL}/catalog/admin`;
+
+  constructor(private http: HttpClient) {}
+
+  uploadPdf(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<UploadPdfResponse>(
+      `${this.baseUrl}/upload-pdf`,
+      formData
+    );
+  }
+}

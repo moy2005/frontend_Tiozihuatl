@@ -1,0 +1,343 @@
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
+
+    <!-- Header -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h2 class="page-title">Gestión de Catálogo</h2>
+        <button
+          (click)="abrirModal()"
+          class="btn-primary">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Nuevo Libro
+        </button>
+      </div>
+    </div>
+
+    <!-- Mensaje éxito -->
+    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+
+    <!-- Loading State -->
+    <div *ngIf="cargandoTabla" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 text-gray-600 font-medium">Cargando libros...</p>
+    </div>
+
+    <!-- Tabla de libros -->
+    <div *ngIf="!cargandoTabla" class="content-card overflow-hidden">
+
+      <!-- Desktop Table View -->
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell"><ion-icon name="book-outline"></ion-icon> Título</th>
+              <th class="th-cell"><ion-icon name="person-outline"></ion-icon> Autor</th>
+              <th class="th-cell"><ion-icon name="business-outline"></ion-icon> Editorial</th>
+              <th class="th-cell"><ion-icon name="school-outline"></ion-icon> Materia</th>
+              <th class="th-cell"><ion-icon name="albums-outline"></ion-icon> Formato</th>
+              <th class="th-cell"><ion-icon name="power-outline"></ion-icon> Estado</th>
+              <th class="th-cell text-center"><ion-icon name="settings-outline"></ion-icon> Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let libro of libros" class="table-row">
+              <td class="td-cell font-medium text-gray-900">{{ libro.titulo }}</td>
+              <td class="td-cell text-gray-600">{{ libro.autor }}</td>
+              <td class="td-cell text-gray-600">{{ libro.editorial || 'N/A' }}</td>
+              <td class="td-cell text-gray-600">{{ libro.materia }}</td>
+              <td class="td-cell">
+                <div class="badges-container">
+                  <span *ngIf="libro.tiene_fisico" class="badge-estado badge-fisico">
+                    <ion-icon name="cube-outline"></ion-icon>
+                    Físico ({{ libro.total || 0 }})
+                  </span>
+                  <span *ngIf="libro.tiene_digital" class="badge-estado badge-digital">
+                    <ion-icon name="laptop-outline"></ion-icon>
+                    Digital
+                  </span>
+                  <span *ngIf="!libro.tiene_fisico && !libro.tiene_digital" class="text-gray-500">N/A</span>
+                </div>
+              </td>
+              <td class="td-cell">
+                <span
+                  class="badge-estado"
+                  [ngClass]="libro.activo === 1 ? 'badge-activo' : 'badge-inactivo'">
+                  {{ libro.activo === 1 ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+                  <!-- Editar -->
+                  <button
+                    (click)="editarLibro(libro)"
+                    class="btn-icon btn-icon-primary"
+                    title="Editar libro">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+
+                  <!-- Cambiar estado -->
+                  <button
+                    (click)="cambiarEstado(libro)"
+                    class="btn-icon"
+                    [class.btn-icon-danger]="libro.activo === 1"
+                    [class.btn-icon-success]="libro.activo !== 1"
+                    [title]="libro.activo === 1 ? 'Desactivar libro' : 'Activar libro'">
+                    <ion-icon [name]="libro.activo === 1 ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile/Tablet Card View -->
+      <div class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let libro of libros" class="libro-card-mobile">
+
+          <!-- Card Header -->
+          <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span
+                  class="badge-estado"
+                  [ngClass]="libro.activo === 1 ? 'badge-activo' : 'badge-inactivo'">
+                  {{ libro.activo === 1 ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+              <h4 class="text-lg font-bold text-gray-900">{{ libro.titulo }}</h4>
+              <p class="text-sm text-gray-600 mt-1">{{ libro.autor }}</p>
+            </div>
+          </div>
+
+          <!-- Card Details -->
+          <div class="mb-3 space-y-1 text-sm text-gray-600">
+            <div class="flex items-center gap-2">
+              <ion-icon name="business-outline" class="text-blue-500"></ion-icon>
+              <span>{{ libro.editorial || 'Sin editorial' }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <ion-icon name="school-outline" class="text-blue-500"></ion-icon>
+              <span>{{ libro.materia }}</span>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span *ngIf="libro.tiene_fisico" class="badge-estado badge-fisico">
+                <ion-icon name="cube-outline"></ion-icon>
+                Físico ({{ libro.total || 0 }})
+              </span>
+              <span *ngIf="libro.tiene_digital" class="badge-estado badge-digital">
+                <ion-icon name="laptop-outline"></ion-icon>
+                Digital
+              </span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-2 pt-3 border-t border-gray-200">
+            <button
+              (click)="editarLibro(libro)"
+              class="btn-icon-mobile btn-icon-primary flex-1">
+              <ion-icon name="create-outline"></ion-icon>
+              <span>Editar</span>
+            </button>
+
+            <button
+              (click)="cambiarEstado(libro)"
+              class="btn-icon-mobile flex-1"
+              [class.btn-icon-danger]="libro.activo === 1"
+              [class.btn-icon-success]="libro.activo !== 1">
+              <ion-icon [name]="libro.activo === 1 ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+              <span>{{ libro.activo === 1 ? 'Desactivar' : 'Activar' }}</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Libro -->
+  <div *ngIf="mostrarModal" class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <ion-icon [name]="modoEdicion ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+          {{ modoEdicion ? 'Editar Libro' : 'Nuevo Libro' }}
+        </h3>
+        <button (click)="cerrarModal()" class="btn-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Loading Overlay -->
+      <div *ngIf="cargando" class="upload-loading-overlay">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"></div>
+          <p class="mt-4 text-white font-semibold text-lg">Guardando libro...</p>
+          <p class="text-blue-200 text-sm">Por favor espere...</p>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <div class="form-grid">
+
+          <!-- Título -->
+          <div class="form-group form-group-full">
+            <label class="form-label">
+              <ion-icon name="book-outline"></ion-icon>
+              Título *
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="nuevoLibro.titulo"
+              name="titulo"
+              placeholder="Título del libro"
+              class="form-input"
+            />
+          </div>
+
+          <!-- Autor -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="person-outline"></ion-icon>
+              Autor *
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="nuevoLibro.autor"
+              name="autor"
+              placeholder="Nombre del autor"
+              class="form-input"
+            />
+          </div>
+
+          <!-- Editorial -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="business-outline"></ion-icon>
+              Editorial
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="nuevoLibro.editorial"
+              name="editorial"
+              placeholder="Editorial"
+              class="form-input"
+            />
+          </div>
+
+          <!-- Materia -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="school-outline"></ion-icon>
+              Materia *
+            </label>
+            <select
+              [(ngModel)]="nuevoLibro.materia_id"
+              name="materia_id"
+              class="form-input">
+              <option value="0">Seleccione una materia</option>
+              <option *ngFor="let m of materias" [value]="m.id">{{ m.nombre }}</option>
+            </select>
+          </div>
+
+          <!-- Checkboxes Formato -->
+          <div class="checkbox-group form-group-full">
+            <div class="checkbox-item">
+              <input
+                type="checkbox"
+                [(ngModel)]="nuevoLibro.tiene_fisico"
+                (change)="formatosEditados=true"
+                name="tiene_fisico"
+                id="check-fisico"
+              />
+              <label for="check-fisico">
+                <ion-icon name="cube-outline"></ion-icon>
+                Físico
+              </label>
+            </div>
+            <div class="checkbox-item">
+              <input
+                type="checkbox"
+                [(ngModel)]="nuevoLibro.tiene_digital"
+                (change)="formatosEditados=true"
+                name="tiene_digital"
+                id="check-digital"
+              />
+              <label for="check-digital">
+                <ion-icon name="cloud-download-outline"></ion-icon>
+                Digital
+              </label>
+            </div>
+          </div>
+
+          <!-- Total ejemplares -->
+          <div class="form-group" *ngIf="nuevoLibro.tiene_fisico">
+            <label class="form-label">
+              <ion-icon name="pricetags-outline"></ion-icon>
+              Total de ejemplares
+            </label>
+            <input
+              type="number"
+              min="1"
+              [(ngModel)]="nuevoLibro.total"
+              name="total"
+              placeholder="Cantidad"
+              class="form-input"
+            />
+          </div>
+
+          <!-- Archivo PDF -->
+          <div class="form-group form-group-full" *ngIf="nuevoLibro.tiene_digital">
+            <label class="form-label">
+              <ion-icon name="document-attach-outline"></ion-icon>
+              Archivo PDF
+            </label>
+            <input
+              type="file"
+              accept="application/pdf"
+              (change)="onPdfSelected($event)"
+              class="form-input-file"
+            />
+            <div class="warning-archivo" *ngIf="mensajeErrorArchivo">
+              <ion-icon name="warning-outline"></ion-icon>
+              {{ mensajeErrorArchivo }}
+            </div>
+            <small>Límite actual permitido: 10MB</small>
+            <small *ngIf="pdfActual && modoEdicion">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              PDF actual: {{ pdfActual.split('/').pop() }}
+            </small>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          (click)="cerrarModal()"
+          class="btn-secondary"
+          [disabled]="cargando">
+          Cancelar
+        </button>
+
+        <button
+          (click)="guardarLibro()"
+          class="btn-primary"
+          [disabled]="cargando || mensajeErrorArchivo">
+          <ion-icon *ngIf="!cargando" [name]="modoEdicion ? 'checkmark-circle-outline' : 'add-circle-outline'"></ion-icon>
+          <span>{{ cargando ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Crear') }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
