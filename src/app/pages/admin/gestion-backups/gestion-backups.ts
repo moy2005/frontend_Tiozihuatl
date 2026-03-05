@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { BackupService } from '../../../api/services/backup.service';
 import { AutomationService } from '../../../api/services/automation.service';
 import { firstValueFrom } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-gestion-backups',
@@ -182,31 +183,30 @@ export class GestionBackupsComponent implements OnInit {
   // GENERADOR CRON (interno)
   // ----------------------------------------------------------------
 
-  private generarCron(): string {
-    const partes   = this.horaInicio.split(':');
-    const h        = partes[0];
-    const m        = partes[1];
+private generarCron(): string {
+  const partes = this.horaInicio.split(':');
+  let h = parseInt(partes[0]);
+  const m = parseInt(partes[1]);
 
-    if (this.tipoFrecuencia === 'daily') {
-      return `${m} ${h} * * *`;
-    }
+  // Convertir hora local a UTC
+  const fecha = new Date();
+  fecha.setHours(h, m, 0, 0);
+  const hUTC = fecha.getUTCHours();
+  const mUTC = fecha.getUTCMinutes();
 
-    if (this.tipoFrecuencia === 'interval') {
-      if (this.intervaloHoras < 2) {
-        throw new Error('Intervalo inválido');
-      }
-      return `0 */${this.intervaloHoras} * * *`;
-    }
-
-    if (this.tipoFrecuencia === 'days') {
-      if (this.diasSeleccionados.length === 0) {
-        throw new Error('Sin días seleccionados');
-      }
-      return `${m} ${h} * * ${this.diasSeleccionados.join(',')}`;
-    }
-
-    throw new Error('Frecuencia inválida');
+  if (this.tipoFrecuencia === 'daily') {
+    return `${mUTC} ${hUTC} * * *`;
   }
+  if (this.tipoFrecuencia === 'interval') {
+    if (this.intervaloHoras < 2) throw new Error('Intervalo inválido');
+    return `0 */${this.intervaloHoras} * * *`;
+  }
+  if (this.tipoFrecuencia === 'days') {
+    if (this.diasSeleccionados.length === 0) throw new Error('Sin días seleccionados');
+    return `${mUTC} ${hUTC} * * ${this.diasSeleccionados.join(',')}`;
+  }
+  throw new Error('Frecuencia inválida');
+}
 
   // ----------------------------------------------------------------
   // BACKUP COMPLETO
@@ -309,9 +309,16 @@ export class GestionBackupsComponent implements OnInit {
         'success'
       );
       await this.cargarTareas();
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
-      Swal.fire('Error', 'No se pudo guardar la programación.', 'error');
+
+      let mensaje = 'Error';
+
+      if (e instanceof HttpErrorResponse) {
+        mensaje = e.error?.message || e.message;
+      }
+
+      Swal.fire('Error', mensaje, 'error');
     } finally {
       this.cargandoProgramar = false;
     }
