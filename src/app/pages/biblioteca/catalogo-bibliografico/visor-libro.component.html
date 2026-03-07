@@ -1,0 +1,68 @@
+<!-- ══ BREADCRUMB ══ -->
+<nav class="breadcrumb-bar">
+  <a routerLink="/inicio">Inicio</a>
+  <span class="sep">›</span>
+  <a routerLink="/catalogo">Biblioteca</a>
+  <span class="sep">›</span>
+  <span class="current">{{ tituloLibro }}</span>
+</nav>
+
+<!-- ══ TOOLBAR ══ -->
+<div class="visor-toolbar">
+
+  <div class="toolbar-group">
+    <button class="toolbar-btn"
+      (click)="prevPage()"
+      [disabled]="pageNum <= 1"
+      title="Página anterior">&#9664;</button>
+
+    <span class="page-indicator">
+      <ng-container *ngIf="totalPages > 0">Pág. {{ pageNum }} / {{ totalPages }}</ng-container>
+      <ng-container *ngIf="totalPages === 0">Cargando…</ng-container>
+    </span>
+
+    <button class="toolbar-btn"
+      (click)="nextPage()"
+      [disabled]="pageNum >= totalPages"
+      title="Página siguiente">&#9654;</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="toolbar-group">
+    <button class="toolbar-btn"
+      (click)="zoomOut()"
+      [disabled]="scale <= 0.6"
+      title="Alejar">&#8722;</button>
+
+    <span class="zoom-label">{{ (scale * 100).toFixed(0) }}%</span>
+
+    <button class="toolbar-btn"
+      (click)="zoomIn()"
+      [disabled]="scale >= 3.0"
+      title="Acercar">&#43;</button>
+  </div>
+
+</div>
+
+<!-- ══ PDF ══ -->
+<div class="pdf-wrapper">
+
+  <div class="loading-state" *ngIf="totalPages === 0">
+    <div class="spinner"></div>
+    <p>Cargando documento…</p>
+  </div>
+
+   <!-- Un canvas por página -->
+  <div class="canvas-container" *ngFor="let p of paginas">
+    <canvas [id]="'page-' + p"></canvas>
+  </div>
+
+</div>
+
+<!-- Navegación flotante -->
+<div class="bottom-nav" *ngIf="totalPages > 1">
+  <button class="nav-btn" (click)="prevPage()" [disabled]="pageNum <= 1">&#9664;</button>
+  <span class="page-info">{{ pageNum }} / {{ totalPages }}</span>
+  <button class="nav-btn" (click)="nextPage()" [disabled]="pageNum >= totalPages">&#9654;</button>
+</div>

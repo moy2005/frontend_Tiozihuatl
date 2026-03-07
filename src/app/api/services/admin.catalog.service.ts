@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from '../environments/environment';
+import { environment } from '../environments/environment.prod';
 import { API_URL } from '../api.config';
 
 export interface LibroFormato {
@@ -18,7 +18,8 @@ export interface LibroAdmin {
   autor: string;
   editorial?: string;
   categoria_id: number; 
-  materia?: string;
+  materias?: string;   
+  materia_id?: number;
   tiene_fisico?: number;
   total?: number;
   disponibles?: number;
@@ -64,4 +65,8 @@ export class CatalogAdminService {
   cambiarEstado(id: number, activo: number): Observable<any> {
     return this.http.patch(`${this.baseUrl}/libros/${id}/estado`, { activo });
   }
+
+  obtenerMaterias() {
+  return this.http.get<any[]>(`${environment.apiUrl}/catalog/materias`);
+}
 }

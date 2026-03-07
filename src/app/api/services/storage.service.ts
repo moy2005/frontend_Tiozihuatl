@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment';
+import { environment } from '../environments/environment.prod';
 import { API_URL } from '../api.config';
 
 // 👇 NUEVA INTERFAZ QUE COINCIDE CON EL BACKEND
@@ -23,12 +23,18 @@ export class StorageService {
   constructor(private http: HttpClient) {}
 
   uploadPdf(file: File) {
-    const formData = new FormData();
-    formData.append('file', file);
+  const token = localStorage.getItem('accessToken');
+  const formData = new FormData();
+  formData.append('file', file);
 
-    return this.http.post<UploadPdfResponse>(
-      `${this.baseUrl}/upload-pdf`,
-      formData
-    );
-  }
+  return this.http.post<UploadPdfResponse>(
+    `${this.baseUrl}/upload-pdf`,
+    formData,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+  );
+}
 }

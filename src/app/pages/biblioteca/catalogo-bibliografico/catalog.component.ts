@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { CatalogService, Libro } from '../../../api/services/catalog.service';
 import { PrestamoService } from '../../../api/services/prestamo.service';
 import { SafeUrlPipe } from '../../../pipes/safe-url.pipe';
-import { environment } from '../../../api/environments/environment.prod.js';
+import { environment } from '../../../api/environments/environment.prod';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-catalogo',
@@ -33,6 +34,7 @@ export class CatalogoComponent implements OnInit {
 
   constructor(
     private catalogService: CatalogService,
+    private router: Router,
     private prestamoService: PrestamoService
   ) {}
 
@@ -70,9 +72,9 @@ export class CatalogoComponent implements OnInit {
     });
   }
 
-  abrirPdf(libro: Libro): void {
-    if (!libro.id) return;
-    this.pdfSeleccionado = `${environment.apiUrl}/catalog/libros/${libro.id}/pdf`;
+   abrirPdf(libro: Libro) {
+  if (!libro.id) return;
+   this.router.navigate(['/biblioteca/libro', libro.id]);
   }
 
   cerrarPdf(): void {
