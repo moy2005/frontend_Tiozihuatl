@@ -1,4 +1,3 @@
-<style></style>
 <header class="header-catalogo">
   <div class="header-content">
     <h1>Biblioteca Digital Tiozihuatl</h1>
@@ -138,10 +137,14 @@
 <!-- MODAL PDF -->
 <div class="pdf-overlay" *ngIf="pdfSeleccionado" (click)="cerrarPdf()">
   <div class="pdf-modal" (click)="$event.stopPropagation()">
-    <button class="cerrar" (click)="cerrarPdf()">
-      <ion-icon name="close-outline"></ion-icon>
-    </button>
-    <iframe [src]="pdfSeleccionado | safeUrl"></iframe>
+    <button class="cerrar" (click)="cerrarPdf()">✖</button>
+    <iframe
+      [src]="(pdfSeleccionado + '#toolbar=0&navpanes=0&scrollbar=0') | safeUrl"
+      width="100%"
+      height="100%"
+      style="border:none;">
+    </iframe>
+    
   </div>
 </div>
 

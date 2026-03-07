@@ -1,4 +1,4 @@
-:root {
+  :root {
   --primary: #3FA6E8;
   --primary-dark: #2D8BE8;
   --primary-light: #E7EEFF;
@@ -490,49 +490,217 @@ body {
 }
 
 /* ========== RESPONSIVE ========== */
+
+@media (max-width: 640px) {
+
+   .biblioteca-layout {
+    overflow-x: hidden;
+    width: 100%;
+    padding: 1rem;
+  }
+
+  /* Card horizontal */
+  .libro-card {
+    flex-direction: row;
+    height: auto;
+    min-height: 160px;
+  }
+
+  /* Portada fija a la izquierda */
+  .book-cover {
+    width: 120px;
+    min-width: 120px;
+    height: auto;
+    min-height: 160px;
+    border-bottom: none;
+    border-right: 2px solid #c7c7c7;
+  }
+
+  /* Info a la derecha — asegura que no se desborde */
+  .libro-content {
+    flex: 1;
+    min-width: 0;        /* ← clave para que no se desborde */
+    padding: 0.75rem;
+    gap: 0.4rem;
+    overflow: hidden;
+  }
+
+  /* Título visible completo */
+  .libro-card h3 {
+    font-size: 0.875rem;
+    min-height: unset;
+    -webkit-line-clamp: 3;
+    white-space: normal;
+    overflow: hidden;
+    word-break: break-word;
+  }
+
+  .libro-card p {
+    font-size: 0.75rem;
+  }
+
+  .badge-container {
+    margin-top: 0;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-size: 0.68rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .acciones {
+    padding-top: 0.5rem;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .btn {
+    font-size: 0.75rem;
+    padding: 0.45rem 0.5rem;
+    width: 100%;
+  }
+
+  .placeholder-cover {
+    font-size: 2rem;
+  }
+
+  .placeholder-text {
+    font-size: 0.7rem;
+  }
+}
 @media (max-width: 1024px) {
   .header-catalogo h1 { font-size: 2.5rem; }
-  .header-catalogo .eslogan { font-size: 1rem; }
-  .biblioteca-layout { grid-template-columns: 220px 1fr; gap: 2rem; }
-  .catalogo-container { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .biblioteca-layout {
+    grid-template-columns: 220px 1fr;
+    gap: 2rem;
+  }
+  .catalogo-container {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
   .book-cover { height: 300px; }
 }
 
 @media (max-width: 768px) {
-  .header-catalogo { padding: 3rem 1.5rem 3.5rem; }
-  .header-catalogo h1 { font-size: 2rem; }
-  .header-catalogo .eslogan { font-size: 0.9375rem; }
-  .biblioteca-layout { grid-template-columns: 1fr; padding: 1.5rem 1rem 2rem; }
-  .filtros { position: relative; top: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .filtros h3 { grid-column: 1 / -1; }
-  .catalogo-container { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-  .book-cover { height: 280px; }
-  .acciones { flex-direction: column; }
-  .btn { width: 100%; }
+  .filtros {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  .filtros h3 { grid-column: 1 / -1; padding-bottom: 0.5rem; }
+  .catalogo-container { grid-template-columns: repeat(2, 1fr); }
+  .libro-card { flex-direction: column; }
+  .book-cover {
+    width: 100%;
+    min-width: unset;
+    height: 200px;
+    border-right: none;
+    border-bottom: 2px solid #c7c7c7;
+  }
 }
 
 @media (max-width: 640px) {
-  .header-catalogo { padding: 2.5rem 1rem 3rem; }
+  html, body { overflow-x: hidden; width: 100%; }
+
+  .header-catalogo { padding: 2.5rem 1rem 3rem; width: 100%; overflow: hidden; }
   .header-catalogo h1 { font-size: 1.75rem; }
   .header-catalogo .eslogan { font-size: 0.875rem; }
-  .search-box { font-size: 0.9375rem; padding: 0.875rem 3.5rem 0.875rem 1.25rem; }
-  .search-icon { width: 46px; }
-  .filtros { grid-template-columns: 1fr; }
+  .search-box { font-size: 0.9375rem; }
+
+  .biblioteca-layout {
+    grid-template-columns: 1fr;
+    padding: 0.75rem;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .filtros { grid-template-columns: 1fr; padding: 1rem; margin-bottom: 1.5rem; }
+
   .catalogo-container { grid-template-columns: 1fr; }
-  .book-cover { height: 320px; }
+
+  .libro-card {
+    flex-direction: row;
+    height: auto;
+    min-height: 140px;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .book-cover {
+    width: 100px;
+    min-width: 100px;
+    height: auto;
+    min-height: 140px;
+    border-bottom: none;
+    border-right: 2px solid #c7c7c7;
+  }
+
+  .libro-content {
+    flex: 1;
+    min-width: 0;
+    padding: 0.6rem;
+    gap: 0.3rem;
+    overflow: hidden;
+  }
+
+  .libro-card h3 {
+    font-size: 0.85rem;
+    min-height: unset;
+    -webkit-line-clamp: 2;
+    word-break: break-word;
+  }
+
+  .libro-card p { font-size: 0.72rem; }
+  .badge-container { flex-wrap: wrap; margin-top: 0; }
+  .badge { font-size: 0.65rem; padding: 0.2rem 0.4rem; }
+
+  .acciones {
+    flex-direction: column;
+    padding-top: 0.4rem;
+    gap: 0.3rem;
+  }
+
+  .btn {
+    font-size: 0.72rem;
+    padding: 0.4rem 0.5rem;
+    width: 100%;
+  }
+
+  .placeholder-cover { font-size: 2rem; }
 }
 
 /* ========== SCROLLBAR ========== */
-*::-webkit-scrollbar { width: 8px; }
-*::-webkit-scrollbar-track { background: var(--bg-page); }
-*::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
-*::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
-
-@media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+*::-webkit-scrollbar {
+  width: 8px;
 }
 
-*:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+*::-webkit-scrollbar-track {
+  background: var(--bg-page);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* ========== ACCESIBILIDAD ========== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 
 /* ========== MODAL PRÉSTAMO ========== */
 .btn.prestamo-btn {

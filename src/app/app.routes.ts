@@ -27,7 +27,7 @@ import { Error400Component } from './pages/error/error-400/error-400.component';
 import { Error404Component } from './pages/error/error-404/error-404.component';
 import { Error500Component } from './pages/error/error-500/error-500.component';
 import { GestionPrestamosComponent } from './pages/admin/gestion-prestamos/gestion-prestamos';
-
+import { VisorLibroComponent } from './pages/biblioteca/catalogo-bibliografico/visor-libro.component';
 import {GestionBackupsComponent} from './pages/admin/gestion-backups/gestion-backups';
 
 export const routes: Routes = [
@@ -41,11 +41,11 @@ export const routes: Routes = [
   { path: 'verificar-correo', component: VerificarCorreoComponent },
   { path: 'inicio',component: InicioComponent},
   { path: 'privacidad', component: Privacidad},
-  {path: 'terminos', component: Terminos},
-  {path: 'seguridad', component: Seguridad},
-  {path: 'contactanos',component: ContactanosComponent},
-  {path:'noticias',component:NoticiasComponent},
-
+  { path: 'terminos', component: Terminos},
+  { path: 'seguridad', component: Seguridad},
+  { path: 'contactanos',component: ContactanosComponent},
+  { path:'noticias',component:NoticiasComponent},
+  { path: 'biblioteca/libro/:id', component: VisorLibroComponent, canActivate: [AuthGuard], data: { roles: ['Alumno', 'Administrador', 'Docente', 'Bibliotecario'] }},
   { path: 'catalogo', component: CatalogoComponent, canActivate: [AuthGuard],
     data: {
       roles: ['Alumno', 'Administrador', 'Docente','Bibliotecario'] // los que sí pueden

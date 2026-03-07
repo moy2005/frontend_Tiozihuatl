@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { map } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
 import { CatalogAdminService, LibroAdmin } from '../../../api/services/admin.catalog.service';
 import { StorageService } from '../../../api/services/storage.service';
@@ -15,49 +15,34 @@ import { StorageService } from '../../../api/services/storage.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class GestionCatalogoComponent implements OnInit {
-  /** 📚 Libros (vista admin) */
+
   libros: LibroAdmin[] = [];
 
-  /** 📘 Materias */
-  materias = [
-    { id: 1, nombre: 'Anatomía' },
-    { id: 2, nombre: 'Fisiología' },
-    { id: 3, nombre: 'Farmacología' },
-    { id: 4, nombre: 'Enfermería Básica' },
-    { id: 5, nombre: 'Pediatría' }
-  ];
-
-  /** 📝 Modelo del formulario */
   nuevoLibro: any = {
     titulo: '',
     autor: '',
     editorial: '',
-    materia_id: 0,
+    materia_id: null,
     tiene_fisico: false,
     tiene_digital: false,
     total: 0
   };
 
-  /** 📄 PDF nuevo seleccionado */
+  materias: any[] = [];
   pdfSeleccionado: File | null = null;
-
-  /** 📎 PDF actual (en edición) */
   pdfActual: string | null = null;
 
-  /** UI state */
-  cargando = false;
-  cargandoTabla = false; // 👈 LOADING DE TABLA
-  mensaje = '';
-  mensajeErrorArchivo: string = '';
-
+  cargando      = false;
+  cargandoTabla = false;
+  mensaje       = '';
   formatosEditados = false;
 
-  /** Modo edición */
-  modoEdicion = false;
+  modoEdicion      = false;
   libroEditandoId: number | null = null;
-
-  mostrarModal = false;
+  mostrarModal     = false;
   mostrarFormulario = true;
+
+  mensajeErrorArchivo: string = '';
   archivoSeleccionado: File | null = null;
 
   constructor(
@@ -67,39 +52,51 @@ export class GestionCatalogoComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarLibros();
+    this.cargarMaterias();
   }
 
-  /** 📚 Cargar libros (admin) */
+  // ─────────────────────────────────────────
+  // CARGAR LIBROS
+  // ─────────────────────────────────────────
   cargarLibros(): void {
-    this.cargandoTabla = true; // 👈 ACTIVAR LOADING
+    this.cargandoTabla = true;
     this.catalogAdminService.obtenerLibros().subscribe({
       next: (res) => {
         this.libros = res.map((libro: any) => ({
           ...libro,
-          activo: Number(libro.activo) === 1 ? 1 : 0,
-          tiene_fisico: libro.total ? 1 : 0,
-          tiene_digital: libro.url_pdf ? 1 : 0,
-          materia_id: libro.categoria_id,
-          materia: this.getNombreMateria(libro.categoria_id)
+          activo:        Number(libro.activo)        === 1 ? 1 : 0,
+          tiene_fisico:  Number(libro.tiene_fisico)  === 1 ? 1 : 0,
+          tiene_digital: Number(libro.tiene_digital) === 1 ? 1 : 0,
         }));
-        this.cargandoTabla = false; // 👈 DESACTIVAR LOADING
+        this.cargandoTabla = false;
       },
       error: () => {
-        this.mensaje = 'Error al cargar libros';
-        this.cargandoTabla = false; // 👈 DESACTIVAR LOADING EN ERROR
+        this.cargandoTabla = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar los libros.',
+          confirmButtonColor: '#1976D2'
+        });
       }
     });
   }
 
-  getNombreMateria(categoriaId: number): string {
-    const materia = this.materias.find(m => m.id === categoriaId);
-    return materia ? materia.nombre : 'Sin materia';
+  // ─────────────────────────────────────────
+  // CARGAR MATERIAS
+  // ─────────────────────────────────────────
+  cargarMaterias(): void {
+    this.catalogAdminService.obtenerMaterias().subscribe({
+      next: (res) => { this.materias = res; },
+      error: (err) => { console.error('Error al cargar materias', err); }
+    });
   }
 
-  /** 📄 Capturar PDF */
+  // ─────────────────────────────────────────
+  // CAPTURAR PDF
+  // ─────────────────────────────────────────
   onPdfSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
@@ -111,10 +108,9 @@ export class GestionCatalogoComponent implements OnInit {
       return;
     }
 
-    const maxSize = 10 * 1024 * 1024;
-
+    const maxSize = 100 * 1024 * 1024;
     if (file.size > maxSize) {
-      this.mensajeErrorArchivo = 'El archivo supera los 10MB permitidos.';
+      this.mensajeErrorArchivo = 'El archivo supera los 100MB permitidos por el plan actual.';
       this.pdfSeleccionado = null;
       input.value = '';
       return;
@@ -124,214 +120,275 @@ export class GestionCatalogoComponent implements OnInit {
     this.pdfSeleccionado = file;
   }
 
-  /** 💾 Guardar libro (crear o editar) */
+  // ─────────────────────────────────────────
+  // GUARDAR (crear o editar)
+  // ─────────────────────────────────────────
   guardarLibro(): void {
     if (this.modoEdicion) {
       this.actualizarLibro();
       return;
     }
 
+    // Validaciones con Swal
+    if (!this.nuevoLibro.materia_id) {
+      Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'Debes seleccionar una materia.', confirmButtonColor: '#1976D2' });
+      return;
+    }
+
     if (!this.nuevoLibro.tiene_fisico && !this.nuevoLibro.tiene_digital) {
-      this.mensaje = 'Debes seleccionar al menos un formato';
+      Swal.fire({ icon: 'warning', title: 'Formato requerido', text: 'Debes seleccionar al menos un formato (Físico o Digital).', confirmButtonColor: '#1976D2' });
       return;
     }
 
     if (this.nuevoLibro.tiene_fisico && this.nuevoLibro.total <= 0) {
-      this.mensaje = 'El libro físico debe tener stock';
+      Swal.fire({ icon: 'warning', title: 'Stock inválido', text: 'El libro físico debe tener al menos 1 ejemplar.', confirmButtonColor: '#1976D2' });
       return;
     }
 
     if (this.nuevoLibro.tiene_digital && !this.pdfSeleccionado) {
-      this.mensaje = 'Debes subir el PDF para el formato digital';
+      Swal.fire({ icon: 'warning', title: 'PDF requerido', text: 'Debes subir el archivo PDF para el formato digital.', confirmButtonColor: '#1976D2' });
       return;
     }
 
     this.cargando = true;
-    this.mensaje = '';
+    this.mensaje  = '';
 
+    const formatos: any[] = [];
+
+    if (this.nuevoLibro.tiene_fisico) {
+      formatos.push({
+        tipo:       'FISICO',
+        total:      this.nuevoLibro.total,
+        disponibles: this.nuevoLibro.total
+      });
+    }
+
+    // CASO: SOLO FÍSICO
     if (this.nuevoLibro.tiene_fisico && !this.nuevoLibro.tiene_digital) {
-      const libroData = {
-        titulo: this.nuevoLibro.titulo,
-        autor: this.nuevoLibro.autor,
+      this.catalogAdminService.crearLibro({
+        titulo:    this.nuevoLibro.titulo,
+        autor:     this.nuevoLibro.autor,
         editorial: this.nuevoLibro.editorial,
-        categoria_id: this.nuevoLibro.materia_id,
-        url_pdf: null,
-        total: this.nuevoLibro.total
-      };
-
-      this.catalogAdminService.crearLibro(libroData).subscribe({
-        next: () => this.finalizarGuardado(),
-        error: (error) => {
-          console.error('❌ Error:', error);
-          this.errorGuardado();
-        }
+        materias:  [this.nuevoLibro.materia_id],
+        formatos
+      }).subscribe({
+        next:  () => this.finalizarGuardado(),
+        error: () => this.errorGuardado()
       });
       return;
     }
 
+    // CASO: DIGITAL (o ambos)
     this.storageService.uploadPdf(this.pdfSeleccionado!).subscribe({
-      next: (res) => {
-        const urlPdf = res?.data?.secure_url || (res as any)?.secure_url;
+      next: (res: any) => {
+        formatos.push({ tipo: 'DIGITAL', pdf_url: res.public_id });
 
-        const libroData: any = {
-          titulo: this.nuevoLibro.titulo,
-          autor: this.nuevoLibro.autor,
+        this.catalogAdminService.crearLibro({
+          titulo:    this.nuevoLibro.titulo,
+          autor:     this.nuevoLibro.autor,
           editorial: this.nuevoLibro.editorial,
-          categoria_id: this.nuevoLibro.materia_id,
-          url_pdf: urlPdf
-        };
-
-        if (this.nuevoLibro.tiene_fisico) {
-          libroData.total = this.nuevoLibro.total;
-        }
-
-        this.catalogAdminService.crearLibro(libroData).subscribe({
-          next: () => this.finalizarGuardado(),
-          error: (error) => {
-            console.error('❌ Error al crear libro:', error);
-            this.errorGuardado();
-          }
+          materias:  [this.nuevoLibro.materia_id],
+          formatos
+        }).subscribe({
+          next:  () => this.finalizarGuardado(),
+          error: () => this.errorGuardado()
         });
       },
-      error: (error) => {
-        console.error('❌ Error al subir PDF:', error);
-        this.mensaje = 'Error al subir el PDF';
+      error: () => {
         this.cargando = false;
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo subir el PDF. Intenta de nuevo.', confirmButtonColor: '#1976D2' });
       }
     });
   }
 
-  /** ✏️ Editar libro */
+  // ─────────────────────────────────────────
+  // EDITAR
+  // ─────────────────────────────────────────
   editarLibro(libro: any): void {
-    this.mostrarModal = true;
-    this.modoEdicion = true;
+    
+    this.mostrarModal    = true;
+    this.modoEdicion     = true;
     this.libroEditandoId = libro.id;
 
-    const formatoFisico = libro.formatos?.find((f: any) => f.tipo === 'FISICO');
+    const formatoFisico  = libro.formatos?.find((f: any) => f.tipo === 'FISICO');
     const formatoDigital = libro.formatos?.find((f: any) => f.tipo === 'DIGITAL');
 
+    const materiaEncontrada = this.materias.find(
+      (m: any) => m.nombre === libro.materias
+    );
+    const primerMateriaId = materiaEncontrada ? Number(materiaEncontrada.id) : null;
     this.nuevoLibro = {
-      titulo: libro.titulo,
-      autor: libro.autor,
-      editorial: libro.editorial,
-      materia_id: libro.categoria_id || 0,
-      tiene_fisico: !!formatoFisico || !!libro.total,
-      tiene_digital: !!formatoDigital || !!libro.url_pdf,
-      total: formatoFisico?.total || libro.total || 0
+      titulo:        libro.titulo,
+      autor:         libro.autor,
+      editorial:     libro.editorial,
+      materia_id:    null, 
+      tiene_fisico:  libro.tiene_fisico === 1,
+      tiene_digital: libro.tiene_digital === 1,
+      total:         libro.total ?? 0
     };
 
-    this.pdfActual = formatoDigital?.pdf_url || libro.url_pdf || null;
+    setTimeout(() => {
+      this.nuevoLibro.materia_id = primerMateriaId;
+    }, 0);
+
+    this.pdfActual       = libro.pdf_url ?? null;
     this.pdfSeleccionado = null;
     this.formatosEditados = false;
   }
 
-  /** 🔄 Actualizar libro */
+  // ─────────────────────────────────────────
+  // ACTUALIZAR
+  // ─────────────────────────────────────────
   actualizarLibro(): void {
     if (!this.libroEditandoId) return;
 
+    if (!this.nuevoLibro.materia_id) {
+      Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'Debes seleccionar una materia.', confirmButtonColor: '#1976D2' });
+      return;
+    }
+
     this.cargando = true;
-    this.mensaje = '';
+    this.mensaje  = '';
 
     const payload: any = {
-      titulo: this.nuevoLibro.titulo,
-      autor: this.nuevoLibro.autor,
-      editorial: this.nuevoLibro.editorial,
-      categoria_id: this.nuevoLibro.materia_id,
-      total: this.nuevoLibro.tiene_fisico ? this.nuevoLibro.total : null
+      titulo:        this.nuevoLibro.titulo,
+      autor:         this.nuevoLibro.autor,
+      editorial:     this.nuevoLibro.editorial,
+      materias:      [Number(this.nuevoLibro.materia_id)],
+      tiene_fisico:  this.nuevoLibro.tiene_fisico  ? 1 : 0,
+      tiene_digital: this.nuevoLibro.tiene_digital ? 1 : 0,
+      total:         this.nuevoLibro.total
     };
 
     if (this.pdfSeleccionado) {
       this.storageService.uploadPdf(this.pdfSeleccionado).subscribe({
-        next: (res) => {
-          payload.url_pdf = res?.data?.secure_url || (res as any)?.secure_url;
+        next: (res: any) => {
+          payload.pdf_url = res.public_id;
           this.enviarUpdate(payload);
         },
         error: () => {
-          this.mensaje = 'Error al subir el PDF';
           this.cargando = false;
+          Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo subir el PDF. Intenta de nuevo.', confirmButtonColor: '#1976D2' });
         }
       });
       return;
     }
 
     if (this.nuevoLibro.tiene_digital) {
-      payload.url_pdf = this.pdfActual;
+      payload.pdf_url = this.pdfActual;
     }
 
     this.enviarUpdate(payload);
   }
 
-  private enviarUpdate(payload: any) {
-    this.catalogAdminService
-      .actualizarLibro(this.libroEditandoId!, payload)
-      .subscribe({
-        next: () => {
-          this.mensaje = 'Libro actualizado correctamente';
-          this.resetFormulario();
-          this.cargarLibros();
-          this.cargando = false;
-          this.cerrarModal();
-        },
-        error: () => {
-          this.mensaje = 'Error al actualizar libro';
-          this.cargando = false;
-        }
-      });
+  private enviarUpdate(payload: any): void {
+    this.catalogAdminService.actualizarLibro(this.libroEditandoId!, payload).subscribe({
+      next: () => {
+        this.cargando = false;
+        this.resetFormulario();
+        this.cerrarModal();
+        this.cargarLibros();
+        Swal.fire({
+          icon:              'success',
+          title:             '¡Actualizado!',
+          text:              'El libro fue actualizado correctamente.',
+          confirmButtonColor: '#1976D2',
+          timer:             2000,
+          showConfirmButton: false
+        });
+      },
+      error: () => {
+        this.cargando = false;
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el libro.', confirmButtonColor: '#1976D2' });
+      }
+    });
   }
 
-  /** 🔄 Activar / Desactivar */
-  cambiarEstado(libro: any) {
+  // ─────────────────────────────────────────
+  // CAMBIAR ESTADO con confirmación
+  // ─────────────────────────────────────────
+  cambiarEstado(libro: any): void {
     const nuevoEstado = libro.activo === 1 ? 0 : 1;
+    const accion      = nuevoEstado === 1 ? 'activar' : 'desactivar';
+    const accionPasado = nuevoEstado === 1 ? 'activado' : 'desactivado';
 
-    this.catalogAdminService
-      .cambiarEstado(libro.id, nuevoEstado)
-      .subscribe({
+    Swal.fire({
+      title:             `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} libro?`,
+      text:              `El libro "${libro.titulo}" será ${accionPasado}.`,
+      icon:              'question',
+      showCancelButton:  true,
+      confirmButtonText: `Sí, ${accion}`,
+      cancelButtonText:  'Cancelar',
+      confirmButtonColor: nuevoEstado === 1 ? '#4CAF50' : '#F44336',
+      cancelButtonColor:  '#607D8B'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+
+      this.catalogAdminService.cambiarEstado(libro.id, nuevoEstado).subscribe({
         next: () => {
           libro.activo = nuevoEstado;
+          Swal.fire({
+            icon:              'success',
+            title:             `Libro ${accionPasado}`,
+            timer:             1500,
+            showConfirmButton: false
+          });
         },
-        error: (err) => {
-          console.error(err);
+        error: () => {
+          Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cambiar el estado.', confirmButtonColor: '#1976D2' });
         }
       });
+    });
   }
 
-  /** ✅ Finalizar guardado */
+  // ─────────────────────────────────────────
+  // FINALIZAR GUARDADO
+  // ─────────────────────────────────────────
   finalizarGuardado(): void {
-    this.mensaje = 'Libro registrado correctamente';
+    this.cargando = false;
     this.resetFormulario();
-    this.cargarLibros();
-    this.cargando = false;
     this.cerrarModal();
+    this.cargarLibros();
+    Swal.fire({
+      icon:              'success',
+      title:             '¡Libro creado!',
+      text:              'El libro fue registrado correctamente.',
+      confirmButtonColor: '#1976D2',
+      timer:             2000,
+      showConfirmButton: false
+    });
   }
 
-  /** ❌ Error */
   errorGuardado(): void {
-    this.mensaje = 'Error al guardar libro';
     this.cargando = false;
+    Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo guardar el libro. Intenta de nuevo.', confirmButtonColor: '#1976D2' });
   }
 
-  /** ♻️ Reset */
+  // ─────────────────────────────────────────
+  // RESET / MODAL
+  // ─────────────────────────────────────────
   resetFormulario(): void {
-    this.modoEdicion = false;
+    this.modoEdicion     = false;
     this.libroEditandoId = null;
-    this.pdfActual = null;
+    this.pdfActual       = null;
     this.formatosEditados = false;
+    this.mensajeErrorArchivo = '';
 
     this.nuevoLibro = {
-      titulo: '',
-      autor: '',
-      editorial: '',
-      materia_id: 0,
-      tiene_fisico: false,
+      titulo:        '',
+      autor:         '',
+      editorial:     '',
+      materia_id:    null,
+      tiene_fisico:  false,
       tiene_digital: false,
-      total: 0
+      total:         0
     };
     this.pdfSeleccionado = null;
   }
 
   abrirModal(): void {
     this.mostrarModal = true;
-    this.modoEdicion = false;
+    this.modoEdicion  = false;
     this.resetFormulario();
   }
 
