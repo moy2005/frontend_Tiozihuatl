@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '../../../api/environments/environment.prod';
+import { environment } from '../../../api/environments/environment';
 import { AdminCalendarService } from '../../../api/services/admin-calendar.service';
 import Swal from 'sweetalert2';
 
@@ -21,7 +21,6 @@ import Swal from 'sweetalert2';
 export class GestionCalendarioComponent {
 
   calendars: any[] = [];
-
   mostrarModal = false;
   modoEdicion = false;
    // Estados de carga
@@ -51,6 +50,7 @@ export class GestionCalendarioComponent {
   // 📥 Cargar calendarios
   // ==============================
   loadCalendars() {
+    console.log('loadCalendars llamado');
     this.calendarService.getAll().subscribe(data => {
       this.calendars = data;
     });
