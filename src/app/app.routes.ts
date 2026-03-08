@@ -16,19 +16,14 @@ import { GestionUsuariosComponent } from './pages/admin/gestion-usuarios/gestion
 import { GestionFaqComponent } from './pages/admin/gestion-faq/gestion-faq';
 import { GestionContactoComponent } from './pages/admin/gestion-contacto/gestion-contacto';
 import { GestionAboutComponent } from './pages/admin/gestion-about/gestion-about';
-
 import { AboutComponent } from './pages/about/about.component';
 import { GestionRevistasComponent } from './pages/admin/gestion-revistas/gestion-revistas.component';
-
-
 import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
 import { GestionCatalogoComponent} from './pages/admin/gestion-catalogo/gestion-catalogo';
-
 // Componentes de error
 import { Error400Component } from './pages/error/error-400/error-400.component';
 import { Error404Component } from './pages/error/error-404/error-404.component';
 import { Error500Component } from './pages/error/error-500/error-500.component';
-
 //Calendario
 import { GestionCalendarioComponent } from './pages/admin/gestion-calendario/gestion-calendario'
 
@@ -58,14 +53,15 @@ export const routes: Routes = [
 
   // 🔐 Protegidas (todas con AuthGuard)
   { path: 'perfil', component: PerfilUsuarioComponent, canActivate: [AuthGuard],
-     data: {
+   /*  data: {
       breadcrumb: 'Perfil' // 🔴 NUEVO → etiqueta para breadcrumb
-    }
+    }*/
    },
 
 {
   path: 'magazines',
   canActivate: [AuthGuard],
+  //data: { breadcrumb: 'Revistas' },
   loadComponent: () =>
     import('./pages/magazines/magazines.component')
       .then(m => m.MagazinesComponent)
@@ -73,12 +69,14 @@ export const routes: Routes = [
 {
   path: 'magazines/view/:id',
   canActivate: [AuthGuard],
+  //data: { breadcrumb: 'Detalle' },
   loadComponent: () =>
     import('./pages/magazines/magazine-viewer.component')
       .then(m => m.MagazineViewerComponent)
 },
 {
   path: 'magazines/:id',
+  //data: { breadcrumb: 'Revista' },
   loadComponent: () =>
     import('./pages/magazines/magazine-detail.component')
       .then(m => m.MagazineDetailComponent)
@@ -87,6 +85,7 @@ export const routes: Routes = [
 {
   path: 'cart',
   canActivate: [AuthGuard],
+  //data: { breadcrumb: 'Carrito' }, 
   loadComponent: () => import('./pages/cart/cart.component')
     .then(m => m.CartComponent)
 },
@@ -94,6 +93,7 @@ export const routes: Routes = [
 {
   path: 'checkout',
   canActivate: [AuthGuard],
+  //data: { breadcrumb: 'Checkout' },
   loadComponent: () => import('./pages/checkout/checkout.component')
     .then(m => m.CheckoutComponent)
 },
@@ -104,7 +104,7 @@ export const routes: Routes = [
     component: AdminLayoutComponent,
     canActivate: [AuthGuard],
     data: { roles: ['Administrador'],
-    breadcrumb: 'Panel administrativo', //breadcrumb padre
+    //breadcrumb: 'Panel administrativo', //breadcrumb padre
     hideNavbar: true
     },
     children: [

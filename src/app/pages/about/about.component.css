@@ -1,74 +1,101 @@
-/* ============================================
-   QUIÉNES SOMOS - DISEÑO PROFESIONAL
-   ============================================ */
-
-/* Variables de Color */
-:host {
-  --color-fondo: #E3F2FD;
-  --color-contenedor: #FFFFFF;
-  --color-borde: #BBDEFB;
-  --color-primario: #2196F3;
-  --color-primario-hover: #1976D2;
-  --color-secundario: #607D8B;
-  --color-exito: #4CAF50;
-  --color-peligro: #F44336;
-  --color-info: #03A9F4;
-  --color-texto: #1E293B;
-  --color-texto-secundario: #64748B;
-  --color-gris-claro: #F0F8FF;
-  --color-azul-suave: #E3F2FD;
-  --color-azul-medio: #90CAF9;
-  --color-azul-navbar: #3FA6E8;
-}
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
 /* ============================================
-   LAYOUT PRINCIPAL
-   ============================================ */
+   VARIABLES
+============================================ */
 :host {
+  --primary: #3FA6E8;
+  --primary-dark: #1976D2;
+  --primary-light: #E3F2FD;
+  --success: #10b981;
+  --text-dark: #1E293B;
+  --text-gray: #64748B;
+  --border: #BBDEFB;
+  --bg: #EAF5FE;
+  --white: #ffffff;
+  --shadow: 0 4px 16px rgba(63, 166, 232, 0.1);
+  --shadow-hover: 0 12px 32px rgba(63, 166, 232, 0.2);
+
   display: block;
   min-height: 100vh;
-  background: var(--color-fondo);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: var(--color-texto);
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  color: var(--text-dark);
 }
 
+* { box-sizing: border-box; }
+
 /* ============================================
-   HEADER CON OLA - MISMO COLOR QUE NAVBAR #3FA6E8
-   ============================================ */
+   HERO
+============================================ */
 .about-hero {
   position: relative;
-  background: #3FA6E8;
-  padding: 4rem 2rem 8rem;
+  background: linear-gradient(135deg, #3FA6E8 0%, #1976D2 100%);
+  padding: 5rem 2rem 9rem;
   overflow: hidden;
+  text-align: center;
+}
+
+.about-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 300px;
+  height: 300px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+
+.about-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 40px;
+  left: -40px;
+  width: 200px;
+  height: 200px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
 }
 
 .hero-content {
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
   position: relative;
   z-index: 2;
-  text-align: center;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 1.2rem;
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
 .about-hero h1 {
   font-size: 3rem;
-  font-weight: 700;
+  font-weight: 800;
   color: white;
-  margin: 0 0 1rem 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin: 0 0 1rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.15);
   letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .about-hero p {
-  font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.95);
-  line-height: 1.7;
+  font-size: 1.15rem;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.75;
   margin: 0;
-  max-width: 800px;
-  margin: 0 auto;
 }
 
-/* OLA SVG */
 .hero-wave {
   position: absolute;
   bottom: -1px;
@@ -79,257 +106,244 @@
 }
 
 .hero-wave path {
-  fill: var(--color-fondo);
+  fill: var(--bg);
 }
 
 /* ============================================
-   CONTENEDORES
-   ============================================ */
+   CONTAINER
+============================================ */
 .about-container {
-  max-width: 1200px;
-  margin: -4rem auto 0;
-  padding: 0 2rem 4rem;
+  max-width: 900px;
+  margin: -3rem auto 0;
+  padding: 0 2rem 5rem;
   position: relative;
   z-index: 3;
 }
 
+/* ============================================
+   CARDS
+============================================ */
 .about-card {
-  background: var(--color-contenedor);
-  border: 1px solid var(--color-borde);
-  border-radius: 12px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
   padding: 2.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+  border-radius: 4px 0 0 4px;
 }
 
 .about-card:hover {
-  box-shadow: 0 8px 16px rgba(33, 150, 243, 0.2);
-  border-color: var(--color-primario);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary);
+  transform: translateY(-3px);
 }
 
 .about-card h2 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--color-info);
-  margin: 0 0 1.5rem 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 0 0 1.2rem;
 }
 
 .about-card h2 ion-icon {
-  font-size: 2.25rem;
-  color: var(--color-info);
+  font-size: 2rem;
+  color: var(--primary);
+  flex-shrink: 0;
 }
 
 .about-card p {
-  font-size: 1.0625rem;
-  line-height: 1.8;
-  color: var(--color-texto);
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-gray);
   margin: 0;
 }
 
 /* ============================================
-   VALORES LIST
-   ============================================ */
+   VALORES
+============================================ */
 .valores-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.9rem;
 }
 
 .valores-list li {
   display: flex;
   align-items: flex-start;
-  gap: 0.875rem;
-  padding: 1.25rem;
-  background: var(--color-azul-suave);
-  border: 1px solid var(--color-borde);
-  border-radius: 8px;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--primary-light);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   transition: all 0.2s ease;
 }
 
 .valores-list li:hover {
   background: white;
-  border-color: var(--color-primario);
-  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.12);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(63,166,232,0.15);
   transform: translateX(4px);
 }
 
 .valores-list li ion-icon {
-  font-size: 1.5rem;
-  color: var(--color-exito);
+  font-size: 1.3rem;
+  color: var(--success);
   flex-shrink: 0;
-  margin-top: 0.125rem;
+  margin-top: 2px;
 }
 
 .valores-list li span {
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1.6;
-  color: var(--color-texto);
-  font-weight: 500;
+  color: var(--text-dark);
+  font-weight: 600;
 }
 
 /* ============================================
    LOADING
-   ============================================ */
+============================================ */
 .loading-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  padding: 2rem;
-  text-align: center;
+  gap: 1rem;
 }
 
 .loader {
-  border: 4px solid var(--color-borde);
-  border-top-color: var(--color-primario);
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
   border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 1rem;
+  animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .loading-wrapper p {
-  font-size: 0.9375rem;
-  color: var(--color-texto-secundario);
-  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  font-weight: 600;
 }
 
 /* ============================================
    EMPTY STATE
-   ============================================ */
+============================================ */
 .empty-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  padding: 2rem;
   text-align: center;
+  padding: 2rem;
 }
 
 .empty-wrapper ion-icon {
-  font-size: 4.5rem;
-  color: var(--color-texto-secundario);
-  opacity: 0.4;
-  margin-bottom: 1.5rem;
+  font-size: 4rem;
+  color: var(--text-gray);
+  opacity: 0.3;
+  margin-bottom: 1rem;
 }
 
 .empty-wrapper h3 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--color-texto);
-  margin: 0 0 0.75rem 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0 0 0.5rem;
 }
 
 .empty-wrapper p {
-  font-size: 1.0625rem;
-  color: var(--color-texto-secundario);
-  margin: 0;
-  max-width: 500px;
+  font-size: 1rem;
+  color: var(--text-gray);
+  max-width: 400px;
 }
 
 /* ============================================
    RESPONSIVE
-   ============================================ */
-@media (max-width: 1024px) {
-  .about-container {
-    padding: 0 1.5rem 3rem;
-  }
-}
-
+============================================ */
 @media (max-width: 768px) {
   .about-hero {
-    padding: 3rem 1.5rem 6rem;
+    padding: 3.5rem 1.5rem 7rem;
   }
 
   .about-hero h1 {
-    font-size: 2.25rem;
+    font-size: 2.2rem;
   }
 
   .about-hero p {
-    font-size: 1.0625rem;
+    font-size: 1rem;
   }
 
-  .hero-wave {
-    height: 80px;
-  }
+  .hero-wave { height: 80px; }
 
   .about-container {
-    margin-top: -3rem;
-    padding: 0 1rem 2.5rem;
+    margin-top: -2.5rem;
+    padding: 0 1rem 3rem;
   }
 
   .about-card {
-    padding: 1.75rem;
+    padding: 1.75rem 1.5rem;
+    border-radius: 16px;
   }
 
   .about-card h2 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
   }
 
-  .about-card h2 ion-icon {
+  .valores-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-hero {
+    padding: 2.5rem 1rem 6rem;
+  }
+
+  .about-hero h1 {
     font-size: 1.75rem;
   }
 
-  .valores-list li {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .about-hero {
-    padding: 2.5rem 1rem 5rem;
-  }
-
-  .about-hero h1 {
-    font-size: 1.875rem;
-  }
-
-  .about-hero p {
-    font-size: 0.9375rem;
-  }
-
-  .hero-wave {
-    height: 60px;
-  }
+  .hero-wave { height: 60px; }
 
   .about-card {
-    padding: 1.5rem;
+    padding: 1.25rem 1rem;
   }
 
   .about-card h2 {
-    font-size: 1.375rem;
+    font-size: 1.15rem;
+  }
+
+  .about-card h2 ion-icon {
+    font-size: 1.5rem;
   }
 
   .valores-list li {
-    padding: 0.875rem;
-  }
-
-  .valores-list li ion-icon {
-    font-size: 1.25rem;
+    padding: 0.85rem 1rem;
   }
 }
 
-/* ============================================
-   UTILIDADES
-   ============================================ */
-ion-icon {
-  pointer-events: none;
-}
-
-* {
-  box-sizing: border-box;
-} 
+ion-icon { pointer-events: none; }

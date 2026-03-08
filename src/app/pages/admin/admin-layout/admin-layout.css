@@ -941,3 +941,62 @@
 .toggle-btn ion-icon {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
+
+/* ===================================
+   FIX TABLA REVISTAS EN TABLET/LAP
+   =================================== */
+@media (max-width: 1024px) {
+
+  /* Forzar scroll horizontal en tablas */
+  :host ::ng-deep .admin-content {
+    padding: 1rem !important;
+    overflow-x: hidden;
+  }
+
+  :host ::ng-deep .card-azul {
+    padding: 0.75rem !important;
+    overflow: hidden;
+  }
+
+  :host ::ng-deep .overflow-x-auto {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :host ::ng-deep .revistas-table {
+    min-width: 500px;
+    font-size: 0.75rem !important;
+  }
+
+  :host ::ng-deep .revistas-table th,
+  :host ::ng-deep .revistas-table td {
+    padding: 0.5rem 0.4rem !important;
+    white-space: nowrap;
+  }
+
+  /* Ocultar Descuento y Portada */
+  :host ::ng-deep .revistas-table th:nth-child(5),
+  :host ::ng-deep .revistas-table td:nth-child(5),
+  :host ::ng-deep .revistas-table th:nth-child(6),
+  :host ::ng-deep .revistas-table td:nth-child(6) {
+    display: none !important;
+  }
+
+  :host ::ng-deep .btn-primary,
+  :host ::ng-deep .btn-success,
+  :host ::ng-deep .btn-danger,
+  :host ::ng-deep .btn-gray {
+    padding: 0.3rem 0.5rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  :host ::ng-deep .actions-cell {
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+  }
+
+  :host ::ng-deep .badge {
+    padding: 2px 6px !important;
+    font-size: 0.65rem !important;
+  }
+}

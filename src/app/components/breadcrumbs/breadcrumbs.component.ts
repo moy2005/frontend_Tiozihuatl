@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, NavigationEnd } from '@angular/router';
-import { RouterModule } from '@angular/router';
+import {
+  Router,
+  NavigationEnd,
+  ActivatedRoute,
+  RouterModule
+} from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { AuthService } from '../../api/services/auth';
 
 interface Breadcrumb {
   label: string;
@@ -17,46 +20,56 @@ interface Breadcrumb {
   templateUrl: './breadcrumbs.component.html'
 })
 export class BreadcrumbsComponent {
+
   breadcrumbs: Breadcrumb[] = [];
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private route: ActivatedRoute
   ) {
+
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        this.breadcrumbs = this.buildBreadcrumbs();
+        this.breadcrumbs = this.buildBreadcrumbs(this.route.root);
       });
   }
 
-  // 🔐 SOLO mostrar si hay sesión
-  get showBreadcrumbs(): boolean {
-    return this.authService.isLoggedIn();
-  }
+  private buildBreadcrumbs(
+    route: ActivatedRoute,
+    url: string = '',
+    breadcrumbs: Breadcrumb[] = []
+  ): Breadcrumb[] {
 
-  // 🧭 Breadcrumbs LÓGICOS
-  private buildBreadcrumbs(): Breadcrumb[] {
-    const crumbs: Breadcrumb[] = [];
-    const url = this.router.url;
+    const children = route.children;
 
-    if (!this.authService.isLoggedIn()) {
-      return crumbs;
+    if (children.length === 0) {
+      return breadcrumbs;
     }
 
-    // Inicio lógico (privado)
-    crumbs.push({ label: 'Inicio', url: '/perfil' });
+    for (const child of children) {
 
-    // Perfil
-    if (url.includes('/perfil') || url.includes('/admin')) {
-      crumbs.push({ label: 'Perfil de usuario', url: '/perfil' });
+      const routeURL: string = child.snapshot.url
+        .map(segment => segment.path)
+        .join('/');
+
+      if (routeURL !== '') {
+        url += `/${routeURL}`;
+      }
+
+      const label =
+        child.snapshot.data['breadcrumb'];
+
+      if (label) {
+        breadcrumbs.push({
+          label,
+          url
+        });
+      }
+
+      return this.buildBreadcrumbs(child, url, breadcrumbs);
     }
 
-    // Panel administrativo
-    if (url.includes('/admin')) {
-      crumbs.push({ label: 'Panel administrativo', url: '/admin-panel' });
-    }
-
-    return crumbs;
+    return breadcrumbs;
   }
 }

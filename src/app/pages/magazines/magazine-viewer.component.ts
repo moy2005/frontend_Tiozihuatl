@@ -1,19 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule  } from '@angular/router';
 import { MagazinesService } from '../../api/services/magazines.service';
 import { CommonModule } from '@angular/common';
 import * as pdfjsLib from 'pdfjs-dist';
 
-(pdfjsLib as any).GlobalWorkerOptions.workerSrc =
-  new URL(
-    'pdfjs-dist/build/pdf.worker.min.js',
-    import.meta.url
-  ).toString();
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${(pdfjsLib as any).version}/pdf.worker.min.js`;
 
 @Component({
   selector: 'app-magazine-viewer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './magazine-viewer.component.html',
   styleUrls: ['./magazine-viewer.component.css']
 })
@@ -25,7 +22,7 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
   pdfDoc: any;
   pdfUrl!: string;
 
-  zoomLevel = 1.4;
+  zoomLevel = 0.5;
   darkMode = true;
 
   loading = false;
@@ -40,7 +37,8 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-
+    if (typeof window === 'undefined') return; //guard SSR
+       this.zoomLevel = window.innerWidth < 600 ? 1.0 : 0.6;
     const id = this.route.snapshot.paramMap.get('id');
 
     if (!id || isNaN(Number(id))) {
@@ -75,7 +73,10 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
       .subscribe({
         next: async (res: { url: string }) => {
           this.pdfUrl = res.url;
-          await this.initializePdf(this.pdfUrl);
+          this.loading = false; // 👈 mover aquí
+          requestAnimationFrame(async () => {
+            await this.initializePdf(this.pdfUrl);
+          });
         },
         error: (err) => {
           this.loading = false;
@@ -87,74 +88,138 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
       });
   }
 
-  async initializePdf(url: string) {
+ async initializePdf(url: string) {
 
-    this.pdfDoc = await pdfjsLib.getDocument({
-      url,
-      withCredentials: false
-    }).promise;
+  this.pdfDoc = await pdfjsLib.getDocument({
+    url,
+    withCredentials: false
+  }).promise;
 
-    this.totalPages = this.pdfDoc.numPages;
+  this.totalPages = this.pdfDoc.numPages;
 
-    const container = document.getElementById('pdfContainer')!;
-    container.innerHTML = '';
+  const container = document.getElementById('pdfContainer')!;
+  container.innerHTML = '';
 
-    for (let pageNum = 1; pageNum <= this.totalPages; pageNum++) {
+  // 🔥 Esperar a que el DOM tenga tamaño real
+  await new Promise(resolve => requestAnimationFrame(resolve));
 
-      const page = await this.pdfDoc.getPage(pageNum);
-      const viewport = page.getViewport({ scale: this.zoomLevel });
+  for (let pageNum = 1; pageNum <= this.totalPages; pageNum++) {
 
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d')!;
+    const page = await this.pdfDoc.getPage(pageNum);
 
-      canvas.setAttribute('data-page', pageNum.toString());
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+    // 🔥 Obtener ancho real del contenedor
+    let containerWidth = container.clientWidth;
 
-      canvas.style.marginBottom = '40px';
-      canvas.style.borderRadius = '8px';
-      canvas.style.boxShadow = '0 20px 60px rgba(0,0,0,0.6)';
-      canvas.style.background = 'white';
-
-      container.appendChild(canvas);
-
-      await page.render({
-        canvasContext: context,
-        viewport
-      }).promise;
-
-      this.drawWatermark(canvas, context);
+    // Si aún es 0 (muy raro pero puede pasar)
+    if (!containerWidth || containerWidth < 100) {
+      containerWidth = window.innerWidth * 0.9;
     }
 
-    this.setupScrollTracking();
+    const baseViewport = page.getViewport({ scale: 1 });
 
-    this.loading = false;
-  }
-
-  setupScrollTracking() {
-
-    const container = document.getElementById('pdfContainer')!;
-    const canvases = container.querySelectorAll('canvas');
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const page = Number(entry.target.getAttribute('data-page'));
-            this.currentPage = page;
-          }
-        });
-      },
-      { threshold: 0.6 }
+    // 🔥 Scale responsivo seguro
+    const responsiveScale = Math.max(
+      containerWidth / baseViewport.width,
+      0.5
     );
 
-    canvases.forEach(canvas => observer.observe(canvas));
+    const finalScale = responsiveScale * this.zoomLevel;
+
+    const viewport = page.getViewport({ scale: finalScale });
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d', { willReadFrequently: true })!;
+
+    canvas.setAttribute('data-page', pageNum.toString());
+
+    const dpr = window.devicePixelRatio || 1;
+
+    // 🔥 Canvas interno a alta resolución
+    canvas.width = viewport.width * dpr;
+    canvas.height = viewport.height * dpr;
+
+    // 🔥 Tamaño visual en pantalla
+    canvas.style.width = viewport.width + 'px';
+    canvas.style.height = viewport.height + 'px';
+
+    canvas.style.borderRadius = '8px';
+    canvas.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
+    canvas.style.background = 'white';
+
+    container.appendChild(canvas);
+
+    // 🔥 Escalar contexto para dpr
+    context.scale(dpr, dpr);
+
+    await page.render({
+      canvasContext: context,
+      viewport
+    }).promise;
+
+    this.drawWatermark(canvas, context);
   }
 
+  this.setupScrollTracking();
+  this.loading = false;
+}
+
+  prevPage() {
+  const container = document.getElementById('pdfContainer');
+  const page = document.querySelector(`[data-page="${this.currentPage - 1}"]`);
+  page?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  nextPage() {
+    const container = document.getElementById('pdfContainer');
+    const page = document.querySelector(`[data-page="${this.currentPage + 1}"]`);
+    page?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+      setupScrollTracking() {
+      // Esperar a que el DOM estabilice las posiciones de los canvas
+      setTimeout(() => {
+        const container = document.getElementById('pdfContainer')!;
+        const canvases = container.querySelectorAll('canvas');
+
+        if ((this as any)._pageObserver) {
+          (this as any)._pageObserver.disconnect();
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            const visible = entries
+              .filter(e => e.isIntersecting)
+              .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+            if (visible.length > 0) {
+              const page = Number(visible[0].target.getAttribute('data-page'));
+              if (page) this.currentPage = page;
+            }
+          },
+          { root: null, threshold: 0.1, rootMargin: '0px' }
+        );
+
+        canvases.forEach(canvas => observer.observe(canvas));
+        (this as any)._pageObserver = observer;
+
+        // 🔥 Forzar detección inmediata de la página visible actual
+        const firstVisible = Array.from(canvases).find(canvas => {
+          const rect = canvas.getBoundingClientRect();
+          return rect.top < window.innerHeight && rect.bottom > 0;
+        });
+
+        if (firstVisible) {
+          const page = Number(firstVisible.getAttribute('data-page'));
+          if (page) this.currentPage = page;
+        }
+
+      }, 300); // pequeño delay para que el DOM esté listo
+    }
   drawWatermark(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
-
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
+     let user: any = {};
+    if (typeof window !== 'undefined') { 
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      }
     ctx.save();
     ctx.font = "22px Arial";
     ctx.fillStyle = "rgba(150,150,150,0.12)";
@@ -177,7 +242,7 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
   }
 
   async zoomOut() {
-    if (this.zoomLevel > 0.6) {
+    if (this.zoomLevel > 0.4) {
       this.zoomLevel -= 0.2;
       await this.reloadPdf();
     }
@@ -205,7 +270,11 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+      if ((this as any)._pageObserver) {
+      (this as any)._pageObserver.disconnect();
+    }
     const container = document.getElementById('pdfContainer');
     if (container) container.innerHTML = '';
   }
 }
+

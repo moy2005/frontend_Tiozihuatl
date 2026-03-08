@@ -12,7 +12,10 @@ export class AdminAboutService {
 
   // 🔐 Headers con token
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('accessToken');
+      const token = typeof window !== 'undefined' 
+      ? localStorage.getItem('accessToken') 
+      : '';
+      
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });

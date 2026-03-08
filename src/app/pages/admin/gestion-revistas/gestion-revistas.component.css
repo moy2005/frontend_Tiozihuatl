@@ -62,7 +62,9 @@
 .actions-cell {
   display: flex;
   gap: 0.5rem;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
 }
 
 /* BADGES */
@@ -234,8 +236,11 @@
 }
 
 .badge-success {
-  background-color: #22c55e;
+  background: #22c55e;
   color: white;
+  padding: 4px 10px;   /* más pequeño */
+  font-size: 0.75rem;
+  min-width: unset;
 }
 
 .badge-primary {
@@ -251,4 +256,125 @@
 .badge-danger {
   background-color: #ef4444;
   color: white;
+}
+
+/* ============================================
+   RESPONSIVE MÓVIL
+============================================ */
+@media (max-width: 767px) {
+
+  .admin-content { padding: 1rem; }
+  .page-title { font-size: 1.3rem; }
+
+  .revistas-table thead { display: none; }
+
+  .revistas-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1.5px solid var(--azul-border);
+    border-radius: 14px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(33,150,243,0.1);
+  }
+
+  .revistas-table td {
+    border-bottom: none;
+    padding: 0.3rem 0;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .title-cell {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1976D2;
+    border-bottom: 1px solid #E3F2FD !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  .actions-cell {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .modal-container { width: 95%; }
+  .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  .actions-cell button {
+    min-width: 80px;
+    text-align: center;
+  }
+  /* Badge de ACTIVAR_REVISTA que faltaba */
+.badge-activar {
+  background-color: #10b981;
+  color: white;
+}
+
+
+/* ============================================
+   TABLET (768px - 1024px)
+============================================ */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  .admin-content { padding: 0.75rem; }
+
+  .revistas-table { font-size: 0.75rem; }
+
+  .revistas-table th,
+  .revistas-table td { padding: 0.5rem 0.35rem; }
+
+  /* Ocultar solo Descuento y Portada */
+  .revistas-table th:nth-child(5),
+  .revistas-table td:nth-child(5) { display: none !important; }
+
+  .actions-cell {
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+    align-items: flex-start !important;
+  }
+
+  .btn-primary,
+  .btn-success,
+  .btn-danger,
+  .btn-gray {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .badge {
+    padding: 3px 7px;
+    font-size: 0.65rem;
+  }
+
+  .modal-container { width: 88%; }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+/* ============================================
+   LAPTOP (1024px - 1280px)
+============================================ */
+@media (min-width: 1024px) and (max-width: 1280px) {
+
+  .revistas-table { font-size: 0.8rem; }
+
+  .revistas-table th,
+  .revistas-table td { padding: 0.6rem 0.5rem; }
+
+  .btn-primary,
+  .btn-success,
+  .btn-danger,
+  .btn-gray {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .actions-cell {
+    flex-direction: column !important;
+    gap: 0.3rem !important;
+  }
 }

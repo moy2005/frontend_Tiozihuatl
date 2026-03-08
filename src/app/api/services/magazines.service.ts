@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
+import { environment } from '../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
 export class MagazinesService {
 
-  private api = 'http://localhost:4000/api/magazines';
+  private api = `${environment.apiUrl}/magazines`;
 
   constructor(private http: HttpClient) {}
 
@@ -20,7 +21,7 @@ export class MagazinesService {
   }
 
   create(data: FormData) {
-    const token = localStorage.getItem('accessToken');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
 
     return this.http.post(
       `${this.api}/admin/upload`,
@@ -47,7 +48,12 @@ export class MagazinesService {
     {}
   );
 }
-
+  getFiltered(params: any) {
+  return this.http.get<any>(
+    `${this.api}/filter`,
+    { params }
+  );
+}
 
   /* ===========================
      CATÁLOGO PÚBLICO
@@ -63,7 +69,7 @@ export class MagazinesService {
 
   getSecurePdf(id: number) {
 
-    const token = localStorage.getItem('accessToken');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
@@ -86,7 +92,7 @@ export class MagazinesService {
     );
   }
   savePurchase(ids: number[]) {
-    return this.http.post('/api/magazines/purchase', {
+    return this.http.post(`${this.api}/complete-purchase`, {
       magazineIds: ids
     });
   }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute,Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
 import { environment } from '../../api/environments/environment';
@@ -28,11 +28,12 @@ export class MagazineDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private http: HttpClient,
     private sanitizer: DomSanitizer,
-    private cartService: CartService
+    private cartService: CartService,
+    private router: Router 
   ) {}
 
   ngOnInit(): void {
-
+     if (typeof window === 'undefined') return; //guard SSR
     const id = this.route.snapshot.paramMap.get('id');
 
     if (!id || isNaN(Number(id))) {
@@ -73,7 +74,7 @@ export class MagazineDetailComponent implements OnInit {
 ============================== */
 checkIfPurchased() {
 
-  const token = localStorage.getItem('accessToken');
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
   if (!token) {
     console.warn("No hay token disponible");
@@ -127,22 +128,12 @@ addToCart() {
      ABRIR LECTOR (SI COMPRADA)
   ============================== */
   openReader() {
-
     if (!this.hasPurchased) {
       alert("Debes comprar esta revista primero 📚");
       return;
     }
-
-    this.safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-      this.magazine.archivo_pdf
-    );
-
-    this.showReader = true;
-
-  }
-
-  closeReader() {
-    this.showReader = false;
+    // 🔥 Redirigir al visor propio en lugar de iframe
+    this.router.navigate(['/magazines/view', this.magazineId]);
   }
 
 }

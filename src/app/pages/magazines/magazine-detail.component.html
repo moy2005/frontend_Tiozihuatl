@@ -61,19 +61,3 @@
   ✔ Revista agregada al carrito
 </div>
 
-<!-- ================= VISOR PDF ================= -->
-<div *ngIf="showReader" class="pdf-overlay">
-
-  <div class="pdf-header">
-    <h3>{{ magazine.titulo }}</h3>
-    <button (click)="closeReader()">✕</button>
-  </div>
-
-  <div class="pdf-container">
-    <iframe
-      [src]="safePdfUrl"
-      class="pdf-frame">
-    </iframe>
-  </div>
-
-</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MagazinesService } from '../../../api/services/magazines.service';
@@ -37,6 +37,7 @@ interface AuditoriaCompra {
   ],
   templateUrl: './gestion-revistas.component.html',
   styleUrls: ['./gestion-revistas.component.css'],
+   encapsulation: ViewEncapsulation.None,
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class GestionRevistasComponent implements OnInit {

@@ -60,7 +60,6 @@
                 <th>Stock</th>
                 <th>Estado</th>
                 <th>Descuento</th>
-                <th>Portada</th>
                 <th class="text-center">Acciones</th>
               </tr>
             </thead>
@@ -72,68 +71,47 @@
                 </td>
               </tr>
 
-              <tr *ngFor="let mag of magazines; trackBy: trackById">
+                <tr *ngFor="let mag of magazines; trackBy: trackById">
 
-                <td class="title-cell">
-                  {{ mag.titulo }}
-                </td>
+                  <!-- 1. Título -->
+                  <td class="title-cell">{{ mag.titulo }}</td>
 
-                <td>
-                  $ {{ mag.precio }}
-                </td>
+                  <!-- 2. Precio -->
+                  <td>$ {{ mag.precio }}</td>
 
-                <td>
-                  <span
-                    class="badge"
-                    [ngClass]="mag.stock > 0 ? 'badge-success' : 'badge-danger'">
-                    {{ mag.stock > 0 ? mag.stock + ' disponibles' : 'Sin stock' }}
-                  </span>
-                </td>
+                  <!-- 3. Stock -->
+                  <td>
+                    <span class="badge" [ngClass]="mag.stock > 0 ? 'badge-success' : 'badge-danger'">
+                      {{ mag.stock > 0 ? '📦 ' + mag.stock : '❌' }}
+                    </span>
+                  </td>
 
-                <td>
-                  <span
-                    class="badge"
-                    [ngClass]="mag.estado === 'Activa' ? 'badge-success' : 'badge-gray'">
-                    {{ mag.estado }}
-                  </span>
-                </td>
+                  <!-- 4. Estado -->
+                  <td>
+                    <span class="badge" [ngClass]="mag.estado === 'Activa' ? 'badge-success' : 'badge-gray'">
+                      {{ mag.estado }}
+                    </span>
+                  </td>
 
-                <td>
-                  <span
-                    *ngIf="mag.descuento_activo"
-                    class="badge badge-warning">
-                    Activo
-                  </span>
-                  <span *ngIf="!mag.descuento_activo" class="text-muted">
-                    —
-                  </span>
-                </td>
+                  <!-- 5. Descuento -->
+                  <td>
+                    <span *ngIf="mag.descuento_activo" class="badge badge-warning">Activo</span>
+                    <span *ngIf="!mag.descuento_activo" class="text-muted">—</span>
+                  </td>
 
-                <td class="actions-cell">
-                  <button
-                    class="btn-primary"
-                    (click)="editMagazine(mag)">
-                    Editar
-                  </button>
 
-                  <button
-                  *ngIf="mag.id_revista"
-                  [ngClass]="mag.estado === 'Activa' ? 'btn-danger' : 'btn-success'"
-                  (click)="toggleMagazine(mag.id_revista!)"
-                >
-                  {{ mag.estado === 'Activa' ? 'Desactivar' : 'Activar' }}
-                </button>
-                </td>
+                  <!-- 7. Acciones -->
+                  <td class="actions-cell">
+                    <button class="btn-primary" (click)="editMagazine(mag)">Editar</button>
+                    <button
+                      *ngIf="mag.id_revista"
+                      [ngClass]="mag.estado === 'Activa' ? 'btn-danger' : 'btn-success'"
+                      (click)="toggleMagazine(mag.id_revista!)">
+                      {{ mag.estado === 'Activa' ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </td>
 
-                <td>
-                  <img 
-                    *ngIf="mag.portada_url"
-                    [src]="mag.portada_url"
-                    class="portada-thumb"
-                  />
-                </td>
-
-              </tr>
+                </tr>
             </tbody>
           </table>
         </div>
@@ -213,27 +191,23 @@
               <td>{{ log.id_auditoria }}</td>
               <td>{{ log.usuario }}</td>
 
-             <td>
-              <span
-                class="badge"
-                [ngClass]="{
-                  'badge-success': log.accion === 'COMPRA',
-                  'badge-primary': log.accion === 'UPDATE_REVISTA',
-                  'badge-warning': log.accion === 'DESACTIVAR_REVISTA',
-                  'badge-danger': log.accion === 'DELETE_REVISTA'
-                }"
-              >
-                {{
-                  log.accion === 'UPDATE_REVISTA'
-                    ? 'EDITADO'
-                    : log.accion === 'DESACTIVAR_REVISTA'
-                    ? 'DESACTIVADO'
-                    : log.accion === 'DELETE_REVISTA'
-                    ? 'ELIMINADO'
-                    : log.accion
-                }}
-              </span>
-            </td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-success':  log.accion === 'COMPRA',
+                    'badge-primary':  log.accion === 'UPDATE_REVISTA',
+                    'badge-warning':  log.accion === 'DESACTIVAR_REVISTA',
+                    'badge-activar':  log.accion === 'ACTIVAR_REVISTA',
+                    'badge-danger':   log.accion === 'DELETE_REVISTA'
+                  }">
+                    {{
+                      log.accion === 'UPDATE_REVISTA'     ? 'EDITADO'      :
+                      log.accion === 'DESACTIVAR_REVISTA' ? 'DESACTIVADO'  :
+                      log.accion === 'ACTIVAR_REVISTA'    ? 'ACTIVADO'     :
+                      log.accion === 'DELETE_REVISTA'     ? 'ELIMINADO'    :
+                      log.accion
+                    }}
+                  </span>
+                </td>
 
               <td>{{ log.descripcion }}</td>
               <td>{{ log.ip_address }}</td>
