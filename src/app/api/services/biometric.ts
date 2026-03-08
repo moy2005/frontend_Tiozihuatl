@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment.prod';
+import { API_URL } from '../api.config';
 
 @Injectable({ providedIn: 'root' })
 export class BiometricService {
-  private api = `${environment.apiUrl}/webauthn`;
+  private api = `${API_URL}/webauthn`;
 
   constructor(private http: HttpClient) {}
 

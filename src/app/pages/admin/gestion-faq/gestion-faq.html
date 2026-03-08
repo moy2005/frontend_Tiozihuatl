@@ -1,217 +1,282 @@
-<div class="p-6 max-w-7xl mx-auto">
-  <!-- Header -->
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">
-      Gestión de Preguntas Frecuentes
-    </h1>
-    <button
-      class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-             transition-all duration-200 shadow-md hover:shadow-lg 
-             disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-      (click)="nuevoFaq()"
-      [disabled]="cargando">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-      </svg>
-      Nueva Pregunta
-    </button>
-  </div>
-
-  <!-- Estado de carga inicial -->
-  <div *ngIf="cargando && faqs.length === 0" class="text-center py-12">
-    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    <p class="mt-4 text-gray-600">Cargando preguntas...</p>
-  </div>
-
-  <!-- Tabla de FAQs -->
-  <div *ngIf="!cargando || faqs.length > 0" class="bg-white rounded-lg shadow-md overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-          <tr>
-            <th class="px-6 py-4 text-left text-sm font-semibold">Pregunta</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold w-32">Estado</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold w-48">Acciones</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          <!-- Mensaje si no hay FAQs -->
-          <tr *ngIf="faqs.length === 0">
-            <td colspan="3" class="px-6 py-12 text-center text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p class="text-lg font-medium">No hay preguntas frecuentes</p>
-              <p class="text-sm mt-2">Haz clic en "Nueva Pregunta" para agregar una</p>
-            </td>
-          </tr>
-
-          <!-- Listado de FAQs -->
-          <tr *ngFor="let faq of faqs; let i = index" 
-              class="hover:bg-gray-50 transition-colors duration-150">
-            <td class="px-6 py-4">
-              <p class="text-gray-900 font-medium">{{ faq.pregunta }}</p>
-              <p class="text-gray-500 text-sm mt-1 line-clamp-2">{{ faq.respuesta }}</p>
-            </td>
-            <td class="px-6 py-4">
-              <span
-                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
-                [ngClass]="faq.estado === 'Activo' 
-                  ? 'bg-green-100 text-green-800 border border-green-200' 
-                  : 'bg-gray-100 text-gray-600 border border-gray-200'">
-                <span class="w-2 h-2 rounded-full mr-1.5"
-                      [ngClass]="faq.estado === 'Activo' ? 'bg-green-500' : 'bg-gray-400'"></span>
-                {{ faq.estado }}
-              </span>
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex gap-2">
-                <button 
-                  class="px-4 py-2 text-blue-700 hover:bg-blue-50 rounded-lg 
-                         transition-colors duration-150 font-medium text-sm
-                         border border-blue-200 hover:border-blue-300"
-                  (click)="editarFaq(faq)"
-                  [disabled]="cargando">
-                  Editar
-                </button>
-                <button 
-                  class="px-4 py-2 text-red-700 hover:bg-red-50 rounded-lg 
-                         transition-colors duration-150 font-medium text-sm
-                         border border-red-200 hover:border-red-300"
-                  (click)="eliminarFaq(faq.id_faq)"
-                  [disabled]="cargando">
-                  Eliminar
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
+    <!-- Header -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h2 class="page-title">Gestión de Preguntas Frecuentes</h2>
+        <button 
+          (click)="nuevoFaq()" 
+          class="btn-primary flex items-center gap-2"
+          [disabled]="cargando">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Nueva Pregunta
+        </button>
+      </div>
     </div>
-  </div>
 
-  <!-- MODAL FLOTANTE CENTRADO -->
-  <div *ngIf="mostrarModal" 
-       class="fixed inset-0 z-50 overflow-y-auto"
-       (click)="cancelar()">
-    <!-- Overlay -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
-    
-    <!-- Modal Container -->
-    <div class="flex min-h-screen items-center justify-center p-4">
-      <div class="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full transform transition-all"
-           (click)="$event.stopPropagation()">
-        
-        <!-- Header del Modal -->
-        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-xl">
-          <div class="flex items-center justify-between">
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <svg *ngIf="!faqForm.id_faq" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              <svg *ngIf="faqForm.id_faq" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              {{ faqForm.id_faq ? 'Editar Pregunta' : 'Nueva Pregunta' }}
-            </h2>
+    <!-- Loading State -->
+    <div *ngIf="cargando && faqs.length === 0" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 text-gray-600 font-medium">Cargando preguntas...</p>
+    </div>
+
+    <!-- FAQs Table -->
+    <div *ngIf="!cargando || faqs.length > 0" class="content-card overflow-hidden">
+      <!-- Desktop Table View -->
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell">Pregunta</th>
+              <th class="th-cell">Respuesta</th>
+              <th class="th-cell">Estado</th>
+              <th class="th-cell text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Mensaje si no hay FAQs -->
+            <tr *ngIf="faqs.length === 0">
+              <td colspan="4" class="td-cell text-center py-12">
+                <div class="flex flex-col items-center">
+                  <ion-icon name="help-circle-outline" class="text-6xl text-gray-300 mb-4"></ion-icon>
+                  <p class="text-lg font-medium text-gray-500">No hay preguntas frecuentes</p>
+                  <p class="text-sm text-gray-400 mt-2">Haz clic en "Nueva Pregunta" para agregar una</p>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Listado de FAQs -->
+            <tr *ngFor="let faq of faqs" class="table-row">
+              <td class="td-cell font-medium text-gray-900">{{ faq.pregunta }}</td>
+              <td class="td-cell text-gray-600">
+                <span class="line-clamp-2">{{ faq.respuesta }}</span>
+              </td>
+              <td class="td-cell">
+                <span 
+                  class="badge-estado"
+                  [ngClass]="faq.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
+                  {{ faq.estado }}
+                </span>
+              </td>
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+                  <!-- Ver Detalles -->
+                  <button 
+                    (click)="verDetalles(faq)" 
+                    class="btn-icon btn-icon-info"
+                    title="Ver detalles completos">
+                    <ion-icon name="eye-outline"></ion-icon>
+                  </button>
+
+                  <!-- Editar -->
+                  <button 
+                    (click)="editarFaq(faq)" 
+                    class="btn-icon btn-icon-primary"
+                    title="Editar pregunta"
+                    [disabled]="cargando">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+
+                  <!-- Eliminar -->
+                  <button
+                    (click)="eliminarFaq(faq.id_faq)"
+                    class="btn-icon btn-icon-danger"
+                    title="Eliminar pregunta"
+                    [disabled]="cargando">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile/Tablet Card View -->
+      <div class="lg:hidden p-4 space-y-4">
+        <!-- Mensaje si no hay FAQs -->
+        <div *ngIf="faqs.length === 0" class="text-center py-12">
+          <ion-icon name="help-circle-outline" class="text-6xl text-gray-300 mb-4"></ion-icon>
+          <p class="text-lg font-medium text-gray-500">No hay preguntas frecuentes</p>
+          <p class="text-sm text-gray-400 mt-2">Haz clic en "Nueva Pregunta" para agregar una</p>
+        </div>
+
+        <!-- Listado de FAQs -->
+        <div *ngFor="let faq of faqs" class="user-card">
+          <!-- FAQ Header -->
+          <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-semibold text-gray-500">ID: {{ faq.id_faq }}</span>
+                <span 
+                  class="badge-estado"
+                  [ngClass]="faq.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
+                  {{ faq.estado }}
+                </span>
+              </div>
+              <h4 class="text-lg font-bold text-gray-900">{{ faq.pregunta }}</h4>
+              <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ faq.respuesta }}</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-2 pt-3 border-t border-gray-200">
             <button 
-              (click)="cancelar()"
-              [disabled]="guardando"
-              class="text-white hover:bg-blue-800 rounded-lg p-1 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              (click)="verDetalles(faq)" 
+              class="btn-icon-mobile btn-icon-info flex-1">
+              <ion-icon name="eye-outline"></ion-icon>
+              <span>Ver</span>
+            </button>
+
+            <button 
+              (click)="editarFaq(faq)" 
+              class="btn-icon-mobile btn-icon-primary flex-1"
+              [disabled]="cargando">
+              <ion-icon name="create-outline"></ion-icon>
+              <span>Editar</span>
+            </button>
+
+            <button
+              (click)="eliminarFaq(faq.id_faq)"
+              class="btn-icon-mobile btn-icon-danger flex-1"
+              [disabled]="cargando">
+              <ion-icon name="trash-outline"></ion-icon>
+              <span>Eliminar</span>
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- Body del Modal -->
-        <div class="px-6 py-6">
-          <form class="space-y-5">
-            <!-- Campo Pregunta -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Pregunta <span class="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Escribe la pregunta frecuente..."
-                [(ngModel)]="faqForm.pregunta"
-                name="pregunta"
-                [disabled]="guardando"
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg 
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
-                       transition-all duration-200 outline-none
-                       disabled:bg-gray-100 disabled:cursor-not-allowed"
-                [ngClass]="{'border-red-300': !faqForm.pregunta?.trim() && editando}" />
-            </div>
+  <!-- Modal Crear/Editar FAQ -->
+  <div *ngIf="mostrarModal" class="modal-overlay" (click)="cancelar()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">
+          {{ faqForm.id_faq ? 'Editar Pregunta' : 'Nueva Pregunta' }}
+        </h3>
+        <button (click)="cancelar()" class="btn-close" [disabled]="guardando">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
 
-            <!-- Campo Respuesta -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Respuesta <span class="text-red-500">*</span>
-              </label>
-              <textarea
-                placeholder="Escribe la respuesta detallada..."
-                [(ngModel)]="faqForm.respuesta"
-                name="respuesta"
-                rows="5"
-                [disabled]="guardando"
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg 
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
-                       transition-all duration-200 outline-none resize-none
-                       disabled:bg-gray-100 disabled:cursor-not-allowed"
-                [ngClass]="{'border-red-300': !faqForm.respuesta?.trim() && editando}"></textarea>
-            </div>
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <div class="form-grid">
+          <!-- Pregunta -->
+          <div class="form-group form-group-full">
+            <label class="form-label">
+              Pregunta <span class="text-red-500">*</span>
+            </label>
+            <input 
+              [(ngModel)]="faqForm.pregunta" 
+              placeholder="Escribe la pregunta frecuente..."
+              [disabled]="guardando"
+              class="form-input"
+              [ngClass]="{'border-red-300': !faqForm.pregunta?.trim() && editando}"
+            />
+          </div>
 
-            <!-- Campo Estado -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Estado
-              </label>
-              <select 
-                [(ngModel)]="faqForm.estado"
-                name="estado"
-                [disabled]="guardando"
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg 
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
-                       transition-all duration-200 outline-none
-                       disabled:bg-gray-100 disabled:cursor-not-allowed">
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-              </select>
-            </div>
-          </form>
+          <!-- Respuesta -->
+          <div class="form-group form-group-full">
+            <label class="form-label">
+              Respuesta <span class="text-red-500">*</span>
+            </label>
+            <textarea 
+              [(ngModel)]="faqForm.respuesta" 
+              placeholder="Escribe la respuesta detallada..."
+              rows="5"
+              [disabled]="guardando"
+              class="form-input resize-none"
+              [ngClass]="{'border-red-300': !faqForm.respuesta?.trim() && editando}">
+            </textarea>
+          </div>
+
+          <!-- Estado -->
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select 
+              [(ngModel)]="faqForm.estado"
+              [disabled]="guardando"
+              class="form-input">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
         </div>
+      </div>
 
-        <!-- Footer del Modal -->
-        <div class="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-end gap-3">
-          <button
-            type="button"
-            class="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg 
-                   hover:bg-gray-300 transition-all duration-200 font-medium
-                   disabled:opacity-50 disabled:cursor-not-allowed"
-            (click)="cancelar()"
-            [disabled]="guardando">
-            Cancelar
-          </button>
-          <button
-            type="button"
-            class="px-5 py-2.5 bg-blue-600 text-white rounded-lg 
-                   hover:bg-blue-700 transition-all duration-200 font-medium
-                   shadow-md hover:shadow-lg
-                   disabled:opacity-50 disabled:cursor-not-allowed
-                   flex items-center gap-2 min-w-[120px] justify-center"
-            (click)="guardarFaq()"
-            [disabled]="guardando || !faqForm.pregunta?.trim() || !faqForm.respuesta?.trim()">
-            <!-- Spinner de carga -->
-            <svg *ngIf="guardando" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>{{ guardando ? 'Guardando...' : 'Guardar' }}</span>
-          </button>
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button 
+          (click)="cancelar()" 
+          class="btn-secondary"
+          [disabled]="guardando">
+          Cancelar
+        </button>
+        
+        <button 
+          (click)="guardarFaq()" 
+          class="btn-primary flex items-center gap-2"
+          [disabled]="guardando || !faqForm.pregunta?.trim() || !faqForm.respuesta?.trim()">
+          <div *ngIf="guardando" class="loading-spinner-small inline-block"></div>
+          <span>{{ guardando ? 'Guardando...' : (faqForm.id_faq ? 'Guardar Cambios' : 'Crear Pregunta') }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalles FAQ -->
+  <div *ngIf="mostrarDetalles" class="modal-overlay" (click)="cerrarDetalles()">
+    <div class="modal-container modal-details" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Detalles de la Pregunta</h3>
+        <button (click)="cerrarDetalles()" class="btn-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body" *ngIf="faqSeleccionado">
+        <div class="details-grid">
+          <!-- ID FAQ -->
+          <div class="detail-item">
+            <span class="detail-label">ID</span>
+            <span class="detail-value">{{ faqSeleccionado.id_faq }}</span>
+          </div>
+
+          <!-- Estado -->
+          <div class="detail-item">
+            <span class="detail-label">Estado</span>
+            <span 
+              class="badge-estado"
+              [ngClass]="faqSeleccionado.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
+              {{ faqSeleccionado.estado }}
+            </span>
+          </div>
+
+          <!-- Pregunta -->
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Pregunta</span>
+            <span class="detail-value">{{ faqSeleccionado.pregunta }}</span>
+          </div>
+
+          <!-- Respuesta -->
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Respuesta</span>
+            <span class="detail-value">{{ faqSeleccionado.respuesta }}</span>
+          </div>
         </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button (click)="cerrarDetalles()" class="btn-secondary">
+          Cerrar
+        </button>
       </div>
     </div>
   </div>

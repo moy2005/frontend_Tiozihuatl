@@ -1,49 +1,165 @@
-<div class="p-6 max-w-4xl">
-  <h1 class="text-2xl font-semibold text-blue-800 mb-6">
-    Gestión de Contáctanos
-  </h1>
+<div class="admin-content">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h2 class="page-title">Gestión de Contáctanos</h2>
+      </div>
+    </div>
 
-  <div *ngIf="cargando" class="text-gray-500">
-    Cargando...
+    <!-- Loading State -->
+    <div *ngIf="cargando" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 text-gray-600 font-medium">Cargando información...</p>
+    </div>
+
+    <!-- Formulario de Contacto -->
+    <div *ngIf="!cargando" class="content-card">
+      <div class="form-container">
+        <div class="form-grid">
+          <!-- Teléfono -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="call-outline" class="label-icon"></ion-icon>
+              Teléfono
+            </label>
+            <div class="input-with-icon">
+              <ion-icon name="call-outline" class="input-icon"></ion-icon>
+              <input 
+                class="form-input with-icon" 
+                placeholder="Ingrese el teléfono"
+                type="tel"
+                [(ngModel)]="contacto.telefono" 
+              />
+            </div>
+          </div>
+
+          <!-- Correo -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="mail-outline" class="label-icon"></ion-icon>
+              Correo Electrónico
+            </label>
+            <div class="input-with-icon">
+              <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+              <input 
+                class="form-input with-icon" 
+                placeholder="Ingrese el correo electrónico"
+                type="email"
+                [(ngModel)]="contacto.correo" 
+              />
+            </div>
+          </div>
+
+          <!-- Dirección -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="location-outline" class="label-icon"></ion-icon>
+              Dirección
+            </label>
+            <div class="input-with-icon">
+              <ion-icon name="location-outline" class="input-icon"></ion-icon>
+              <input 
+                class="form-input with-icon" 
+                placeholder="Ingrese la dirección"
+                [(ngModel)]="contacto.direccion" 
+              />
+            </div>
+          </div>
+
+          <!-- Horario -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="time-outline" class="label-icon"></ion-icon>
+              Horario de Atención
+            </label>
+            <div class="input-with-icon">
+              <ion-icon name="time-outline" class="input-icon"></ion-icon>
+              <input 
+                class="form-input with-icon" 
+                placeholder="Ej: Lun-Vie 9:00-18:00"
+                [(ngModel)]="contacto.horario" 
+              />
+            </div>
+          </div>
+
+          <!-- Facebook -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="logo-facebook" class="label-icon"></ion-icon>
+              Facebook
+            </label>
+            <div class="input-with-icon">
+              <ion-icon name="logo-facebook" class="input-icon"></ion-icon>
+              <input 
+                class="form-input with-icon" 
+                placeholder="URL de Facebook"
+                [(ngModel)]="contacto.facebook" 
+              />
+            </div>
+          </div>
+
+          <!-- Instagram -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="logo-instagram" class="label-icon"></ion-icon>
+              Instagram
+            </label>
+            <div class="input-with-icon">
+              <ion-icon name="logo-instagram" class="input-icon"></ion-icon>
+              <input 
+                class="form-input with-icon" 
+                placeholder="URL de Instagram"
+                [(ngModel)]="contacto.instagram" 
+              />
+            </div>
+          </div>
+
+          <!-- Twitter -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="logo-twitter" class="label-icon"></ion-icon>
+              Twitter / X
+            </label>
+            <div class="input-with-icon">
+              <ion-icon name="logo-twitter" class="input-icon"></ion-icon>
+              <input 
+                class="form-input with-icon" 
+                placeholder="URL de Twitter"
+                [(ngModel)]="contacto.twitter" 
+              />
+            </div>
+          </div>
+
+          <!-- WhatsApp -->
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="logo-whatsapp" class="label-icon"></ion-icon>
+              WhatsApp
+            </label>
+            <div class="input-with-icon">
+              <ion-icon name="logo-whatsapp" class="input-icon"></ion-icon>
+              <input 
+                class="form-input with-icon" 
+                placeholder="Número de WhatsApp"
+                type="tel"
+                [(ngModel)]="contacto.whatsapp" 
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón de Guardar -->
+        <div class="form-actions">
+          <button 
+            class="btn-primary btn-large flex items-center gap-2"
+            (click)="guardar()"
+            [disabled]="cargando">
+            <ion-icon name="save-outline"></ion-icon>
+            <span>{{ cargando ? 'Guardando...' : 'Guardar Cambios' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <div *ngIf="!cargando" class="bg-blue-50 p-6 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-4">
-
-    <input class="p-2 border rounded" placeholder="Teléfono"
-           [(ngModel)]="contacto.telefono" />
-
-    <input class="p-2 border rounded" placeholder="Correo"
-           [(ngModel)]="contacto.correo" />
-
-    <input class="p-2 border rounded" placeholder="Dirección"
-           [(ngModel)]="contacto.direccion" />
-
-    <input class="p-2 border rounded" placeholder="Horario"
-           [(ngModel)]="contacto.horario" />
-
-    <input class="p-2 border rounded" placeholder="Facebook"
-           [(ngModel)]="contacto.facebook" />
-
-    <input class="p-2 border rounded" placeholder="Instagram"
-           [(ngModel)]="contacto.instagram" />
-
-    <input class="p-2 border rounded" placeholder="Twitter"
-           [(ngModel)]="contacto.twitter" />
-
-    <input class="p-2 border rounded" placeholder="WhatsApp"
-           [(ngModel)]="contacto.whatsapp" />
-
-    <select class="p-2 border rounded"
-            [(ngModel)]="contacto.estado">
-      <option value="Activo">Activo</option>
-      <option value="Inactivo">Inactivo</option>
-    </select>
-
-  </div>
-
-  <button
-    class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-    (click)="guardar()">
-    Guardar cambios
-  </button>
 </div>

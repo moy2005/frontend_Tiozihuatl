@@ -1,0 +1,501 @@
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
+    <!-- Header -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h2 class="page-title">Gestión de Noticias</h2>
+        <button 
+          (click)="nuevaNoticia()" 
+          class="btn-primary flex items-center gap-2">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Nueva Noticia
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="cargando" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 text-gray-600 font-medium">Cargando noticias...</p>
+    </div>
+
+    <!-- News Table -->
+    <div *ngIf="!cargando" class="content-card overflow-hidden">
+      <!-- Desktop Table View -->
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell">Título</th>
+              <th class="th-cell">Categoría</th>
+              <th class="th-cell">Estado</th>
+              <th class="th-cell">Fecha Publicación</th>
+              <th class="th-cell">Fecha Caducidad</th>
+              <th class="th-cell text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let n of noticias" class="table-row">
+              <td class="td-cell font-medium text-gray-900">{{ n.titulo }}</td>
+              <td class="td-cell text-gray-600">{{ n.categoria || '—' }}</td>
+              <td class="td-cell">
+                <span 
+                  class="badge-estado"
+                  [ngClass]="{
+                    'badge-borrador': n.estado === 'Borrador',
+                    'badge-publicada': n.estado === 'Publicada',
+                    'badge-inactivo': n.estado === 'Inactiva'
+                  }">
+                  {{ n.estado }}
+                </span>
+              </td>
+              <td class="td-cell text-gray-600">{{ n.fecha_publicacion | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="td-cell text-gray-600">{{ n.fecha_caducidad | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+                  <!-- Ver Detalles -->
+                  <button 
+                    (click)="verDetalles(n)" 
+                    class="btn-icon btn-icon-info"
+                    title="Ver detalles completos">
+                    <ion-icon name="eye-outline"></ion-icon>
+                  </button>
+
+                  <!-- Editar -->
+                  <button 
+                    (click)="editarNoticia(n)" 
+                    class="btn-icon btn-icon-primary"
+                    title="Editar noticia">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+
+                  <!-- Eliminar -->
+                  <button
+                    (click)="eliminarNoticia(n.id_noticia)"
+                    class="btn-icon btn-icon-danger"
+                    title="Eliminar noticia">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile/Tablet Card View -->
+      <div class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let n of noticias" class="news-card">
+          <!-- News Header -->
+          <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-semibold text-gray-500">ID: {{ n.id_noticia }}</span>
+                <span 
+                  class="badge-estado"
+                  [ngClass]="{
+                    'badge-borrador': n.estado === 'Borrador',
+                    'badge-publicada': n.estado === 'Publicada',
+                    'badge-inactivo': n.estado === 'Inactiva'
+                  }">
+                  {{ n.estado }}
+                </span>
+              </div>
+              <h4 class="text-lg font-bold text-gray-900">{{ n.titulo }}</h4>
+              <p class="text-sm text-gray-600 mt-1">{{ n.categoria || 'Sin categoría' }}</p>
+            </div>
+          </div>
+
+          <!-- News Details -->
+          <div class="mb-3 space-y-1 text-sm text-gray-600">
+            <div class="flex items-center gap-2">
+              <ion-icon name="calendar-outline" class="text-blue-500"></ion-icon>
+              <span>Publicación: {{ n.fecha_publicacion | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <ion-icon name="time-outline" class="text-red-500"></ion-icon>
+              <span>Caducidad: {{ n.fecha_caducidad | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-2 pt-3 border-t border-gray-200">
+            <button 
+              (click)="verDetalles(n)" 
+              class="btn-icon-mobile btn-icon-info flex-1">
+              <ion-icon name="eye-outline"></ion-icon>
+              <span>Ver</span>
+            </button>
+
+            <button 
+              (click)="editarNoticia(n)" 
+              class="btn-icon-mobile btn-icon-primary flex-1">
+              <ion-icon name="create-outline"></ion-icon>
+              <span>Editar</span>
+            </button>
+
+            <button
+              (click)="eliminarNoticia(n.id_noticia)"
+              class="btn-icon-mobile btn-icon-danger flex-1">
+              <ion-icon name="trash-outline"></ion-icon>
+              <span>Eliminar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Noticia -->
+  <div *ngIf="editando" class="modal-overlay" (click)="cancelar()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">
+          {{ noticiaForm.id_noticia ? 'Editar Noticia' : 'Nueva Noticia' }}
+        </h3>
+        <button (click)="cancelar()" class="btn-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Loading Overlay -->
+      <div *ngIf="guardando" class="upload-loading-overlay">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"></div>
+          <p class="mt-4 text-white font-semibold text-lg">{{ mensajeCarga }}</p>
+          <p class="text-blue-200 text-sm">Por favor espere...</p>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <div class="form-grid">
+          <!-- Título -->
+          <div class="form-group form-group-full">
+            <label class="form-label">
+              Título *
+            </label>
+            <input 
+              [(ngModel)]="noticiaForm.titulo" 
+              placeholder="Ingrese el título de la noticia"
+              class="form-input"
+            />
+          </div>
+
+          <!-- Contenido -->
+          <div class="form-group form-group-full">
+            <label class="form-label">
+              Contenido *
+            </label>
+            <textarea 
+              [(ngModel)]="noticiaForm.contenido" 
+              placeholder="Ingrese el contenido de la noticia"
+              rows="6"
+              class="form-input"
+            ></textarea>
+          </div>
+
+          <!-- Categoría -->
+          <div class="form-group">
+            <label class="form-label">
+              Categoría
+            </label>
+            <input 
+              [(ngModel)]="noticiaForm.categoria" 
+              placeholder="Ej: Deportes, Cultura, Académico"
+              class="form-input"
+            />
+          </div>
+
+          <!-- Estado -->
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select 
+              [(ngModel)]="noticiaForm.estado"
+              class="form-input">
+              <option value="Borrador">Borrador</option>
+              <option value="Publicada">Publicada</option>
+              <option value="Inactiva">Inactiva</option>
+            </select>
+          </div>
+
+          <!-- Fecha Publicación -->
+          <div class="form-group">
+            <label class="form-label">
+              Fecha de Publicación *
+            </label>
+            <input 
+              type="datetime-local"
+              [(ngModel)]="noticiaForm.fecha_publicacion" 
+              class="form-input"
+            />
+          </div>
+
+          <!-- Fecha Caducidad -->
+          <div class="form-group">
+            <label class="form-label">
+              Fecha de Caducidad *
+            </label>
+            <input 
+              type="datetime-local"
+              [(ngModel)]="noticiaForm.fecha_caducidad" 
+              class="form-input"
+            />
+          </div>
+
+          <!-- Imagen -->
+          <div class="form-group form-group-full">
+            <label class="form-label">
+              Imagen
+            </label>
+            
+            <!-- Vista previa de imagen existente -->
+            <div *ngIf="noticiaForm.imagen_url && !imagenFile" class="media-preview-container">
+              <div class="media-preview-header">
+                <span class="media-preview-label">
+                  <ion-icon name="image-outline"></ion-icon>
+                  Imagen actual
+                </span>
+                <button 
+                  (click)="noticiaForm.imagen_url = ''" 
+                  class="media-remove-btn"
+                  type="button">
+                  <ion-icon name="close-circle-outline"></ion-icon>
+                  Eliminar
+                </button>
+              </div>
+              <img 
+                [src]="noticiaForm.imagen_url" 
+                class="media-preview-image"
+                alt="Vista previa"
+              />
+            </div>
+
+            <!-- Vista previa de nueva imagen -->
+            <div *ngIf="imagenPreview" class="media-preview-container">
+              <div class="media-preview-header">
+                <span class="media-preview-label">
+                  <ion-icon name="image-outline"></ion-icon>
+                  Nueva imagen
+                </span>
+                <button 
+                  (click)="limpiarImagen()" 
+                  class="media-remove-btn"
+                  type="button">
+                  <ion-icon name="close-circle-outline"></ion-icon>
+                  Quitar
+                </button>
+              </div>
+              <img 
+                [src]="imagenPreview" 
+                class="media-preview-image"
+                alt="Vista previa"
+              />
+            </div>
+
+            <!-- Input de archivo -->
+            <input 
+              #imagenInput
+              type="file" 
+              accept="image/*" 
+              (change)="onImagenChange($event)"
+              class="form-input-file"
+            />
+            <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+              <ion-icon name="information-circle-outline" class="text-sm"></ion-icon>
+              Formatos aceptados: JPG, PNG, GIF, WEBP
+            </p>
+          </div>
+
+          <!-- Video -->
+          <div class="form-group form-group-full">
+            <label class="form-label">
+              Video
+            </label>
+            
+            <!-- Vista previa de video existente -->
+            <div *ngIf="noticiaForm.video_url && !videoFile" class="media-preview-container">
+              <div class="media-preview-header">
+                <span class="media-preview-label">
+                  <ion-icon name="videocam-outline"></ion-icon>
+                  Video actual
+                </span>
+                <button 
+                  (click)="noticiaForm.video_url = ''" 
+                  class="media-remove-btn"
+                  type="button">
+                  <ion-icon name="close-circle-outline"></ion-icon>
+                  Eliminar
+                </button>
+              </div>
+              <video 
+                [src]="noticiaForm.video_url" 
+                controls
+                class="media-preview-video"
+              ></video>
+            </div>
+
+            <!-- Vista previa de nuevo video -->
+            <div *ngIf="videoPreview" class="media-preview-container">
+              <div class="media-preview-header">
+                <span class="media-preview-label">
+                  <ion-icon name="videocam-outline"></ion-icon>
+                  Nuevo video
+                </span>
+                <button 
+                  (click)="limpiarVideo()" 
+                  class="media-remove-btn"
+                  type="button">
+                  <ion-icon name="close-circle-outline"></ion-icon>
+                  Quitar
+                </button>
+              </div>
+              <video 
+                [src]="videoPreview" 
+                controls
+                class="media-preview-video"
+              ></video>
+            </div>
+
+            <!-- Input de archivo -->
+            <input 
+              #videoInput
+              type="file" 
+              accept="video/*" 
+              (change)="onVideoChange($event)"
+              class="form-input-file"
+            />
+            <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+              <ion-icon name="information-circle-outline" class="text-sm"></ion-icon>
+              Formatos aceptados: MP4, WEBM, AVI, MOV
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button 
+          (click)="cancelar()" 
+          class="btn-secondary"
+          [disabled]="guardando">
+          Cancelar
+        </button>
+        
+        <button 
+          (click)="guardarNoticia()" 
+          class="btn-primary"
+          [disabled]="guardando">
+          <ion-icon *ngIf="!guardando" name="save-outline"></ion-icon>
+          <span>{{ guardando ? 'Guardando...' : (noticiaForm.id_noticia ? 'Guardar Cambios' : 'Crear Noticia') }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalles Noticia -->
+  <div *ngIf="mostrarDetalles" class="modal-overlay" (click)="cerrarDetalles()">
+    <div class="modal-container modal-details-news" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Detalles de la Noticia</h3>
+        <button (click)="cerrarDetalles()" class="btn-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body" *ngIf="noticiaSeleccionada">
+        <!-- Media Section (Imagen o Video) -->
+        <div *ngIf="noticiaSeleccionada.imagen_url || noticiaSeleccionada.video_url" class="media-detail-section">
+          <!-- Imagen -->
+          <div *ngIf="noticiaSeleccionada.imagen_url" class="media-detail-container">
+            <div class="media-detail-label">
+              <ion-icon name="image-outline"></ion-icon>
+              Imagen de la noticia
+            </div>
+            <img 
+              [src]="noticiaSeleccionada.imagen_url" 
+              class="media-detail-image"
+              alt="Imagen de la noticia"
+            />
+          </div>
+
+          <!-- Video -->
+          <div *ngIf="noticiaSeleccionada.video_url" class="media-detail-container">
+            <div class="media-detail-label">
+              <ion-icon name="videocam-outline"></ion-icon>
+              Video de la noticia
+            </div>
+            <video 
+              [src]="noticiaSeleccionada.video_url" 
+              controls
+              class="media-detail-video"
+            ></video>
+          </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="details-grid">
+          <!-- ID Noticia -->
+          <div class="detail-item">
+            <span class="detail-label">ID Noticia</span>
+            <span class="detail-value">{{ noticiaSeleccionada.id_noticia }}</span>
+          </div>
+
+          <!-- Estado -->
+          <div class="detail-item">
+            <span class="detail-label">Estado</span>
+            <span 
+              class="badge-estado"
+              [ngClass]="{
+                'badge-borrador': noticiaSeleccionada.estado === 'Borrador',
+                'badge-publicada': noticiaSeleccionada.estado === 'Publicada',
+                'badge-inactivo': noticiaSeleccionada.estado === 'Inactiva'
+              }">
+              {{ noticiaSeleccionada.estado }}
+            </span>
+          </div>
+
+          <!-- Título -->
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Título</span>
+            <span class="detail-value">{{ noticiaSeleccionada.titulo }}</span>
+          </div>
+
+          <!-- Contenido -->
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Contenido</span>
+            <span class="detail-value detail-content">{{ noticiaSeleccionada.contenido }}</span>
+          </div>
+
+          <!-- Categoría -->
+          <div class="detail-item">
+            <span class="detail-label">Categoría</span>
+            <span class="detail-value">{{ noticiaSeleccionada.categoria || 'Sin categoría' }}</span>
+          </div>
+
+          <!-- Fecha Publicación -->
+          <div class="detail-item">
+            <span class="detail-label">Fecha de Publicación</span>
+            <span class="detail-value">{{ noticiaSeleccionada.fecha_publicacion | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+
+          <!-- Fecha Caducidad -->
+          <div class="detail-item">
+            <span class="detail-label">Fecha de Caducidad</span>
+            <span class="detail-value">{{ noticiaSeleccionada.fecha_caducidad | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button (click)="cerrarDetalles()" class="btn-secondary">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

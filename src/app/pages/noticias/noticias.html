@@ -1,0 +1,200 @@
+<div class="noticias-page">
+  
+  <!-- Hero Section IGUAL a contacto -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <ion-icon name="newspaper-outline"></ion-icon>
+      </div>
+      <h1 class="hero-title">Noticias y Eventos</h1>
+      <p class="hero-subtitle">Mantente informado de las últimas novedades</p>
+    </div>
+   
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargandoNoticias" class="loading-wrapper">
+    <div class="loader"></div>
+    <p>Cargando noticias...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!cargandoNoticias && noticias.length > 0" class="main-content">
+
+    <!-- Filtros por Categoría (usando el mismo estilo que info-section) -->
+    <div class="info-section">
+      <h2 class="section-title">
+        <span class="title-icon">
+          <ion-icon name="filter-outline"></ion-icon>
+        </span>
+        Filtrar por Categoría
+      </h2>
+
+      <div class="filter-grid">
+        <button 
+          class="filter-card"
+          [class.active]="categoriaSeleccionada === 'Todas'"
+          (click)="filtrarPorCategoria('Todas')">
+          <div class="filter-bg">
+            <ion-icon name="apps"></ion-icon>
+          </div>
+          <div class="filter-content">
+            <div class="filter-icon">
+              <ion-icon name="apps-outline"></ion-icon>
+            </div>
+            <div class="filter-text">
+              <span class="filter-label">Ver Todas</span>
+              <h3 class="filter-value">Todas</h3>
+              <div class="filter-count">{{ noticias.length }}</div>
+            </div>
+          </div>
+        </button>
+
+        <button 
+          *ngFor="let cat of categorias; let i = index"
+          class="filter-card"
+          [class.active]="categoriaSeleccionada === cat"
+          [class.filter-1]="i % 4 === 0"
+          [class.filter-2]="i % 4 === 1"
+          [class.filter-3]="i % 4 === 2"
+          [class.filter-4]="i % 4 === 3"
+          (click)="filtrarPorCategoria(cat)">
+          <div class="filter-bg">
+            <ion-icon name="pricetag"></ion-icon>
+          </div>
+          <div class="filter-content">
+            <div class="filter-icon">
+              <ion-icon name="pricetag-outline"></ion-icon>
+            </div>
+            <div class="filter-text">
+              <span class="filter-label">Categoría</span>
+              <h3 class="filter-value">{{ cat }}</h3>
+              <div class="filter-count">{{ contarPorCategoria(cat) }}</div>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Noticias Grid (usando el mismo estilo que info-section) -->
+    <div class="info-section">
+      <h2 class="section-title">
+        <span class="title-icon">
+          <ion-icon name="newspaper"></ion-icon>
+        </span>
+        {{ categoriaSeleccionada === 'Todas' ? 'Todas las Noticias' : categoriaSeleccionada }}
+      </h2>
+
+      <div class="info-grid">
+        <div 
+          *ngFor="let noticia of noticiasFiltradas; let i = index"
+          class="info-card noticia-card"
+          [ngStyle]="getCardStyle(noticia)"
+          (click)="abrirNoticia(noticia, $event)">
+          
+          <div class="info-bg">
+            <ion-icon name="newspaper"></ion-icon>
+          </div>
+
+          <!-- Media - SOLO IMAGEN/VIDEO -->
+          <div class="noticia-media" *ngIf="noticia.imagen_url || noticia.video_url">
+            <img 
+              *ngIf="noticia.imagen_url && !noticia.video_url"
+              [src]="noticia.imagen_url" 
+              [alt]="noticia.titulo"
+              class="noticia-image"
+            />
+            <video 
+              *ngIf="noticia.video_url"
+              [src]="noticia.video_url"
+              class="noticia-video"
+              muted
+              loop
+              playsinline
+              (mouseenter)="playVideo($event)"
+              (mouseleave)="pauseVideo($event)">
+            </video>
+            <div class="media-badge" *ngIf="noticia.categoria">
+              <ion-icon name="pricetag"></ion-icon>
+              {{ noticia.categoria }}
+            </div>
+          </div>
+
+          <!-- TODO EL CONTENIDO DE TEXTO ESTÁ OCULTO EN CSS -->
+          <div class="info-content">
+            <div class="info-text">
+              <span class="info-label">
+                <ion-icon name="calendar-outline"></ion-icon>
+                {{ formatearFecha(noticia.fecha_publicacion) }}
+              </span>
+              <h3 class="info-value">{{ noticia.titulo }}</h3>
+              <p class="noticia-descripcion">{{ truncarTexto(noticia.contenido, 120) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sin resultados -->
+    <div *ngIf="noticiasFiltradas.length === 0" class="empty-wrapper">
+      <ion-icon name="search-outline"></ion-icon>
+      <h3>No hay noticias en esta categoría</h3>
+      <p>Intenta seleccionar otra categoría</p>
+      <button class="reset-btn" (click)="filtrarPorCategoria('Todas')">
+        <ion-icon name="arrow-forward"></ion-icon>
+        Ver todas las noticias
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!cargandoNoticias && noticias.length === 0" class="empty-wrapper">
+    <ion-icon name="newspaper-outline"></ion-icon>
+    <h3>No hay noticias disponibles</h3>
+    <p>Pronto publicaremos nuevas noticias y eventos</p>
+  </div>
+
+</div>
+
+<!-- Modal IGUAL al estilo de contacto -->
+<div class="modal-overlay" *ngIf="noticiaSeleccionada" (click)="cerrarModal($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    
+    <button class="modal-close" (click)="cerrarModal($event)">
+      <ion-icon name="close"></ion-icon>
+    </button>
+
+    <!-- Media -->
+    <div class="modal-media" *ngIf="noticiaSeleccionada.imagen_url || noticiaSeleccionada.video_url">
+      <img 
+        *ngIf="noticiaSeleccionada.imagen_url && !noticiaSeleccionada.video_url"
+        [src]="noticiaSeleccionada.imagen_url" 
+        [alt]="noticiaSeleccionada.titulo"
+      />
+      <video 
+        *ngIf="noticiaSeleccionada.video_url"
+        [src]="noticiaSeleccionada.video_url"
+        controls
+        autoplay>
+      </video>
+    </div>
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-badge" *ngIf="noticiaSeleccionada.categoria">
+          <ion-icon name="pricetag"></ion-icon>
+          {{ noticiaSeleccionada.categoria }}
+        </span>
+        <span class="modal-date">
+          <ion-icon name="calendar-outline"></ion-icon>
+          {{ formatearFecha(noticiaSeleccionada.fecha_publicacion) }}
+        </span>
+      </div>
+
+      <h2 class="modal-title">{{ noticiaSeleccionada.titulo }}</h2>
+      <div class="modal-text">{{ noticiaSeleccionada.contenido }}</div>
+    </div>
+
+  </div>
+</div>

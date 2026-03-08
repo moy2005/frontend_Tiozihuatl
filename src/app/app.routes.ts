@@ -120,7 +120,6 @@ export const routes: Routes = [
       { path: 'calendario', component: GestionCalendarioComponent },
 
       //{ path: 'revistas', component: AdminRevistasComponent },
-      //{ path: 'noticias', component: AdminNoticiasComponent },
     ]
   },
     // Rutas de error específicas (públicas)

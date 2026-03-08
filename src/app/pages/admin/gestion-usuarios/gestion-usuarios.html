@@ -1,122 +1,252 @@
-<!-- ELIMINAR esta sección del style inline y moverla a un CSS aparte -->
 <div class="admin-content">
   <div class="max-w-[95%] mx-auto">
-    <!-- Header -->
-    <div class="card-azul mb-4 sm:mb-6">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-3 sm:gap-4">
-       
-          <div>
-            <h2 class="page-title">
-              Gestión de Usuarios
-            </h2>
-          </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         HEADER
+    ══════════════════════════════════════════════════════ -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <h2 class="page-title">Gestión de Usuarios</h2>
+        <div class="flex flex-wrap gap-2">
+          <button
+            (click)="editando = false; nuevoUsuario = resetForm(); nuevaContrasena = ''; mostrarModal = true"
+            class="btn-primary flex items-center gap-2">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            Nuevo Usuario
+          </button>
+          <button (click)="abrirModalImportacion()" class="btn-secondary flex items-center gap-2">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            Importar Excel
+          </button>
+          <button (click)="abrirModalAvanzar()" class="btn-warning flex items-center gap-2">
+            <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+            Avanzar Semestre
+          </button>
         </div>
-       
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div *ngIf="cargando" class="card-azul text-center py-12">
-      <div class="loading-spinner inline-block"></div>
-      <p class="mt-4 text-sm sm:text-base text-[#5A6B8C] font-medium">Cargando usuarios...</p>
-    </div>
+    <!-- ══════════════════════════════════════════════════════
+         FILTROS INLINE MEJORADOS
+    ══════════════════════════════════════════════════════ -->
+    <div class="filtros-section">
 
-    <!-- Users Table -->
-    <div *ngIf="!cargando" class="card-azul overflow-hidden">
-      <div class="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-        <h3 class="text-lg sm:text-xl font-bold text-[#2C3A6A] flex items-center gap-2">
-          <ion-icon name="list-outline" class="text-[#3FA6E8]"></ion-icon>
-          Lista de Usuarios
-        </h3>
-        <button 
-          (click)="editando = false; nuevoUsuario = resetForm(); mostrarModal = true" 
-          class="btn-success w-full sm:w-auto flex items-center justify-center gap-2">
-          <ion-icon name="add-circle-outline"></ion-icon>
-          Nuevo Usuario
+      <!-- Cabecera de filtros -->
+      <div class="filtros-header">
+        <div class="filtros-titulo">
+          <ion-icon name="funnel-outline"></ion-icon>
+          <span>Filtrar usuarios</span>
+          <span *ngIf="filtrosActivos" class="filtros-badge-count">
+            {{ usuarios.length }}
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button *ngIf="filtrosActivos" (click)="limpiarFiltros()" class="filtros-limpiar">
+            <ion-icon name="close-circle-outline"></ion-icon>
+            <span class="hidden sm:inline">Limpiar filtros</span>
+          </button>
+          <button (click)="toggleFiltros()" class="btn-filter" [ngClass]="{'btn-filter-active': filtrosExpandidos}">
+            <ion-icon [name]="filtrosExpandidos ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+            <span class="hidden sm:inline">{{ filtrosExpandidos ? 'Ocultar' : 'Mostrar' }} filtros</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid de filtros -->
+      <div *ngIf="filtrosExpandidos" class="filtros-body">
+        <div class="filtros-grid">
+
+          <!-- Rol -->
+          <div class="filtro-item">
+            <label class="filtro-label">
+              <ion-icon name="person-outline"></ion-icon>
+              Rol
+            </label>
+            <select [(ngModel)]="filtros.rol" (change)="aplicarFiltros()" class="filtro-select">
+              <option value="">Todos los roles</option>
+              <option *ngFor="let r of roles" [value]="r.nombre_rol">{{ r.nombre_rol }}</option>
+            </select>
+          </div>
+
+          <!-- Carrera -->
+          <div class="filtro-item">
+            <label class="filtro-label">
+              <ion-icon name="school-outline"></ion-icon>
+              Carrera
+            </label>
+            <select [(ngModel)]="filtros.id_carrera" (change)="aplicarFiltros()" class="filtro-select">
+              <option value="">Todas las carreras</option>
+              <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
+            </select>
+          </div>
+
+          <!-- Periodo -->
+          <div class="filtro-item">
+            <label class="filtro-label">
+              <ion-icon name="calendar-outline"></ion-icon>
+              Periodo
+            </label>
+            <select [(ngModel)]="filtros.id_periodo" (change)="onPeriodoFiltroChange()" class="filtro-select">
+              <option value="">Todos los periodos</option>
+              <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
+            </select>
+          </div>
+
+          <!-- Semestre -->
+          <div class="filtro-item">
+            <label class="filtro-label">
+              <ion-icon name="layers-outline"></ion-icon>
+              Semestre
+            </label>
+            <select [(ngModel)]="filtros.id_semestre" (change)="aplicarFiltros()" class="filtro-select">
+              <option value="">Todos los semestres</option>
+              <option *ngFor="let s of semestresFiltro" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
+            </select>
+          </div>
+
+          <!-- Grupo -->
+          <div class="filtro-item">
+            <label class="filtro-label">
+              <ion-icon name="people-circle-outline"></ion-icon>
+              Grupo
+            </label>
+            <select [(ngModel)]="filtros.grupo" (change)="aplicarFiltros()" class="filtro-select">
+              <option value="">Todos los grupos</option>
+              <option *ngFor="let g of gruposFiltro" [value]="g">Grupo {{ g }}</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Tags de filtros activos -->
+        <div *ngIf="filtrosActivos" class="filtros-activos-tags">
+          <span class="filtros-activos-label">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            Filtros aplicados:
+          </span>
+          <span *ngIf="filtros.rol" class="filtro-tag">
+            <ion-icon name="person-outline"></ion-icon>
+            {{ filtros.rol }}
+            <button (click)="filtros.rol = ''; aplicarFiltros()"><ion-icon name="close-outline"></ion-icon></button>
+          </span>
+          <span *ngIf="filtros.id_carrera" class="filtro-tag">
+            <ion-icon name="school-outline"></ion-icon>
+            Carrera seleccionada
+            <button (click)="filtros.id_carrera = ''; aplicarFiltros()"><ion-icon name="close-outline"></ion-icon></button>
+          </span>
+          <span *ngIf="filtros.id_periodo" class="filtro-tag">
+            <ion-icon name="calendar-outline"></ion-icon>
+            Periodo seleccionado
+            <button (click)="filtros.id_periodo = ''; onPeriodoFiltroChange()"><ion-icon name="close-outline"></ion-icon></button>
+          </span>
+          <span *ngIf="filtros.id_semestre" class="filtro-tag">
+            <ion-icon name="layers-outline"></ion-icon>
+            Semestre seleccionado
+            <button (click)="filtros.id_semestre = ''; aplicarFiltros()"><ion-icon name="close-outline"></ion-icon></button>
+          </span>
+          <span *ngIf="filtros.grupo" class="filtro-tag">
+            <ion-icon name="people-circle-outline"></ion-icon>
+            Grupo {{ filtros.grupo }}
+            <button (click)="filtros.grupo = ''; aplicarFiltros()"><ion-icon name="close-outline"></ion-icon></button>
+          </span>
+        </div>
+      </div>
+
+      <!-- Banner resultado (cuando hay filtros y panel cerrado) -->
+      <div *ngIf="filtrosActivos && !filtrosExpandidos" class="filter-banner">
+        <ion-icon name="funnel-outline"></ion-icon>
+        <span>Mostrando <strong>{{ usuariosPaginados.length }}</strong> usuario(s) con filtros activos</span>
+        <button (click)="limpiarFiltros()" class="btn-ghost ml-auto">
+          <ion-icon name="close-outline"></ion-icon>
+          Limpiar
         </button>
       </div>
-      
-      <!-- Desktop Table View -->
-      <div class="hidden lg:block overflow-x-auto">
-        <table class="min-w-full text-sm">
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         LOADING
+    ══════════════════════════════════════════════════════ -->
+    <div *ngIf="cargando" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 text-gray-600 font-medium">Cargando usuarios...</p>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TABLA
+    ══════════════════════════════════════════════════════ -->
+    <div *ngIf="!cargando" class="content-card overflow-hidden">
+
+      <!-- Sin resultados -->
+      <div *ngIf="usuarios.length === 0" class="text-center py-16">
+        <ion-icon name="people-outline" style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
+        <p style="color:#64748B; font-weight:500;">No se encontraron usuarios</p>
+        <p *ngIf="filtrosActivos" style="color:#94A3B8; font-size:0.875rem; margin-top:0.25rem;">
+          Intenta ajustar los filtros
+        </p>
+      </div>
+
+      <!-- Desktop -->
+      <div *ngIf="usuarios.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
           <thead class="table-header">
             <tr>
-              <th class="p-4 text-left font-semibold whitespace-nowrap w-16">
-                <ion-icon name="key-outline" class="mr-2"></ion-icon>ID
-              </th>
-              <th class="p-4 text-left font-semibold whitespace-nowrap min-w-[180px]">
-                <ion-icon name="person-outline" class="mr-2"></ion-icon>Nombre
-              </th>
-              <th class="p-4 text-left font-semibold whitespace-nowrap min-w-[220px]">
-                <ion-icon name="mail-outline" class="mr-2"></ion-icon>Correo
-              </th>
-              <th class="p-4 text-left font-semibold whitespace-nowrap min-w-[130px]">
-                <ion-icon name="shield-checkmark-outline" class="mr-2"></ion-icon>Rol
-              </th>
-              <th class="p-4 text-left font-semibold whitespace-nowrap min-w-[200px]">
-                <ion-icon name="school-outline" class="mr-2"></ion-icon>Carrera
-              </th>
-              <th class="p-4 text-left font-semibold whitespace-nowrap min-w-[140px]">
-                <ion-icon name="calendar-outline" class="mr-2"></ion-icon>Semestre
-              </th>
-              <th class="p-4 text-left font-semibold whitespace-nowrap min-w-[120px]">
-                <ion-icon name="id-card-outline" class="mr-2"></ion-icon>Matrícula
-              </th>
-              <th class="p-4 text-left font-semibold whitespace-nowrap min-w-[110px]">
-                <ion-icon name="toggle-outline" class="mr-2"></ion-icon>Estado
-              </th>
-              <th class="p-4 text-center font-semibold whitespace-nowrap min-w-[200px]">
-                <ion-icon name="settings-outline" class="mr-2"></ion-icon>Acciones
-              </th>
+              <ng-container *ngIf="filtros.rol === 'Alumno'">
+                <th class="th-cell">Matrícula</th>
+              </ng-container>
+              <th class="th-cell">Nombre Completo</th>
+              <ng-container *ngIf="filtros.rol !== 'Alumno'">
+                <th class="th-cell">Correo Electrónico</th>
+                <th class="th-cell">Rol</th>
+              </ng-container>
+              <ng-container *ngIf="filtros.rol === 'Alumno'">
+                <th class="th-cell">Semestre</th>
+                <th class="th-cell">Grupo</th>
+              </ng-container>
+              <th *ngIf="filtros.rol !== 'Alumno'" class="th-cell">Semestre / Grupo</th>
+              <th class="th-cell">Estado</th>
+              <th class="th-cell text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let u of usuarios" class="table-row border-b border-gray-200 transition-colors duration-150">
-              <td class="p-4 font-medium text-gray-700">{{ u.id_usuario }}</td>
-              <td class="p-4 text-gray-800 font-medium">{{ u.nombre }} {{ u.a_paterno }}</td>
-              <td class="p-4 text-gray-600">{{ u.correo }}</td>
-              <td class="p-4">
-                <span class="badge-rol inline-flex items-center whitespace-nowrap">
-                  {{ u.rol }}
-                </span>
+            <tr *ngFor="let u of usuariosPaginados" class="table-row">
+              <ng-container *ngIf="filtros.rol === 'Alumno'">
+                <td class="td-cell font-mono text-sm font-medium">{{ u.matricula || '—' }}</td>
+              </ng-container>
+              <td class="td-cell font-medium text-gray-900">{{ u.a_paterno }} {{ u.a_materno }} {{ u.nombre }}</td>
+              <ng-container *ngIf="filtros.rol !== 'Alumno'">
+                <td class="td-cell text-gray-600">{{ u.correo }}</td>
+                <td class="td-cell"><span class="badge-rol">{{ u.rol }}</span></td>
+              </ng-container>
+              <ng-container *ngIf="filtros.rol === 'Alumno'">
+                <td class="td-cell">{{ u.semestre || '—' }}</td>
+                <td class="td-cell">{{ u.grupo || '—' }}</td>
+              </ng-container>
+              <td *ngIf="filtros.rol !== 'Alumno'" class="td-cell text-gray-500 text-sm">
+                <span *ngIf="u.semestre">{{ u.semestre }}<span *ngIf="u.grupo"> / Grupo {{ u.grupo }}</span></span>
+                <span *ngIf="!u.semestre && !u.grupo" style="color:#CBD5E1;">—</span>
               </td>
-              <td class="p-4 text-gray-600">{{ u.carrera || 'N/A' }}</td>
-              <td class="p-4 text-gray-600">{{ u.semestre || 'N/A' }}</td>
-              <td class="p-4 text-gray-600">{{ u.matricula || 'N/A' }}</td>
-              <td class="p-4">
-                <span 
-                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
-                  [ngClass]="u.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
-                  <ion-icon [name]="u.estado === 'Activo' ? 'checkmark-circle' : 'close-circle'" class="mr-1"></ion-icon>
+              <td class="td-cell">
+                <span class="badge-estado" [ngClass]="u.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
                   {{ u.estado }}
                 </span>
               </td>
-              <td class="p-4">
+              <td class="td-cell">
                 <div class="flex justify-center gap-2">
-                  <button 
-                    (click)="editarUsuario(u); mostrarModal = true" 
-                    class="btn-primary flex items-center gap-2 whitespace-nowrap">
+                  <button (click)="verDetalles(u)" class="btn-icon btn-icon-info" title="Ver detalles">
+                    <ion-icon name="eye-outline"></ion-icon>
+                  </button>
+                  <button (click)="editarUsuario(u)" class="btn-icon btn-icon-primary" title="Editar usuario">
                     <ion-icon name="create-outline"></ion-icon>
-                    Editar
                   </button>
-
-                  <button
-                    *ngIf="u.estado === 'Activo'; else activarBtn"
-                    (click)="cambiarEstado(u, 'Inactivo')"
-                    class="btn-danger flex items-center gap-2 whitespace-nowrap">
-                    <ion-icon name="ban-outline"></ion-icon>
-                    Desactivar
+                  <button *ngIf="u.estado === 'Activo'" (click)="cambiarEstado(u, 'Inactivo')"
+                    class="btn-icon btn-icon-danger" title="Desactivar usuario">
+                    <ion-icon name="close-circle-outline"></ion-icon>
                   </button>
-
-                  <ng-template #activarBtn>
-                    <button
-                      (click)="cambiarEstado(u, 'Activo')"
-                      class="btn-success flex items-center gap-2 whitespace-nowrap">
-                      <ion-icon name="checkmark-outline"></ion-icon>
-                      Activar
-                    </button>
-                  </ng-template>
+                  <button *ngIf="u.estado === 'Inactivo'" (click)="cambiarEstado(u, 'Activo')"
+                    class="btn-icon btn-icon-success" title="Activar usuario">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -124,284 +254,660 @@
         </table>
       </div>
 
-      <!-- Mobile/Tablet Card View -->
-      <div class="lg:hidden p-4 space-y-4">
-        <div *ngFor="let u of usuarios" class="user-card p-4">
-          <!-- User Header -->
+      <!-- Mobile -->
+      <div *ngIf="usuarios.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let u of usuariosPaginados" class="user-card">
           <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-xs font-semibold text-gray-500">ID: {{ u.id_usuario }}</span>
-                <span 
-                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
-                  [ngClass]="u.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
-                  <ion-icon [name]="u.estado === 'Activo' ? 'checkmark-circle' : 'close-circle'" class="mr-1"></ion-icon>
+                <span class="badge-estado" [ngClass]="u.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
                   {{ u.estado }}
                 </span>
               </div>
-              <h4 class="text-lg font-bold text-gray-800">{{ u.nombre }} {{ u.a_paterno }}</h4>
-              <p class="text-sm text-gray-600 mt-1 flex items-center gap-1">
-                <ion-icon name="mail-outline" class="text-[#3FA6E8]"></ion-icon>
-                {{ u.correo }}
-              </p>
+              <h4 class="text-lg font-bold text-gray-900">{{ u.nombre }} {{ u.a_paterno }} {{ u.a_materno }}</h4>
+              <ng-container *ngIf="filtros.rol === 'Alumno'">
+                <div class="grid grid-cols-2 gap-2 mt-2 text-sm">
+                  <div class="col-span-2 bg-blue-50 border border-blue-200">
+                    <span class="text-xs text-blue-600 block">Matrícula</span>
+                    <span class="font-medium text-blue-800">{{ u.matricula || '—' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-xs text-gray-400 block">Semestre</span>
+                    <span class="font-medium">{{ u.semestre || '—' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-xs text-gray-400 block">Grupo</span>
+                    <span class="font-medium">{{ u.grupo || '—' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-xs text-gray-400 block">Rol</span>
+                    <span class="badge-rol text-xs">{{ u.rol }}</span>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="filtros.rol !== 'Alumno'">
+                <p class="text-sm text-gray-600 mt-1">{{ u.correo }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="badge-rol text-xs">{{ u.rol }}</span>
+                  <p *ngIf="u.semestre" class="text-xs text-gray-400">
+                    {{ u.semestre }}{{ u.grupo ? ' / Grupo ' + u.grupo : '' }}
+                  </p>
+                </div>
+              </ng-container>
             </div>
           </div>
-
-          <!-- User Details -->
-          <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
-            <div>
-              <p class="text-gray-500 text-xs mb-1 flex items-center gap-1">
-                <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8]"></ion-icon>Rol
-              </p>
-              <span class="badge-rol inline-flex items-center">
-                {{ u.rol }}
-              </span>
-            </div>
-            <div>
-              <p class="text-gray-500 text-xs mb-1 flex items-center gap-1">
-                <ion-icon name="id-card-outline" class="text-[#3FA6E8]"></ion-icon>Matrícula
-              </p>
-              <p class="font-medium text-gray-800">{{ u.matricula || 'N/A' }}</p>
-            </div>
-            <div class="col-span-2">
-              <p class="text-gray-500 text-xs mb-1 flex items-center gap-1">
-                <ion-icon name="school-outline" class="text-[#3FA6E8]"></ion-icon>Carrera
-              </p>
-              <p class="font-medium text-gray-800">{{ u.carrera || 'N/A' }}</p>
-            </div>
-            <div>
-              <p class="text-gray-500 text-xs mb-1 flex items-center gap-1">
-                <ion-icon name="calendar-outline" class="text-[#3FA6E8]"></ion-icon>Semestre
-              </p>
-              <p class="font-medium text-gray-800">{{ u.semestre || 'N/A' }}</p>
-            </div>
-          </div>
-
-          <!-- Actions -->
           <div class="flex gap-2 pt-3 border-t border-gray-200">
-            <button 
-              (click)="editarUsuario(u); mostrarModal = true" 
-              class="btn-primary flex-1 flex items-center justify-center gap-2 text-sm">
-              <ion-icon name="create-outline"></ion-icon>
-              Editar
+            <button (click)="verDetalles(u)" class="btn-icon-mobile btn-icon-info flex-1">
+              <ion-icon name="eye-outline"></ion-icon><span>Ver</span>
             </button>
-
-            <button
-              *ngIf="u.estado === 'Activo'; else activarBtnMobile"
-              (click)="cambiarEstado(u, 'Inactivo')"
-              class="btn-danger flex-1 flex items-center justify-center gap-2 text-sm">
-              <ion-icon name="ban-outline"></ion-icon>
-              Desactivar
+            <button (click)="editarUsuario(u)" class="btn-icon-mobile btn-icon-primary flex-1">
+              <ion-icon name="create-outline"></ion-icon><span>Editar</span>
             </button>
+            <button *ngIf="u.estado === 'Activo'" (click)="cambiarEstado(u, 'Inactivo')"
+              class="btn-icon-mobile btn-icon-danger flex-1">
+              <ion-icon name="close-circle-outline"></ion-icon><span>Desactivar</span>
+            </button>
+            <button *ngIf="u.estado === 'Inactivo'" (click)="cambiarEstado(u, 'Activo')"
+              class="btn-icon-mobile btn-icon-success flex-1">
+              <ion-icon name="checkmark-circle-outline"></ion-icon><span>Activar</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-            <ng-template #activarBtnMobile>
-              <button
-                (click)="cambiarEstado(u, 'Activo')"
-                class="btn-success flex-1 flex items-center justify-center gap-2 text-sm">
-                <ion-icon name="checkmark-outline"></ion-icon>
-                Activar
+      <!-- ════════════════════════════════════════════════════════
+           MODAL: AVANZAR SEMESTRE
+      ════════════════════════════════════════════════════════ -->
+      <div *ngIf="mostrarModalAvanzar" class="modal-overlay" (click)="cerrarModalAvanzar()">
+        <div class="modal-container modal-avanzar" (click)="$event.stopPropagation()">
+
+          <!-- Header -->
+          <div class="modal-header modal-header-warning">
+            <div class="modal-header-left">
+              <div class="modal-icon-wrapper modal-icon-warning">
+                <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+              </div>
+              <div>
+                <h3 class="modal-title">Avanzar Semestre</h3>
+                <p class="modal-subtitle">Paso {{ pasoAvanzar }} de 2 — {{ pasoAvanzar === 1 ? 'Selección de periodos' : 'Asignación de acciones' }}</p>
+              </div>
+            </div>
+            <!-- Stepper -->
+            <div class="modal-stepper">
+              <div class="stepper-step" [ngClass]="pasoAvanzar >= 1 ? 'stepper-active' : ''">
+                <span class="stepper-num">1</span>
+                <span class="stepper-label hidden sm:inline">Periodos</span>
+              </div>
+              <div class="stepper-line" [ngClass]="pasoAvanzar >= 2 ? 'stepper-line-active' : ''"></div>
+              <div class="stepper-step" [ngClass]="pasoAvanzar >= 2 ? 'stepper-active' : ''">
+                <span class="stepper-num">2</span>
+                <span class="stepper-label hidden sm:inline">Alumnos</span>
+              </div>
+            </div>
+            <button (click)="cerrarModalAvanzar()" class="btn-close">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="modal-body">
+
+            <!-- ── PASO 1: Seleccionar periodos ── -->
+            <div *ngIf="pasoAvanzar === 1">
+
+              <!-- Aviso informativo -->
+              <div class="avanzar-info-box">
+                <div class="avanzar-info-icon">
+                  <ion-icon name="information-circle-outline"></ion-icon>
+                </div>
+                <div class="avanzar-info-content">
+                  <p class="avanzar-info-titulo">¿Cómo funciona?</p>
+                  <p class="avanzar-info-texto">
+                    Selecciona el periodo que vas a <strong>cerrar</strong> (origen) y el periodo al que
+                    pasarán los alumnos (destino). En el siguiente paso podrás elegir qué acción aplicar
+                    a cada alumno individualmente.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Selección de periodos -->
+              <div class="avanzar-periodos-grid">
+
+                <!-- Periodo origen -->
+                <div class="avanzar-periodo-card avanzar-periodo-origen">
+                  <div class="avanzar-periodo-header">
+                    <div class="avanzar-periodo-icono origen">
+                      <ion-icon name="archive-outline"></ion-icon>
+                    </div>
+                    <div>
+                      <p class="avanzar-periodo-titulo">Periodo Origen</p>
+                      <p class="avanzar-periodo-desc">Periodo a cerrar</p>
+                    </div>
+                  </div>
+                  <select [(ngModel)]="avanzarData.id_periodo_origen" class="form-input avanzar-select">
+                    <option value="">Seleccionar periodo...</option>
+                    <option *ngFor="let p of periodos" [value]="p.id_periodo">
+                      {{ p.nombre }}
+                      <ng-container *ngIf="p.estado === 'Activo'"> — Activo</ng-container>
+                    </option>
+                  </select>
+                  <p class="avanzar-periodo-hint">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    Periodo del que provienen los alumnos actualmente.
+                  </p>
+                </div>
+
+                <!-- Flecha central -->
+                <div class="avanzar-flecha">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </div>
+
+                <!-- Periodo destino -->
+                <div class="avanzar-periodo-card avanzar-periodo-destino">
+                  <div class="avanzar-periodo-header">
+                    <div class="avanzar-periodo-icono destino">
+                      <ion-icon name="enter-outline"></ion-icon>
+                    </div>
+                    <div>
+                      <p class="avanzar-periodo-titulo">Periodo Destino</p>
+                      <p class="avanzar-periodo-desc">Periodo nuevo</p>
+                    </div>
+                  </div>
+                  <select [(ngModel)]="avanzarData.id_periodo_destino" class="form-input avanzar-select">
+                    <option value="">Seleccionar periodo...</option>
+                    <option *ngFor="let p of periodos"
+                      [value]="p.id_periodo"
+                      [disabled]="p.id_periodo == avanzarData.id_periodo_origen">
+                      {{ p.nombre }}
+                      <ng-container *ngIf="p.estado === 'Activo'"> — Activo</ng-container>
+                    </option>
+                  </select>
+                  <p class="avanzar-periodo-hint">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    Periodo al que pasarán los alumnos.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ── PASO 2: Checklist de alumnos ── -->
+            <div *ngIf="pasoAvanzar === 2">
+
+              <!-- Resumen de periodos seleccionados -->
+              <div class="avanzar-resumen-periodos">
+                <div class="avanzar-resumen-chip origen">
+                  <ion-icon name="archive-outline"></ion-icon>
+                  <span>{{ getNombrePeriodo(avanzarData.id_periodo_origen) }}</span>
+                </div>
+                <ion-icon name="arrow-forward-outline" class="avanzar-resumen-flecha"></ion-icon>
+                <div class="avanzar-resumen-chip destino">
+                  <ion-icon name="enter-outline"></ion-icon>
+                  <span>{{ getNombrePeriodo(avanzarData.id_periodo_destino) }}</span>
+                </div>
+                <div class="avanzar-resumen-total">
+                  <ion-icon name="people-outline"></ion-icon>
+                  <strong>{{ alumnosParaAvance.length }}</strong> alumnos
+                </div>
+              </div>
+
+              <!-- Acciones masivas -->
+              <div class="avanzar-acciones-masivas">
+                <span class="avanzar-acciones-label">
+                  <ion-icon name="flash-outline"></ion-icon>
+                  Acción masiva:
+                </span>
+                <div class="avanzar-acciones-btns">
+                  <button (click)="toggleTodosAvanzar('AVANZAR')" class="accion-masiva-btn accion-avanzar">
+                    <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                    Todos avanzan
+                  </button>
+                  <button (click)="toggleTodosAvanzar('REPETIR')" class="accion-masiva-btn accion-repetir">
+                    <ion-icon name="refresh-circle-outline"></ion-icon>
+                    Todos repiten
+                  </button>
+                  <button (click)="toggleTodosAvanzar('BAJA')" class="accion-masiva-btn accion-baja">
+                    <ion-icon name="remove-circle-outline"></ion-icon>
+                    Todos de baja
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tabla de alumnos -->
+              <div class="avanzar-tabla-wrapper">
+                <table class="avanzar-tabla">
+                  <thead>
+                    <tr>
+                      <th>Alumno</th>
+                      <th>Matrícula</th>
+                      <th>Semestre</th>
+                      <th>Grupo</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let a of alumnosParaAvance"
+                      [ngClass]="{
+                        'fila-baja': a.accion === 'BAJA',
+                        'fila-repetir': a.accion === 'REPETIR',
+                        'fila-avanzar': a.accion === 'AVANZAR'
+                      }">
+                      <td class="avanzar-td-nombre">{{ a.a_paterno }} {{ a.a_materno }} {{ a.nombre }}</td>
+                      <td class="avanzar-td-center avanzar-td-mono">{{ a.matricula || '—' }}</td>
+                      <td class="avanzar-td-center">{{ a.nombre_semestre }}</td>
+                      <td class="avanzar-td-center">{{ a.grupo }}</td>
+                      <td class="avanzar-td-center">
+                        <select [(ngModel)]="a.accion" class="avanzar-accion-select"
+                          [ngClass]="{
+                            'select-avanzar': a.accion === 'AVANZAR',
+                            'select-repetir': a.accion === 'REPETIR',
+                            'select-baja':    a.accion === 'BAJA'
+                          }">
+                          <option value="AVANZAR">Avanzar</option>
+                          <option value="REPETIR">Repetir</option>
+                          <option value="BAJA">Baja</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Resumen de contadores -->
+              <div class="avanzar-contadores">
+                <div class="contador-chip contador-avanzar">
+                  <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                  <span><strong>{{ countAccion('AVANZAR') }}</strong> avanzan</span>
+                </div>
+                <div class="contador-chip contador-repetir">
+                  <ion-icon name="refresh-circle-outline"></ion-icon>
+                  <span><strong>{{ countAccion('REPETIR') }}</strong> repiten</span>
+                </div>
+                <div class="contador-chip contador-baja">
+                  <ion-icon name="remove-circle-outline"></ion-icon>
+                  <span><strong>{{ countAccion('BAJA') }}</strong> de baja</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Footer dinámico por paso -->
+          <div class="modal-footer">
+            <ng-container *ngIf="pasoAvanzar === 1">
+              <button (click)="cerrarModalAvanzar()" class="btn-secondary">
+                <ion-icon name="close-outline"></ion-icon>
+                Cancelar
               </button>
-            </ng-template>
+              <button
+                (click)="cargarPreviewAvance()"
+                [disabled]="cargandoPreview || !avanzarData.id_periodo_origen || !avanzarData.id_periodo_destino"
+                class="btn-primary flex items-center gap-2">
+                <div *ngIf="cargandoPreview" class="loading-spinner-sm"></div>
+                <ion-icon *ngIf="!cargandoPreview" name="people-outline"></ion-icon>
+                {{ cargandoPreview ? 'Cargando...' : 'Ver alumnos' }}
+                <ion-icon *ngIf="!cargandoPreview" name="arrow-forward-outline"></ion-icon>
+              </button>
+            </ng-container>
+
+            <ng-container *ngIf="pasoAvanzar === 2">
+              <button (click)="pasoAvanzar = 1" class="btn-secondary">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+                Atrás
+              </button>
+              <button
+                (click)="ejecutarAvanzarSemestre()"
+                [disabled]="cargandoAvanzar || alumnosParaAvance.length === 0"
+                class="btn-danger flex items-center gap-2">
+                <div *ngIf="cargandoAvanzar" class="loading-spinner-sm"></div>
+                <ion-icon *ngIf="!cargandoAvanzar" name="checkmark-circle-outline"></ion-icon>
+                {{ cargandoAvanzar ? 'Procesando...' : 'Confirmar y procesar' }}
+              </button>
+            </ng-container>
           </div>
+
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Modal -->
-  <div *ngIf="mostrarModal" class="modal-overlay fixed inset-0 flex items-center justify-center z-50 p-3 sm:p-4" (click)="mostrarModal = false">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
-      <!-- Modal Header -->
-      <div class="modal-header sticky top-0 text-white p-4 sm:p-6 rounded-t-2xl flex items-center justify-between z-10">
-        <div class="flex items-center gap-2 sm:gap-3">
-          <div class="inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 flex-shrink-0">
-            <ion-icon [name]="editando ? 'create-outline' : 'person-add-outline'" class="text-lg sm:text-xl"></ion-icon>
-          </div>
-          <h3 class="text-xl sm:text-2xl font-bold">
-            {{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}
-          </h3>
-        </div>
-        <button (click)="mostrarModal = false" class="text-white hover:bg-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center transition-all duration-200 flex-shrink-0">
-          <ion-icon name="close-outline" class="text-2xl"></ion-icon>
-        </button>
-      </div>
 
-      <!-- Modal Body -->
-      <div class="p-4 sm:p-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          <!-- Nombre -->
-          <div>
-            <label class="label-text"
-                   [ngClass]="!campoActivo('nombre') ? 'label-inactive' : ''">
-              <ion-icon name="person-outline" [ngClass]="campoActivo('nombre') ? 'text-[#3FA6E8]' : 'text-gray-400'"></ion-icon>
-              Nombre
-            </label>
-            <input 
-              [(ngModel)]="nuevoUsuario.nombre" 
-              placeholder="Nombre"
-              [disabled]="!campoActivo('nombre')"
-              class="input-field"
-            />
+      <!-- ════════════════════════════════════════════════════════
+           MODAL: CREAR / EDITAR USUARIO
+      ════════════════════════════════════════════════════════ -->
+      <div *ngIf="mostrarModal" class="modal-overlay" (click)="mostrarModal = false; nuevaContrasena = ''">
+        <div class="modal-container" (click)="$event.stopPropagation()">
+
+          <div class="modal-header">
+            <h3 class="modal-title">{{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+            <button (click)="mostrarModal = false; nuevaContrasena = ''" class="btn-close">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
           </div>
 
-          <!-- Apellido Paterno -->
-          <div>
-            <label class="label-text"
-                   [ngClass]="!campoActivo('a_paterno') ? 'label-inactive' : ''">
-              <ion-icon name="person-outline" [ngClass]="campoActivo('a_paterno') ? 'text-[#3FA6E8]' : 'text-gray-400'"></ion-icon>
-              Apellido Paterno
-            </label>
-            <input 
-              [(ngModel)]="nuevoUsuario.a_paterno" 
-              placeholder="Apellido Paterno"
-              [disabled]="!campoActivo('a_paterno')"
-              class="input-field"
-            />
+          <div class="modal-body">
+            <div class="form-grid">
+
+              <div class="form-group">
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('nombre')}">Nombre</label>
+                <input [(ngModel)]="nuevoUsuario.nombre" placeholder="Ingrese el nombre"
+                  [disabled]="!campoActivo('nombre')" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('a_paterno')}">Apellido Paterno</label>
+                <input [(ngModel)]="nuevoUsuario.a_paterno" placeholder="Ingrese el apellido paterno"
+                  [disabled]="!campoActivo('a_paterno')" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('a_materno')}">Apellido Materno</label>
+                <input [(ngModel)]="nuevoUsuario.a_materno" placeholder="Ingrese el apellido materno"
+                  [disabled]="!campoActivo('a_materno')" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('correo')}">Correo Electrónico</label>
+                <input [(ngModel)]="nuevoUsuario.correo" placeholder="correo@ejemplo.com" type="email"
+                  [disabled]="!campoActivo('correo')" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('telefono')}">Teléfono</label>
+                <input [(ngModel)]="nuevoUsuario.telefono" placeholder="Ingrese el teléfono" type="tel"
+                  [disabled]="!campoActivo('telefono')" class="form-input" />
+              </div>
+
+              <div class="form-group" *ngIf="!editando">
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('contrasena')}">Contraseña *</label>
+                <input [(ngModel)]="nuevoUsuario.contrasena" placeholder="Exactamente 8 caracteres"
+                  type="password" minlength="8" maxlength="8"
+                  [disabled]="!campoActivo('contrasena')" class="form-input" />
+              </div>
+
+              <div class="form-group" *ngIf="editando">
+                <label class="form-label">Nueva Contraseña (opcional)</label>
+                <div class="password-indicator mb-2">
+                  <div class="flex items-center gap-2 text-sm">
+                    <ion-icon name="shield-checkmark-outline" class="text-green-600"></ion-icon>
+                    <span class="text-gray-400 font-mono">••••••••</span>
+                    <span class="text-green-600 font-medium">✓ Configurada</span>
+                  </div>
+                </div>
+                <input [(ngModel)]="nuevaContrasena" placeholder="Ingresa una nueva contraseña para cambiarla"
+                  type="password" minlength="8" maxlength="8" class="form-input" />
+                <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                  <ion-icon name="information-circle-outline" class="text-sm"></ion-icon>
+                  Dejar vacío para mantener la contraseña actual
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Rol</label>
+                <select [(ngModel)]="nuevoUsuario.id_rol"
+                  (change)="nuevoUsuario.id_carrera = nuevoUsuario.id_semestre = nuevoUsuario.matricula = nuevoUsuario.grupo = nuevoUsuario.id_periodo = ''"
+                  class="form-input">
+                  <option value="">Seleccionar Rol</option>
+                  <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('matricula')}">Matrícula</label>
+                <input [(ngModel)]="nuevoUsuario.matricula" placeholder="Ingrese la matrícula"
+                  [disabled]="!campoActivo('matricula')" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('id_carrera')}">Carrera</label>
+                <select [(ngModel)]="nuevoUsuario.id_carrera" [disabled]="!campoActivo('id_carrera')" class="form-input">
+                  <option value="">Seleccionar Carrera</option>
+                  <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('id_semestre')}">Semestre</label>
+                <select [(ngModel)]="nuevoUsuario.id_semestre" [disabled]="!campoActivo('id_semestre')" class="form-input">
+                  <option value="">Seleccionar Semestre</option>
+                  <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
+                </select>
+              </div>
+
+              <div class="form-group" *ngIf="campoActivo('id_periodo')">
+                <label class="form-label">Periodo {{ !editando ? '*' : '(opcional)' }}</label>
+                <select [(ngModel)]="nuevoUsuario.id_periodo" class="form-input">
+                  <option value="">Seleccionar Periodo</option>
+                  <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1" *ngIf="editando">
+                  Cambiar el periodo actualizará la trayectoria académica del alumno.
+                </p>
+              </div>
+
+              <div class="form-group" *ngIf="campoActivo('grupo')">
+                <label class="form-label">Grupo *</label>
+                <select [(ngModel)]="nuevoUsuario.grupo" class="form-input">
+                  <option value="">Seleccionar Grupo</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                </select>
+              </div>
+
+            </div>
           </div>
 
-          <!-- Apellido Materno -->
-          <div>
-            <label class="label-text"
-                   [ngClass]="!campoActivo('a_materno') ? 'label-inactive' : ''">
-              <ion-icon name="person-outline" [ngClass]="campoActivo('a_materno') ? 'text-[#3FA6E8]' : 'text-gray-400'"></ion-icon>
-              Apellido Materno
-            </label>
-            <input 
-              [(ngModel)]="nuevoUsuario.a_materno" 
-              placeholder="Apellido Materno"
-              [disabled]="!campoActivo('a_materno')"
-              class="input-field"
-            />
-          </div>
-
-          <!-- Correo -->
-          <div class="sm:col-span-2 lg:col-span-1">
-            <label class="label-text"
-                   [ngClass]="!campoActivo('correo') ? 'label-inactive' : ''">
-              <ion-icon name="mail-outline" [ngClass]="campoActivo('correo') ? 'text-[#3FA6E8]' : 'text-gray-400'"></ion-icon>
-              Correo Electrónico
-            </label>
-            <input 
-              [(ngModel)]="nuevoUsuario.correo" 
-              placeholder="correo@ejemplo.com" 
-              type="email"
-              [disabled]="!campoActivo('correo')"
-              class="input-field"
-            />
-          </div>
-
-          <!-- Teléfono -->
-          <div>
-            <label class="label-text"
-                   [ngClass]="!campoActivo('telefono') ? 'label-inactive' : ''">
-              <ion-icon name="call-outline" [ngClass]="campoActivo('telefono') ? 'text-[#3FA6E8]' : 'text-gray-400'"></ion-icon>
-              Teléfono
-            </label>
-            <input 
-              [(ngModel)]="nuevoUsuario.telefono" 
-              placeholder="Teléfono" 
-              type="tel"
-              [disabled]="!campoActivo('telefono')"
-              class="input-field"
-            />
-          </div>
-
-          <!-- Rol -->
-          <div>
-            <label class="label-text">
-              <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8]"></ion-icon>
-              Rol
-            </label>
-            <select 
-              [(ngModel)]="nuevoUsuario.id_rol"
-              (change)="nuevoUsuario.id_carrera = nuevoUsuario.id_semestre = nuevoUsuario.matricula = ''"
-              class="input-field">
-              <option value="">Seleccionar Rol</option>
-              <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
-            </select>
-          </div>
-
-          <!-- Carrera -->
-          <div class="sm:col-span-2 lg:col-span-1">
-            <label class="label-text"
-                   [ngClass]="!campoActivo('id_carrera') ? 'label-inactive' : ''">
-              <ion-icon name="school-outline" [ngClass]="campoActivo('id_carrera') ? 'text-[#3FA6E8]' : 'text-gray-400'"></ion-icon>
-              Carrera
-            </label>
-            <select
-              [(ngModel)]="nuevoUsuario.id_carrera"
-              [disabled]="!campoActivo('id_carrera')"
-              class="input-field">
-              <option value="">Seleccionar Carrera</option>
-              <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
-            </select>
-          </div>
-
-          <!-- Semestre -->
-          <div>
-            <label class="label-text"
-                   [ngClass]="!campoActivo('id_semestre') ? 'label-inactive' : ''">
-              <ion-icon name="calendar-outline" [ngClass]="campoActivo('id_semestre') ? 'text-[#3FA6E8]' : 'text-gray-400'"></ion-icon>
-              Semestre
-            </label>
-            <select
-              [(ngModel)]="nuevoUsuario.id_semestre"
-              [disabled]="!campoActivo('id_semestre')"
-              class="input-field">
-              <option value="">Seleccionar Semestre</option>
-              <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
-            </select>
-          </div>
-
-          <!-- Matrícula -->
-          <div>
-            <label class="label-text"
-                   [ngClass]="!campoActivo('matricula') ? 'label-inactive' : ''">
-              <ion-icon name="id-card-outline" [ngClass]="campoActivo('matricula') ? 'text-[#3FA6E8]' : 'text-gray-400'"></ion-icon>
-              Matrícula
-            </label>
-            <input
-              [(ngModel)]="nuevoUsuario.matricula"
-              placeholder="Matrícula"
-              [disabled]="!campoActivo('matricula')"
-              class="input-field"
-            />
-          </div>
-
-          <!-- Contraseña -->
-          <div>
-            <label class="label-text"
-                   [ngClass]="!campoActivo('contrasena') ? 'label-inactive' : ''">
-              <ion-icon name="lock-closed-outline" [ngClass]="campoActivo('contrasena') ? 'text-[#3FA6E8]' : 'text-gray-400'"></ion-icon>
-              Contraseña
-            </label>
-            <input 
-              [(ngModel)]="nuevoUsuario.contrasena" 
-              placeholder="Contraseña" 
-              type="password"
-              [disabled]="!campoActivo('contrasena')"
-              class="input-field"
-            />
+          <div class="modal-footer">
+            <button (click)="mostrarModal = false; nuevoUsuario = resetForm(); editando = false; nuevaContrasena = ''"
+              class="btn-secondary">Cancelar</button>
+            <button (click)="guardarUsuario()" class="btn-primary">
+              {{ editando ? 'Guardar Cambios' : 'Crear Usuario' }}
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Modal Footer -->
-      <div class="modal-footer sticky bottom-0 p-4 sm:p-6 rounded-b-2xl flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
-        <button 
-          (click)="mostrarModal = false; nuevoUsuario = resetForm(); editando = false" 
-          class="btn-gray w-full sm:w-auto flex items-center justify-center gap-2">
-          <ion-icon name="close-outline"></ion-icon>
-          Cancelar
-        </button>
-        
-        <button 
-          (click)="guardarUsuario()" 
-          class="btn-success w-full sm:w-auto flex items-center justify-center gap-2">
-          <ion-icon [name]="editando ? 'save-outline' : 'add-circle-outline'"></ion-icon>
-          {{ editando ? 'Guardar Cambios' : 'Crear Usuario' }}
-        </button>
+
+      <!-- ════════════════════════════════════════════════════════
+           MODAL: VER DETALLES
+      ════════════════════════════════════════════════════════ -->
+      <div *ngIf="mostrarDetalles" class="modal-overlay" (click)="cerrarDetalles()">
+        <div class="modal-container modal-details" (click)="$event.stopPropagation()">
+
+          <div class="modal-header">
+            <h3 class="modal-title">Detalles del Usuario</h3>
+            <button (click)="cerrarDetalles()" class="btn-close">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="modal-body" *ngIf="usuarioSeleccionado">
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">ID Usuario</span>
+                <span class="detail-value">{{ usuarioSeleccionado.id_usuario }}</span>
+              </div>
+              <div class="detail-item detail-item-full">
+                <span class="detail-label">Nombre Completo</span>
+                <span class="detail-value">{{ usuarioSeleccionado.nombre }} {{ usuarioSeleccionado.a_paterno }} {{ usuarioSeleccionado.a_materno }}</span>
+              </div>
+              <div class="detail-item detail-item-full">
+                <span class="detail-label">Correo Electrónico</span>
+                <span class="detail-value">{{ usuarioSeleccionado.correo }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Teléfono</span>
+                <span class="detail-value">{{ usuarioSeleccionado.telefono || 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Matrícula</span>
+                <span class="detail-value">{{ usuarioSeleccionado.matricula || 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Rol</span>
+                <span class="badge-rol">{{ usuarioSeleccionado.rol }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Estado</span>
+                <span class="badge-estado" [ngClass]="usuarioSeleccionado.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
+                  {{ usuarioSeleccionado.estado }}
+                </span>
+              </div>
+              <div class="detail-item detail-item-full">
+                <span class="detail-label">Carrera</span>
+                <span class="detail-value">{{ usuarioSeleccionado.carrera || 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Semestre</span>
+                <span class="detail-value">{{ usuarioSeleccionado.semestre || 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Grupo</span>
+                <span class="detail-value">{{ usuarioSeleccionado.grupo || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button (click)="cerrarDetalles()" class="btn-secondary">Cerrar</button>
+          </div>
+        </div>
       </div>
+
+
+      <!-- ════════════════════════════════════════════════════════
+           MODAL: IMPORTAR EXCEL
+      ════════════════════════════════════════════════════════ -->
+      <div *ngIf="mostrarModalImportacion" class="modal-overlay" (click)="cerrarImportacion()">
+        <div class="modal-container" (click)="$event.stopPropagation()">
+
+          <div class="modal-header">
+            <h3 class="modal-title flex items-center gap-2">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+              Importar Usuarios desde Excel
+            </h3>
+            <button (click)="cerrarImportacion()" class="btn-close">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div class="import-section">
+              <div class="form-group">
+                <label class="form-label">Rol *</label>
+                <select [(ngModel)]="importData.id_rol" (change)="onRolImportChange()" class="form-input">
+                  <option value="">Seleccionar Rol</option>
+                  <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
+                </select>
+              </div>
+              <div class="form-group" *ngIf="esAlumnoImport">
+                <label class="form-label">Periodo *</label>
+                <select [(ngModel)]="importData.id_periodo" class="form-input">
+                  <option value="">Seleccionar Periodo</option>
+                  <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
+                </select>
+              </div>
+              <div class="form-group" *ngIf="esAlumnoImport">
+                <label class="form-label">Carrera *</label>
+                <select [(ngModel)]="importData.id_carrera" class="form-input">
+                  <option value="">Seleccionar Carrera</option>
+                  <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
+                </select>
+              </div>
+              <div class="form-group" *ngIf="esAlumnoImport">
+                <label class="form-label">Semestre *</label>
+                <select [(ngModel)]="importData.id_semestre" class="form-input">
+                  <option value="">Seleccionar Semestre</option>
+                  <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
+                </select>
+              </div>
+              <div class="form-group" *ngIf="esAlumnoImport">
+                <label class="form-label">Grupo *</label>
+                <select [(ngModel)]="importData.grupo" class="form-input">
+                  <option value="">Seleccionar Grupo</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Archivo Excel (.xlsx) *</label>
+                <input type="file" accept=".xlsx" (change)="onFileSelected($event)" class="form-input" />
+              </div>
+              <div class="form-group">
+                <button class="btn-secondary w-full flex items-center justify-center gap-2" (click)="descargarPlantilla()">
+                  <ion-icon name="download-outline"></ion-icon>
+                  Descargar Plantilla Modelo
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="resultadoImportacion" class="resultado-importacion">
+              <p class="resultado-titulo">Resultado de la importación</p>
+              <div class="resultado-grid resultado-grid-simple">
+                <div class="resultado-stat resultado-stat-exito">
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                  <span class="resultado-stat-valor">{{ resultadoImportacion?.insertados ?? 0 }}</span>
+                  <span class="resultado-stat-label">Insertados</span>
+                </div>
+              </div>
+              <p class="resultado-mensaje">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                {{ resultadoImportacion?.message }}
+              </p>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn-secondary" (click)="cerrarImportacion()">Cancelar</button>
+            <button class="btn-primary flex items-center gap-2" [disabled]="cargandoImport" (click)="importarUsuarios()">
+              <div *ngIf="cargandoImport" class="loading-spinner-sm"></div>
+              <ion-icon *ngIf="!cargandoImport" name="cloud-upload-outline"></ion-icon>
+              {{ cargandoImport ? 'Importando...' : 'Importar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           PAGINACIÓN
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="!cargando && usuarios.length > 0" class="pagination-section">
+        <div class="pagination-info">
+          <ion-icon name="people-outline" class="text-blue-500"></ion-icon>
+          <span>
+            Mostrando <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
+            a <strong>{{ Math.min(paginaActual * itemsPorPagina, usuarios.length) }}</strong>
+            de <strong>{{ usuarios.length }}</strong> usuarios
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap justify-center">
+          <div class="pagination-page-size">
+            <select [(ngModel)]="itemsPorPagina" (change)="cambiarItemsPorPagina()" class="form-input !py-1.5">
+              <option [value]="15">15 por página</option>
+              <option [value]="25">25 por página</option>
+              <option [value]="50">50 por página</option>
+              <option [value]="100">100 por página</option>
+            </select>
+          </div>
+
+          <div class="pagination-controls">
+            <button class="pagination-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1" title="Página anterior">
+              <ion-icon name="chevron-back-outline"></ion-icon>
+            </button>
+
+            <ng-container *ngFor="let page of paginas">
+              <button *ngIf="page !== '...'" class="pagination-btn" [class.active]="paginaActual === page" (click)="irAPagina(page)">
+                {{ page }}
+              </button>
+              <span *ngIf="page === '...'" class="pagination-dots">...</span>
+            </ng-container>
+
+            <button class="pagination-btn" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas" title="Página siguiente">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

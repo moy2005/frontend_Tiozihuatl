@@ -1,0 +1,290 @@
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
+
+    <!-- Header -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h2 class="page-title">
+          <ion-icon name="library-outline"></ion-icon>
+          Gestión de Préstamos
+        </h2>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-bar">
+      <div class="filtro-busqueda">
+        <ion-icon name="search-outline"></ion-icon>
+        <input
+          type="text"
+          placeholder="Buscar por alumno o libro..."
+          [(ngModel)]="filtroBusqueda"
+          (input)="aplicarFiltros()">
+      </div>
+
+      <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+        <option value="">Todos los estados</option>
+        <option value="Activo">Activo</option>
+        <option value="Devuelto">Devuelto</option>
+        <option value="Vencido">Vencido</option>
+        <option value="Cancelado">Cancelado</option>
+      </select>
+
+      <select [(ngModel)]="filtroOrden" (change)="aplicarFiltros()">
+        <option value="DESC">Más recientes primero</option>
+        <option value="ASC">Más antiguos primero</option>
+      </select>
+
+      <button class="btn-refresh" (click)="cargarPrestamos()">
+        <ion-icon name="refresh-outline"></ion-icon>
+        Actualizar
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="cargando" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 text-gray-600 font-medium">Cargando préstamos...</p>
+    </div>
+
+    <!-- Loans Table -->
+    <div *ngIf="!cargando" class="content-card overflow-hidden">
+
+      <!-- Desktop Table View -->
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell"><ion-icon name="key-outline"></ion-icon> #</th>
+              <th class="th-cell"><ion-icon name="person-outline"></ion-icon> Alumno</th>
+              <th class="th-cell"><ion-icon name="book-outline"></ion-icon> Libro</th>
+              <th class="th-cell"><ion-icon name="calendar-outline"></ion-icon> Fecha Préstamo</th>
+              <th class="th-cell"><ion-icon name="time-outline"></ion-icon> Vencimiento</th>
+              <th class="th-cell"><ion-icon name="checkmark-circle-outline"></ion-icon> Devolución</th>
+              <th class="th-cell"><ion-icon name="ellipse-outline"></ion-icon> Estado</th>
+              <th class="th-cell text-center"><ion-icon name="settings-outline"></ion-icon> Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of prestamosVisibles" class="table-row">
+              <td class="td-cell font-medium text-gray-900">{{ p.id_prestamo }}</td>
+              <td class="td-cell text-gray-600">{{ p.nombre }}</td>
+              <td class="td-cell font-medium text-gray-900">{{ p.titulo }}</td>
+              <td class="td-cell text-gray-600">{{ p.fecha_prestamo | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="td-cell text-gray-600">{{ p.fecha_vencimiento | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="td-cell text-gray-600">
+                <span *ngIf="p.fecha_devolucion">{{ p.fecha_devolucion | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span *ngIf="!p.fecha_devolucion" class="sin-devolucion">—</span>
+              </td>
+              <td class="td-cell">
+                <span
+                  class="badge-estado"
+                  [ngClass]="{
+                    'badge-activo':    p.estado === 'Activo',
+                    'badge-devuelto':  p.estado === 'Devuelto',
+                    'badge-vencido':   p.estado === 'Vencido',
+                    'badge-cancelado': p.estado === 'Cancelado'
+                  }">
+                  {{ p.estado }}
+                </span>
+              </td>
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+                  <!-- Devolver -->
+                  <button
+                    *ngIf="esAccionable(p.estado)"
+                    (click)="devolver(p)"
+                    class="btn-icon btn-icon-success"
+                    title="Marcar como devuelto">
+                    <ion-icon name="checkmark-outline"></ion-icon>
+                  </button>
+
+                  <!-- Cancelar -->
+                  <button
+                    *ngIf="esAccionable(p.estado)"
+                    (click)="cancelar(p)"
+                    class="btn-icon btn-icon-danger"
+                    title="Cancelar préstamo">
+                    <ion-icon name="close-outline"></ion-icon>
+                  </button>
+
+                  <!-- Vencido -->
+                  <button
+                    *ngIf="esAccionable(p.estado)"
+                    (click)="marcarVencido(p)"
+                    class="btn-icon btn-icon-warning"
+                    title="Marcar como vencido">
+                    <ion-icon name="alert-outline"></ion-icon>
+                  </button>
+
+                  <!-- Observaciones -->
+                  <button
+                    (click)="abrirObservaciones(p)"
+                    class="btn-icon btn-icon-primary"
+                    title="Editar observaciones">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Sin resultados -->
+            <tr *ngIf="prestamosVisibles.length === 0">
+              <td colspan="8" class="td-cell">
+                <div class="sin-resultados">
+                  <ion-icon name="search-outline"></ion-icon>
+                  No se encontraron préstamos
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile/Tablet Card View -->
+      <div class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let p of prestamosVisibles" class="prestamo-card">
+
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-semibold text-gray-500">ID: {{ p.id_prestamo }}</span>
+                <span
+                  class="badge-estado"
+                  [ngClass]="{
+                    'badge-activo':    p.estado === 'Activo',
+                    'badge-devuelto':  p.estado === 'Devuelto',
+                    'badge-vencido':   p.estado === 'Vencido',
+                    'badge-cancelado': p.estado === 'Cancelado'
+                  }">
+                  {{ p.estado }}
+                </span>
+              </div>
+              <p class="card-nombre">{{ p.nombre }}</p>
+              <p class="card-titulo">{{ p.titulo }}</p>
+            </div>
+          </div>
+
+          <!-- Card Dates -->
+          <div class="card-fechas">
+            <span>
+              <ion-icon name="calendar-outline" class="text-blue-500"></ion-icon>
+              Préstamo: {{ p.fecha_prestamo | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+            <span>
+              <ion-icon name="time-outline" class="text-red-500"></ion-icon>
+              Vence: {{ p.fecha_vencimiento | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+            <span *ngIf="p.fecha_devolucion">
+              <ion-icon name="checkmark-circle-outline" class="text-blue-500"></ion-icon>
+              Devuelto: {{ p.fecha_devolucion | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+
+          <!-- Actions -->
+          <div class="card-acciones">
+            <button
+              *ngIf="esAccionable(p.estado)"
+              (click)="devolver(p)"
+              class="btn-icon-mobile btn-icon-success flex-1">
+              <ion-icon name="checkmark-outline"></ion-icon>
+              <span>Devolver</span>
+            </button>
+
+            <button
+              *ngIf="esAccionable(p.estado)"
+              (click)="cancelar(p)"
+              class="btn-icon-mobile btn-icon-danger flex-1">
+              <ion-icon name="close-outline"></ion-icon>
+              <span>Cancelar</span>
+            </button>
+
+            <button
+              *ngIf="esAccionable(p.estado)"
+              (click)="marcarVencido(p)"
+              class="btn-icon-mobile btn-icon-warning flex-1">
+              <ion-icon name="alert-outline"></ion-icon>
+              <span>Vencido</span>
+            </button>
+
+            <button
+              (click)="abrirObservaciones(p)"
+              class="btn-icon-mobile btn-icon-primary flex-1">
+              <ion-icon name="create-outline"></ion-icon>
+              <span>Notas</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sin resultados móvil -->
+        <div *ngIf="prestamosVisibles.length === 0" class="sin-resultados">
+          <ion-icon name="search-outline"></ion-icon>
+          No se encontraron préstamos
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal Observaciones -->
+  <div *ngIf="modalObservaciones" class="modal-overlay" (click)="cerrarObservaciones()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <ion-icon name="create-outline"></ion-icon>
+          Observaciones
+        </h3>
+        <button (click)="cerrarObservaciones()" class="btn-close" [disabled]="guardandoObs">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Loading Overlay -->
+      <div *ngIf="guardandoObs" class="upload-loading-overlay">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"></div>
+          <p class="mt-4 text-white font-semibold text-lg">Guardando observaciones...</p>
+          <p class="text-blue-200 text-sm">Por favor espere...</p>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <p class="obs-info">
+          <strong>{{ prestamoEditando?.nombre }}</strong> —
+          {{ prestamoEditando?.titulo }}
+        </p>
+        <textarea
+          [(ngModel)]="observacionesTexto"
+          placeholder="Escribe una observación..."
+          rows="5"
+          maxlength="400">
+        </textarea>
+        <small>{{ observacionesTexto.length }}/400 caracteres</small>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          (click)="cerrarObservaciones()"
+          class="btn-secondary"
+          [disabled]="guardandoObs">
+          Cancelar
+        </button>
+
+        <button
+          (click)="guardarObservaciones()"
+          class="btn-primary"
+          [disabled]="guardandoObs || !observacionesTexto.trim()">
+          <ion-icon *ngIf="!guardandoObs" name="save-outline"></ion-icon>
+          <span>{{ guardandoObs ? 'Guardando...' : 'Guardar' }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

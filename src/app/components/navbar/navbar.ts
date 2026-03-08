@@ -1,7 +1,8 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { UserProfileService } from '../../api/services/user-profile.service';
+import { NewsService } from '../../api/services/news.service';
 import Swal from 'sweetalert2';
 import { filter } from 'rxjs/operators';
 import { CartService }  from '../../api/services/cart.service';
@@ -18,25 +19,33 @@ import { Subject } from 'rxjs';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
-export class Navbar implements OnInit {
+export class Navbar implements OnInit, OnDestroy {
   isAuthenticated = false;
-  userName = ''; // Solo nombre, sin apellidos
+  userName = '';
   userRole = '';
   cartCount = 0;
   badgeAnimate = false;
   private badgeTrigger = new Subject<void>();
   badgeTrigger$ = this.badgeTrigger.asObservable();
 
+  // ── Mega menú noticias ──────────────────────────────────────────────
+  noticiasMenu: any[] = [];
+  cargandoNoticiasMenu = false;
+  noticiasPanelVisible = false;
+
+  private panelShowTimeout: any;
+  private panelHideTimeout: any;
+
   constructor(
     private router: Router,
     private userService: UserProfileService,
     private cartService: CartService 
   ) {
-    // ✅ Recargar navbar después de cada navegación (especialmente después del login)
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
         this.verificarAutenticacion();
+        this.noticiasPanelVisible = false;
       });
   }
 
@@ -51,10 +60,15 @@ export class Navbar implements OnInit {
   });
 }
 
-  /** 🔐 Verificar si hay sesión activa */
+  ngOnDestroy() {
+    clearTimeout(this.panelShowTimeout);
+    clearTimeout(this.panelHideTimeout);
+  }
+
+  // ── Auth ────────────────────────────────────────────────────────────
+
   verificarAutenticacion() {
     const token = localStorage.getItem('accessToken');
-    
     if (token) {
       this.isAuthenticated = true;
       this.obtenerDatosUsuario();
@@ -69,28 +83,18 @@ export class Navbar implements OnInit {
   }
   
 
-  /** 👤 Obtener datos del usuario logueado */
   async obtenerDatosUsuario() {
     try {
       const res = await this.userService.getProfile().toPromise();
-      
-      // ✅ SOLO el nombre (sin apellidos)
       this.userName = res.nombre || 'Usuario';
       this.userRole = res.rol || '';
-      
-      console.log('✅ Usuario autenticado:', this.userName, '- Rol:', this.userRole);
-      
     } catch (err: any) {
-      console.error('❌ Error al obtener perfil:', err);
-      
-      // Si el token es inválido, cerrar sesión silenciosamente
       if (err.status === 401 || err.status === 403) {
         this.cerrarSesionSilencioso();
       }
     }
   }
 
-  /** 🚪 Cerrar sesión con confirmación */
   cerrarSesion() {
     Swal.fire({
       title: '¿Cerrar sesión?',
@@ -104,19 +108,10 @@ export class Navbar implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.cerrarSesionSilencioso();
-        
-        Swal.fire({
-          icon: 'success',
-          title: '¡Hasta pronto!',
-          text: 'Has cerrado sesión correctamente.',
-          timer: 1500,
-          showConfirmButton: false
-        });
       }
     });
   }
 
-  /** 🔒 Cerrar sesión silencioso (sin confirmación) */
   private cerrarSesionSilencioso() {
     localStorage.clear();
     this.isAuthenticated = false;
@@ -125,10 +120,9 @@ export class Navbar implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  /** 👤 Ir al perfil */
-  irPerfil() {
-    this.router.navigate(['/perfil']);
-  }
+  irPerfil() { this.router.navigate(['/perfil']); }
+  irPanelAdmin() { this.router.navigate(['/admin']); }
+  esAdmin(): boolean { return this.userRole === 'Administrador'; }
 
   triggerBadgeAnimation() {
     this.badgeAnimate = true;
@@ -148,11 +142,38 @@ export class Navbar implements OnInit {
   /** 📝 Obtener iniciales del nombre */
   getIniciales(): string {
     if (!this.userName) return 'U';
-    
     const palabras = this.userName.trim().split(' ');
-    if (palabras.length >= 2) {
-      return (palabras[0][0] + palabras[1][0]).toUpperCase();
-    }
+    if (palabras.length >= 2) return (palabras[0][0] + palabras[1][0]).toUpperCase();
     return palabras[0][0].toUpperCase();
+  }
+
+  // ── Noticias del mega menú ──────────────────────────────────────────
+
+  cargarNoticiasMenu() {
+    this.cargandoNoticiasMenu = true;
+    this.newsService.getPublicNews().subscribe({
+      next: (noticias) => {
+        this.noticiasMenu = (noticias || []).slice(0, 3);
+        this.cargandoNoticiasMenu = false;
+      },
+      error: () => {
+        this.noticiasMenu = [];
+        this.cargandoNoticiasMenu = false;
+      }
+    });
+  }
+
+  mostrarPanelNoticias() {
+    clearTimeout(this.panelHideTimeout);
+    this.panelShowTimeout = setTimeout(() => {
+      this.noticiasPanelVisible = true;
+    }, 60);
+  }
+
+  ocultarPanelNoticias() {
+    clearTimeout(this.panelShowTimeout);
+    this.panelHideTimeout = setTimeout(() => {
+      this.noticiasPanelVisible = false;
+    }, 120);
   }
 }

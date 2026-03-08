@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Navbar } from './components/navbar/navbar';
+import {Footer} from './components/footer/footer'
 
 import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.component';
 import { AuthService } from './api/services/auth';

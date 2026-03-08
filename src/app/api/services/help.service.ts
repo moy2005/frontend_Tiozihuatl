@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { environment } from '../environments/environment.prod';
+import { API_URL } from '../api.config';
 
 @Injectable({ providedIn: 'root' })
 export class HelpService {
-  private api = `${environment.apiUrl}/help`;
+  private api = `${API_URL}/help`;
 
   constructor(private http: HttpClient) {}
 

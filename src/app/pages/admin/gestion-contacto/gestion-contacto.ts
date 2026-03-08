@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation,CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
   imports: [CommonModule, FormsModule],
   templateUrl: './gestion-contacto.html',
   styleUrls: ['./gestion-contacto.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
 export class GestionContactoComponent implements OnInit {

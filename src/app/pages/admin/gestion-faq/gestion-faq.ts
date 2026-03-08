@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation,CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -9,6 +9,7 @@ import { firstValueFrom } from 'rxjs';
   selector: 'app-gestion-faq',
   standalone: true,
   imports: [CommonModule, FormsModule],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './gestion-faq.html',
   styleUrls: ['./gestion-faq.css'],
   encapsulation: ViewEncapsulation.None
@@ -19,6 +20,8 @@ export class GestionFaqComponent implements OnInit {
   guardando = false;
   editando = false;
   mostrarModal = false;
+  mostrarDetalles = false;
+  faqSeleccionado: any = null;
 
   faqForm: any = {
     id_faq: null,
@@ -80,9 +83,21 @@ export class GestionFaqComponent implements OnInit {
     }
   }
 
+  /** 👁️ Ver Detalles */
+  verDetalles(faq: any) {
+    this.faqSeleccionado = { ...faq };
+    this.mostrarDetalles = true;
+  }
+
+  /** ❌ Cerrar Detalles */
+  cerrarDetalles() {
+    this.mostrarDetalles = false;
+    this.faqSeleccionado = null;
+  }
+
   /** ➕ Nuevo */
   nuevoFaq() {
-    this.editando = true;
+    this.editando = false;
     this.mostrarModal = true;
     this.faqForm = {
       id_faq: null,
@@ -166,6 +181,12 @@ export class GestionFaqComponent implements OnInit {
     this.mostrarModal = false;
     this.editando = false;
     this.guardando = false;
+    this.faqForm = {
+      id_faq: null,
+      pregunta: '',
+      respuesta: '',
+      estado: 'Activo'
+    };
   }
 
   /** ❌ Cancelar */

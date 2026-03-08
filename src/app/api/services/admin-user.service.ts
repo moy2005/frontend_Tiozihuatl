@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { environment } from '../environments/environment.prod';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { API_URL } from '../api.config';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AdminUserService {
-  private api = `${environment.apiUrl}/users/admin`;
+  private api = `${API_URL}/users/admin`;
 
   constructor(private http: HttpClient) {}
 
@@ -42,17 +42,91 @@ export class AdminUserService {
     return this.http.get<any[]>(`${this.api}/roles/all`, { headers: this.getAuthHeaders() });
   }
 
-getCarreras(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.api}/carreras`, {
+  /** 🏫 Obtener carreras */
+  getCarreras(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/carreras`, { headers: this.getAuthHeaders() });
+  }
+
+  /** 📅 Obtener semestres */
+  getSemestres(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/semestres`, { headers: this.getAuthHeaders() });
+  }
+
+  /** 📤 Importar usuarios desde Excel */
+  importExcel(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.api}/import`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+    });
+  }
+
+  /** 📥 Descargar plantilla Excel */
+  downloadTemplate(): Observable<Blob> {
+    return this.http.get(`${this.api}/template`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+      responseType: 'blob',
+    });
+  }
+
+  /** 🔍 Filtros avanzados de usuarios */
+  getFiltered(filters: {
+    rol?: string;
+    id_carrera?: number | string;
+    id_semestre?: number | string;
+    grupo?: string;
+    id_periodo?: number | string;
+  }): Observable<any[]> {
+    let params = new HttpParams();
+    Object.entries(filters).forEach(([key, val]) => {
+      if (val !== null && val !== undefined && val !== '') {
+        params = params.set(key, String(val));
+      }
+    });
+    return this.http.get<any[]>(`${this.api}/filtros`, {
+      headers: this.getAuthHeaders(),
+      params,
+    });
+  }
+
+  /** ⏭️ Avanzar semestre global por periodo */
+avanzarSemestre(payload: {
+  id_periodo_origen: number | string;
+  id_periodo_destino: number | string;
+  alumnos: { id_usuario: number; accion: string }[];
+}): Observable<any> {
+  return this.http.post<any>(
+    `${this.api}/avanzar-semestre`,
+    payload,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+/** 👁 Preview de alumnos para avanzar semestre */
+getPreviewAvance(id_periodo: number | string): Observable<any[]> {
+  return this.http.get<any[]>(`${this.api}/avanzar-preview`, {
     headers: this.getAuthHeaders(),
+    params: new HttpParams().set('id_periodo', String(id_periodo))
   });
 }
 
-getSemestres(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.api}/semestres`, {
+getPeriodosTodos(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.api}/periodos`, { headers: this.getAuthHeaders() });
+}
+
+  /** 📆 Obtener periodos */
+  getPeriodosActivos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/periodos/activo`, { headers: this.getAuthHeaders() });
+  }
+
+  /** 🔍 Obtener semestres y grupos disponibles de un periodo */
+getOpcionesPorPeriodo(id_periodo: number | string): Observable<{ semestres: any[], grupos: string[] }> {
+  return this.http.get<any>(`${this.api}/filtros-opciones`, {
     headers: this.getAuthHeaders(),
+    params: new HttpParams().set('id_periodo', String(id_periodo))
   });
 }
 
 }
-

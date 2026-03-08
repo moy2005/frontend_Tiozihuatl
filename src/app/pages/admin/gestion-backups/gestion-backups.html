@@ -1,0 +1,439 @@
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
+
+    <!-- ============================================================
+         HEADER
+    ============================================================ -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h2 class="page-title">
+          <ion-icon name="server-outline"></ion-icon>
+          Gestión de Respaldos
+        </h2>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         ACCIONES RÁPIDAS — Respaldo completo + por tabla
+    ============================================================ -->
+    <div class="content-card overflow-hidden mb-6">
+
+      <div class="seccion-titulo">
+        <h3>
+          <ion-icon name="download-outline"></ion-icon>
+          Generar Respaldo Ahora
+        </h3>
+      </div>
+
+      <div class="acciones-panel">
+
+        <!-- Respaldo completo -->
+        <div class="accion-bloque">
+          <p class="accion-bloque-titulo">
+            <ion-icon name="albums-outline"></ion-icon>
+            Respaldo Completo
+          </p>
+          <p class="accion-bloque-desc">
+            Guarda una copia de toda la base de datos en tu computadora.
+          </p>
+          <div class="accion-controles">
+            <button
+              class="btn-primary"
+              (click)="backupCompleto()"
+              [disabled]="cargandoCompleto">
+              <span *ngIf="cargandoCompleto" class="loading-spinner-btn"></span>
+              <ion-icon *ngIf="!cargandoCompleto" name="download-outline"></ion-icon>
+              {{ cargandoCompleto ? 'Generando...' : 'Descargar Respaldo Completo' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Respaldo por tabla -->
+        <div class="accion-bloque">
+          <p class="accion-bloque-titulo">
+            <ion-icon name="grid-outline"></ion-icon>
+            Respaldo de una Sección
+          </p>
+          <p class="accion-bloque-desc">
+            Selecciona una sección específica del sistema para respaldar.
+          </p>
+          <div class="accion-controles">
+            <select class="form-select" [(ngModel)]="tablaSeleccionada">
+              <option value="">Seleccionar sección...</option>
+              <option *ngFor="let t of tablas" [value]="t">{{ etiquetaTabla(t) }}</option>
+            </select>
+            <button
+              class="btn-primary"
+              (click)="backupTabla()"
+              [disabled]="cargandoTabla || !tablaSeleccionada">
+              <span *ngIf="cargandoTabla" class="loading-spinner-btn"></span>
+              <ion-icon *ngIf="!cargandoTabla" name="download-outline"></ion-icon>
+              {{ cargandoTabla ? 'Generando...' : 'Descargar' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         RESPALDO AUTOMÁTICO — Programar
+    ============================================================ -->
+    <div class="content-card overflow-hidden mb-6">
+
+      <div class="seccion-titulo">
+        <h3>
+          <ion-icon name="alarm-outline"></ion-icon>
+          Programar Respaldo Automático
+        </h3>
+      </div>
+
+      <div class="seccion-cuerpo">
+
+        <!-- Frecuencia -->
+        <div class="form-group mb-4">
+          <label class="form-label">¿Con qué frecuencia se genera el respaldo?</label>
+          <div class="frecuencia-grupo">
+            <button
+              *ngFor="let opt of opcionesFrecuencia"
+              class="frecuencia-btn"
+              [class.frecuencia-btn-activo]="tipoFrecuencia === opt.value"
+              (click)="tipoFrecuencia = opt.value">
+              <ion-icon [name]="opt.icon"></ion-icon>
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+
+          <!-- Hora (para diario y días específicos) -->
+          <div class="form-group" *ngIf="tipoFrecuencia !== 'interval'">
+            <label class="form-label">¿A qué hora?</label>
+            <input
+              type="time"
+              [(ngModel)]="horaInicio"
+              class="form-input">
+          </div>
+
+          <!-- Intervalo de horas -->
+          <div class="form-group" *ngIf="tipoFrecuencia === 'interval'">
+            <label class="form-label">¿Cada cuántas horas?</label>
+            <div class="horas-control">
+              <button class="horas-btn" (click)="intervaloHoras = intervaloHoras > 2 ? intervaloHoras - 1 : 2">−</button>
+              <span class="horas-valor">{{ intervaloHoras }} h</span>
+              <button class="horas-btn" (click)="intervaloHoras = intervaloHoras < 24 ? intervaloHoras + 1 : 24">+</button>
+            </div>
+            <small class="form-hint">Mínimo 2 horas · Máximo 24 horas</small>
+          </div>
+
+          <!-- Días específicos -->
+          <div class="form-group" *ngIf="tipoFrecuencia === 'days'">
+            <label class="form-label">¿Qué días?</label>
+            <div class="dias-grupo">
+              <button
+                *ngFor="let d of dias"
+                class="dia-circulo"
+                [class.dia-circulo-activo]="diasSeleccionados.includes(d.value)"
+                (click)="toggleDia(d.value)">
+                {{ d.label }}
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <button
+          (click)="programarBackup()"
+          class="btn-primary mt-2"
+          [disabled]="cargandoProgramar">
+          <span *ngIf="cargandoProgramar" class="loading-spinner-btn"></span>
+          <ion-icon *ngIf="!cargandoProgramar" name="checkmark-circle-outline"></ion-icon>
+          {{ cargandoProgramar ? 'Guardando...' : 'Guardar Programación' }}
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TAREAS PROGRAMADAS
+    ============================================================ -->
+    <div class="content-card overflow-hidden mb-6">
+
+      <div class="seccion-titulo">
+        <h3>
+          <ion-icon name="list-outline"></ion-icon>
+          Programaciones Activas
+        </h3>
+        <button class="btn-refresh" (click)="cargarTareas()">
+          <ion-icon name="refresh-outline"></ion-icon>
+          Actualizar
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="cargandoTareas" class="content-card text-center py-12">
+        <div class="loading-spinner inline-block"></div>
+        <p class="mt-4 text-gray-600 font-medium">Cargando programaciones...</p>
+      </div>
+
+      <!-- Sin tareas -->
+      <div *ngIf="!cargandoTareas && tareas.length === 0" class="sin-resultados">
+        <ion-icon name="calendar-outline"></ion-icon>
+        No hay respaldos programados aún
+      </div>
+
+      <!-- Desktop -->
+      <div *ngIf="!cargandoTareas && tareas.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell"><ion-icon name="bookmark-outline"></ion-icon> Nombre</th>
+              <th class="th-cell"><ion-icon name="repeat-outline"></ion-icon> Frecuencia</th>
+              <th class="th-cell"><ion-icon name="time-outline"></ion-icon> Última ejecución</th>
+              <th class="th-cell"><ion-icon name="ellipse-outline"></ion-icon> Estado</th>
+              <th class="th-cell text-center"><ion-icon name="settings-outline"></ion-icon> Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of tareas" class="table-row">
+              <td class="td-cell font-medium text-gray-900">{{ t.nombre_tarea }}</td>
+              <td class="td-cell text-gray-600">{{ describirCron(t.cron_expression) }}</td>
+              <td class="td-cell text-gray-600">
+                <span *ngIf="t.ultima_ejecucion">{{ t.ultima_ejecucion | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span *ngIf="!t.ultima_ejecucion" class="sin-devolucion">Aún no ejecutado</span>
+              </td>
+              <td class="td-cell">
+                <span class="badge-estado" [ngClass]="t.activo ? 'badge-activo' : 'badge-cancelado'">
+                  {{ t.activo ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+                  <button
+                    (click)="toggleTask(t.id_tarea)"
+                    class="btn-icon"
+                    [ngClass]="t.activo ? 'btn-icon-warning' : 'btn-icon-success'"
+                    [title]="t.activo ? 'Pausar' : 'Activar'">
+                    <ion-icon [name]="t.activo ? 'pause-outline' : 'play-outline'"></ion-icon>
+                  </button>
+                  <button
+                    (click)="eliminarTarea(t.id_tarea)"
+                    class="btn-icon btn-icon-danger"
+                    title="Eliminar">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile -->
+      <div *ngIf="!cargandoTareas && tareas.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let t of tareas" class="prestamo-card">
+          <div class="card-header">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="badge-estado" [ngClass]="t.activo ? 'badge-activo' : 'badge-cancelado'">
+                  {{ t.activo ? 'Activa' : 'Inactiva' }}
+                </span>
+              </div>
+              <p class="card-nombre">{{ t.nombre_tarea }}</p>
+              <p class="card-titulo">{{ describirCron(t.cron_expression) }}</p>
+            </div>
+          </div>
+          <div class="card-fechas">
+            <span>
+              <ion-icon name="time-outline" class="text-blue-500"></ion-icon>
+              Última ejecución: {{ t.ultima_ejecucion ? (t.ultima_ejecucion | date:'dd/MM/yyyy HH:mm') : 'Aún no ejecutado' }}
+            </span>
+          </div>
+          <div class="card-acciones">
+            <button
+              (click)="toggleTask(t.id_tarea)"
+              class="btn-icon-mobile flex-1"
+              [ngClass]="t.activo ? 'btn-icon-warning' : 'btn-icon-success'">
+              <ion-icon [name]="t.activo ? 'pause-outline' : 'play-outline'"></ion-icon>
+              <span>{{ t.activo ? 'Pausar' : 'Activar' }}</span>
+            </button>
+            <button
+              (click)="eliminarTarea(t.id_tarea)"
+              class="btn-icon-mobile btn-icon-danger flex-1">
+              <ion-icon name="trash-outline"></ion-icon>
+              <span>Eliminar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================================
+         HISTORIAL DE RESPALDOS
+    ============================================================ -->
+    <div class="content-card overflow-hidden">
+
+      <div class="seccion-titulo">
+        <h3>
+          <ion-icon name="archive-outline"></ion-icon>
+          Historial de Respaldos
+        </h3>
+        <button class="btn-refresh" (click)="cargarHistorial()">
+          <ion-icon name="refresh-outline"></ion-icon>
+          Actualizar
+        </button>
+      </div>
+
+      <!-- Filtros del historial -->
+      <div class="filtros-bar">
+
+        <div class="filtro-busqueda">
+          <ion-icon name="search-outline"></ion-icon>
+          <input
+            type="text"
+            placeholder="Buscar por nombre de archivo..."
+            [(ngModel)]="filtroHistorial"
+            (input)="aplicarFiltroHistorial()">
+        </div>
+
+        <!-- Segmento Todos / Automáticos / Manuales -->
+        <div class="filtro-segmento">
+          <button
+            *ngFor="let opt of opcionesFiltroTipo"
+            class="filtro-seg-btn"
+            [class.filtro-seg-activo]="filtroTipo === opt.value"
+            (click)="filtroTipo = opt.value; aplicarFiltroHistorial()">
+            <ion-icon [name]="opt.icon"></ion-icon>
+            {{ opt.label }}
+          </button>
+        </div>
+
+        <button class="btn-refresh" (click)="cargarHistorial()">
+          <ion-icon name="refresh-outline"></ion-icon>
+          Actualizar
+        </button>
+
+      </div>
+
+      <!-- Loading historial -->
+      <div *ngIf="cargandoHistorial" class="content-card text-center py-12">
+        <div class="loading-spinner inline-block"></div>
+        <p class="mt-4 text-gray-600 font-medium">Cargando historial...</p>
+      </div>
+
+      <!-- Sin resultados -->
+      <div *ngIf="!cargandoHistorial && historialFiltrado.length === 0" class="sin-resultados">
+        <ion-icon name="archive-outline"></ion-icon>
+        No hay respaldos registrados
+      </div>
+
+      <!-- Desktop tabla historial -->
+      <div *ngIf="!cargandoHistorial && historialFiltrado.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell"><ion-icon name="document-outline"></ion-icon> Archivo</th>
+              <th class="th-cell"><ion-icon name="layers-outline"></ion-icon> Contenido</th>
+              <th class="th-cell"><ion-icon name="flash-outline"></ion-icon> Tipo</th>
+              <th class="th-cell"><ion-icon name="calendar-outline"></ion-icon> Fecha</th>
+              <th class="th-cell text-center"><ion-icon name="settings-outline"></ion-icon> Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of historialFiltrado" class="table-row">
+              <td class="td-cell">
+                <span class="archivo-texto">{{ b.nombre_archivo }}</span>
+              </td>
+              <td class="td-cell">
+                <span
+                  class="badge-estado"
+                  [ngClass]="b.alcance === 'database' ? 'badge-completo' : 'badge-tabla'">
+                  {{ b.alcance === 'database' ? 'Completo' : 'Sección: ' + etiquetaTabla(b.tabla_afectada) }}
+                </span>
+              </td>
+              <td class="td-cell">
+                <span
+                  class="badge-estado"
+                  [ngClass]="b.tipo === 'automatico' ? 'badge-automatico' : 'badge-manual'">
+                  <ion-icon [name]="b.tipo === 'automatico' ? 'flash-outline' : 'hand-left-outline'"></ion-icon>
+                  {{ b.tipo === 'automatico' ? 'Automático' : 'Manual' }}
+                </span>
+              </td>
+              <td class="td-cell text-gray-600">
+                {{ b.fecha | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="td-cell text-center">
+                <button
+                  *ngIf="b.tipo === 'automatico' && b.url_backup"
+                  (click)="descargarBackupAutomatico(b)"
+                  class="btn-icon btn-icon-primary"
+                  title="Descargar respaldo">
+                  <ion-icon name="download-outline"></ion-icon>
+                </button>
+                <span *ngIf="b.tipo !== 'automatico'" class="sin-devolucion">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards historial -->
+      <div *ngIf="!cargandoHistorial && historialFiltrado.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let b of historialFiltrado" class="prestamo-card">
+          <div class="card-header">
+            <div class="flex-1">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="badge-estado" [ngClass]="b.tipo === 'automatico' ? 'badge-automatico' : 'badge-manual'">
+                  <ion-icon [name]="b.tipo === 'automatico' ? 'flash-outline' : 'hand-left-outline'"></ion-icon>
+                  {{ b.tipo === 'automatico' ? 'Automático' : 'Manual' }}
+                </span>
+                <span class="badge-estado" [ngClass]="b.alcance === 'database' ? 'badge-completo' : 'badge-tabla'">
+                  {{ b.alcance === 'database' ? 'Completo' : 'Sección' }}
+                </span>
+              </div>
+              <p class="card-nombre archivo-texto">{{ b.nombre_archivo }}</p>
+            </div>
+          </div>
+          <div class="card-fechas">
+            <span>
+              <ion-icon name="calendar-outline" class="text-blue-500"></ion-icon>
+              {{ b.fecha | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+            <span *ngIf="b.tabla_afectada">
+              <ion-icon name="grid-outline" class="text-blue-500"></ion-icon>
+              Sección: {{ etiquetaTabla(b.tabla_afectada) }}
+            </span>
+          </div>
+          <div class="card-acciones" *ngIf="b.tipo === 'automatico' && b.url_backup">
+            <button
+              (click)="descargarBackupAutomatico(b)"
+              class="btn-icon-mobile btn-icon-primary flex-1">
+              <ion-icon name="download-outline"></ion-icon>
+              <span>Descargar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       OVERLAY DE DESCARGA — igual que modal de observaciones
+  ============================================================ -->
+  <div *ngIf="cargandoDescarga" class="modal-overlay">
+    <div class="modal-container" style="max-width: 26rem;">
+      <div class="upload-loading-overlay" style="position: relative; border-radius: 12px;">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"></div>
+          <p class="mt-4 text-white font-semibold text-lg">Descargando respaldo...</p>
+          <p class="text-blue-200 text-sm">Por favor espere</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
