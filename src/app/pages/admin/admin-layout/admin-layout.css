@@ -128,7 +128,7 @@
   flex-shrink: 0;
 }
 .logo-icon:hover { background: var(--color-primary-dark); transform: rotate(-5deg) scale(1.05); }
-.logo-icon ion-icon { font-size: 28px; color: #FFFFFF; }
+.logo-icon i { font-size: 28px; color: #FFFFFF; }
 
 .logo-icon-minimal {
   width: 46px;
@@ -146,7 +146,7 @@
 .sidebar-collapsed .logo-icon-minimal { display: flex; }
 .sidebar-hidden .logo-icon-minimal { display: none; }
 .logo-icon-minimal.hidden-state { display: none; }
-.logo-icon-minimal ion-icon { font-size: 28px; color: #E1F5FE; }
+.logo-icon-minimal i { font-size: 28px; color: #E1F5FE; }
 .logo-icon-minimal:hover { transform: rotate(5deg) scale(1.05); }
 
 .logo-text h1 {
@@ -457,7 +457,7 @@
   border: 2px solid rgba(255, 255, 255, 0.5);
   transition: all var(--transition-fast);
 }
-.user-avatar ion-icon { font-size: 24px; color: #FFFFFF; }
+.user-avatar i { font-size: 24px; color: #FFFFFF; }
 
 .sidebar-collapsed .user-avatar {
   background: rgba(255, 255, 255, 0.2);

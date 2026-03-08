@@ -36,6 +36,7 @@
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@ionic/angular": "^8.7.9",
+    "@phosphor-icons/web": "^2.1.2",
     "chart.js": "^4.5.1",
     "express": "^5.1.0",
     "ionicons": "^8.0.13",

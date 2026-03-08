@@ -35,6 +35,7 @@ export class AdminLayoutComponent implements OnInit {
   labelTop: number = 0;
 
   menuItems: MenuItem[] = [
+
     { label: 'Dashboard',  icon: 'grid-outline',         route: '/admin/dashboard' },
     { label: 'Usuarios',   icon: 'people-outline',        route: '/admin/usuarios' },
     { label: 'Preguntas',  icon: 'help-circle-outline',   route: '/admin/preguntas' },
@@ -45,6 +46,7 @@ export class AdminLayoutComponent implements OnInit {
     { label: 'Revistas',   icon: 'newspaper-outline',     route: '/admin/revistas' },
     { label: 'Préstamos',  icon: 'library-outline',       route: '/admin/prestamos' },
     { label: 'Respaldos',  icon: 'download-outline',      route: '/admin/backups' },
+    
   ];
 
   constructor(private router: Router) {}
@@ -84,9 +86,9 @@ export class AdminLayoutComponent implements OnInit {
   closeSidebar() { if (this.isMobile) this.sidebarState = 'hidden'; }
 
   getToggleButtonIcon(): string {
-    if (this.sidebarState === 'open') return 'chevron-back-outline';
-    if (this.sidebarState === 'collapsed') return 'chevron-forward-outline';
-    return 'menu-outline';
+    if (this.sidebarState === 'open') return 'ph-caret-left';
+    if (this.sidebarState === 'collapsed') return 'ph-caret-right';
+    return 'ph-list';
   }
 
   getToggleButtonTitle(): string {
