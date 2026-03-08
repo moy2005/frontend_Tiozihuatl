@@ -1,781 +1,22 @@
 <section class="perfil-page">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
-/* ── RESET & BASE ─────────────────────────────── */
-.perfil-page *, .perfil-page *::before, .perfil-page *::after { box-sizing: border-box; margin: 0; padding: 0; }
-.perfil-page ion-icon { pointer-events: none; display: block; }
-
-.perfil-page {
-  font-family: 'Outfit', sans-serif;
-  background: #F2F6FB;
-  min-height: 100vh;
-  padding: 5.5rem 1rem 3rem;
-  color: #1C2B3A;
-}
-
-/* ── WRAPPER ──────────────────────────────────── */
-.pf-wrap { max-width: 960px; margin: 0 auto; }
-
-/* ══════════════════════════════════════════════
-   HERO BANNER
-══════════════════════════════════════════════ */
-.pf-hero {
-  background: #3FA6E8;
-  border-radius: 18px 18px 0 0;
-  padding: 2.75rem 2.5rem 0;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Círculos decorativos — muy sutiles */
-.pf-hero::before {
-  content: '';
-  position: absolute;
-  width: 320px; height: 320px;
-  border-radius: 50%;
-  border: 48px solid rgba(255,255,255,0.04);
-  top: -100px; right: -80px;
-  pointer-events: none;
-}
-.pf-hero::after {
-  content: '';
-  position: absolute;
-  width: 160px; height: 160px;
-  border-radius: 50%;
-  border: 28px solid rgba(255,255,255,0.035);
-  top: 30px; right: 160px;
-  pointer-events: none;
-}
-
-/* Contenido hero */
-.pf-hero-inner {
-  display: flex;
-  align-items: center;      /* ← centrado vertical, no pegado al fondo */
-  gap: 1.25rem;
-  position: relative;
-  z-index: 2;
-  padding-bottom: 1.75rem;
-}
-
-/* Ícono sin fondo ni borde — centrado en el hero */
-.pf-avatar {
-  flex-shrink: 0;
-  margin-bottom: 0;
-  line-height: 0;
-  /* lo empujamos un poco hacia arriba respecto al centro */
-  align-self: flex-end;
-  margin-bottom: -24px;
-}
-.pf-avatar ion-icon {
-  font-size: 7.5rem;
-  color: rgba(255,255,255,0.82);
-  display: block;
-  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.2));
-}
-
-/* Nombre */
-.pf-hero-text {
-  padding-bottom: 0;
-  flex: 1;
-}
-.pf-hero-name {
-  font-size: clamp(1.55rem, 3.8vw, 2.2rem);
-  font-weight: 800;
-  color: #FFFFFF;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.6rem;
-}
-.pf-hero-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-.pf-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.28rem;
-  background: rgba(255,255,255,0.09);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.75);
-  font-size: 0.71rem;
-  font-weight: 600;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.pf-chip ion-icon { font-size: 0.72rem; }
-
-/* Botón admin en hero */
-.pf-hero-action {
-  padding-bottom: 0;
-  flex-shrink: 0;
-  align-self: center;
-}
-.btn-hero-admin {
-  background: rgba(255,255,255,0.09);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.84);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-.btn-hero-admin:hover { background: rgba(255,255,255,0.16); }
-.btn-hero-admin ion-icon { font-size: 0.88rem; }
-
-/* ══════════════════════════════════════════════
-   BARRA BLANCA DE TRANSICIÓN
-══════════════════════════════════════════════ */
-.pf-topbar {
-  background: #FFFFFF;
-  border-bottom: 1px solid #E4EDF6;
-  height: 48px;   /* espacio para el avatar sobreexpuesto */
-}
-
-/* ══════════════════════════════════════════════
-   CUERPO 2 COLUMNAS
-══════════════════════════════════════════════ */
-.pf-body {
-  background: #FFFFFF;
-  border-radius: 0 0 18px 18px;
-  padding: 2rem 2.5rem 2.5rem;
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 2.25rem;
-  align-items: start;
-}
-
-/* ══════════════════════════════════════════════
-   SIDEBAR
-══════════════════════════════════════════════ */
-.pf-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.pf-side-block {
-  background: #F7FAFD;
-  border: 1px solid #E4EDF6;
-  border-radius: 11px;
-  overflow: hidden;
-}
-.pf-side-block-title {
-  padding: 0.52rem 0.9rem;
-  border-bottom: 1px solid #E4EDF6;
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #5A7A9A;
-  display: flex;
-  align-items: center;
-  gap: 0.32rem;
-}
-.pf-side-block-title ion-icon { font-size: 0.78rem; }
-
-.pf-side-row {
-  padding: 0.6rem 0.9rem;
-  border-bottom: 1px solid #EEF3F8;
-  display: flex;
-  flex-direction: column;
-  gap: 0.08rem;
-}
-.pf-side-row:last-child { border-bottom: none; }
-.pf-side-label {
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8AAABB;
-}
-.pf-side-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1C2B3A;
-}
-
-/* ══════════════════════════════════════════════
-   CONTRASEÑA (sidebar)
-══════════════════════════════════════════════ */
-.pf-pass-block {
-  background: #F7FAFD;
-  border: 1px solid #E4EDF6;
-  border-radius: 11px;
-  overflow: hidden;
-}
-.pf-pass-title {
-  padding: 0.52rem 0.9rem;
-  border-bottom: 1px solid #E4EDF6;
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #5A7A9A;
-  display: flex;
-  align-items: center;
-  gap: 0.32rem;
-}
-.pf-pass-title ion-icon { font-size: 0.78rem; }
-.pf-pass-body {
-  padding: 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-/* Fuerza contraseña */
-.pf-strength {
-  background: #EEF3F8;
-  border: 1px solid #DDE8F2;
-  border-radius: 8px;
-  padding: 0.7rem;
-}
-.pf-strength-lbl {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8AAABB;
-  margin-bottom: 0.5rem;
-}
-.pf-bars { display: flex; gap: 3px; margin-bottom: 0.6rem; }
-.pf-bar {
-  flex: 1; height: 4px;
-  background: #C8D9EA;
-  border-radius: 2px;
-  transition: background 0.25s;
-}
-.pf-bar.weak   { background: #B85C5C; }
-.pf-bar.medium { background: #C4943A; }
-.pf-bar.strong { background: #3A7A50; }
-
-.pf-checks { display: flex; flex-direction: column; gap: 0.2rem; }
-.pf-check {
-  display: flex;
-  align-items: center;
-  gap: 0.36rem;
-  font-size: 0.72rem;
-  font-weight: 500;
-
-  color: #9AB0C0;
-  transition: color 0.2s;
-}
-.pf-check.ok { color: #3A7A50; }
-.pf-check ion-icon { font-size: 0.76rem; }
-
-/* ══════════════════════════════════════════════
-   PANEL PRINCIPAL
-══════════════════════════════════════════════ */
-.pf-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.pf-section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 0.6rem;
-  border-bottom: 2px solid #E4EDF6;
-  margin-bottom: 1.1rem;
-}
-.pf-section-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1A3A5C;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-.pf-section-title ion-icon { font-size: 1.05rem; color: #5A96C8; }
-
-/* Aviso */
-.pf-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.45rem;
-  background: #F0F6FC;
-  border-left: 3px solid #8ABEDD;
-  padding: 0.5rem 0.8rem;
-  border-radius: 0 6px 6px 0;
-  margin-bottom: 1.1rem;
-}
-.pf-notice ion-icon { color: #5A96C8; font-size: 0.88rem; margin-top: 2px; flex-shrink: 0; }
-.pf-notice p { font-size: 0.73rem; color: #3A6080; font-weight: 500; line-height: 1.45; }
-
-/* Grid de campos */
-.pf-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.9rem 1.1rem;
-}
-.pf-field-full { grid-column: 1 / -1; }
-
-.pf-field { display: flex; flex-direction: column; gap: 0.25rem; }
-.pf-field-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8AAABB;
-}
-.pf-field-static {
-  padding: 0.55rem 0.82rem;
-  background: #F2F6FB;
-  border: 1px solid #DDE8F2;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #3A5570;
-}
-.pf-field-input {
-  padding: 0.55rem 0.82rem;
-  background: #FFFFFF;
-  border: 1.5px solid #C0D4E8;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: #1C2B3A;
-  font-family: 'Outfit', sans-serif;
-  width: 100%;
-  transition: border-color 0.18s, box-shadow 0.18s;
-}
-.pf-field-input:focus {
-  outline: none;
-  border-color: #5A96C8;
-  box-shadow: 0 0 0 3px rgba(90,150,200,0.12);
-}
-
-/* ══════════════════════════════════════════════
-   BOTONES
-══════════════════════════════════════════════ */
-.pf-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.36rem;
-  padding: 0.52rem 1.1rem;
-  font-size: 0.79rem;
-  font-weight: 600;
-  font-family: 'Outfit', sans-serif;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.18s;
-  white-space: nowrap;
-}
-.pf-btn ion-icon { font-size: 0.9rem; }
-.pf-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.pf-btn-full { width: 100%; }
-
-.pf-btn-primary { background: #2A6096; color: #FFFFFF; }
-.pf-btn-primary:hover:not(:disabled) { background: #1A3A5C; }
-
-.pf-btn-save { background: #2E6B3E; color: #FFFFFF; }
-.pf-btn-save:hover:not(:disabled) { background: #1E4A2A; }
-
-.pf-btn-outline {
-  background: transparent;
-  color: #2A6096;
-  border: 1.5px solid #A8C8E4;
-  font-size: 0.75rem;
-  padding: 0.4rem 0.9rem;
-}
-.pf-btn-outline:hover { background: #F0F6FC; }
-
-.pf-btn-ghost {
-  background: #EEF3F8;
-  color: #5A7A9A;
-  font-size: 0.75rem;
-  padding: 0.4rem 0.9rem;
-}
-.pf-btn-ghost:hover { background: #DDE8F2; }
-
-/* ══════════════════════════════════════════════
-   LOADING
-══════════════════════════════════════════════ */
-.pf-loading {
-  background: #FFFFFF;
-  border-radius: 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4.5rem 1rem;
-  gap: 1rem;
-}
-.pf-spinner {
-  width: 2.25rem; height: 2.25rem;
-  border: 3px solid #DDE8F2;
-  border-top-color: #2A6096;
-  border-radius: 50%;
-  animation: pf-spin 0.7s linear infinite;
-}
-@keyframes pf-spin { to { transform: rotate(360deg); } }
-.pf-loading p { font-size: 0.84rem; color: #7A94AA; font-weight: 500; }
-
-/* ══════════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════════ */
-
-/* Tablet */
-@media (max-width: 760px) {
-  .perfil-page { padding-top: 4.5rem; padding-left: 0.75rem; padding-right: 0.75rem; }
-  .pf-hero { padding: 2rem 1.5rem 0; border-radius: 14px 14px 0 0; }
-  .pf-hero-inner { gap: 1rem; }
-  .pf-avatar ion-icon { font-size: 5.5rem; }
-  .pf-avatar { margin-bottom: -18px; }
-  .pf-hero-action { display: none; }
-  .pf-topbar { height: 42px; }
-  .pf-body {
-    grid-template-columns: 1fr;
-    padding: 1.5rem;
-    gap: 1.5rem;
-    border-radius: 0 0 14px 14px;
-  }
-  /* En tablet/mobile, sidebar en fila */
-  .pf-sidebar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.85rem;
-  }
-  .pf-pass-block { grid-column: 1 / -1; }
-  .pf-admin-mobile-btn { display: flex !important; }
-}
-
-/* Mobile */
-@media (max-width: 520px) {
-  .perfil-page { padding-top: 4.25rem; padding-left: 0.5rem; padding-right: 0.5rem; }
-  .pf-hero { padding: 1.5rem 1rem 0; }
-  .pf-hero-inner { flex-wrap: nowrap; }
-  .pf-hero-name { font-size: 1.25rem; }
-  .pf-avatar ion-icon { font-size: 4.25rem; }
-  .pf-avatar { margin-bottom: -14px; }
-  .pf-topbar { height: 36px; }
-  .pf-body { padding: 1rem; gap: 1.25rem; }
-  .pf-sidebar { grid-template-columns: 1fr; }
-  .pf-pass-block { grid-column: 1; }
-  .pf-fields { grid-template-columns: 1fr; }
-  .pf-field-full { grid-column: 1; }
-  .pf-section-head { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
-  .pf-section-head div { display: flex; gap: 0.4rem; width: 100%; }
-  .pf-section-head div .pf-btn { flex: 1; }
-}
-</style>
-
-<div class="pf-wrap">
-
-          <!-- Apellido Paterno -->
-          <div *ngIf="mostrarCampo('a_paterno')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="person-outline" class="text-[#3FA6E8]"></ion-icon>
-              Apellido Paterno
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.a_paterno"
-              [disabled]="!editando || !editable('a_paterno')"
-              class="input-field"
-              placeholder="Apellido paterno"
-            />
-          </div>
-
-          <!-- Apellido Materno -->
-          <div *ngIf="mostrarCampo('a_materno')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="person-outline" class="text-[#3FA6E8]"></ion-icon>
-              Apellido Materno
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.a_materno"
-              [disabled]="!editando || !editable('a_materno')"
-              class="input-field"
-              placeholder="Apellido materno"
-            />
-          </div>
-
-          <!-- Correo -->
-          <div *ngIf="mostrarCampo('correo')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="mail-outline" class="text-[#3FA6E8]"></ion-icon>
-              Correo Electrónico
-            </label>
-            <input
-              type="email"
-              [(ngModel)]="user.correo"
-              [disabled]="!editando || !editable('correo')"
-              class="input-field"
-              placeholder="correo@ejemplo.com"
-            />
-          </div>
-
-          <!-- Teléfono -->
-          <div *ngIf="mostrarCampo('telefono')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="call-outline" class="text-[#3FA6E8]"></ion-icon>
-              Teléfono
-            </label>
-            <input
-              type="tel"
-              [(ngModel)]="user.telefono"
-              [disabled]="!editando || !editable('telefono')"
-              class="input-field"
-              placeholder="Número de teléfono"
-            />
-          </div>
-
-          <!-- Matrícula -->
-          <div *ngIf="mostrarCampo('matricula')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="id-card-outline" class="text-[#3FA6E8]"></ion-icon>
-              Matrícula
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.matricula"
-              disabled
-              class="input-field"
-            />
-          </div>
-
-          <!-- Carrera -->
-          <div *ngIf="mostrarCampo('carrera')" class="sm:col-span-2">
-            <label class="label-text">
-              <ion-icon name="school-outline" class="text-[#3FA6E8]"></ion-icon>
-              Carrera
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.carrera"
-              disabled
-              class="input-field"
-            />
-          </div>
-
-          <!-- Semestre -->
-          <div *ngIf="mostrarCampo('semestre')" class="sm:col-span-2 md:col-span-1">
-            <label class="label-text">
-              <ion-icon name="calendar-outline" class="text-[#3FA6E8]"></ion-icon>
-              Semestre
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="user.semestre"
-              disabled
-              class="input-field"
-            />
-          </div>
-        </div>
-      </div>
-
-
-      <!-- Sidebar -->
-      <div class="space-y-4 sm:space-y-6">
-        <!-- Role Card -->
-        <div class="card-azul">
-          <h3 class="section-title mb-3 sm:mb-4">
-            <ion-icon name="shield-checkmark-outline" class="text-[#3FA6E8]"></ion-icon>
-            Rol del Usuario
-          </h3>
-          <div class="badge-rol">
-            <p class="badge-rol-text">
-              {{ user.rol }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Password Change Card -->
-        <div class="card-azul">
-          <h3 class="section-title mb-3 sm:mb-4">
-            <ion-icon name="lock-closed-outline" class="text-[#3FA6E8]"></ion-icon>
-            Cambiar Contraseña
-          </h3>
-          
-          <div class="space-y-3 sm:space-y-4">
-            <div>
-              <label class="label-text">
-                <ion-icon name="key-outline" class="text-[#7A8CC5]"></ion-icon>
-                Contraseña Actual
-              </label>
-              <input
-                type="password"
-                [(ngModel)]="contrasenaActual"
-                class="input-field"
-                placeholder="Contraseña actual"
-              />
-            </div>
-
-            <div>
-              <label class="label-text">
-                <ion-icon name="lock-open-outline" class="text-[#7A8CC5]"></ion-icon>
-                Nueva Contraseña
-              </label>
-              <input
-                type="password"
-                [(ngModel)]="nuevaContrasena"
-                (input)="onPasswordInput()"
-                class="input-field"
-                placeholder="Nueva contraseña"
-              />
-            </div>
-
-            <!-- Password Strength Indicator -->
-            <div *ngIf="showPasswordTip" class="strength-container">
-              <p class="text-xs sm:text-sm font-semibold text-[#2C3A6A] mb-2">Seguridad de la contraseña:</p>
-              
-              <div class="strength-bar-wrapper">
-                <div class="strength-segment"
-                     [ngClass]="{
-                       'active-weak': passwordStage >= 1,
-                       'active-medium': passwordStage >= 2,
-                       'active-strong': passwordStage >= 3
-                     }"></div>
-                <div class="strength-segment"
-                     [ngClass]="{
-                       'active-medium': passwordStage >= 2,
-                       'active-strong': passwordStage >= 3
-                     }"></div>
-                <div class="strength-segment"
-                     [ngClass]="{'active-strong': passwordStage >= 3}"></div>
-              </div>
-
-              <div class="space-y-1 text-xs">
-                <div class="flex items-center gap-2" [ngClass]="hasLowercase() ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="hasLowercase() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Minúsculas (a-z)</span>
-                </div>
-                <div class="flex items-center gap-2" [ngClass]="hasUppercase() ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="hasUppercase() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Mayúsculas (A-Z)</span>
-                </div>
-                <div class="flex items-center gap-2" [ngClass]="hasNumber() ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="hasNumber() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Números (0-9)</span>
-                </div>
-                <div class="flex items-center gap-2" [ngClass]="hasSpecialChar() ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="hasSpecialChar() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Caracteres especiales (@$!%*?&)</span>
-                </div>
-                <div class="flex items-center gap-2" [ngClass]="nuevaContrasena.length >= 8 ? 'text-green-600' : 'text-gray-500'">
-                  <ion-icon [name]="nuevaContrasena.length >= 8 ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-                  <span>Mínimo 8 caracteres</span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              (click)="cambiarContrasena()"
-              [disabled]="cargando || !validarPasswordFuerte()"
-              class="btn-primary w-full">
-              <ion-icon name="sync-outline"></ion-icon>
-              <span class="hidden xs:inline">{{ cargando ? 'Actualizando...' : 'Actualizar Contraseña' }}</span>
-              <span class="xs:hidden">{{ cargando ? 'Actualizando...' : 'Actualizar' }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-      <!-- ================================================= -->
-  <!-- 📚 TUS REVISTAS - HISTORIAL DE COMPRA -->
-  <!-- ================================================= -->
-
-  <div *ngIf="!cargando" class="card-azul mt-6">
-    
-    <h2 class="section-title mb-4">
-      <ion-icon name="book-outline" class="text-[#3FA6E8]"></ion-icon>
-      Tus Revistas
-    </h2>
-
-    <!-- Cargando -->
-    <div *ngIf="loadingPurchases" class="text-center py-6 text-[#5A6B8C]">
-      Cargando revistas...
-    </div>
-
-    <!-- Sin compras -->
-    <div *ngIf="!loadingPurchases && purchasedMagazines.length === 0"
-        class="text-center py-6 text-[#5A6B8C]">
-      Aún no has comprado revistas.
-    </div>
-
-    <!-- Tabla horizontal -->
-    <div *ngIf="!loadingPurchases && purchasedMagazines.length > 0"
-        class="overflow-x-auto">
-
-      <table class="w-full text-sm text-left border-collapse">
-        
-        <thead>
-          <tr class="bg-[#EEF4FF] text-[#2C3A6A]">
-            <th class="p-3 border-b">Revista</th>
-            <th class="p-3 border-b">Precio</th>
-            <th class="p-3 border-b">Fecha Compra</th>
-            <th class="p-3 border-b text-center">Acción</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          <tr *ngFor="let mag of purchasedMagazines"
-              class="hover:bg-[#F9FAFB] transition">
-
-            <td class="p-3 border-b font-medium">
-              {{ mag.titulo }}
-            </td>
-
-            <td class="p-3 border-b text-[#3FA6E8] font-semibold">
-              ${{ mag.precio }}
-            </td>
-
-            <td class="p-3 border-b">
-              {{ mag.fecha_compra | date:'mediumDate' }}
-            </td>
-
-            <td class="p-3 border-b text-center">
-              <button
-              class="btn-primary"
-              (click)="irALectura(mag.id_revista)">
-              Leer
-            </button>
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </table>
-
-    </div>
-
+<ng-container *ngIf="cargando">
+  <div class="pf-loading">
+    <div class="pf-spinner"></div>
+    <p>Cargando perfil...</p>
   </div>
+</ng-container>
 
-  </div>
+<ng-container *ngIf="!cargando">
 
-  <ng-container *ngIf="!cargando">
+  <div class="pf-wrap">
 
     <!-- ═══════════ HERO ═══════════ -->
     <div class="pf-hero">
       <div class="pf-hero-inner">
-
-        <!-- Ícono plano — sin fondo ni borde, sobresale hacia abajo -->
         <div class="pf-avatar">
           <ion-icon name="person-outline"></ion-icon>
         </div>
-
-        <!-- Nombre + chips -->
         <div class="pf-hero-text">
           <h1 class="pf-hero-name">
             {{ user.nombre }} {{ user.a_paterno }} {{ user.a_materno }}
@@ -791,28 +32,23 @@
             </span>
           </div>
         </div>
-
-        <!-- Botón admin (solo desktop) -->
         <div *ngIf="user.rol === 'Administrador'" class="pf-hero-action">
           <button (click)="irPanelAdmin()" class="btn-hero-admin">
             <ion-icon name="settings-outline"></ion-icon>
             Panel de administración
           </button>
         </div>
-
       </div>
     </div>
 
-    <!-- Transición blanca -->
     <div class="pf-topbar"></div>
 
     <!-- ═══════════ CUERPO ═══════════ -->
     <div class="pf-body">
 
-      <!-- ── SIDEBAR ── -->
+      <!-- SIDEBAR -->
       <div class="pf-sidebar">
 
-        <!-- Datos de cuenta -->
         <div class="pf-side-block">
           <div class="pf-side-block-title">
             <ion-icon name="card-outline"></ion-icon>
@@ -832,29 +68,23 @@
           </div>
         </div>
 
-       
-
-        <!-- Contraseña -->
         <div class="pf-pass-block">
           <div class="pf-pass-title">
             <ion-icon name="lock-closed-outline"></ion-icon>
             Cambiar contraseña
           </div>
           <div class="pf-pass-body">
-
             <div class="pf-field">
               <label class="pf-field-label">Contraseña actual</label>
               <input type="password" [(ngModel)]="contrasenaActual"
                      class="pf-field-input" placeholder="••••••••" />
             </div>
-
             <div class="pf-field">
               <label class="pf-field-label">Nueva contraseña</label>
               <input type="password" [(ngModel)]="nuevaContrasena"
                      (input)="onPasswordInput()"
                      class="pf-field-input" placeholder="••••••••" />
             </div>
-
             <div *ngIf="showPasswordTip" class="pf-strength">
               <div class="pf-strength-lbl">Nivel de seguridad</div>
               <div class="pf-bars">
@@ -885,34 +115,29 @@
                 </div>
               </div>
             </div>
-
             <button (click)="cambiarContrasena()"
                     [disabled]="cargando || !validarPasswordFuerte()"
                     class="pf-btn pf-btn-primary pf-btn-full">
               <ion-icon name="sync-outline"></ion-icon>
               {{ cargando ? 'Actualizando...' : 'Actualizar contraseña' }}
             </button>
-
           </div>
         </div>
 
       </div>
       <!-- FIN SIDEBAR -->
 
-      <!-- ── PANEL PRINCIPAL ── -->
+      <!-- PANEL PRINCIPAL -->
       <div class="pf-main">
 
-        <!-- Botón admin visible en mobile -->
         <div *ngIf="user.rol === 'Administrador'"
-             class="pf-admin-mobile-btn"
-             style="display:none;">
+             class="pf-admin-mobile-btn" style="display:none;">
           <button (click)="irPanelAdmin()" class="pf-btn pf-btn-primary pf-btn-full">
             <ion-icon name="settings-outline"></ion-icon>
             Panel de administración
           </button>
         </div>
 
-        <!-- Información personal -->
         <div>
           <div class="pf-section-head">
             <span class="pf-section-title">
@@ -942,7 +167,6 @@
           </div>
 
           <div class="pf-fields">
-
             <div *ngIf="mostrarCampo('nombre')" class="pf-field">
               <label class="pf-field-label">Nombre</label>
               <input *ngIf="editando && editable('nombre')" type="text"
@@ -951,60 +175,90 @@
                 {{ user.nombre || '—' }}
               </div>
             </div>
-
             <div *ngIf="mostrarCampo('a_paterno')" class="pf-field">
               <label class="pf-field-label">Apellido paterno</label>
               <input *ngIf="editando && editable('a_paterno')" type="text"
-                     [(ngModel)]="user.a_paterno" class="pf-field-input" placeholder="Apellido paterno" />
+                     [(ngModel)]="user.a_paterno" class="pf-field-input" />
               <div *ngIf="!editando || !editable('a_paterno')" class="pf-field-static">
                 {{ user.a_paterno || '—' }}
               </div>
             </div>
-
             <div *ngIf="mostrarCampo('a_materno')" class="pf-field">
               <label class="pf-field-label">Apellido materno</label>
               <input *ngIf="editando && editable('a_materno')" type="text"
-                     [(ngModel)]="user.a_materno" class="pf-field-input" placeholder="Apellido materno" />
+                     [(ngModel)]="user.a_materno" class="pf-field-input" />
               <div *ngIf="!editando || !editable('a_materno')" class="pf-field-static">
                 {{ user.a_materno || '—' }}
               </div>
             </div>
-
             <div *ngIf="mostrarCampo('correo')" class="pf-field">
               <label class="pf-field-label">Correo electrónico</label>
               <input *ngIf="editando && editable('correo')" type="email"
-                     [(ngModel)]="user.correo" class="pf-field-input" placeholder="correo@ejemplo.com" />
+                     [(ngModel)]="user.correo" class="pf-field-input" />
               <div *ngIf="!editando || !editable('correo')" class="pf-field-static">
                 {{ user.correo || '—' }}
               </div>
             </div>
-
             <div *ngIf="mostrarCampo('telefono')" class="pf-field">
-              <label class="pf-field-label">Teléfono de contacto</label>
+              <label class="pf-field-label">Teléfono</label>
               <input *ngIf="editando && editable('telefono')" type="tel"
-                     [(ngModel)]="user.telefono" class="pf-field-input" placeholder="Número de teléfono" />
+                     [(ngModel)]="user.telefono" class="pf-field-input" />
               <div *ngIf="!editando || !editable('telefono')" class="pf-field-static">
                 {{ user.telefono || '—' }}
               </div>
             </div>
-
             <div *ngIf="mostrarCampo('matricula')" class="pf-field">
               <label class="pf-field-label">Matrícula</label>
               <div class="pf-field-static">{{ user.matricula || '—' }}</div>
             </div>
-
             <div *ngIf="mostrarCampo('carrera')" class="pf-field pf-field-full">
               <label class="pf-field-label">Carrera</label>
               <div class="pf-field-static">{{ user.carrera || '—' }}</div>
             </div>
-
             <div *ngIf="mostrarCampo('semestre')" class="pf-field">
               <label class="pf-field-label">Semestre</label>
               <div class="pf-field-static">
                 {{ user.semestre ? user.semestre + '° semestre' : '—' }}
               </div>
             </div>
+          </div>
+        </div>
 
+        <!-- Tus Revistas -->
+        <div class="pf-side-block" style="margin-top: 1rem;">
+          <div class="pf-side-block-title">
+            <ion-icon name="book-outline"></ion-icon>
+            Tus Revistas
+          </div>
+          <div *ngIf="loadingPurchases" style="padding: 1rem; text-align:center; color:#5A6B8C;">
+            Cargando revistas...
+          </div>
+          <div *ngIf="!loadingPurchases && purchasedMagazines.length === 0"
+               style="padding: 1rem; text-align:center; color:#5A6B8C;">
+            Aún no has comprado revistas.
+          </div>
+          <div *ngIf="!loadingPurchases && purchasedMagazines.length > 0"
+               style="overflow-x:auto;">
+            <table style="width:100%; font-size:0.85rem; border-collapse:collapse;">
+              <thead>
+                <tr style="background:#EEF4FF; color:#2C3A6A;">
+                  <th style="padding:0.75rem; border-bottom:1px solid #E4EDF6;">Revista</th>
+                  <th style="padding:0.75rem; border-bottom:1px solid #E4EDF6;">Precio</th>
+                  <th style="padding:0.75rem; border-bottom:1px solid #E4EDF6;">Fecha</th>
+                  <th style="padding:0.75rem; border-bottom:1px solid #E4EDF6; text-align:center;">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let mag of purchasedMagazines">
+                  <td style="padding:0.75rem; border-bottom:1px solid #EEF3F8;">{{ mag.titulo }}</td>
+                  <td style="padding:0.75rem; border-bottom:1px solid #EEF3F8; color:#3FA6E8;">${{ mag.precio }}</td>
+                  <td style="padding:0.75rem; border-bottom:1px solid #EEF3F8;">{{ mag.fecha_compra | date:'mediumDate' }}</td>
+                  <td style="padding:0.75rem; border-bottom:1px solid #EEF3F8; text-align:center;">
+                    <button class="pf-btn pf-btn-primary" (click)="irALectura(mag.id_revista)">Leer</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1012,8 +266,11 @@
       <!-- FIN PANEL PRINCIPAL -->
 
     </div>
+    <!-- FIN CUERPO -->
 
-  </ng-container>
+  </div>
+  <!-- FIN pf-wrap -->
 
-</div>
+</ng-container>
+
 </section>

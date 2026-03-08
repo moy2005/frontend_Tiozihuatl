@@ -39,7 +39,8 @@ export class Navbar implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private userService: UserProfileService,
-    private cartService: CartService 
+    private cartService: CartService,
+    private newsService: NewsService
   ) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -121,8 +122,8 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   irPerfil() { this.router.navigate(['/perfil']); }
-  irPanelAdmin() { this.router.navigate(['/admin']); }
-  esAdmin(): boolean { return this.userRole === 'Administrador'; }
+  //irPanelAdmin() { this.router.navigate(['/admin']); }
+ // esAdmin(): boolean { return this.userRole === 'Administrador'; }
 
   triggerBadgeAnimation() {
     this.badgeAnimate = true;
