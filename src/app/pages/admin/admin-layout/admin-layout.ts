@@ -35,16 +35,18 @@ export class AdminLayoutComponent implements OnInit {
   labelTop: number = 0;
 
   menuItems: MenuItem[] = [
-    { label: 'Dashboard',  icon: 'ph-squares-four',    route: '/admin/dashboard' },
-    { label: 'Usuarios',   icon: 'ph-users',           route: '/admin/usuarios' },
-    { label: 'Preguntas',  icon: 'ph-question',        route: '/admin/preguntas' },
-    { label: 'Contactos',  icon: 'ph-envelope',        route: '/admin/contactos', badge: 5 },
-    { label: 'Noticias',   icon: 'ph-megaphone',       route: '/admin/noticias' },
-    { label: 'Libros',     icon: 'ph-books',           route: '/admin/libros' },
-    { label: 'Calendario', icon: 'ph-calendar',        route: '/admin/calendario' },
-    { label: 'Revistas',   icon: 'ph-newspaper',       route: '/admin/revistas' },
-    { label: 'Préstamos',  icon: 'ph-book-bookmark',   route: '/admin/prestamos' },
-    { label: 'Respaldos',  icon: 'ph-download-simple', route: '/admin/backups' },
+
+    { label: 'Dashboard',  icon: 'grid-outline',         route: '/admin/dashboard' },
+    { label: 'Usuarios',   icon: 'people-outline',        route: '/admin/usuarios' },
+    { label: 'Preguntas',  icon: 'help-circle-outline',   route: '/admin/preguntas' },
+    { label: 'Contactos',  icon: 'mail-outline',          route: '/admin/contactos', badge: 5 },
+    { label: 'Noticias',   icon: 'megaphone-outline',     route: '/admin/noticias' },
+    { label: 'Libros',     icon: 'book-outline',          route: '/admin/libros' },
+    { label: 'Calendario', icon: 'calendar-outline',      route: '/admin/calendario-admin' },
+    { label: 'Revistas',   icon: 'newspaper-outline',     route: '/admin/revistas' },
+    { label: 'Préstamos',  icon: 'library-outline',       route: '/admin/prestamos' },
+    { label: 'Respaldos',  icon: 'download-outline',      route: '/admin/backups' },
+    
   ];
 
   constructor(private router: Router) {}

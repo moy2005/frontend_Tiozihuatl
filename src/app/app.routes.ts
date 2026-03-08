@@ -19,6 +19,7 @@ import { ContactanosComponent } from './pages/contactanos/contactanos';
 import { GestionNoticiasComponent } from './pages/admin/gestion-noticias/gestion-noticias';
 import { NoticiasComponent } from './pages/noticias/noticias';
 import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
+import { CalendarioComponent } from './pages/calendario/calendario.component';
 import { GestionCatalogoComponent} from './pages/admin/gestion-catalogo/gestion-catalogo';
 import { GestionCalendarioComponent } from './pages/admin/gestion-calendario/gestion-calendario'
 
@@ -51,6 +52,8 @@ export const routes: Routes = [
       roles: ['Alumno', 'Administrador', 'Docente','Bibliotecario'] // los que sí pueden
       }
   },
+  { path: 'calendario', component: CalendarioComponent},
+
 
   // 🔐 Protegidas (todas con AuthGuard)
   { path: 'perfil', component: PerfilUsuarioComponent, canActivate: [AuthGuard] },
@@ -71,7 +74,7 @@ export const routes: Routes = [
       { path: 'contactos', component: GestionContactoComponent },
       { path:'noticias',component:GestionNoticiasComponent},
       { path: 'libros', component: GestionCatalogoComponent },
-      { path : 'calendario', component: GestionCalendarioComponent },
+      { path : 'calendario-admin', component: GestionCalendarioComponent },
       { path : 'prestamos', component:GestionPrestamosComponent },
       { path : 'backups', component:GestionBackupsComponent },
       //{ path: 'revistas', component: AdminRevistasComponent },
