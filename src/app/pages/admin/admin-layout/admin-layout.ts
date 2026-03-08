@@ -41,7 +41,7 @@ export class AdminLayoutComponent implements OnInit {
     { label: 'Contactos',  icon: 'mail-outline',          route: '/admin/contactos', badge: 5 },
     { label: 'Noticias',   icon: 'megaphone-outline',     route: '/admin/noticias' },
     { label: 'Libros',     icon: 'book-outline',          route: '/admin/libros' },
-    { label: 'Calendario', icon: 'calendar-outline',      route: '/admin/calendario' },
+    { label: 'Calendario', icon: 'calendar-outline',      route: '/admin/calendario-admin' },
     { label: 'Revistas',   icon: 'newspaper-outline',     route: '/admin/revistas' },
     { label: 'Préstamos',  icon: 'library-outline',       route: '/admin/prestamos' },
     { label: 'Respaldos',  icon: 'download-outline',      route: '/admin/backups' },

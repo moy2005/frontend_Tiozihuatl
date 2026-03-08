@@ -31,9 +31,9 @@
       </div>
 
       <!-- Loading -->
-      <div *ngIf="cargando" class="content-card text-center py-12">
-        <div class="loading-spinner inline-block"></div>
-        <p class="mt-4 text-gray-600 font-medium">Cargando calendarios...</p>
+      <div *ngIf="cargando" class="flex flex-col items-center justify-center py-12 gap-4">
+        <div class="loading-spinner"></div>
+        <p class="text-gray-600 font-medium">Cargando calendarios...</p>
       </div>
 
       <!-- Sin resultados -->
@@ -44,10 +44,11 @@
 
       <!-- Vista Desktop -->
       <div *ngIf="!cargando && calendars.length > 0" class="hidden lg:block overflow-x-auto">
-        <table class="min-w-full">
+        <table>
           <thead class="table-header">
             <tr>
               <th class="th-cell"><ion-icon name="text-outline"></ion-icon> Título</th>
+              <th class="th-cell"><ion-icon name="people-outline"></ion-icon> Destinado a</th>
               <th class="th-cell"><ion-icon name="document-outline"></ion-icon> Tipo</th>
               <th class="th-cell"><ion-icon name="toggle-outline"></ion-icon> Estado</th>
               <th class="th-cell text-center"><ion-icon name="settings-outline"></ion-icon> Acciones</th>
@@ -56,16 +57,34 @@
           <tbody>
             <tr *ngFor="let c of calendars" class="table-row">
 
-              <td class="td-cell font-medium text-gray-900">{{ c.titulo }}</td>
+              <!-- Título + sección opcional -->
+              <td class="td-cell">
+                <p class="font-medium text-gray-900 m-0">{{ c.titulo }}</p>
+                <p *ngIf="c.titulo_seccion" class="text-xs text-gray-500 mt-0.5 flex items-center gap-1 m-0">
+                  <ion-icon name="pricetag-outline"></ion-icon>
+                  {{ c.titulo_seccion }}
+                </p>
+              </td>
 
+              <!-- Destinado a -->
               <td class="td-cell">
                 <span class="badge-estado"
-                  [ngClass]="c.tipo === 'PDF' ? 'badge-pdf' : 'badge-img'">
-                  <ion-icon [name]="c.tipo === 'PDF' ? 'document-text-outline' : 'image-outline'"></ion-icon>
-                  {{ c.tipo }}
+                  [ngClass]="c.tipo_calendario === 'ALUMNO' ? 'badge-alumno' : 'badge-docente'">
+                  <ion-icon [name]="c.tipo_calendario === 'ALUMNO' ? 'school-outline' : 'person-outline'"></ion-icon>
+                  {{ c.tipo_calendario === 'ALUMNO' ? 'Alumno' : 'Docente' }}
                 </span>
               </td>
 
+              <!-- Tipo archivo -->
+              <td class="td-cell">
+                <span class="badge-estado"
+                  [ngClass]="c.tipo_archivo === 'PDF' ? 'badge-pdf' : 'badge-img'">
+                  <ion-icon [name]="c.tipo_archivo === 'PDF' ? 'document-text-outline' : 'image-outline'"></ion-icon>
+                  {{ c.tipo_archivo }}
+                </span>
+              </td>
+
+              <!-- Estado -->
               <td class="td-cell">
                 <span class="badge-estado"
                   [ngClass]="c.activo ? 'badge-activo' : 'badge-cancelado'">
@@ -74,6 +93,7 @@
                 </span>
               </td>
 
+              <!-- Acciones -->
               <td class="td-cell">
                 <div class="flex justify-center gap-2">
 
@@ -122,18 +142,30 @@
           <div class="card-header">
             <div class="flex-1">
               <div class="flex flex-wrap items-center gap-2 mb-1">
+                <!-- Tipo archivo -->
                 <span class="badge-estado"
-                  [ngClass]="c.tipo === 'PDF' ? 'badge-pdf' : 'badge-img'">
-                  <ion-icon [name]="c.tipo === 'PDF' ? 'document-text-outline' : 'image-outline'"></ion-icon>
-                  {{ c.tipo }}
+                  [ngClass]="c.tipo_archivo === 'PDF' ? 'badge-pdf' : 'badge-img'">
+                  <ion-icon [name]="c.tipo_archivo === 'PDF' ? 'document-text-outline' : 'image-outline'"></ion-icon>
+                  {{ c.tipo_archivo }}
                 </span>
+                <!-- Estado -->
                 <span class="badge-estado"
                   [ngClass]="c.activo ? 'badge-activo' : 'badge-cancelado'">
                   <ion-icon [name]="c.activo ? 'checkmark-circle-outline' : 'close-circle-outline'"></ion-icon>
                   {{ c.activo ? 'Activo' : 'Inactivo' }}
                 </span>
+                <!-- Destinado a -->
+                <span class="badge-estado"
+                  [ngClass]="c.tipo_calendario === 'ALUMNO' ? 'badge-alumno' : 'badge-docente'">
+                  <ion-icon [name]="c.tipo_calendario === 'ALUMNO' ? 'school-outline' : 'person-outline'"></ion-icon>
+                  {{ c.tipo_calendario === 'ALUMNO' ? 'Alumno' : 'Docente' }}
+                </span>
               </div>
               <p class="card-nombre">{{ c.titulo }}</p>
+              <p *ngIf="c.titulo_seccion" class="text-xs text-gray-500 flex items-center gap-1 mt-0.5 m-0">
+                <ion-icon name="pricetag-outline"></ion-icon>
+                {{ c.titulo_seccion }}
+              </p>
             </div>
           </div>
 
@@ -173,7 +205,6 @@
       </div>
 
     </div>
-
   </div>
 
   <!-- ============================================================
@@ -218,8 +249,41 @@
           <input
             [(ngModel)]="titulo"
             type="text"
-            placeholder="Ej: Calendario Escolar 2025"
+            placeholder="Ej: Calendario Escolar 2025-2026"
             class="modal-input">
+        </div>
+
+        <!-- Título de sección (opcional) -->
+        <div class="modal-field">
+          <label class="modal-label">
+            <ion-icon name="pricetag-outline"></ion-icon>
+            Título de Sección
+            <span class="tag-opcional">opcional</span>
+          </label>
+          <p class="campo-hint">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            Encabezado que verá el usuario en la vista pública del calendario.
+          </p>
+          <input
+            [(ngModel)]="titulo_seccion"
+            type="text"
+            placeholder="Ej: Calendario de Actividades 2025"
+            class="modal-input">
+        </div>
+
+        <!-- Destinado a -->
+        <div class="modal-field">
+          <label class="modal-label">
+            <ion-icon name="people-outline"></ion-icon>
+            Destinado a
+          </label>
+          <div class="select-wrap">
+            <ion-icon name="chevron-down-outline" class="select-chevron"></ion-icon>
+            <select [(ngModel)]="tipo_calendario" class="modal-input select-input">
+              <option value="ALUMNO">Alumno</option>
+              <option value="DOCENTE">Docente</option>
+            </select>
+          </div>
         </div>
 
         <!-- Archivo -->
@@ -227,6 +291,7 @@
           <label class="modal-label">
             <ion-icon name="cloud-upload-outline"></ion-icon>
             Archivo (PDF o Imagen)
+            <span *ngIf="modoEdicion" class="tag-opcional">reemplazar</span>
           </label>
 
           <label class="upload-zone" for="fileInput">
@@ -242,6 +307,15 @@
               accept=".pdf,image/*"
               class="hidden">
           </label>
+
+          <!-- Tipo detectado -->
+          <div *ngIf="archivoNombre" class="mt-2">
+            <span class="badge-estado"
+              [ngClass]="tipo_archivo === 'PDF' ? 'badge-pdf' : 'badge-img'">
+              <ion-icon [name]="tipo_archivo === 'PDF' ? 'document-text-outline' : 'image-outline'"></ion-icon>
+              {{ tipo_archivo === 'PDF' ? 'PDF detectado' : 'Imagen detectada' }}
+            </span>
+          </div>
         </div>
 
       </div>
