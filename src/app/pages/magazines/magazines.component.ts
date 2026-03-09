@@ -1,11 +1,11 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation,inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MagazinesService } from '../../api/services/magazines.service';
 import { CartService } from '../../api/services/cart.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpHeaders } from '@angular/common/http'
-import { environment } from '../../../app/api/environments/environment';
+import { environment } from '../../../app/api/environments/environment.prod';
 import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-magazines',
@@ -13,9 +13,15 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, RouterModule, HttpClientModule, FormsModule],
   templateUrl: './magazines.component.html',
   styleUrls: ['./magazines.component.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  encapsulation: ViewEncapsulation.None
 })
 export class MagazinesComponent implements OnInit {
+
+    // ✅ inject() en lugar de constructor
+  private magazineService = inject(MagazinesService);
+  private cartService = inject(CartService);
+  private http = inject(HttpClient);
 
   magazines: any[] = [];
   loading = true;
@@ -44,9 +50,7 @@ export class MagazinesComponent implements OnInit {
   
 
   constructor(
-    private magazineService: MagazinesService,
-    private cartService: CartService,
-    private http: HttpClient
+  
   ) {}
 
   ngOnInit(): void {
@@ -134,28 +138,23 @@ export class MagazinesComponent implements OnInit {
     this.updateCart();
   }
 
-  simulatePayment() {
-    if (this.cartItems.length === 0) return;
+ simulatePayment() {
+  if (this.cartItems.length === 0) return;
 
-    this.processingPayment = true;
+  this.processingPayment = true;
+  const aprobado = Math.random() > 0.2;
 
-    const aprobado = Math.random() > 0.2;
+  setTimeout(() => {
+    if (!aprobado) {
+      this.processingPayment = false;
+      this.paymentRejected = true;
+      return;
+    }
 
-    setTimeout(() => {
-      if (!aprobado) {
-        this.processingPayment = false;
-        this.paymentRejected = true;
-        return;
-      }
+     this.magazineService.savePurchase(this.cartItems)
 
-      this.http.post(
-        `${environment.apiUrl}/magazines/complete-purchase`,
-        { items: this.cartItems },
-        { headers: this.getAuthHeaders() }
-      )
       .subscribe({
         next: () => {
-          console.log("Pago guardado en backend");
           this.processingPayment = false;
           this.paymentSuccess = true;
           this.cartService.clear();
@@ -167,8 +166,8 @@ export class MagazinesComponent implements OnInit {
           this.paymentRejected = true;
         }
       });
-    }, 1500);
-  }
+  }, 1500);
+}
 
   isPurchased(id: number): boolean {
     return this.purchasedIds.includes(id);

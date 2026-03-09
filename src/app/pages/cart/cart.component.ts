@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,CUSTOM_ELEMENTS_SCHEMA,ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CartService } from '../../api/services/cart.service';
@@ -8,7 +8,9 @@ import { CartService } from '../../api/services/cart.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './cart.component.html',
-  styleUrls: ['./cart.component.css']
+  styleUrls: ['./cart.component.css'],
+  schemas:[CUSTOM_ELEMENTS_SCHEMA],
+  encapsulation:ViewEncapsulation.None
 })
 export class CartComponent implements OnInit {
 

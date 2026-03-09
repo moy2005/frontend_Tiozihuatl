@@ -1,0 +1,67 @@
+<section class="mc-page">
+
+  <!-- HEADER -->
+  <div class="mc-header">
+    <div class="mc-header-inner">
+      <div class="mc-header-icon">
+        <i class="ph ph-receipt"></i>
+      </div>
+      <div>
+        <h1 class="mc-title">Mis Compras</h1>
+        <p class="mc-subtitle">Revistas adquiridas en tu cuenta</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loadingPurchases" class="mc-loading">
+    <div class="mc-spinner"></div>
+    <p>Cargando tus revistas...</p>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div *ngIf="!loadingPurchases && purchasedMagazines.length === 0" class="mc-empty">
+    <i class="ph ph-books"></i>
+    <p class="mc-empty-title">Sin compras aún</p>
+    <p class="mc-empty-sub">Cuando adquieras una revista aparecerá aquí.</p>
+  </div>
+
+  <!-- TABLA -->
+  <div *ngIf="!loadingPurchases && purchasedMagazines.length > 0" class="mc-card">
+    <div class="mc-table-wrap">
+      <table class="mc-table">
+        <thead>
+          <tr>
+            <th>Revista</th>
+            <th>Precio</th>
+            <th>Fecha</th>
+            <th class="mc-th-center">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let mag of purchasedMagazines">
+            <td>
+              <div class="mc-mag-name">
+                <i class="ph ph-newspaper-clipping"></i>
+                {{ mag.titulo }}
+              </div>
+            </td>
+            <td>
+              <span class="mc-price">${{ mag.precio }}</span>
+            </td>
+            <td>
+              <span class="mc-date">{{ mag.fecha_compra | date:'mediumDate' }}</span>
+            </td>
+            <td class="mc-td-center">
+              <button class="mc-btn-read" (click)="irALectura(mag.id_revista)">
+                <i class="ph ph-book-open"></i>
+                Leer
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</section>

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { UserProfileService } from '../../api/services/user-profile.service';
@@ -36,11 +36,16 @@ export class Navbar implements OnInit, OnDestroy {
   private panelShowTimeout: any;
   private panelHideTimeout: any;
 
+  // ── Scroll ──────────────────────────────────────────────────────────
+  isScrolled = false;
+  private scrollRafId = 0;
+  private readonly SCROLL_THRESHOLD = 80;
+
   constructor(
     private router: Router,
     private userService: UserProfileService,
-    private cartService: CartService,
-    private newsService: NewsService
+    private newsService: NewsService,
+    private ngZone: NgZone
   ) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -50,21 +55,33 @@ export class Navbar implements OnInit, OnDestroy {
       });
   }
 
-  
+  ngOnInit() {
+    this.verificarAutenticacion();
+    this.cargarNoticiasMenu();
 
- ngOnInit() {
-  this.verificarAutenticacion();
+    this.isScrolled = window.scrollY > this.SCROLL_THRESHOLD;
 
-  // 🔥 Escuchar cambios del carrito
-  this.cartService.cart$.subscribe(cart => {
-    this.cartCount = cart.length;
-  });
-}
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener('scroll', this.onScroll, { passive: true });
+    });
+  }
 
   ngOnDestroy() {
     clearTimeout(this.panelShowTimeout);
     clearTimeout(this.panelHideTimeout);
+    window.removeEventListener('scroll', this.onScroll);
+    cancelAnimationFrame(this.scrollRafId);
   }
+
+  private onScroll = (): void => {
+    cancelAnimationFrame(this.scrollRafId);
+    this.scrollRafId = requestAnimationFrame(() => {
+      const shouldBeScrolled = window.scrollY > this.SCROLL_THRESHOLD;
+      if (shouldBeScrolled !== this.isScrolled) {
+        this.ngZone.run(() => { this.isScrolled = shouldBeScrolled; });
+      }
+    });
+  };
 
   // ── Auth ────────────────────────────────────────────────────────────
 

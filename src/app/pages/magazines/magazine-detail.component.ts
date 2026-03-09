@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation,inject } from '@angular/core';
 import { ActivatedRoute,Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
-import { environment } from '../../api/environments/environment';
+import { environment } from '../../api/environments/environment.prod';
 import { CartService } from '../../api/services/cart.service';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -11,9 +11,19 @@ import { HttpClientModule } from '@angular/common/http';
   standalone: true,
   imports: [CommonModule, HttpClientModule],
   templateUrl: './magazine-detail.component.html',
-  styleUrls: ['./magazine-detail.component.css']
+  styleUrls: ['./magazine-detail.component.css'],
+  encapsulation: ViewEncapsulation.None,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class MagazineDetailComponent implements OnInit {
+
+
+    // ✅ inject()
+  private route = inject(ActivatedRoute);
+  private http = inject(HttpClient);
+  private sanitizer = inject(DomSanitizer);
+  private cartService = inject(CartService);
+  private router = inject(Router);
 
   magazine: any;
   magazineId!: number;
@@ -25,11 +35,6 @@ export class MagazineDetailComponent implements OnInit {
   showAddedMessage = false;
 
   constructor(
-    private route: ActivatedRoute,
-    private http: HttpClient,
-    private sanitizer: DomSanitizer,
-    private cartService: CartService,
-    private router: Router 
   ) {}
 
   ngOnInit(): void {

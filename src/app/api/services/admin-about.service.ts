@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
-import { environment } from '../environments/environment';//CORRECTO
+import { API_URL } from '../api.config';
 
 @Injectable({ providedIn: 'root' })
 export class AdminAboutService {
 
-  private api = `${environment.apiUrl}/admin/about`;
+  private api = `${API_URL}/admin/about`;
 
   constructor(private http: HttpClient) {}
 

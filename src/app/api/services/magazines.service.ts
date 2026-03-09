@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
-import { environment } from '../environments/environment';
+import { API_URL } from '../api.config';
 @Injectable({
   providedIn: 'root'
 })
 export class MagazinesService {
 
-  private api = `${environment.apiUrl}/magazines`;
+  private api = `${API_URL}/magazines`;
 
   constructor(private http: HttpClient) {}
 
@@ -91,11 +91,13 @@ export class MagazinesService {
       { items }
     );
   }
-  savePurchase(ids: number[]) {
-    return this.http.post(`${this.api}/complete-purchase`, {
-      magazineIds: ids
-    });
-  }
+
+
+savePurchase(items: any[]) {
+  return this.http.post(`${this.api}/complete-purchase`, {
+    items  // el backend espera { items: [...] }
+  });
+}
 
 
   /* ===========================

@@ -20,93 +20,57 @@ import { AboutComponent } from './pages/about/about.component';
 import { GestionRevistasComponent } from './pages/admin/gestion-revistas/gestion-revistas.component';
 import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
 import { GestionCatalogoComponent} from './pages/admin/gestion-catalogo/gestion-catalogo';
-// Componentes de error
+import { GestionCalendarioComponent } from './pages/admin/gestion-calendario/gestion-calendario'
 import { Error400Component } from './pages/error/error-400/error-400.component';
 import { Error404Component } from './pages/error/error-404/error-404.component';
 import { Error500Component } from './pages/error/error-500/error-500.component';
-//Calendario
-import { GestionCalendarioComponent } from './pages/admin/gestion-calendario/gestion-calendario'
+import { GestionPrestamosComponent } from './pages/admin/gestion-prestamos/gestion-prestamos';
+import { GestionBackupsComponent} from './pages/admin/gestion-backups/gestion-backups';
 
+import { MagazinesComponent } from './pages/magazines/magazines.component';
+import { MagazineViewerComponent } from './pages/magazines/magazine-viewer.component';
+import { MagazineDetailComponent } from './pages/magazines/magazine-detail.component';
+import { CartComponent } from './pages/cart/cart.component';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { AboutComponent } from './pages/about/about.component';
+import { GestionAboutComponent } from './pages/admin/gestion-about/gestion-about';
+import { GestionRevistasComponent } from './pages/admin/gestion-revistas/gestion-revistas.component';
+import { MyPurchases } from './pages/my-purchases/my-purchases';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
 
-  // 🔓 Públicas
-  { path: 'login', component: LoginComponent,
-     data: { breadcrumb: 'Inicio' }
-   },
+  // Públicas
+  { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path:'reset-password', component: ResetPasswordComponent},
   { path: 'verificar-correo', component: VerificarCorreoComponent },
   { path: 'inicio',component: InicioComponent},
-
-  { path: 'about', component: AboutComponent },
-  
   { path: 'privacidad', component: Privacidad},
   { path: 'terminos', component: Terminos},
   { path: 'seguridad', component: Seguridad},
+  { path: 'contactanos',component: ContactanosComponent},
+  { path: 'noticias',component: NoticiasComponent},
+  { path: 'about', component: AboutComponent },
 
-  { path: 'catalogo', component: CatalogoComponent},
+  { path: 'catalogo', component: CatalogoComponent, canActivate: [AuthGuard],
+    data: {
+      roles: ['Alumno', 'Administrador', 'Docente','Bibliotecario'] 
+      }
+  },
 
-  
+  // Protegidas (todas con AuthGuard)
+  { path: 'perfil', component: PerfilUsuarioComponent, canActivate: [AuthGuard] },
+  { path: 'magazines', component: MagazinesComponent, canActivate: [AuthGuard]},
+  { path: 'magazines/view/:id', component: MagazineViewerComponent, canActivate: [AuthGuard]},
+  { path: 'magazines/:id', component: MagazineDetailComponent, canActivate: [AuthGuard]},
+  { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
+  { path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard] },
+  { path: 'my-purchases', component: MyPurchases, canActivate: [AuthGuard] },
 
-  // 🔐 Protegidas (todas con AuthGuard)
-  { path: 'perfil', component: PerfilUsuarioComponent, canActivate: [AuthGuard],
-   /*  data: {
-      breadcrumb: 'Perfil' // 🔴 NUEVO → etiqueta para breadcrumb
-    }*/
-   },
-
-{
-  path: 'magazines',
-  canActivate: [AuthGuard],
-  //data: { breadcrumb: 'Revistas' },
-  loadComponent: () =>
-    import('./pages/magazines/magazines.component')
-      .then(m => m.MagazinesComponent)
-},
-{
-  path: 'magazines/view/:id',
-  canActivate: [AuthGuard],
-  //data: { breadcrumb: 'Detalle' },
-  loadComponent: () =>
-    import('./pages/magazines/magazine-viewer.component')
-      .then(m => m.MagazineViewerComponent)
-},
-{
-  path: 'magazines/:id',
-  //data: { breadcrumb: 'Revista' },
-  loadComponent: () =>
-    import('./pages/magazines/magazine-detail.component')
-      .then(m => m.MagazineDetailComponent)
-},
-
-{
-  path: 'cart',
-  canActivate: [AuthGuard],
-  //data: { breadcrumb: 'Carrito' }, 
-  loadComponent: () => import('./pages/cart/cart.component')
-    .then(m => m.CartComponent)
-},
-
-{
-  path: 'checkout',
-  canActivate: [AuthGuard],
-  //data: { breadcrumb: 'Checkout' },
-  loadComponent: () => import('./pages/checkout/checkout.component')
-    .then(m => m.CheckoutComponent)
-},
-
-  // 🧑‍💼 Panel de administrador con rutas anidadas
-  {
-    path: 'admin',
-    component: AdminLayoutComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['Administrador'],
-    //breadcrumb: 'Panel administrativo', //breadcrumb padre
-    hideNavbar: true
-    },
+  // Panel de administrador con rutas anidadas
+  { path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'], hideNavbar: true},
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent},
@@ -117,9 +81,11 @@ export const routes: Routes = [
       { path: 'about', component: GestionAboutComponent },
       { path: 'revistas', component: GestionRevistasComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'] } },
       { path: 'libros', component: GestionCatalogoComponent },
-      { path: 'calendario', component: GestionCalendarioComponent },
-
-      //{ path: 'revistas', component: AdminRevistasComponent },
+      { path : 'calendario', component: GestionCalendarioComponent },
+      { path : 'prestamos', component:GestionPrestamosComponent },
+      { path : 'backups', component:GestionBackupsComponent },
+      { path: 'about', component: GestionAboutComponent },
+      { path: 'revistas', component: GestionRevistasComponent }
     ]
   },
     // Rutas de error específicas (públicas)

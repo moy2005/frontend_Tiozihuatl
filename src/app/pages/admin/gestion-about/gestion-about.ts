@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation,CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminAboutService } from '../../../api/services/admin-about.service';
@@ -9,6 +9,8 @@ import { AdminAboutService } from '../../../api/services/admin-about.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './gestion-about.html',
   styleUrls: ['./gestion-about.css'],
+  encapsulation: ViewEncapsulation.None,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class GestionAboutComponent implements OnInit {
 

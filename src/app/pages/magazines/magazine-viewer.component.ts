@@ -1,20 +1,24 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule  } from '@angular/router';
 import { MagazinesService } from '../../api/services/magazines.service';
 import { CommonModule } from '@angular/common';
 import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${(pdfjsLib as any).version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.mjs';
 
 @Component({
   selector: 'app-magazine-viewer',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './magazine-viewer.component.html',
-  styleUrls: ['./magazine-viewer.component.css']
+  styleUrls: ['./magazine-viewer.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  encapsulation: ViewEncapsulation.None
 })
 export class MagazineViewerComponent implements OnInit, OnDestroy {
+
+    private magazineService = inject(MagazinesService);
+    private route = inject(ActivatedRoute);
 
   magazineId!: number;
   magazine: any;
@@ -32,8 +36,7 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
   totalPages = 0;
 
   constructor(
-    private magazineService: MagazinesService,
-    private route: ActivatedRoute
+   
   ) {}
 
   ngOnInit(): void {
@@ -215,26 +218,24 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
 
       }, 300); // pequeño delay para que el DOM esté listo
     }
-  drawWatermark(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
-     let user: any = {};
-    if (typeof window !== 'undefined') { 
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      }
-    ctx.save();
-    ctx.font = "22px Arial";
-    ctx.fillStyle = "rgba(150,150,150,0.12)";
-    ctx.textAlign = "center";
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.rotate(-0.5);
-
-    ctx.fillText(
-      `${user?.nombre || 'Usuario'} - ${new Date().toLocaleString()}`,
-      0,
-      0
-    );
-
-    ctx.restore();
+ drawWatermark(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+  let user: any = {};
+  if (typeof window !== 'undefined') { 
+    user = JSON.parse(localStorage.getItem('user') || '{}'); // sin const/let
   }
+  ctx.save();
+  ctx.font = "22px Arial";
+  ctx.fillStyle = "rgba(150,150,150,0.12)";
+  ctx.textAlign = "center";
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.rotate(-0.5);
+  ctx.fillText(
+    `${user?.nombre || 'Usuario'} - ${new Date().toLocaleString()}`,
+    0,
+    0
+  );
+  ctx.restore();
+}
 
   async zoomIn() {
     this.zoomLevel += 0.2;

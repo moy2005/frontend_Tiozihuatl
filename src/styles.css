@@ -3,11 +3,15 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  overflow-x: hidden;
+
+/* Previene parpadeo de links del navbar antes del primer render de Angular */
+.navbar-desktop .nav-link span,
+.navbar-desktop a span,
+.navbar-desktop button span {
+  color: white;
 }
-#pdfContainer {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
+
+
+.navbar-desktop ion-icon {
+  color: white;
 }

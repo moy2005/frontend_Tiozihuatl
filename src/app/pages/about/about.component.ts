@@ -16,7 +16,7 @@ export class AboutComponent implements OnInit {
 
   mision?: AboutItem;
   vision?: AboutItem;
-  valores: AboutItem[] = []; // 👈 ahora es arreglo
+  valores: AboutItem[] = []; 
 
   constructor(private aboutService: AboutService) {}
 

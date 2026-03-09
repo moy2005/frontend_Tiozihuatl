@@ -3,11 +3,9 @@
   <div
     class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581092919535-7146e93e06f8?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center">
   </div>
-
   <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-16 items-center fade-in">
     <div>
-      <span
-        class="inline-block mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold tracking-wide border border-white/20">
+      <span class="inline-block mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold tracking-wide border border-white/20">
         Centro de formación profesional
       </span>
       <h1 class="text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-md">
@@ -20,314 +18,142 @@
       <br><br><br>
     </div>
   </div>
-
   <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 320" preserveAspectRatio="none">
     <path fill="#ffffff" fill-opacity="1"
       d="M0,256L80,229.3C160,203,320,149,480,138.7C640,128,800,160,960,176C1120,192,1280,192,1360,192L1440,192L1440,320L0,320Z"/>
   </svg>
 </section>
 
-<!-- ================= CARRUSEL DE NOTICIAS ================= -->
-<section class="coverflow-section">
+<!-- ================= NOTICIAS ================= -->
+<section id="noticias" class="news-section">
 
-  <!-- Estado: cargando -->
-  <div *ngIf="cargandoNoticias" class="coverflow-loading">
-    <div class="coverflow-spinner"></div>
-    <p>Cargando noticias...</p>
-  </div>
+  <!-- ── SKELETON LOADER ── -->
+  <div *ngIf="cargandoNoticias" class="news-skeleton-list" aria-label="Cargando noticias…" aria-busy="true">
 
-  <!-- Estado: sin noticias -->
-  <div *ngIf="!cargandoNoticias && slides.length === 0" class="coverflow-empty">
-    <div class="coverflow-empty-icon">
-      <ion-icon name="newspaper-outline"></ion-icon>
-    </div>
-    <h3>No hay noticias disponibles</h3>
-    <p>Pronto publicaremos contenido nuevo</p>
-  </div>
-
-  <!-- Carrusel activo -->
-  <div *ngIf="!cargandoNoticias && slides.length > 0" class="coverflow-wrapper">
-
-    <div class="coverflow-track">
-
-      <div
-        *ngFor="let slide of slides; let i = index"
-        class="coverflow-item"
-        [class.cf-center]="i === currentSlideIndex"
-        [class.cf-left-1]="i === getRelativeIndex(-1)"
-        [class.cf-left-2]="i === getRelativeIndex(-2)"
-        [class.cf-right-1]="i === getRelativeIndex(1)"
-        [class.cf-right-2]="i === getRelativeIndex(2)"
-        [class.cf-hidden]="!isVisible(i)"
-        (click)="irASlide(i)"
-      >
-        <!-- Imagen -->
-        <img
-          *ngIf="slide.tipo === 'imagen'"
-          [src]="slide.url"
-          [alt]="slide.titulo"
-          class="coverflow-media"
-        />
-        <!-- Video -->
-        <video
-          *ngIf="slide.tipo === 'video'"
-          #videoRef
-          [src]="slide.url"
-          class="coverflow-media"
-          muted
-          playsinline
-          (ended)="onVideoEnded()"
-          (error)="onVideoError()"
-        ></video>
-
-        <!-- Overlay solo en center -->
-        <div class="coverflow-overlay" *ngIf="i === currentSlideIndex">
-          <span class="coverflow-badge" *ngIf="slide.categoria">{{ slide.categoria }}</span>
-          <p class="coverflow-title">{{ slide.titulo }}</p>
+    <!-- Item 1 — fondo blanco / imagen izquierda -->
+    <div class="news-skeleton-item">
+      <div class="news-skeleton-media"></div>
+      <div class="news-skeleton-copy" style="background: #ffffff;">
+        <div class="news-skeleton-copy-inner">
+          <div class="skeleton-bg sk-badge"></div>
+          <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.25rem;">
+            <div class="skeleton-bg sk-title1"></div>
+            <div class="skeleton-bg sk-title2"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem;">
+            <div class="skeleton-bg sk-line1"></div>
+            <div class="skeleton-bg sk-line2"></div>
+            <div class="skeleton-bg sk-line3"></div>
+            <div class="skeleton-bg sk-line4"></div>
+          </div>
         </div>
-
       </div>
-
     </div>
 
-    <!-- Contador + dots -->
-    <div class="coverflow-footer">
-      <span class="coverflow-counter">{{ currentSlideIndex + 1 }} / {{ slides.length }}</span>
-      <div class="coverflow-dots" *ngIf="slides.length > 1">
-        <button
-          *ngFor="let slide of slides; let i = index"
-          class="cf-dot"
-          [class.cf-dot--active]="i === currentSlideIndex"
-          (click)="irASlide(i)"
-          [disabled]="isTransitioning"
-          [attr.aria-label]="'Ir a noticia ' + (i + 1)"
-        ></button>
+    <!-- Item 2 — fondo gris / imagen derecha -->
+    <div class="news-skeleton-item">
+      <div class="news-skeleton-copy" style="background: #F4F6F9;">
+        <div class="news-skeleton-copy-inner">
+          <div class="skeleton-bg sk-badge"></div>
+          <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.25rem;">
+            <div class="skeleton-bg sk-title1" style="width:78%;"></div>
+            <div class="skeleton-bg sk-title2" style="width:50%;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem;">
+            <div class="skeleton-bg sk-line1"></div>
+            <div class="skeleton-bg sk-line2"></div>
+            <div class="skeleton-bg sk-line3" style="width:65%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="news-skeleton-media" style="background:#DDE3EC;"></div>
+    </div>
+
+    <!-- Item 3 — fondo blanco / imagen izquierda -->
+    <div class="news-skeleton-item">
+      <div class="news-skeleton-media" style="background:#E4E8EE;"></div>
+      <div class="news-skeleton-copy" style="background: #ffffff;">
+        <div class="news-skeleton-copy-inner">
+          <div class="skeleton-bg sk-badge" style="width:110px;"></div>
+          <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.25rem;">
+            <div class="skeleton-bg sk-title1" style="width:90%;"></div>
+            <div class="skeleton-bg sk-title2" style="width:68%;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem;">
+            <div class="skeleton-bg sk-line1"></div>
+            <div class="skeleton-bg sk-line2"></div>
+            <div class="skeleton-bg sk-line3"></div>
+            <div class="skeleton-bg sk-line4" style="width:45%;"></div>
+          </div>
+        </div>
       </div>
     </div>
 
   </div>
-</section>
+  <!-- ── FIN SKELETON ── -->
 
-<!-- ================= SERVICIOS ================= -->
-<section id="servicios" class="svc-section">
-
-  <div class="svc-head">
-    <div class="svc-head-left">
-      <p class="svc-overline">Lo que puedes hacer aquí</p>
-      <h2 class="svc-h2">Todo lo que<br>necesitas,<br>en un lugar.</h2>
-    </div>
-    <div class="svc-head-right">
-      <p class="svc-head-desc">
-        Accede a noticias, reserva materiales de la biblioteca y adquiere publicaciones científicas sin salir de la plataforma.
-      </p>
-      <div class="svc-head-stat">
-        <span class="svc-head-stat-num">3</span>
-        <span class="svc-head-stat-label">módulos integrados en un solo acceso</span>
-      </div>
-    </div>
+  <div *ngIf="!cargandoNoticias && noticias.length === 0" class="news-empty">
+    <p>No hay noticias disponibles. Pronto publicaremos contenido nuevo.</p>
   </div>
 
-  <div class="svc-bento">
+  <div *ngIf="!cargandoNoticias && noticias.length > 0" class="news-list">
 
-    <div class="svc-card svc-card--wide svc-card--light">
-      <div class="svc-card-tag">01</div>
-      <div class="svc-card-content">
-        <div class="svc-card-icon-block svc-icon--blue">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z" stroke="currentColor" stroke-width="1.75"/>
-            <path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h3 class="svc-card-title">Información Institucional</h3>
-        <p class="svc-card-desc">Noticias, reglamentos y comunicados oficiales al instante, desde cualquier dispositivo.</p>
-      </div>
-      <div class="svc-card-footer">
-        <button routerLink="/inf-institucional" class="svc-btn svc-btn--primary">Acceder</button>
-        <div class="svc-card-chips">
-          <span class="svc-chip">Noticias</span>
-          <span class="svc-chip">Comunicados</span>
-          <span class="svc-chip">Reglamentos</span>
-        </div>
-      </div>
-      <div class="svc-card-deco svc-deco--lines" aria-hidden="true">
-        <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="0" y1="20" x2="160" y2="20" stroke="currentColor" stroke-width="1" opacity=".18"/>
-          <line x1="0" y1="40" x2="160" y2="40" stroke="currentColor" stroke-width="1" opacity=".12"/>
-          <line x1="0" y1="60" x2="160" y2="60" stroke="currentColor" stroke-width="1" opacity=".08"/>
-          <line x1="0" y1="80" x2="160" y2="80" stroke="currentColor" stroke-width="1" opacity=".06"/>
-          <line x1="20" y1="0" x2="20" y2="120" stroke="currentColor" stroke-width="1" opacity=".08"/>
-          <line x1="60" y1="0" x2="60" y2="120" stroke="currentColor" stroke-width="1" opacity=".06"/>
-          <line x1="100" y1="0" x2="100" y2="120" stroke="currentColor" stroke-width="1" opacity=".04"/>
-          <line x1="140" y1="0" x2="140" y2="120" stroke="currentColor" stroke-width="1" opacity=".03"/>
-        </svg>
-      </div>
-    </div>
+    <article
+      *ngFor="let noticia of noticias; let i = index; let last = last"
+      class="news-item"
+      [attr.data-index]="i"
+      [class.news-item--odd]="i % 2 === 0"
+      [class.news-item--even]="i % 2 !== 0"
+      [class.news-color--a]="!last && i % 4 === 0"
+      [class.news-color--b]="!last && i % 4 === 1"
+      [class.news-color--c]="!last && i % 4 === 2"
+      [class.news-color--d]="!last && i % 4 === 3"
+      [class.news-color--white]="last"
+    >
 
-    <div class="svc-card svc-card--tall svc-card--dark">
-      <div class="svc-card-tag">02</div>
-      <div class="svc-card-content">
-        <div class="svc-card-icon-block svc-icon--white">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="currentColor" stroke-width="1.75"/>
-          </svg>
+      <!-- Media -->
+      <div class="news-media-wrap" *ngIf="noticia.imagen_url || noticia.video_url">
+        <div class="news-media-reveal">
+          <img
+            *ngIf="noticia.imagen_url && !noticia.video_url"
+            [src]="noticia.imagen_url"
+            [alt]="noticia.titulo"
+            class="news-img"
+          />
+          <video
+            *ngIf="noticia.video_url"
+            [src]="noticia.video_url"
+            class="news-video"
+            muted autoplay loop playsinline
+          ></video>
         </div>
-        <h3 class="svc-card-title">Biblioteca Digital</h3>
-        <p class="svc-card-desc">Más de 3,000 títulos disponibles. Busca, reserva y descarga en segundos.</p>
-        <div class="svc-inner-stats">
-          <div class="svc-inner-stat">
-            <span>3,000+</span>
-            <small>Títulos</small>
+      </div>
+
+      <!-- Copy -->
+      <div class="news-copy">
+        <div class="news-copy-inner">
+
+          <!-- Badge de categoría -->
+          <div class="news-badge-wrap">
+            <span class="news-cat" *ngIf="noticia.categoria">{{ noticia.categoria }}</span>
           </div>
-          <div class="svc-inner-stat-sep"></div>
-          <div class="svc-inner-stat">
-            <span>100%</span>
-            <small>Digital</small>
-          </div>
-        </div>
-      </div>
-      <div class="svc-card-footer">
-        <button routerLink="/catalogo-libros" class="svc-btn svc-btn--ghost">Explorar catálogo</button>
-      </div>
-    </div>
 
-    <div class="svc-card svc-card--normal svc-card--blue">
-      <div class="svc-card-tag">03</div>
-      <div class="svc-card-content">
-        <div class="svc-card-icon-block svc-icon--white">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.75"/>
-            <path d="M8 12h8M8 8h5M8 16h3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h3 class="svc-card-title">Revistas Científicas</h3>
-        <p class="svc-card-desc">Publicaciones especializadas desarrolladas por docentes e investigadores.</p>
-      </div>
-      <div class="svc-card-footer">
-        <button routerLink="/venta-revistas" class="svc-btn svc-btn--ghost">Ver publicaciones</button>
-      </div>
-    </div>
+          <!-- Título: palabras con stagger -->
+          <h3 class="news-title" aria-label="{{ noticia.titulo }}">
+            <span
+              class="news-word"
+              *ngFor="let word of noticia.titulo.split(' '); let wi = index"
+              [attr.data-word-index]="wi"
+            >{{ word }}&thinsp;</span>
+          </h3>
 
-  </div>
-</section>
+          <!-- Descripción -->
+          <p class="news-desc">{{ noticia.contenido }}</p>
 
-<!-- ================= ABOUT ================= -->
-<section id="nosotros" class="about-section">
-
-  <div class="about-overline-wrap">
-    <span class="about-overline-line"></span>
-    <span class="about-overline-text">Por qué elegirnos</span>
-    <span class="about-overline-line"></span>
-  </div>
-
-  <div class="about-inner">
-
-    <div class="about-left">
-      <h2 class="about-title">Educación que<br><span class="about-title-accent">transforma</span><br>vidas.</h2>
-      <p class="about-lead">
-        Más de dos décadas formando profesionales de la salud con rigor académico, infraestructura digital y un compromiso real con el aprendizaje.
-      </p>
-
-      <ul class="about-features">
-        <li class="about-feature">
-          <div class="about-feature-icon">
-            <svg viewBox="0 0 20 20" fill="none">
-              <path d="M4 10l4.5 4.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div>
-            <strong>Reconocimiento oficial SEP</strong>
-            <p>Títulos con validez nacional e institucional respaldada.</p>
-          </div>
-        </li>
-        <li class="about-feature">
-          <div class="about-feature-icon">
-            <svg viewBox="0 0 20 20" fill="none">
-              <path d="M4 10l4.5 4.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div>
-            <strong>Plataforma siempre disponible</strong>
-            <p>Accede a recursos, trámites y materiales sin restricciones de horario.</p>
-          </div>
-        </li>
-        <li class="about-feature">
-          <div class="about-feature-icon">
-            <svg viewBox="0 0 20 20" fill="none">
-              <path d="M4 10l4.5 4.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div>
-            <strong>Formación práctica y actualizada</strong>
-            <p>Plan de estudios vinculado a las necesidades reales del sector salud.</p>
-          </div>
-        </li>
-      </ul>
-    </div>
-
-    <div class="about-dashboard">
-      <div class="dash-header">
-        <div class="dash-dot-group">
-          <span class="dash-dot" style="background:#FF5F57"></span>
-          <span class="dash-dot" style="background:#FEBC2E"></span>
-          <span class="dash-dot" style="background:#28C840"></span>
-        </div>
-        <span class="dash-title">Resumen de la plataforma</span>
-      </div>
-
-      <div class="dash-metrics">
-        <div class="dash-metric" style="--dm-delay:.4s">
-          <span class="dash-metric-val">+600</span>
-          <span class="dash-metric-key">Usuarios activos</span>
-        </div>
-        <div class="dash-metric-vline"></div>
-        <div class="dash-metric" style="--dm-delay:.55s">
-          <span class="dash-metric-val">3</span>
-          <span class="dash-metric-key">Módulos</span>
-        </div>
-        <div class="dash-metric-vline"></div>
-        <div class="dash-metric" style="--dm-delay:.7s">
-          <span class="dash-metric-val">+300</span>
-          <span class="dash-metric-key">Recursos</span>
         </div>
       </div>
 
-      <div class="dash-activity">
-        <div class="dash-activity-label">
-          <span>Actividad semanal</span>
-          <span class="dash-activity-legend">
-            <i class="dash-legend-dot"></i> Consultas
-          </span>
-        </div>
-        <div class="dash-bars">
-          <div class="dash-bar-col"><div class="dash-bar" style="--bh:45%"><span>L</span></div></div>
-          <div class="dash-bar-col"><div class="dash-bar" style="--bh:72%"><span>M</span></div></div>
-          <div class="dash-bar-col"><div class="dash-bar" style="--bh:60%"><span>X</span></div></div>
-          <div class="dash-bar-col"><div class="dash-bar" style="--bh:88%"><span>J</span></div></div>
-          <div class="dash-bar-col"><div class="dash-bar" style="--bh:95%"><span>V</span></div></div>
-          <div class="dash-bar-col"><div class="dash-bar dash-bar--low" style="--bh:30%"><span>S</span></div></div>
-          <div class="dash-bar-col"><div class="dash-bar dash-bar--low" style="--bh:18%"><span>D</span></div></div>
-        </div>
-      </div>
-
-      <div class="dash-status-block">
-        <div class="dash-status-row">
-          <div class="dash-status-indicator dash-status-indicator--on"></div>
-          <span class="dash-status-name">Biblioteca digital</span>
-          <span class="dash-status-val">Operativa</span>
-        </div>
-        <div class="dash-status-row">
-          <div class="dash-status-indicator dash-status-indicator--on"></div>
-          <span class="dash-status-name">Portal de noticias</span>
-          <span class="dash-status-val">Operativo</span>
-        </div>
-        <div class="dash-status-row">
-          <div class="dash-status-indicator dash-status-indicator--on"></div>
-          <span class="dash-status-name">Revistas digitales</span>
-          <span class="dash-status-val">Operativo</span>
-        </div>
-      </div>
-    </div>
+    </article>
 
   </div>
 </section>
