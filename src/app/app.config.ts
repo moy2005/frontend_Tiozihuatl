@@ -12,7 +12,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(withInterceptors([AuthInterceptor])),
+    provideHttpClient(withFetch(),withInterceptors([AuthInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
       provideRouter(
@@ -24,10 +24,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideClientHydration(withEventReplay()),
 
-    // ✅ Agregar provider de HttpClient
-    provideHttpClient(withFetch()),
-
-    // 👇 Toastr y Animaciones (ya correcto)
+    // Toastr y Animaciones (ya correcto)
     importProvidersFrom(
       BrowserAnimationsModule,
       ToastrModule.forRoot({

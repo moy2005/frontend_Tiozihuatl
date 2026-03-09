@@ -720,7 +720,7 @@
             <div *ngIf="mostrarCampo('semestre')" class="pf-field">
               <label class="pf-field-label">Semestre</label>
               <div class="pf-field-static">
-                {{ user.semestre ? user.semestre + '° semestre' : '—' }}
+                {{ user.semestre ? user.semestre : '—' }}
               </div>
             </div>
 

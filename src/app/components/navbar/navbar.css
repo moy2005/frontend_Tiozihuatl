@@ -1,5 +1,5 @@
 * { font-family: 'Montserrat', sans-serif; }
-body { padding-top: 78px; }
+body { padding-top: 115px; }
 
 .fade-in {
   animation: fadeIn 1s ease-in-out forwards;
@@ -24,11 +24,21 @@ body { padding-top: 78px; }
 .navbar-top {
   background: #3FA6E8;
   padding: 1rem 0;
+  max-height: 100px;
+  overflow: hidden;
+  transition:
+    max-height 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    padding    0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity    0.32s ease;
 }
 
 .navbar-bottom {
   background: #3FA6E8;
   padding: 0.75rem 0;
+  transition:
+    padding    0.38s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.38s ease,
+    box-shadow 0.38s ease;
 }
 
 .institution-name {
@@ -36,6 +46,57 @@ body { padding-top: 78px; }
   font-size: 1.2rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+/* ========== SCROLL: estado compacto ========== */
+
+.navbar-desktop.scrolled .navbar-top {
+  max-height: 0;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.navbar-desktop.scrolled .navbar-bottom {
+  padding: 0.5rem 0;
+  background: rgba(63, 166, 232, 0.88);
+  backdrop-filter: blur(14px) saturate(1.6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+}
+
+.navbar-compact-logo {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: opacity 0.32s ease 0.08s, width 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-compact-logo img {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: block;
+}
+
+.navbar-desktop.scrolled .navbar-compact-logo {
+  opacity: 1;
+  width: 44px;
+}
+
+.navbar-compact-sep {
+  display: none;
+  width: 1px;
+  height: 22px;
+  background: rgba(255,255,255,0.25);
+  margin: 0 6px 0 2px;
+  flex-shrink: 0;
+}
+
+.navbar-desktop.scrolled .navbar-compact-sep {
+  display: block;
 }
 
 /* ========== MENÚ HAMBURGUESA ========== */
@@ -113,6 +174,7 @@ body { padding-top: 78px; }
 
 .mobile-dropdown-icon {
   transition: transform 0.3s ease;
+  color: white;
 }
 
 .mobile-dropdown-toggle:checked + .mobile-dropdown-header .mobile-dropdown-icon {
@@ -207,7 +269,6 @@ body { padding-top: 78px; }
   background: transparent;
 }
 
-/* Hover items mega menú */
 .mega-item-pro:hover {
   background: rgba(255, 255, 255, 0.1) !important;
 }
@@ -217,12 +278,57 @@ body { padding-top: 78px; }
   transform: translateX(2px);
 }
 
+/* ========== ICONOS PHOSPHOR - forzar color blanco ========== */
+.nav-link i,
+.nav-link .ph,
+[class*="ph-"] {
+  color: white;
+}
+
+.profile-dropdown-btn i,
+.profile-dropdown-btn .ph {
+  color: white;
+}
+
+.profile-panel-item i,
+.profile-panel-item .ph {
+  color: rgba(255,255,255,0.85);
+}
+
+.profile-panel-item.logout-item i,
+.profile-panel-item.logout-item .ph {
+  color: rgba(255,255,255,0.85);
+}
+
+.profile-panel-item.logout-item:hover i,
+.profile-panel-item.logout-item:hover .ph {
+  color: white;
+}
+
+.profile-chevron {
+  color: rgba(255,255,255,0.65);
+}
+
+.mobile-menu i,
+.mobile-menu .ph {
+  color: white;
+}
+
+.mega-item-pro i,
+.mega-item-pro .ph {
+  color: rgba(255,255,255,0.9);
+}
+
+.institucional-left i,
+.institucional-left .ph {
+  color: rgba(255,255,255,0.9);
+}
+
 /* ========== PROFILE DROPDOWN ========== */
 .profile-wrapper {
   position: relative;
 }
 
-/* Botón principal de perfil */
 .profile-dropdown-btn {
   display: flex;
   align-items: center;
@@ -269,7 +375,6 @@ body { padding-top: 78px; }
   transform: rotate(180deg);
 }
 
-/* Panel dropdown del perfil */
 .profile-dropdown-panel {
   position: absolute;
   right: 0;
@@ -289,7 +394,6 @@ body { padding-top: 78px; }
   transform: translateY(0);
 }
 
-/* Flecha del panel */
 .profile-panel-arrow {
   width: 0;
   height: 0;
@@ -306,7 +410,6 @@ body { padding-top: 78px; }
   overflow: hidden;
 }
 
-/* Header del panel: nombre + rol */
 .profile-panel-header {
   padding: 14px 16px 10px;
   border-bottom: 1px solid rgba(255,255,255,0.12);
@@ -337,7 +440,6 @@ body { padding-top: 78px; }
   margin-top: 2px;
 }
 
-/* Items del panel */
 .profile-panel-items {
   padding: 6px;
 }
@@ -381,33 +483,19 @@ body { padding-top: 78px; }
   margin-top: 1px;
 }
 
-/* Separador en el panel */
 .profile-panel-sep {
   height: 1px;
   background: rgba(255,255,255,0.12);
   margin: 4px 10px;
 }
 
-/* Item de cerrar sesión - rojo al hover */
-.profile-panel-item.logout-item ion-icon {
-  color: rgba(255,255,255,0.85);
-}
-
-.profile-panel-item.logout-item .item-label {
-  color: white;
-}
-
-.profile-panel-item.logout-item:hover {
-  background: #E53935;
-}
-
-.profile-panel-item.logout-item:hover ion-icon {
-  color: white;
-}
+.profile-panel-item.logout-item ion-icon { color: rgba(255,255,255,0.85); }
+.profile-panel-item.logout-item .item-label { color: white; }
+.profile-panel-item.logout-item:hover { background: #E53935; }
+.profile-panel-item.logout-item:hover ion-icon { color: white; }
 
 /* ========== MEGA MENÚ INSTITUCIONAL EXPANDIDO ========== */
 
-/* Contenedor principal del mega menú (se expande) */
 .institucional-mega-outer {
   position: absolute;
   left: 0;
@@ -426,16 +514,14 @@ body { padding-top: 78px; }
   transform: translateY(0);
 }
 
-/* Wrapper — posición relativa para anclar el panel derecho */
 .institucional-mega-flex {
-  display: block;             /* el izquierdo ocupa su alto natural */
+  display: block;
   border-radius: 14px;
   background: #0288D1;
   position: relative;
   overflow: visible;
 }
 
-/* Panel izquierdo: tamaño natural */
 .institucional-left {
   width: 260px;
   flex-shrink: 0;
@@ -445,7 +531,6 @@ body { padding-top: 78px; }
   z-index: 2;
 }
 
-/* Borde derecho solo cuando el panel de noticias está visible */
 .institucional-mega-flex:has(.noticias-side-panel.visible) .institucional-left {
   border-right: 1px solid rgba(255,255,255,0.12);
   border-radius: 14px 0 0 14px;
@@ -468,10 +553,9 @@ body { padding-top: 78px; }
   padding: 0.5rem;
 }
 
-/* Panel derecho: ABSOLUTO, crece libremente hacia abajo */
 .noticias-side-panel {
   position: absolute;
-  left: 261px;                /* 260 + 1px del borde */
+  left: 261px;
   top: 0;
   width: 0;
   overflow: hidden;
@@ -479,10 +563,6 @@ body { padding-top: 78px; }
   background: #0277BD;
   border-radius: 0 14px 14px 14px;
   z-index: 3;
-}
-
-.noticias-side-panel.visible {
-  width: 320px;
 }
 
 .noticias-side-panel.visible {
@@ -519,11 +599,8 @@ body { padding-top: 78px; }
   transition: color 0.18s;
 }
 
-.noticias-side-link:hover {
-  color: white;
-}
+.noticias-side-link:hover { color: white; }
 
-/* Card de noticia — solo media + título */
 .news-card-side {
   display: flex;
   flex-direction: column;
@@ -536,11 +613,8 @@ body { padding-top: 78px; }
   margin-bottom: 2px;
 }
 
-.news-card-side:hover {
-  background: rgba(255,255,255,0.08);
-}
+.news-card-side:hover { background: rgba(255,255,255,0.08); }
 
-/* Imagen */
 .news-card-media {
   width: 100%;
   height: 100px;
@@ -550,7 +624,6 @@ body { padding-top: 78px; }
   background: rgba(0,0,0,0.2);
 }
 
-/* Video — sin controles, solo preview */
 .news-card-video {
   width: 100%;
   height: 100px;
@@ -561,9 +634,7 @@ body { padding-top: 78px; }
   pointer-events: none;
 }
 
-.news-card-body {
-  padding: 7px 10px 9px;
-}
+.news-card-body { padding: 7px 10px 9px; }
 
 .news-card-titulo {
   font-size: 0.78rem;
@@ -582,13 +653,7 @@ body { padding-top: 78px; }
   margin: 3px 8px;
 }
 
-/* Skeleton loader para noticias */
-.news-skeleton {
-  padding: 8px;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
+.news-skeleton { padding: 8px; border-radius: 10px; overflow: hidden; margin-bottom: 4px; }
 
 .skeleton-media {
   height: 90px;
@@ -620,7 +685,7 @@ body { padding-top: 78px; }
 }
 
 @media (max-width: 1023px) {
-  body { padding-top: 36px; }
+    body { padding-top: 36px; }
   .navbar-desktop { display: none !important; }
   .navbar-mobile { display: block !important; }
   .hamburger-btn { display: flex; }

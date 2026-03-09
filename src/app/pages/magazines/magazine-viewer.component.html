@@ -1,0 +1,117 @@
+
+
+<!-- ══ BREADCRUMB ══ -->
+<nav class="breadcrumb-bar">
+
+  <!-- Inicio -->
+  <a routerLink="/perfil" class="crumb-link">
+    Inicio
+  </a>
+
+  <span class="sep">›</span>
+
+  <!-- Perfil -->
+  <a routerLink="/perfil" class="crumb-link">
+    Perfil
+  </a>
+
+  <span class="sep">›</span>
+
+  <!-- Revista actual -->
+  <span class="crumb-current">
+    {{ magazine?.titulo || 'Cargando...' }}
+  </span>
+
+</nav>
+<!-- ══ TOOLBAR ══ -->
+<div class="visor-toolbar">
+
+  <!-- Grupo navegación -->
+  <div class="toolbar-group">
+
+    <button
+      class="nav-btn"
+      (click)="prevPage()"
+      [disabled]="currentPage <= 1">
+      &#9664;
+    </button>
+
+    <span class="page-indicator">
+      <ng-container *ngIf="totalPages > 0">
+        Pág. {{ currentPage }} / {{ totalPages }}
+      </ng-container>
+      <ng-container *ngIf="totalPages === 0">
+        Cargando…
+      </ng-container>
+    </span>
+
+    <button
+      class="nav-btn"
+      (click)="nextPage()"
+      [disabled]="currentPage >= totalPages">
+      &#9654;
+    </button>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Grupo zoom -->
+  <div class="toolbar-group">
+
+    <button class="toolbar-btn"
+      (click)="zoomOut()"
+      [disabled]="zoomLevel <= 0.6">
+      &#8722;
+    </button>
+
+    <span class="zoom-label">
+      {{ (zoomLevel * 100).toFixed(0) }}%
+    </span>
+
+    <button class="toolbar-btn"
+      (click)="zoomIn()"
+      [disabled]="zoomLevel >= 3.0">
+      &#43;
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ══ PDF AREA ══ -->
+<div class="pdf-wrapper">
+
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando documento…</p>
+  </div>
+
+  <div id="pdfContainer" *ngIf="!loading"></div>
+
+</div>
+
+
+<!-- ══ NAV INFERIOR ══ -->
+<div class="bottom-nav" *ngIf="totalPages > 0">
+
+  <button
+    class="nav-btn"
+    (click)="prevPage()"
+    [disabled]="currentPage <= 1">
+    &#9664;
+  </button>
+
+  <span class="page-info">
+    {{ currentPage }} / {{ totalPages }}
+  </span>
+
+  <button
+    class="nav-btn"
+    (click)="nextPage()"
+    [disabled]="currentPage >= totalPages">
+    &#9654;
+  </button>
+
+</div>

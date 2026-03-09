@@ -1,5 +1,17 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, OnDestroy, ViewChildren, QueryList, ElementRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  OnInit,
+  OnDestroy,
+  ViewChildren,
+  QueryList,
+  ElementRef,
+  AfterViewInit,
+  ViewEncapsulation,
+  NgZone
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { NewsService } from '../../api/services/news.service';
 
 interface Slide {
@@ -15,10 +27,11 @@ interface Slide {
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  encapsulation: ViewEncapsulation.None
 })
 export class InicioComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -33,22 +46,46 @@ export class InicioComponent implements OnInit, OnDestroy, AfterViewInit {
 
   readonly IMAGE_DURATION = 5000;
 
-  constructor(private newsService: NewsService) {}
+  private scrollObserver!: IntersectionObserver;
+  private lastScrollY = 0;
+  private scrollDirection: 'down' | 'up' = 'down';
+  private scrollRafId = 0;
+  private visibilityMap = new Map<HTMLElement, boolean>();
+  private animReady = false;
+
+  constructor(
+    private newsService: NewsService,
+    private ngZone: NgZone
+  ) {}
+
+  // ─────────────────────────────────────────
+  //  LIFECYCLE
+  // ─────────────────────────────────────────
 
   async ngOnInit() {
     await this.cargarNoticias();
   }
 
   ngAfterViewInit() {
-    // Cuando los videos ya están en el DOM, reproducir el central
-    this.videoRefs.changes.subscribe(() => {
-      this.gestionarVideo();
+    this.videoRefs.changes.subscribe(() => this.gestionarVideo());
+
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener('scroll', this.onScroll, { passive: true });
     });
   }
 
   ngOnDestroy() {
     this.detenerAutoplay();
+    this.scrollObserver?.disconnect();
+    window.removeEventListener('scroll', this.onScroll);
+    cancelAnimationFrame(this.scrollRafId);
+    // Limpiar clase del body al salir
+    document.body.classList.remove('anim-ready');
   }
+
+  // ─────────────────────────────────────────
+  //  NOTICIAS
+  // ─────────────────────────────────────────
 
   async cargarNoticias() {
     try {
@@ -84,13 +121,18 @@ export class InicioComponent implements OnInit, OnDestroy, AfterViewInit {
             });
 
           this.cargandoNoticias = false;
+          if (this.slides.length > 0) this.iniciarAutoplay();
 
-          if (this.slides.length > 0) {
-            this.iniciarAutoplay();
-          }
+          // Esperar a que Angular termine de renderizar el DOM
+          // requestAnimationFrame doble garantiza que el paint ya ocurrió
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              this.initScrollAnimations();
+            });
+          });
         },
-        error: (error) => {
-          console.error('Error al cargar noticias:', error);
+        error: (err) => {
+          console.error('Error al cargar noticias:', err);
           this.cargandoNoticias = false;
         }
       });
@@ -100,6 +142,93 @@ export class InicioComponent implements OnInit, OnDestroy, AfterViewInit {
       this.cargandoNoticias = false;
     }
   }
+
+  // ─────────────────────────────────────────
+  //  ANIMACIONES DE SCROLL
+  // ─────────────────────────────────────────
+
+  private initScrollAnimations(): void {
+    const articles = Array.from(
+      document.querySelectorAll<HTMLElement>('#noticias .news-item')
+    );
+
+    if (!articles.length) return;
+
+    // 1. Aplicar stagger de palabras ANTES de activar estados ocultos
+    articles.forEach((article) => {
+      const words = article.querySelectorAll<HTMLElement>('.news-word');
+      words.forEach((word, wi) => {
+        const delay = 0.38 + wi * 0.042;
+        word.style.transitionDelay = `${delay}s`;
+      });
+    });
+
+    // 2. Activar estados iniciales ocultos SOLO si IntersectionObserver
+    //    está disponible (evita SSR o entornos sin soporte)
+    if (!('IntersectionObserver' in window)) return;
+
+    // 3. Marcar body como listo para animaciones
+    //    Esto activa los estados CSS ocultos
+    document.body.classList.add('anim-ready');
+    this.animReady = true;
+
+    // 4. Configurar observer
+    this.scrollObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const el = entry.target as HTMLElement;
+          const wasVisible = this.visibilityMap.get(el) ?? false;
+
+          if (entry.isIntersecting) {
+            this.visibilityMap.set(el, true);
+            el.classList.remove('is-leaving-up');
+            // Pequeño delay para que el estado oculto aplique antes de animar
+            requestAnimationFrame(() => {
+              el.classList.add('is-visible');
+            });
+
+          } else {
+            this.visibilityMap.set(el, false);
+            el.classList.remove('is-visible');
+
+            if (wasVisible && this.scrollDirection === 'up') {
+              el.classList.add('is-leaving-up');
+
+              setTimeout(() => {
+                if (!this.visibilityMap.get(el)) {
+                  el.classList.remove('is-leaving-up');
+                }
+              }, 800);
+            } else {
+              el.classList.remove('is-leaving-up');
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.12,
+        rootMargin: '0px 0px -8% 0px'
+      }
+    );
+
+    articles.forEach((article) => {
+      this.scrollObserver.observe(article);
+      this.visibilityMap.set(article, false);
+    });
+  }
+
+  private onScroll = (): void => {
+    cancelAnimationFrame(this.scrollRafId);
+    this.scrollRafId = requestAnimationFrame(() => {
+      const currentY = window.scrollY;
+      this.scrollDirection = currentY > this.lastScrollY ? 'down' : 'up';
+      this.lastScrollY = currentY;
+    });
+  };
+
+  // ─────────────────────────────────────────
+  //  COVERFLOW
+  // ─────────────────────────────────────────
 
   get currentSlide(): Slide | null {
     return this.slides[this.currentSlideIndex] || null;
@@ -124,11 +253,8 @@ export class InicioComponent implements OnInit, OnDestroy, AfterViewInit {
   iniciarAutoplay() {
     this.detenerAutoplay();
     if (this.currentSlide?.tipo === 'imagen') {
-      this.autoplayInterval = setTimeout(() => {
-        this.siguiente();
-      }, this.IMAGE_DURATION);
+      this.autoplayInterval = setTimeout(() => this.siguiente(), this.IMAGE_DURATION);
     }
-    // Para videos el avance se maneja en onVideoEnded()
   }
 
   detenerAutoplay() {
@@ -138,26 +264,14 @@ export class InicioComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  /**
-   * Recorre todos los <video> referenciados con #videoRef
-   * y reproduce solo el que corresponde al slide central.
-   * Se llama siempre DESPUÉS de actualizar currentSlideIndex.
-   */
   gestionarVideo() {
     if (!this.videoRefs) return;
-
-    // Construir un mapa: índice de slide → elemento video
-    // videoRefs solo contiene videos (slides tipo 'video'),
-    // así que necesitamos saber cuáles slides son video y en qué orden aparecen.
     let videoCount = 0;
     this.slides.forEach((slide, slideIndex) => {
       if (slide.tipo !== 'video') return;
-
       const vidEl = this.videoRefs.toArray()[videoCount]?.nativeElement;
       videoCount++;
-
       if (!vidEl) return;
-
       if (slideIndex === this.currentSlideIndex) {
         vidEl.currentTime = 0;
         vidEl.play().catch(() => {});
@@ -205,12 +319,6 @@ export class InicioComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 500);
   }
 
-  onVideoEnded() {
-    this.siguiente();
-  }
-
-  onVideoError() {
-    console.error('Error al cargar el video');
-    this.siguiente();
-  }
+  onVideoEnded() { this.siguiente(); }
+  onVideoError() { console.error('Error al cargar el video'); this.siguiente(); }
 }

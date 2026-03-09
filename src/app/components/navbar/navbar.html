@@ -1,12 +1,7 @@
-<style>
-  /* Import desde navbar.css — aquí inline para referencia */
-</style>
-
-<body class="bg-white text-gray-900 overflow-x-hidden">
-
 <!-- ================= NAVBAR DESKTOP (2 NIVELES) ================= -->
-<nav class="navbar-desktop fixed top-0 left-0 right-0 z-50">
-  
+<nav class="navbar-desktop fixed top-0 left-0 right-0 z-50"
+     [class.scrolled]="isScrolled">
+
   <!-- NIVEL 1: Logo + Institución -->
   <div class="navbar-top">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
@@ -27,75 +22,77 @@
   <div class="navbar-bottom">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-center gap-1">
-        
+
+        <!-- Logo compacto: solo visible al scrollear -->
+        <div class="navbar-compact-logo">
+          <img
+            src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
+            alt="Logo"
+          />
+        </div>
+        <div class="navbar-compact-sep"></div>
+
         <!-- Inicio -->
-        <a routerLink="/inicio" 
+        <a routerLink="/inicio"
            class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
-          <ion-icon name="home-outline" class="text-lg"></ion-icon>
+          <i class="ph ph-house text-lg"></i>
           <span>Inicio</span>
         </a>
 
         <!-- Quiénes Somos -->
-        <a routerLink="/quienes-somos" 
+        <a routerLink="/about"
            class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
-          <ion-icon name="people-outline" class="text-lg"></ion-icon>
+          <i class="ph ph-buildings"></i>
           <span>Quiénes Somos</span>
         </a>
 
-        <!-- Institucional - Mega menú con panel de noticias expandible -->
+        <!-- Institucional -->
         <div class="relative group">
           <button class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
-            <ion-icon name="business-outline" class="text-lg"></ion-icon>
+            <i class="ph ph-graduation-cap"></i>
             <span>Institucional</span>
-            <ion-icon name="chevron-down-outline" class="text-sm profile-chevron"></ion-icon>
+            <i class="ph ph-caret-down text-sm profile-chevron"></i>
           </button>
 
-          <!-- Puente transparente -->
           <div class="mega-bridge"></div>
 
-          <!-- Mega menú expandible -->
           <div class="institucional-mega-outer">
-            <!-- Flecha -->
             <div style="width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid #1565a8;margin-left:28px;"></div>
 
-            <!-- Flex: panel izquierdo + panel noticias -->
             <div class="institucional-mega-flex">
 
-              <!-- PANEL IZQUIERDO: links -->
               <div class="institucional-left">
                 <div class="institucional-left-header">
                   <span>Instituto</span>
                 </div>
                 <div class="institucional-left-items">
 
-                  <!-- Trigger de Noticias: al hover abre el panel lateral -->
                   <a routerLink="/noticias" class="mega-item-pro noticias-trigger"
                      (mouseenter)="mostrarPanelNoticias()"
                      (mouseleave)="ocultarPanelNoticias()"
                      style="display:flex; align-items:center; gap:14px; padding:0.7rem 1rem; border-radius:10px; text-decoration:none; transition: background 0.18s ease;">
-                    <ion-icon name="newspaper-outline" style="font-size:1.45rem; color:rgba(255,255,255,0.9); flex-shrink:0;"></ion-icon>
+                    <i class="ph ph-newspaper" style="font-size:1.45rem; color:rgba(255,255,255,0.9); flex-shrink:0;"></i>
                     <span style="font-size:0.875rem; font-weight:700; color:white; flex:1;">Noticias y Eventos</span>
-                    <ion-icon name="chevron-forward-outline" style="font-size:0.85rem; color:rgba(255,255,255,0.5); flex-shrink:0;"></ion-icon>
+                    <i class="ph ph-caret-right" style="font-size:0.85rem; color:rgba(255,255,255,0.5); flex-shrink:0;"></i>
                   </a>
 
                   <a routerLink="/calendario" class="mega-item-pro"
                      style="display:flex; align-items:center; gap:14px; padding:0.7rem 1rem; border-radius:10px; text-decoration:none; transition: background 0.18s ease;">
-                    <ion-icon name="calendar-outline" style="font-size:1.45rem; color:rgba(255,255,255,0.9); flex-shrink:0;"></ion-icon>
+                    <i class="ph ph-calendar" style="font-size:1.45rem; color:rgba(255,255,255,0.9); flex-shrink:0;"></i>
                     <span style="font-size:0.875rem; font-weight:700; color:white; flex:1;">Calendario Escolar</span>
-                    <ion-icon name="chevron-forward-outline" style="font-size:0.85rem; color:rgba(255,255,255,0.3); flex-shrink:0;"></ion-icon>
+                    <i class="ph ph-caret-right" style="font-size:0.85rem; color:rgba(255,255,255,0.3); flex-shrink:0;"></i>
                   </a>
 
                   <a routerLink="/contactanos" class="mega-item-pro"
                      style="display:flex; align-items:center; gap:14px; padding:0.7rem 1rem; border-radius:10px; text-decoration:none; transition: background 0.18s ease;">
-                    <ion-icon name="mail-outline" style="font-size:1.45rem; color:rgba(255,255,255,0.9); flex-shrink:0;"></ion-icon>
+                    <i class="ph ph-envelope" style="font-size:1.45rem; color:rgba(255,255,255,0.9); flex-shrink:0;"></i>
                     <span style="font-size:0.875rem; font-weight:700; color:white; flex:1;">Contacto</span>
-                    <ion-icon name="chevron-forward-outline" style="font-size:0.85rem; color:rgba(255,255,255,0.3); flex-shrink:0;"></ion-icon>
+                    <i class="ph ph-caret-right" style="font-size:0.85rem; color:rgba(255,255,255,0.3); flex-shrink:0;"></i>
                   </a>
 
                 </div>
               </div>
 
-              <!-- PANEL DERECHO: Noticias (se expande al hover del trigger) -->
               <div class="noticias-side-panel" [class.visible]="noticiasPanelVisible"
                    (mouseenter)="mostrarPanelNoticias()"
                    (mouseleave)="ocultarPanelNoticias()">
@@ -106,7 +103,6 @@
                     <a routerLink="/noticias" class="noticias-side-link">Ver todas →</a>
                   </div>
 
-                  <!-- Skeleton mientras carga -->
                   <ng-container *ngIf="cargandoNoticiasMenu">
                     <div *ngFor="let s of [1,2,3]" class="news-skeleton">
                       <div class="skeleton-media"></div>
@@ -116,39 +112,26 @@
                     </div>
                   </ng-container>
 
-                  <!-- Noticias cargadas -->
                   <ng-container *ngIf="!cargandoNoticiasMenu">
                     <ng-container *ngFor="let noticia of noticiasMenu; let last = last">
-
                       <a routerLink="/noticias" class="news-card-side">
-
-                        <!-- VIDEO si tiene video_url y no imagen -->
                         <video *ngIf="noticia.video_url && !noticia.imagen_url"
                                class="news-card-video"
                                [src]="noticia.video_url"
-                               muted
-                               preload="metadata"
-                               playsinline>
+                               muted preload="metadata" playsinline>
                         </video>
-
-                        <!-- IMAGEN si tiene imagen_url -->
                         <img *ngIf="noticia.imagen_url"
                              class="news-card-media"
                              [src]="noticia.imagen_url"
                              [alt]="noticia.titulo"
                              loading="lazy" />
-
-                        <!-- Solo título -->
                         <div class="news-card-body">
                           <span class="news-card-titulo">{{ noticia.titulo }}</span>
                         </div>
-
                       </a>
-
                       <div *ngIf="!last" class="news-card-sep"></div>
                     </ng-container>
 
-                    <!-- Sin noticias -->
                     <div *ngIf="noticiasMenu.length === 0"
                          style="padding:20px; text-align:center; color:rgba(255,255,255,0.4); font-size:0.78rem;">
                       Sin noticias disponibles
@@ -163,114 +146,84 @@
         </div>
 
         <!-- Biblioteca -->
-        <a routerLink="/catalogo" 
+        <a routerLink="/catalogo"
            class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
-          <ion-icon name="library-outline" class="text-lg"></ion-icon>
+          <i class="ph ph-book-bookmark text-lg"></i>
           <span>Biblioteca</span>
         </a>
 
-        <!-- Tienda -->
-        <button 
-          onclick="window.location.href='venta-revistas.html'" 
-          class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
-          <ion-icon name="cart-outline" class="text-lg"></ion-icon>
+         <!-- Tienda -->
+        <a routerLink="/magazines"
+           class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
+          <i class="ph ph-shopping-cart text-lg"></i>
           <span>Tienda</span>
-        </button>
+        </a>
 
-        <!-- Espaciador -->
         <div class="flex-grow"></div>
 
-        <!-- Auth Section -->
         <ng-container *ngIf="!isAuthenticated">
           <a routerLink="/login"
              class="nav-link flex items-center gap-1 px-4 py-2 rounded-lg text-white font-semibold text-sm bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-300">
-            <ion-icon name="log-in-outline" class="text-lg"></ion-icon>
+            <i class="ph ph-sign-in text-lg"></i>
             <span>Iniciar Sesión</span>
           </a>
-
           <a routerLink="/register"
              class="nav-link flex items-center gap-1 px-4 py-2 rounded-lg border border-white/40 text-white hover:bg-white/10 transition-all font-medium text-sm">
-            <ion-icon name="person-add-outline" class="text-lg"></ion-icon>
+            <i class="ph ph-user-plus text-lg"></i>
             <span>Registro de visitante</span>
           </a>
         </ng-container>
 
-        <!-- ===== USUARIO AUTENTICADO: Profile Dropdown ===== -->
         <ng-container *ngIf="isAuthenticated">
-
-          <!-- DROPDOWN PERFIL -->
           <div class="profile-wrapper">
-
-            <!-- Botón principal -->
             <button class="profile-dropdown-btn">
               <div class="profile-btn-left">
-                <ion-icon name="person-circle-outline"></ion-icon>
+                <i class="ph ph-user" style="font-size:1.5rem;"></i>
                 <span class="user-name">{{ userName }}</span>
               </div>
-              <ion-icon name="chevron-down-outline" class="profile-chevron"></ion-icon>
+              <i class="ph ph-caret-down profile-chevron"></i>
             </button>
 
-            <!-- Panel dropdown -->
             <div class="profile-dropdown-panel">
-              <!-- Flecha -->
               <div class="profile-panel-arrow"></div>
-              <!-- Cuerpo -->
               <div class="profile-panel-body">
-
-                <!-- Header: nombre + rol -->
                 <div class="profile-panel-header">
-                  <ion-icon name="person-circle-outline"></ion-icon>
+                  <i class="ph ph-user-circle" style="font-size:2rem; color:white; flex-shrink:0;"></i>
                   <div class="profile-panel-info">
                     <div class="pname">{{ userName }}</div>
                     <div class="prole">{{ userRole }}</div>
                   </div>
                 </div>
-
-                <!-- Items comunes -->
                 <div class="profile-panel-items">
-
                   <a routerLink="/perfil" class="profile-panel-item">
-                    <ion-icon name="person-outline"></ion-icon>
+                    <i class="ph ph-user-gear"></i>
                     <div class="item-label">Mi Perfil</div>
                   </a>
-
-                  <!-- Items exclusivos para Administrador -->
                   <ng-container *ngIf="esAdmin()">
                     <a routerLink="/admin" class="profile-panel-item">
-                      <ion-icon name="settings-outline"></ion-icon>
+                      <i class="ph ph-gear"></i>
                       <div class="item-label">Panel de Administración</div>
                     </a>
                   </ng-container>
-
-                  <!-- Items exclusivos para Alumno -->
                   <ng-container *ngIf="userRole === 'Alumno'">
                     <a routerLink="/mis-prestamos" class="profile-panel-item">
-                      <ion-icon name="book-outline"></ion-icon>
+                      <i class="ph ph-book"></i>
                       <div class="item-label">Mis Préstamos</div>
                     </a>
-
-                    <a routerLink="/mis-compras" class="profile-panel-item">
-                      <ion-icon name="receipt-outline"></ion-icon>
+                    <a routerLink="/my-purchases" class="profile-panel-item">
+                      <i class="ph ph-receipt"></i>
                       <div class="item-label">Mis Compras</div>
                     </a>
                   </ng-container>
-
-                  <!-- Separador -->
                   <div class="profile-panel-sep"></div>
-
-                  <!-- Cerrar sesión -->
                   <button (click)="cerrarSesion()" class="profile-panel-item logout-item">
-                    <ion-icon name="log-out-outline"></ion-icon>
+                    <i class="ph ph-sign-out"></i>
                     <div class="item-label">Cerrar Sesión</div>
                   </button>
-
                 </div>
               </div>
             </div>
-
           </div>
-          <!-- FIN DROPDOWN PERFIL -->
-
         </ng-container>
 
       </div>
@@ -286,7 +239,7 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center justify-center gap-2 flex-1">
         <img
-          src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1763396639/logo1_mgnz23.png"
+          src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
           alt="Logo del Instituto Tiozihuatl"
           class="w-12 h-12 rounded-lg shadow-sm"
         />
@@ -294,7 +247,6 @@
           Instituto de Estudios Superiores Tiozihuatl
         </div>
       </div>
-
       <label for="menu-toggle" class="hamburger-btn ml-2">
         <span></span>
         <span></span>
@@ -303,54 +255,45 @@
     </div>
   </div>
 
-  <!-- Menú Móvil -->
   <div class="mobile-menu">
     <div class="px-4 py-4 space-y-2">
-      
+
       <a routerLink="/inicio" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
-        <ion-icon name="home-outline" class="text-xl"></ion-icon>
+        <i class="ph ph-house text-xl"></i>
         <span>Inicio</span>
       </a>
 
-      <a routerLink="/quienes-somos" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
-        <ion-icon name="people-outline" class="text-xl"></ion-icon>
+      <a routerLink="/about" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
+        <i class="ph ph-users text-xl"></i>
         <span>Quiénes Somos</span>
       </a>
 
-      <!-- Instituto Dropdown Móvil -->
       <div>
         <input type="checkbox" id="instituto-toggle" class="mobile-dropdown-toggle" />
         <label for="instituto-toggle" class="mobile-dropdown-header flex items-center justify-between px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold cursor-pointer">
           <div class="flex items-center gap-3">
-            <ion-icon name="business-outline" class="text-xl"></ion-icon>
+            <i class="ph ph-buildings text-xl"></i>
             <span>Instituto</span>
           </div>
-          <ion-icon name="chevron-down-outline" class="text-lg mobile-dropdown-icon"></ion-icon>
+          <i class="ph ph-caret-down text-lg mobile-dropdown-icon"></i>
         </label>
         <div class="mobile-dropdown-content ml-4 mt-1">
           <a routerLink="/noticias" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all">
-            <ion-icon name="newspaper-outline" class="text-lg"></ion-icon>
+            <i class="ph ph-newspaper text-lg"></i>
             <div>
               <div class="font-medium text-sm">Noticias y Eventos</div>
               <div class="text-xs text-white/70">Actividades y convocatorias</div>
             </div>
           </a>
-          <a href="inf-institucional.html#servicios" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all">
-            <ion-icon name="folder-open-outline" class="text-lg"></ion-icon>
-            <div>
-              <div class="font-medium text-sm">Servicios</div>
-              <div class="text-xs text-white/70">Trámites y servicios escolares</div>
-            </div>
-          </a>
           <a routerLink="/calendario" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all">
-            <ion-icon name="calendar-outline" class="text-lg"></ion-icon>
+            <i class="ph ph-calendar text-lg"></i>
             <div>
               <div class="font-medium text-sm">Calendario</div>
               <div class="text-xs text-white/70">Fechas importantes y horarios</div>
             </div>
           </a>
           <a routerLink="/contactanos" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all">
-            <ion-icon name="mail-outline" class="text-lg"></ion-icon>
+            <i class="ph ph-envelope text-lg"></i>
             <div>
               <div class="font-medium text-sm">Contacto</div>
               <div class="text-xs text-white/70">Información y ubicación</div>
@@ -359,14 +302,13 @@
         </div>
       </div>
 
-      <!-- Biblioteca -->
       <a routerLink="/catalogo" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
-        <ion-icon name="library-outline" class="text-xl"></ion-icon>
+        <i class="ph ph-books text-xl"></i>
         <span>Biblioteca</span>
       </a>
 
-      <a href="venta-revistas.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
-        <ion-icon name="cart-outline" class="text-xl"></ion-icon>
+      <a routerLink="/magazines" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
+        <i class="ph ph-shopping-cart text-xl"></i>
         <span>Tienda</span>
       </a>
 
@@ -374,57 +316,48 @@
 
       <ng-container *ngIf="!isAuthenticated">
         <a routerLink="/login" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white bg-white/10 hover:bg-white/20 transition-all font-semibold">
-          <ion-icon name="log-in-outline" class="text-xl"></ion-icon>
+          <i class="ph ph-sign-in text-xl"></i>
           <span>Iniciar Sesión</span>
         </a>
         <a routerLink="/register" class="flex items-center gap-3 px-4 py-3 rounded-lg border border-white/40 text-white hover:bg-white/10 transition-all font-semibold">
-          <ion-icon name="person-add-outline" class="text-xl"></ion-icon>
+          <i class="ph ph-user-plus text-xl"></i>
           <span>Registro</span>
         </a>
       </ng-container>
 
       <ng-container *ngIf="isAuthenticated">
-        <!-- Info usuario -->
         <div class="px-4 py-3 bg-white/10 rounded-lg">
           <div class="flex items-center gap-3">
-            <ion-icon name="person-circle-outline" style="font-size: 2rem; color: white; flex-shrink: 0;"></ion-icon>
+            <i class="ph ph-user-circle" style="font-size: 2rem; color: white; flex-shrink: 0;"></i>
             <div>
               <div class="text-sm font-semibold text-white">{{ userName }}</div>
               <div class="text-xs text-white/80">{{ userRole }}</div>
             </div>
           </div>
         </div>
-
-        <!-- Perfil (todos) -->
         <a routerLink="/perfil" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
-          <ion-icon name="person-outline" class="text-xl"></ion-icon>
+          <i class="ph ph-user text-xl"></i>
           <span>Mi Perfil</span>
         </a>
-
-        <!-- Panel Admin -->
         <a *ngIf="esAdmin()" routerLink="/admin" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
-          <ion-icon name="settings-outline" class="text-xl"></ion-icon>
+          <i class="ph ph-gear text-xl"></i>
           <span>Panel Admin</span>
         </a>
-
-        <!-- Alumno: Préstamos y Compras -->
         <ng-container *ngIf="userRole === 'Alumno'">
           <a routerLink="/mis-prestamos" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
-            <ion-icon name="book-outline" class="text-xl"></ion-icon>
+            <i class="ph ph-book text-xl"></i>
             <span>Mis Préstamos</span>
           </a>
-          <a routerLink="/mis-compras" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
-            <ion-icon name="receipt-outline" class="text-xl"></ion-icon>
+          <a routerLink="/my-purchases" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
+            <i class="ph ph-receipt text-xl"></i>
             <span>Mis Compras</span>
           </a>
         </ng-container>
-
-        <!-- Cerrar sesión -->
-        <button (click)="cerrarSesion()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all" 
+        <button (click)="cerrarSesion()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all"
           style="color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);"
           onmouseover="this.style.background='rgba(220,50,50,0.35)';this.style.borderColor='rgba(220,50,50,0.5)';this.style.color='white';"
           onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.18)';this.style.color='rgba(255,255,255,0.8)';">
-          <ion-icon name="log-out-outline" class="text-xl"></ion-icon>
+          <i class="ph ph-sign-out text-xl"></i>
           <span>Cerrar Sesión</span>
         </button>
       </ng-container>
@@ -432,5 +365,3 @@
     </div>
   </div>
 </nav>
-
-</body>

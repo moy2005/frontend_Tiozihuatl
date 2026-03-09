@@ -21,48 +21,56 @@ import { NoticiasComponent } from './pages/noticias/noticias';
 import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
 import { GestionCatalogoComponent} from './pages/admin/gestion-catalogo/gestion-catalogo';
 import { GestionCalendarioComponent } from './pages/admin/gestion-calendario/gestion-calendario'
-
-// Componentes de error
 import { Error400Component } from './pages/error/error-400/error-400.component';
 import { Error404Component } from './pages/error/error-404/error-404.component';
 import { Error500Component } from './pages/error/error-500/error-500.component';
 import { GestionPrestamosComponent } from './pages/admin/gestion-prestamos/gestion-prestamos';
+import { GestionBackupsComponent} from './pages/admin/gestion-backups/gestion-backups';
 
-import {GestionBackupsComponent} from './pages/admin/gestion-backups/gestion-backups';
+import { MagazinesComponent } from './pages/magazines/magazines.component';
+import { MagazineViewerComponent } from './pages/magazines/magazine-viewer.component';
+import { MagazineDetailComponent } from './pages/magazines/magazine-detail.component';
+import { CartComponent } from './pages/cart/cart.component';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { AboutComponent } from './pages/about/about.component';
+import { GestionAboutComponent } from './pages/admin/gestion-about/gestion-about';
+import { GestionRevistasComponent } from './pages/admin/gestion-revistas/gestion-revistas.component';
+import { MyPurchases } from './pages/my-purchases/my-purchases';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
 
-  // 🔓 Públicas
+  // Públicas
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
-  {path:'reset-password', component: ResetPasswordComponent},
+  { path:'reset-password', component: ResetPasswordComponent},
   { path: 'verificar-correo', component: VerificarCorreoComponent },
   { path: 'inicio',component: InicioComponent},
   { path: 'privacidad', component: Privacidad},
-  {path: 'terminos', component: Terminos},
-  {path: 'seguridad', component: Seguridad},
-  {path: 'contactanos',component: ContactanosComponent},
-  {path:'noticias',component:NoticiasComponent},
+  { path: 'terminos', component: Terminos},
+  { path: 'seguridad', component: Seguridad},
+  { path: 'contactanos',component: ContactanosComponent},
+  { path: 'noticias',component: NoticiasComponent},
+  { path: 'about', component: AboutComponent },
 
   { path: 'catalogo', component: CatalogoComponent, canActivate: [AuthGuard],
     data: {
-      roles: ['Alumno', 'Administrador', 'Docente','Bibliotecario'] // los que sí pueden
+      roles: ['Alumno', 'Administrador', 'Docente','Bibliotecario'] 
       }
   },
 
-  // 🔐 Protegidas (todas con AuthGuard)
+  // Protegidas (todas con AuthGuard)
   { path: 'perfil', component: PerfilUsuarioComponent, canActivate: [AuthGuard] },
+  { path: 'magazines', component: MagazinesComponent, canActivate: [AuthGuard]},
+  { path: 'magazines/view/:id', component: MagazineViewerComponent, canActivate: [AuthGuard]},
+  { path: 'magazines/:id', component: MagazineDetailComponent, canActivate: [AuthGuard]},
+  { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
+  { path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard] },
+  { path: 'my-purchases', component: MyPurchases, canActivate: [AuthGuard] },
 
-  // 🧑‍💼 Panel de administrador con rutas anidadas
-  {
-    path: 'admin',
-    component: AdminLayoutComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['Administrador'],
-    hideNavbar: true
-    },
+  // Panel de administrador con rutas anidadas
+  { path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'], hideNavbar: true},
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
@@ -74,7 +82,8 @@ export const routes: Routes = [
       { path : 'calendario', component: GestionCalendarioComponent },
       { path : 'prestamos', component:GestionPrestamosComponent },
       { path : 'backups', component:GestionBackupsComponent },
-      //{ path: 'revistas', component: AdminRevistasComponent },
+      { path: 'about', component: GestionAboutComponent },
+      { path: 'revistas', component: GestionRevistasComponent }
     ]
   },
   

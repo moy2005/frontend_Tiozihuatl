@@ -1,0 +1,9 @@
+<div class="checkout">
+
+  <h2>💳 Confirmar compra</h2>
+
+  <button (click)="pay()" [disabled]="processing">
+    {{ processing ? 'Procesando...' : 'Pagar ahora' }}
+  </button>
+
+</div>

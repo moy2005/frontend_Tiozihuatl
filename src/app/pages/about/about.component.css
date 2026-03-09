@@ -1,0 +1,349 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+/* ============================================
+   VARIABLES
+============================================ */
+:host {
+  --primary: #3FA6E8;
+  --primary-dark: #1976D2;
+  --primary-light: #E3F2FD;
+  --success: #10b981;
+  --text-dark: #1E293B;
+  --text-gray: #64748B;
+  --border: #BBDEFB;
+  --bg: #EAF5FE;
+  --white: #ffffff;
+  --shadow: 0 4px 16px rgba(63, 166, 232, 0.1);
+  --shadow-hover: 0 12px 32px rgba(63, 166, 232, 0.2);
+
+  display: block;
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  color: var(--text-dark);
+}
+
+* { box-sizing: border-box; }
+
+/* ============================================
+   HERO
+============================================ */
+.about-hero {
+  position: relative;
+  background: linear-gradient(135deg, #3FA6E8 0%, #1976D2 100%);
+  padding: 5rem 2rem 9rem;
+  overflow: hidden;
+  text-align: center;
+}
+
+.about-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 300px;
+  height: 300px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+
+.about-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 40px;
+  left: -40px;
+  width: 200px;
+  height: 200px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 1.2rem;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: white;
+  margin: 0 0 1rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.about-hero p {
+  font-size: 1.15rem;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.75;
+  margin: 0;
+}
+
+.hero-wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  z-index: 1;
+}
+
+.hero-wave path {
+  fill: var(--bg);
+}
+
+/* ============================================
+   CONTAINER
+============================================ */
+.about-container {
+  max-width: 900px;
+  margin: -3rem auto 0;
+  padding: 0 2rem 5rem;
+  position: relative;
+  z-index: 3;
+}
+
+/* ============================================
+   CARDS
+============================================ */
+.about-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+  border-radius: 4px 0 0 4px;
+}
+
+.about-card:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary);
+  transform: translateY(-3px);
+}
+
+.about-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 0 0 1.2rem;
+}
+
+.about-card h2 ion-icon {
+  font-size: 2rem;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.about-card p {
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-gray);
+  margin: 0;
+}
+
+/* ============================================
+   VALORES
+============================================ */
+.valores-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.9rem;
+}
+
+.valores-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--primary-light);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.valores-list li:hover {
+  background: white;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(63,166,232,0.15);
+  transform: translateX(4px);
+}
+
+.valores-list li ion-icon {
+  font-size: 1.3rem;
+  color: var(--success);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.valores-list li span {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* ============================================
+   LOADING
+============================================ */
+.loading-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+}
+
+.loader {
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-wrapper p {
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  font-weight: 600;
+}
+
+/* ============================================
+   EMPTY STATE
+============================================ */
+.empty-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-wrapper ion-icon {
+  font-size: 4rem;
+  color: var(--text-gray);
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+.empty-wrapper h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0 0 0.5rem;
+}
+
+.empty-wrapper p {
+  font-size: 1rem;
+  color: var(--text-gray);
+  max-width: 400px;
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 3.5rem 1.5rem 7rem;
+  }
+
+  .about-hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .about-hero p {
+    font-size: 1rem;
+  }
+
+  .hero-wave { height: 80px; }
+
+  .about-container {
+    margin-top: -2.5rem;
+    padding: 0 1rem 3rem;
+  }
+
+  .about-card {
+    padding: 1.75rem 1.5rem;
+    border-radius: 16px;
+  }
+
+  .about-card h2 {
+    font-size: 1.3rem;
+  }
+
+  .valores-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-hero {
+    padding: 2.5rem 1rem 6rem;
+  }
+
+  .about-hero h1 {
+    font-size: 1.75rem;
+  }
+
+  .hero-wave { height: 60px; }
+
+  .about-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .about-card h2 {
+    font-size: 1.15rem;
+  }
+
+  .about-card h2 ion-icon {
+    font-size: 1.5rem;
+  }
+
+  .valores-list li {
+    padding: 0.85rem 1rem;
+  }
+}
+
+ion-icon { pointer-events: none; }

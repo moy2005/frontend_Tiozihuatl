@@ -1,0 +1,39 @@
+.breadcrumb-bar {
+  width: 100%;
+  background: linear-gradient(90deg, #4da3d9, #3fa9f5);
+  padding: 12px 32px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.breadcrumb-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.crumb-link {
+  color: rgba(255,255,255,0.9);
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.crumb-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.sep {
+  color: rgba(255,255,255,0.5);
+}
+
+.crumb-current {
+  color: #ffffff;
+  font-weight: 800;
+  background: rgba(255,255,255,0.25);
+  padding: 3px 12px;
+  border-radius: 20px;
+}

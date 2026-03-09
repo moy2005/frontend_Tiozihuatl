@@ -19,7 +19,7 @@
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
-           "assets": [
+          "assets": [
   {
     "glob": "**/*",
     "input": "public"
@@ -28,6 +28,11 @@
     "glob": "**/*.woff2",
     "input": "node_modules/@phosphor-icons/web/src",
     "output": "assets/fonts/phosphor"
+  },
+  {
+    "glob": "pdf.worker.min.mjs",
+    "input": "node_modules/pdfjs-dist/build/",
+    "output": "assets/"
   }
 ],
             "styles": [

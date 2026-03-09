@@ -1,0 +1,73 @@
+<section class="about-hero">
+  <div class="hero-content">
+    <!-- 🔥 Agregar esta línea: -->
+    <div class="hero-badge">Instituto Tiozihuatl</div>
+    <h1>Quiénes Somos</h1>
+    <p>
+      Conoce nuestra identidad institucional, los principios que nos guían
+      y la visión que impulsa nuestra labor educativa.
+    </p>
+  </div>
+
+  <!-- OLA SVG - Curva suave como en la imagen -->
+  <svg
+    class="hero-wave"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 1440 120"
+    preserveAspectRatio="none"
+  >
+    <path
+      d="M0,64 C240,96 480,32 720,48 C960,64 1200,96 1440,64 L1440,120 L0,120 Z"
+    ></path>
+  </svg>
+</section>
+
+<!-- CONTENIDO -->
+<div class="about-container" *ngIf="!cargando">
+
+  <!-- MISIÓN -->
+  <section *ngIf="mision" class="about-card">
+    <h2>
+      <ion-icon name="rocket-outline"></ion-icon>
+      {{ mision.title }}
+    </h2>
+    <p>{{ mision.content }}</p>
+  </section>
+
+  <!-- VISIÓN -->
+  <section *ngIf="vision" class="about-card">
+    <h2>
+      <ion-icon name="eye-outline"></ion-icon>
+      {{ vision.title }}
+    </h2>
+    <p>{{ vision.content }}</p>
+  </section>
+
+  <!-- VALORES -->
+  <section *ngIf="valores?.length" class="about-card">
+    <h2>
+      <ion-icon name="ribbon-outline"></ion-icon>
+      Nuestros Valores
+    </h2>
+
+    <ul class="valores-list">
+      <li *ngFor="let v of valores">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>{{ v.content }}</span>
+      </li>
+    </ul>
+  </section>
+</div>
+
+<!-- LOADING -->
+<div *ngIf="cargando" class="loading-wrapper">
+  <div class="loader"></div>
+  <p>Cargando información institucional...</p>
+</div>
+
+<!-- EMPTY -->
+<div *ngIf="!cargando && !mision && !vision && !valores?.length" class="empty-wrapper">
+  <ion-icon name="alert-circle-outline"></ion-icon>
+  <h3>Información no disponible</h3>
+  <p>El contenido institucional no se encuentra disponible.</p>
+</div>

@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree, ActivatedRouteSnapshot } from '@angular/router';
 import { AuthService } from '../api/services/auth';
 import Swal from 'sweetalert2';
-import { lastValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
@@ -12,18 +11,19 @@ export class AuthGuard implements CanActivate {
     const accessToken = localStorage.getItem('accessToken');
     const refreshToken = localStorage.getItem('refreshToken');
 
-    // 🚫 Sin tokens → redirige a login
+    // Sin tokens → redirigir a login
     if (!accessToken || !refreshToken) {
       return this.redirectToLogin('Inicia sesión para continuar.');
     }
 
+    // ✅ Solo verificar que el token sea decodificable
+    // El interceptor renueva automáticamente si expira — no hacerlo aquí
     const decoded = this.decodeToken(accessToken);
-    if (!decoded || this.isExpired(decoded.exp)) {
-      const refreshed = await this.tryRefreshToken();
-      if (!refreshed) return this.redirectToLogin('Tu sesión expiró. Inicia sesión nuevamente.');
+    if (!decoded) {
+      return this.redirectToLogin('Sesión inválida. Inicia sesión nuevamente.');
     }
 
-    // ✅ Verificar rol (si la ruta tiene restricción de roles)
+    // Verificar rol si la ruta lo requiere
     const allowedRoles: string[] = route.data?.['roles'] || [];
     if (allowedRoles.length > 0) {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -41,26 +41,6 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  // ==========================================================
-  // 🔁 Refrescar token automáticamente
-  // ==========================================================
-  private async tryRefreshToken(): Promise<boolean> {
-    try {
-      const res: any = await lastValueFrom(this.auth.refreshToken());
-      if (res?.accessToken && res?.refreshToken) {
-        localStorage.setItem('accessToken', res.accessToken);
-        localStorage.setItem('refreshToken', res.refreshToken);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }
-
-  // ==========================================================
-  // 🔍 Decodificar token JWT
-  // ==========================================================
   private decodeToken(token: string): any {
     try {
       const payload = token.split('.')[1];
@@ -70,16 +50,6 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  // ==========================================================
-  // ⏰ Verificar expiración
-  // ==========================================================
-  private isExpired(exp: number): boolean {
-    return Date.now() >= exp * 1000;
-  }
-
-  // ==========================================================
-  // 🚪 Redirigir al login
-  // ==========================================================
   private redirectToLogin(msg: string): UrlTree {
     Swal.fire('Sesión cerrada', msg, 'info');
     localStorage.clear();

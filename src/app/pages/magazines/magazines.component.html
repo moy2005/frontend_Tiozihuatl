@@ -1,0 +1,250 @@
+<header class="header-catalogo">
+  <div class="header-content">
+    <h1>Tienda de Revistas</h1>
+    <p class="eslogan">Tu conocimiento en enfermería, al alcance de un clic</p>
+
+    <div class="search-container">
+      <input
+        type="text"
+        class="search-box"
+        placeholder="Buscar revista por título..."
+        [(ngModel)]="searchTerm"
+        (input)="applyFilters()"
+      />
+      <button class="search-icon" (click)="applyFilters()">
+        <ion-icon name="search-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ========================= -->
+<!-- RESUMEN CARRITO -->
+<!-- ========================= -->
+
+<div class="cart-summary bg-white shadow-md rounded-xl p-4 mb-6 flex justify-between items-center">
+  <div class="font-semibold text-gray-700">
+    🛒 {{ cartCount }} artículos en el carrito
+  </div>
+
+  <button 
+    (click)="toggleCart()"
+    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+    Ver carrito
+  </button>
+</div>
+
+
+<!-- ========================= -->
+<!-- LAYOUT PRINCIPAL -->
+<!-- ========================= -->
+
+<div class="catalog-layout">
+
+  <!-- 🔵 PANEL DE FILTROS -->
+<aside class="filters-panel">
+
+  <div class="filters-header">
+    <span class="filters-title">
+      <ion-icon name="filter-outline"></ion-icon> Filtros
+    </span>
+    <button class="clear-btn" (click)="clearFilters()">Limpiar</button>
+  </div>
+
+  <!-- ORDENAR A-Z -->
+  <div class="filter-group">
+    <button class="filter-accordion" (click)="toggleFilter('orden')">
+      <span><ion-icon name="text-outline"></ion-icon> Ordenar A-Z</span>
+      <ion-icon [name]="filterOpen.orden ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+    </button>
+    <div class="filter-body" [class.open]="filterOpen.orden">
+      <label class="radio-option" *ngFor="let op of [
+        {label: 'Sin orden', value: ''},
+        {label: 'A → Z', value: 'asc'},
+        {label: 'Z → A', value: 'desc'}
+      ]">
+        <input type="radio" name="alpha" [value]="op.value"
+          [(ngModel)]="sortAlpha" (change)="sortOrder=sortAlpha; applyFilters()">
+        <span>{{ op.label }}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ORDENAR PRECIO -->
+  <div class="filter-group">
+    <button class="filter-accordion" (click)="toggleFilter('precio')">
+      <span><ion-icon name="pricetag-outline"></ion-icon> Precio</span>
+      <ion-icon [name]="filterOpen.precio ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+    </button>
+    <div class="filter-body" [class.open]="filterOpen.precio">
+      <label class="radio-option" *ngFor="let op of [
+        {label: 'Sin orden', value: ''},
+        {label: 'Menor precio', value: 'price_asc'},
+        {label: 'Mayor precio', value: 'price_desc'}
+      ]">
+        <input type="radio" name="price" [value]="op.value"
+          [(ngModel)]="sortPrice" (change)="sortOrder=sortPrice; applyFilters()">
+        <span>{{ op.label }}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- FILTRO POR LETRA -->
+  <div class="filter-group">
+    <button class="filter-accordion" (click)="toggleFilter('letra')">
+      <span><ion-icon name="language-outline"></ion-icon> Letra inicial</span>
+      <ion-icon [name]="filterOpen.letra ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+    </button>
+    <div class="filter-body" [class.open]="filterOpen.letra">
+      <div class="alphabet">
+        <button
+          *ngFor="let letter of alphabet"
+          (click)="filterByLetter(letter)"
+          [class.active]="selectedLetter === letter">
+          {{ letter }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</aside>
+
+  <!-- 📚 GRID REVISTAS (ÚNICO) -->
+  <div class="catalog-content">
+
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando catálogo...</p>
+    </div>
+
+    <div class="grid" *ngIf="!loading">
+
+      <div class="card" *ngFor="let m of magazines">
+
+  <img 
+    [src]="getPdfCover(m.pdf_public_id)" 
+    class="cover">
+
+    <!-- 🔥 Agregar este wrapper -->
+    <div class="card-body">
+
+      <h3>{{ m.titulo }}</h3>
+      <p class="price">${{ m.precio }}</p>
+
+      <div class="actions">
+        <a 
+          [routerLink]="['/magazines', m.id_magazine]" 
+          class="btn-view">
+          Ver detalle
+        </a>
+
+        <button 
+          *ngIf="!isPurchased(m.id_magazine)"
+          (click)="addToCart(m)" 
+          class="btn-cart">
+          Comprar
+        </button>
+
+        <a 
+          *ngIf="isPurchased(m.id_magazine)"
+          [routerLink]="['/magazines', m.id_magazine]"
+          class="btn-view bg-green-600 hover:bg-green-700">
+          Leer ahora
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===================================== -->
+<!-- 🛒 OVERLAY -->
+<!-- ===================================== -->
+<div 
+  *ngIf="cartOpen"
+  class="fixed inset-0 bg-black/50 z-40"
+  (click)="closeCart()">
+</div>
+
+<!-- ===================================== -->
+<!-- 🛒 DRAWER LATERAL -->
+<!-- ===================================== -->
+<div 
+  class="fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300"
+  [class.translate-x-full]="!cartOpen">
+
+  <div class="p-6 flex justify-between items-center border-b">
+    <h2 class="text-xl font-bold">🛒 Tu Carrito</h2>
+    <button (click)="closeCart()" class="text-gray-500 hover:text-black text-xl">✕</button>
+  </div>
+
+  <div class="p-6 flex flex-col gap-4 overflow-y-auto h-[65%]">
+
+    <div *ngFor="let item of cartItems" class="flex justify-between items-center border-b pb-3">
+      <div>
+        <p class="font-semibold">{{ item.titulo }}</p>
+        <p class="text-sm text-gray-500">${{ item.precio }}</p>
+      </div>
+      <button (click)="removeItem(item.id)" class="text-red-500 text-sm hover:underline">
+        Eliminar
+      </button>
+    </div>
+
+    <div *ngIf="cartItems.length === 0" class="text-center text-gray-400 mt-10">
+      Tu carrito está vacío
+    </div>
+
+  </div>
+
+  <div class="p-6 border-t bg-gray-50">
+    <div class="flex justify-between font-bold text-lg mb-4">
+      <span>Total:</span>
+      <span>${{ total }}</span>
+    </div>
+
+    <button 
+      (click)="simulatePayment()"
+      [disabled]="processingPayment"
+      class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex justify-center items-center gap-2">
+
+      <span *ngIf="!processingPayment">💳 Pagar ahora</span>
+
+      <span *ngIf="processingPayment" class="flex items-center gap-2">
+        <span class="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
+        Procesando...
+      </span>
+
+    </button>
+  </div>
+</div>
+
+<!-- ===================================== -->
+<!-- 💳 MODAL PAGO EXITOSO -->
+<!-- ===================================== -->
+<div 
+  *ngIf="paymentSuccess"
+  class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
+
+  <div class="bg-white p-10 rounded-2xl shadow-2xl text-center w-96">
+
+    <div class="text-green-500 text-5xl mb-4">✔</div>
+
+    <h2 class="text-2xl font-bold mb-2">Pago exitoso</h2>
+    <p class="text-gray-500 mb-6">
+      Gracias por tu compra.
+    </p>
+
+    <button 
+      (click)="paymentSuccess = false"
+      class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+      Continuar
+    </button>
+
+  </div>
+</div>
