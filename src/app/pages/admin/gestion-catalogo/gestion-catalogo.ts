@@ -51,6 +51,10 @@ export class GestionCatalogoComponent implements OnInit {
   activo: '',
   ordenAutor: ''};
 
+  sugerenciasPorCampo: any[][] = [];
+  todosLosAutores: any[] = [];
+
+
   constructor(
     private catalogAdminService: CatalogAdminService,
     private storageService: StorageService
@@ -59,6 +63,7 @@ export class GestionCatalogoComponent implements OnInit {
   ngOnInit(): void {
     this.cargarLibros();
     this.cargarMaterias();
+    this.cargarTodosLosAutores();
   }
 
   // ─────────────────────────────────────────
@@ -102,6 +107,51 @@ export class GestionCatalogoComponent implements OnInit {
       this.nuevoLibro.autores.splice(index, 1);
     }
   }
+
+  // MÉTODOS NUEVOS AUTORES:
+  cargarTodosLosAutores(): void {
+    this.catalogAdminService.obtenerAutores().subscribe({
+      next: (res) => { this.todosLosAutores = res; },
+      error: (err) => { console.error('Error al cargar autores', err); }
+    });
+  }
+
+  buscarAutores(event: Event, index: number): void {
+    const valor = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    
+    if (!this.sugerenciasPorCampo[index]) {
+      this.sugerenciasPorCampo[index] = [];
+    }
+
+    if (valor.length < 2) {
+      this.sugerenciasPorCampo[index] = [];
+      return;
+    }
+
+    // Filtra autores que coincidan y no estén ya seleccionados en otro campo
+    const yaSeleccionados = this.nuevoLibro.autores
+      .filter((_: string, i: number) => i !== index)
+      .map((a: string) => a.trim().toLowerCase());
+
+    this.sugerenciasPorCampo[index] = this.todosLosAutores.filter(a =>
+      a.nombre.toLowerCase().includes(valor) &&
+      !yaSeleccionados.includes(a.nombre.toLowerCase())
+    );
+  }
+
+  seleccionarAutor(autor: any, index: number): void {
+    this.nuevoLibro.autores[index] = autor.nombre;
+    this.sugerenciasPorCampo[index] = [];
+  }
+
+  ocultarSugerencias(index: number): void {
+    setTimeout(() => {
+      if (this.sugerenciasPorCampo[index]) {
+        this.sugerenciasPorCampo[index] = [];
+      }
+    }, 150); // pequeño delay para que el mousedown del item se ejecute primero
+  }
+
 
   // ─────────────────────────────────────────
   // APLICAR FILTROS
@@ -260,7 +310,7 @@ export class GestionCatalogoComponent implements OnInit {
     this.nuevoLibro = {
       titulo:        libro.titulo,
       autor: libro.autor,
-      autores: libro.autor ? libro.autor.split(';').map((a: string) => a.trim()) : [''],
+      autores: libro.autores ? libro.autores.split(';').map((a: string) => a.trim()) : [''],
       editorial:     libro.editorial,
       materia_id:    null, 
       tiene_fisico:  libro.tiene_fisico === 1,
@@ -413,6 +463,7 @@ export class GestionCatalogoComponent implements OnInit {
   // RESET / MODAL
   // ─────────────────────────────────────────
   resetFormulario(): void {
+    this.sugerenciasPorCampo = [];
     this.modoEdicion     = false;
     this.libroEditandoId = null;
     this.pdfActual       = null;
