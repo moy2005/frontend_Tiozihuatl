@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { CatalogService, Libro } from '../../../api/services/catalog.service';
 import { PrestamoService } from '../../../api/services/prestamo.service';
 import { SafeUrlPipe } from '../../../pipes/safe-url.pipe';
-import { environment } from '../../../api/environments/environment.prod.js';
+import { environment } from '../../../api/environments/environment.prod';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-catalogo',
@@ -33,6 +34,7 @@ export class CatalogoComponent implements OnInit {
 
   constructor(
     private catalogService: CatalogService,
+    private router: Router,
     private prestamoService: PrestamoService
   ) {}
 
@@ -49,6 +51,7 @@ export class CatalogoComponent implements OnInit {
       this.ordenAutor
     ).subscribe({
       next: (res) => {
+        this.paginaActual = 1;
         this.libros = res;
         this.libros.forEach(libro => {
           if (libro.tiene_digital && libro.id) {
@@ -70,14 +73,41 @@ export class CatalogoComponent implements OnInit {
     });
   }
 
-  abrirPdf(libro: Libro): void {
-    if (!libro.id) return;
-    this.pdfSeleccionado = `${environment.apiUrl}/catalog/libros/${libro.id}/pdf`;
+   abrirPdf(libro: Libro) {
+  if (!libro.id) return;
+   this.router.navigate(['/biblioteca/libro', libro.id]);
   }
 
   cerrarPdf(): void {
     this.pdfSeleccionado = null;
   }
+  // PAGINACIÓN
+  paginaActual = 1;
+  librosPorPagina = 12;
+
+  get librosPaginados(): Libro[] {
+    const inicio = (this.paginaActual - 1) * this.librosPorPagina;
+    return this.librosFiltrados.slice(inicio, inicio + this.librosPorPagina);
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.librosFiltrados.length / this.librosPorPagina);
+  }
+
+  get paginas(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+  }
+
+  get librosFiltrados(): Libro[] {
+    return this.libros; // ya vienen filtrados del backend
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas) return;
+    this.paginaActual = pagina;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
 
   // ─── Modal préstamo ───────────────────────────────────
 
