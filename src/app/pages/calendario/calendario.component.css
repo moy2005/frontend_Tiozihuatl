@@ -1,0 +1,287 @@
+/* ================================================================
+   CALENDARIO ESCOLAR
+   #3FA6E8 azul · #1D3E8D oscuro · #2C3A6A texto · #EEF4FF fondo
+================================================================ */
+:host { display: block; }
+
+.cal-page {
+  background: #EEF4FF;
+  font-family: "Nunito", sans-serif;
+  min-height: 100vh;
+}
+
+/* ================================================================
+   HEADER
+   Fondo blanco puro con borde inferior azul — limpio, profesional.
+   El azul vive en la tipografía y el botón, no en el fondo.
+================================================================ */
+.cal-header {
+  background: #ffffff;
+  border-bottom: 3px solid #3FA6E8;
+  box-shadow: 0 2px 16px rgba(63, 166, 232, 0.1);
+}
+
+.cal-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.5rem 2.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+/* ── Lado izquierdo ── */
+.cal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Ícono cuadrado azul sólido */
+.cal-header-icon {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 13px;
+  background: #3FA6E8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(63, 166, 232, 0.35);
+}
+
+.cal-header-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: white;
+}
+
+/* Bloque de texto */
+.cal-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.cal-header-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #3FA6E8;
+  margin: 0;
+}
+
+.cal-header-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #2C3A6A;
+  line-height: 1.15;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-header-sub {
+  font-size: 0.78rem;
+  color: #7B90BE;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ================================================================
+   BOTÓN DESCARGAR 
+================================================================ */
+.btn-download {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0;
+  background: #3FA6E8;
+  border: none;
+  border-radius: 50px;
+  padding: 5px;
+  cursor: pointer;
+  box-shadow:
+    0 4px 18px rgba(63, 166, 232, 0.45),
+    0 1px 4px rgba(63, 166, 232, 0.2);
+  transition:
+    background   0.2s ease,
+    transform    0.18s ease,
+    box-shadow   0.2s ease;
+  text-decoration: none;
+}
+
+/* Círculo del ícono — blanco semitransparente */
+.btn-dl-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-dl-icon-wrap svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Bloque de texto */
+.btn-dl-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0 1.1rem 0 0.7rem;
+  line-height: 1.2;
+}
+
+.btn-dl-main {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+}
+
+.btn-dl-sub {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.72);
+  margin-top: 1px;
+}
+
+/* Hover */
+.btn-download:hover {
+  background: #2b94d6;
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 26px rgba(63, 166, 232, 0.55),
+    0 2px 8px rgba(63, 166, 232, 0.25);
+}
+
+/* El ícono baja para simular la descarga */
+.btn-download:hover .btn-dl-icon-wrap {
+  transform: translateY(3px);
+}
+
+.btn-download:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(63, 166, 232, 0.35);
+}
+
+/* ================================================================
+   VISOR PDF — ocupa exactamente el espacio visible restante
+================================================================ */
+.cal-pdf-wrap {
+  --nav-h: 128px;      /* altura navbar (ajusta si tu nav mide diferente) */
+  --header-h: 96px;    /* altura del cal-header */
+  height: calc(100vh - var(--nav-h) - var(--header-h));
+  min-height: 480px;
+  background: #404040;
+}
+
+.cal-pdf-wrap iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ================================================================
+   VISOR IMAGEN
+================================================================ */
+.cal-img-wrap {
+  padding: 2rem 2.5rem 3.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.cal-img-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  box-shadow:
+    0 12px 48px rgba(44, 58, 106, 0.14),
+    0 2px 8px rgba(44, 58, 106, 0.07);
+}
+
+/* ================================================================
+   ESTADO VACÍO
+================================================================ */
+.cal-empty {
+  max-width: 300px;
+  margin: 8rem auto;
+  text-align: center;
+  animation: fadeUp 0.45s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cal-empty-icon {
+  width: 74px;
+  height: 74px;
+  background: #dde9ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.2rem;
+}
+
+.cal-empty-icon svg { width: 32px; height: 32px; stroke: #3FA6E8; }
+
+.cal-empty h3 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2C3A6A;
+  margin: 0 0 0.4rem;
+}
+
+.cal-empty p { font-size: 0.83rem; color: #94a3b8; line-height: 1.6; }
+
+/* ================================================================
+   RESPONSIVE
+================================================================ */
+@media (max-width: 768px) {
+  .cal-header-inner {
+    padding: 1.1rem 1.25rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .cal-header-title { font-size: 1.2rem; white-space: normal; }
+
+  .btn-download { width: 100%; border-radius: 14px; justify-content: center; }
+  .btn-dl-content { flex: 1; }
+
+  .cal-pdf-wrap {
+    --nav-h: 80px;
+    height: calc(100vh - var(--nav-h) - 130px);
+    min-height: 380px;
+  }
+
+  .cal-img-wrap { padding: 1.25rem 1rem 2rem; }
+}
+
+@media (max-width: 420px) {
+  .cal-header-icon { display: none; }
+  .cal-header-title { font-size: 1.05rem; }
+}
