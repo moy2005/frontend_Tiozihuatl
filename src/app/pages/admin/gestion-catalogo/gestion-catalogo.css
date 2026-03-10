@@ -1,4 +1,4 @@
-  .catalogo-admin {
+.catalogo-admin {
   --azul:         #29B6F6;   /* azul claro del header/thead */
   --azul-dark:    #0288D1;   /* azul oscuro hover */
   --azul-fondo:   #E1F5FE;   /* fondo general celeste */
@@ -501,7 +501,67 @@
 }
 
 .btn-primary-modal:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+/* ============================================
+   AUTOCOMPLETE AUTORES
+   ============================================ */
+.autor-input-wrap {
+  position: relative;
+  flex: 1;
+}
 
+.autor-input-wrap input {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 0.7rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--texto);
+  transition: border-color 0.18s, box-shadow 0.18s;
+  font-family: inherit;
+}
+
+.autor-input-wrap input:focus {
+  outline: none;
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgba(41,182,246,0.15);
+}
+
+.autor-sugerencias {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--azul-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(2,136,209,0.12);
+  z-index: 100;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.autor-sugerencia-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--texto);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.autor-sugerencia-item:hover {
+  background: var(--azul-fondo);
+  color: var(--azul-dark);
+}
+
+.autor-sugerencia-item ion-icon {
+  font-size: 1rem;
+  color: var(--azul);
+  flex-shrink: 0;
+}
 /* ============================================
    FILTROS
    ============================================ */
@@ -704,6 +764,7 @@
   background: var(--verde);
   color: #fff;
 }
+
 
 /* Ocultar tabla en móvil, mostrar cards */
 @media (max-width: 1023px) {
