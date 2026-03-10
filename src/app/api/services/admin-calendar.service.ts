@@ -11,27 +11,27 @@ export class AdminCalendarService {
 
   constructor(private http: HttpClient) {}
 
-  // 📥 Obtener todos
-  getAll() {
-    return this.http.get<any[]>(this.API_URL);
+  // Obtener todos
+  getAll(filters: any = {}) {
+    return this.http.get<any[]>(this.API_URL, { params: filters });
   }
 
-  // ➕ Crear (JSON)
+  //  Crear 
   create(data: any) {
     return this.http.post(this.API_URL, data);
   }
 
-  // ✏️ Actualizar (JSON)
+  //  Actualizar 
   update(id: number, data: any) {
     return this.http.put(`${this.API_URL}/${id}`, data);
   }
 
-  // 🔄 Activar / Desactivar
+  //  Activar / Desactivar
   toggleStatus(id: number, activo: number) {
     return this.http.put(`${this.API_URL}/${id}/status`, { activo });
   }
 
-  // 🗑 Eliminar
+  // Eliminar
   delete(id: number) {
     return this.http.delete(`${this.API_URL}/${id}`);
   }

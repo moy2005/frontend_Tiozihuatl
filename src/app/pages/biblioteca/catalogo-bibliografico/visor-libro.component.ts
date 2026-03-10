@@ -13,16 +13,15 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
   imports: [CommonModule, RouterLink],
   templateUrl: './visor-libro.component.html',
   styleUrls: ['./visor-libro.component.css']
-
-  
 })
-export class VisorLibroComponent implements OnInit {
+export class VisorLibroComponent implements OnInit, OnDestroy {
 
   pdfDoc: any = null;
   pageNum = 1;
   totalPages = 0;
-  paginas: number[] = [];   // array [1,2,3...n] para el *ngFor
-  scale = 1.2;
+  paginas: number[] = [];
+  scale = 1.0;         
+  renderScale = 1.2;    
   libroId!: string;
   tituloLibro = '';
   cargando = true;
@@ -55,11 +54,9 @@ export class VisorLibroComponent implements OnInit {
       loadingTask.promise.then((pdf: any) => {
         this.pdfDoc = pdf;
         this.totalPages = pdf.numPages;
-        // Genera array [1, 2, 3, ... totalPages]
         this.paginas = Array.from({ length: this.totalPages }, (_, i) => i + 1);
         this.cargando = false;
 
-        // Espera a que Angular renderice los canvas y luego pinta las páginas
         setTimeout(() => {
           this.ajustarScale();
           this.renderTodasLasPaginas();
@@ -76,69 +73,92 @@ export class VisorLibroComponent implements OnInit {
   ajustarScale() {
     const padding = window.innerWidth < 600 ? 16 : 32;
     const anchoDisponible = Math.min(window.innerWidth - padding, 860);
-    // ✅ Multiplica por devicePixelRatio para pantallas retina/HD
     const dpr = window.devicePixelRatio || 1;
-    this.scale = (anchoDisponible / 595) * dpr;
+    this.renderScale = (anchoDisponible / 595) * dpr;
+    this.scale = 1.0;
   }
-
-  // Renderiza todas las páginas en sus canvas
-  renderTodasLasPaginas() {
-    for (let i = 1; i <= this.totalPages; i++) {
-      this.renderPagina(i);
-    }
+    renderTodasLasPaginas() {
+      for (let i = 1; i <= this.totalPages; i++) {
+        this.renderPagina(i);
+      }
   }
 
   renderPagina(num: number) {
   this.pdfDoc.getPage(num).then((page: any) => {
     const dpr = window.devicePixelRatio || 1;
-    const viewport = page.getViewport({ scale: this.scale });
+    const viewport = page.getViewport({ scale: this.renderScale });
     const canvas: any = document.getElementById(`page-${num}`);
     if (!canvas) return;
     const context = canvas.getContext('2d');
 
-    // ✅ Tamaño real del canvas en píxeles del dispositivo
     canvas.height = viewport.height;
     canvas.width = viewport.width;
-
-    // ✅ Tamaño visual — CSS lo escala al contenedor
+    // ✅ Tamaño visual base sin zoom
     canvas.style.width = (viewport.width / dpr) + 'px';
     canvas.style.height = (viewport.height / dpr) + 'px';
 
     page.render({ canvasContext: context, viewport });
+    });
+  }
+
+  zoomIn() {
+    if (this.scale >= 2.0) return;
+    this.scale = Math.round((this.scale + 0.1) * 10) / 10;
+    this.rerenderConZoom();
+  }
+
+  zoomOut() {
+    if (this.scale <= 0.5) return;
+    this.scale = Math.round((this.scale - 0.1) * 10) / 10;
+    this.rerenderConZoom();
+  }
+  rerenderConZoom() {
+    // En lugar de CSS transform, re-renderiza con escala ajustada
+    for (let i = 1; i <= this.totalPages; i++) {
+      this.renderPaginaConZoom(i);
+    }
+  }
+
+renderPaginaConZoom(num: number) {
+  this.pdfDoc.getPage(num).then((page: any) => {
+    const dpr = window.devicePixelRatio || 1;
+    const escalaFinal = this.renderScale * this.scale;
+    const viewport = page.getViewport({ scale: escalaFinal });
+    const canvas: any = document.getElementById(`page-${num}`);
+    if (!canvas) return;
+
+    // Canvas temporal fuera de pantalla
+    const offscreen = document.createElement('canvas');
+    offscreen.height = viewport.height;
+    offscreen.width = viewport.width;
+
+    const context = offscreen.getContext('2d');
+
+    page.render({ canvasContext: context, viewport }).promise.then(() => {
+      // Solo cuando terminó de renderizar, actualizamos el canvas visible
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      canvas.style.width = (viewport.width / dpr) + 'px';
+      canvas.style.height = (viewport.height / dpr) + 'px';
+      canvas.getContext('2d').drawImage(offscreen, 0, 0);
+    });
   });
 }
-  // Detecta qué página es visible al hacer scroll
   escucharScroll() {
     this.scrollHandler = () => {
       for (let i = 1; i <= this.totalPages; i++) {
         const canvas = document.getElementById(`page-${i}`);
         if (!canvas) continue;
         const rect = canvas.getBoundingClientRect();
-        // Si el canvas está visible en pantalla
         if (rect.top >= 0 && rect.top <= window.innerHeight / 2) {
           this.pageNum = i;
           break;
         }
       }
     };
-
     window.addEventListener('scroll', this.scrollHandler, { passive: true });
   }
 
-  // Zoom — re-renderiza todas las páginas
-  zoomIn() {
-    if (this.scale >= 3.0) return;
-    this.scale = Math.round((this.scale + 0.2) * 10) / 10;
-    this.renderTodasLasPaginas();
-  }
-
-  zoomOut() {
-    if (this.scale <= 0.6) return;
-    this.scale = Math.round((this.scale - 0.2) * 10) / 10;
-    this.renderTodasLasPaginas();
-  }
-
-  // Los botones ahora hacen scroll hasta la página
   nextPage() {
     if (this.pageNum >= this.totalPages) return;
     this.pageNum++;
@@ -157,5 +177,4 @@ export class VisorLibroComponent implements OnInit {
       canvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
-  
 }

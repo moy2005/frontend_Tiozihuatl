@@ -12,17 +12,72 @@
     </button>
   </div>
 
+  <!-- FILTROS -->
+<div class="filtros-container">
+
+  <!-- BUSCAR -->
+  <input
+    type="text"
+    class="filtro-input buscar-input"
+    placeholder="Buscar por título o autor..."
+    [(ngModel)]="filtros.search"
+    (input)="buscar()"
+  />
+
+  <!-- MATERIA -->
+  <select class="filtro-select" [(ngModel)]="filtros.materia" (change)="aplicarFiltros()">
+    <option value="">Todas las materias</option>
+    <option *ngFor="let m of materias" [value]="m.nombre">
+      {{ m.nombre }}
+    </option>
+  </select>
+
+  <!-- FORMATO -->
+  <select class="filtro-select" [(ngModel)]="filtros.formato" (change)="aplicarFiltros()">
+    <option value="">Todos los formatos</option>
+    <option value="FISICO">Físico</option>
+    <option value="DIGITAL">Digital</option>
+  </select>
+
+  <!-- ESTADO -->
+  <select class="filtro-select" [(ngModel)]="filtros.activo" (change)="aplicarFiltros()">
+    <option value="">Todos</option>
+    <option value="1">Activos</option>
+    <option value="0">Inactivos</option>
+  </select>
+
+  <!-- ORDEN -->
+  <select class="filtro-select" [(ngModel)]="filtros.ordenAutor" (change)="aplicarFiltros()">
+    <option value="">Orden autor</option>
+    <option value="ASC">Autor A-Z</option>
+    <option value="DESC">Autor Z-A</option>
+  </select>
+
+  <!-- LIMPIAR -->
+  <button
+    class="btn-limpiar"
+    (click)="limpiarFiltros()">
+    Limpiar
+</button>
+
+</div>
+
   <!-- MENSAJE -->
   <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
 
   <!-- LOADING -->
   <div *ngIf="cargandoTabla" class="loading-wrapper">
     <div class="loading-spinner"></div>
-    <p style="margin-top:1rem; color:#64748B; font-weight:500; font-size:0.875rem;">Cargando libros...</p>
+    <p styl
+    e="margin-top:1rem; color:#64748B; font-weight:500; font-size:0.875rem;">Cargando libros...</p>
+  </div>
+  <!--CONTADOR -->
+  <div style="background:white;border:1px solid #B3E5FC;border-top:none;padding:0.75rem 1.5rem;font-size:0.85rem;color:#475569;font-weight:600">
+    Mostrando {{ totalResultados }} libro{{ totalResultados === 1 ? '' : 's' }}
   </div>
 
   <!-- TABLA -->
-  <div *ngIf="!cargandoTabla" class="tabla-wrapper">
+  <div *ngIf="!cargandoTabla" class="tabla-wrapper hidden lg:block">
     <div class="tabla-scroll">
       <table class="tabla-libros">
         <thead>
@@ -39,7 +94,11 @@
         <tbody>
           <tr *ngFor="let libro of libros">
             <td>{{ libro.titulo }}</td>
-            <td>{{ libro.autor }}</td>
+            <td>
+            <div *ngFor="let autor of libro.autores?.split(';')">
+              {{ autor }}
+            </div>
+          </td>
             <td>{{ libro.editorial || 'N/A' }}</td>
             <td>{{ libro.materias }}</td>
             <td>
@@ -80,6 +139,60 @@
       </table>
     </div>
   </div>
+  <!-- Vista Mobile / Tablet -->
+  <div *ngIf="!cargandoTabla && libros.length > 0" class="lg:hidden cards-mobile-wrapper">
+    <div *ngFor="let libro of libros" class="libro-card">
+
+      <div class="libro-card-header">
+        <div class="libro-card-info">
+          <div class="libro-card-badges">
+            <span class="badge" [ngClass]="libro.activo === 1 ? 'badge-activo' : 'badge-inactivo'">
+              {{ libro.activo === 1 ? 'Activo' : 'Inactivo' }}
+            </span>
+            <span class="badge badge-fisico" *ngIf="libro.tiene_fisico">
+              <ion-icon name="cube-outline"></ion-icon>
+              Físico ({{ libro.disponibles }})
+            </span>
+            <span class="badge badge-digital" *ngIf="libro.tiene_digital">
+              <ion-icon name="laptop-outline"></ion-icon>
+              Digital
+            </span>
+          </div>
+          <p class="libro-card-titulo">{{ libro.titulo }}</p>
+          <div *ngFor="let autor of libro.autores?.split(';')" class="libro-card-autor">
+            {{ autor }}
+          </div>
+        </div>
+      </div>
+
+      <div class="libro-card-body">
+        <div class="libro-card-detalle" *ngIf="libro.editorial">
+          <ion-icon name="business-outline"></ion-icon>
+          <span>{{ libro.editorial }}</span>
+        </div>
+        <div class="libro-card-detalle">
+          <ion-icon name="school-outline"></ion-icon>
+          <span>{{ libro.materias }}</span>
+        </div>
+      </div>
+
+      <div class="libro-card-acciones">
+        <button class="libro-card-btn libro-card-btn-primary" (click)="editarLibro(libro)">
+          <ion-icon name="create-outline"></ion-icon>
+          Editar
+        </button>
+        <button
+          class="libro-card-btn"
+          [class.libro-card-btn-danger]="libro.activo === 1"
+          [class.libro-card-btn-success]="libro.activo !== 1"
+          (click)="cambiarEstado(libro)">
+          <ion-icon [name]="libro.activo === 1 ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+          {{ libro.activo === 1 ? 'Desactivar' : 'Activar' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- MODAL -->
   <div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
@@ -114,10 +227,55 @@
               <label><ion-icon name="book-outline"></ion-icon> Título *</label>
               <input type="text" [(ngModel)]="nuevoLibro.titulo" name="titulo" placeholder="Título del libro" required />
             </div>
-            <div class="form-group">
-              <label><ion-icon name="person-outline"></ion-icon> Autor *</label>
-              <input type="text" [(ngModel)]="nuevoLibro.autor" name="autor" placeholder="Nombre del autor" required />
+            
+            <div class="form-group full-width">
+              <label>
+                <ion-icon name="people-outline"></ion-icon>
+                Autor(es) *
+              </label>
+
+              <div class="autores-container">
+
+             <div class="autor-row" *ngFor="let autor of nuevoLibro.autores; let i = index; trackBy: trackAutor">
+
+                  <input
+                    type="text"
+                    [(ngModel)]="nuevoLibro.autores[i]"
+                    name="autor{{i}}"
+                    placeholder="Nombre del autor"
+                    required
+                  />
+
+                  <!-- Botón eliminar -->
+                  <button
+                    type="button"
+                    class="btn-autor-remove"
+                    *ngIf="nuevoLibro.autores.length > 1"
+                    (click)="eliminarAutor(i)"
+                  >
+                    <ion-icon name="remove-circle-outline"></ion-icon>
+                  </button>
+
+                  <!-- Botón agregar -->
+                  <button
+                    type="button"
+                    class="btn-autor-add"
+                    *ngIf="i === nuevoLibro.autores.length - 1"
+                    (click)="agregarAutor()"
+                  >
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                  </button>
+
+                </div>
+
+              </div>
+
+              <small class="autor-hint">
+                Puede agregar múltiples autores del libro.
+              </small>
+
             </div>
+
             <div class="form-group">
               <label><ion-icon name="business-outline"></ion-icon> Editorial</label>
               <input type="text" [(ngModel)]="nuevoLibro.editorial" name="editorial" placeholder="Editorial" />

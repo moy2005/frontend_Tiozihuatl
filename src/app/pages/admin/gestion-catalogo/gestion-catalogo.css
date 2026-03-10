@@ -1,4 +1,4 @@
-.catalogo-admin {
+  .catalogo-admin {
   --azul:         #29B6F6;   /* azul claro del header/thead */
   --azul-dark:    #0288D1;   /* azul oscuro hover */
   --azul-fondo:   #E1F5FE;   /* fondo general celeste */
@@ -173,10 +173,9 @@
 }
 
 .tabla-libros td:first-child {
-  max-width: 240px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
+  max-width: 300px;
 }
 
 /* ============================================
@@ -504,6 +503,76 @@
 .btn-primary-modal:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
 /* ============================================
+   FILTROS
+   ============================================ */
+/* CONTENEDOR FILTROS */
+.filtros-container{
+  background:white;
+  border:1px solid #B3E5FC;
+  border-top:none;
+  padding:1rem 1.5rem;
+  display:flex;
+  gap:0.75rem;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+/* INPUT BUSQUEDA */
+.filtro-input{
+  padding:0.5rem 0.7rem;
+  border:1px solid #CBD5E1;
+  border-radius:6px;
+  font-size:0.85rem;
+  min-width:230px;
+  transition:all .2s ease;
+}
+
+.filtro-input:focus{
+  outline:none;
+  border-color:#2196F3;
+  box-shadow:0 0 0 2px rgba(33,150,243,0.15);
+}
+
+/* SELECT */
+.filtro-select{
+  padding:0.45rem 0.65rem;
+  border:1px solid #CBD5E1;
+  border-radius:6px;
+  font-size:0.85rem;
+  background:#F8FAFC;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.filtro-select:hover{
+  border-color:#90CAF9;
+}
+
+.filtro-select:focus{
+  outline:none;
+  border-color:#2196F3;
+  background:white;
+}
+
+.buscar-input{
+  min-width:260px;
+}
+
+.btn-limpiar{
+  padding:0.45rem 0.9rem;
+  border:1px solid #CBD5E1;
+  border-radius:6px;
+  background:#F8FAFC;
+  font-size:0.85rem;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.btn-limpiar:hover{
+  background:#E2E8F0;
+  border-color:#94A3B8;
+}
+/* ============================================
    SCROLLBAR
    ============================================ */
 .tabla-scroll::-webkit-scrollbar,
@@ -515,6 +584,137 @@
 .tabla-scroll::-webkit-scrollbar-thumb:hover,
 .modal-content::-webkit-scrollbar-thumb:hover { background: var(--azul-dark); }
 
+/* ============================================
+   CARDS MOBILE
+   ============================================ */
+.cards-mobile-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--azul-fondo);
+}
+
+.libro-card {
+  background: #fff;
+  border: 1px solid var(--azul-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.libro-card:hover {
+  box-shadow: 0 4px 12px rgba(2, 136, 209, 0.12);
+}
+
+.libro-card-header {
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.libro-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.625rem;
+}
+
+.libro-card-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--texto);
+  margin: 0 0 0.25rem 0;
+}
+
+.libro-card-autor {
+  font-size: 0.8125rem;
+  color: var(--texto-sec);
+}
+
+.libro-card-body {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.libro-card-detalle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--texto-sec);
+}
+
+.libro-card-detalle ion-icon {
+  font-size: 1rem;
+  color: var(--azul);
+  flex-shrink: 0;
+}
+
+.libro-card-acciones {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #F1F5F9;
+}
+
+.libro-card-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: 1px solid;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: inherit;
+}
+
+.libro-card-btn ion-icon { font-size: 1rem; }
+
+.libro-card-btn-primary {
+  color: var(--azul-dark);
+  border-color: var(--azul-dark);
+}
+.libro-card-btn-primary:hover {
+  background: var(--azul-dark);
+  color: #fff;
+}
+
+.libro-card-btn-danger {
+  color: var(--rojo);
+  border-color: var(--rojo);
+}
+.libro-card-btn-danger:hover {
+  background: var(--rojo);
+  color: #fff;
+}
+
+.libro-card-btn-success {
+  color: var(--verde);
+  border-color: var(--verde);
+}
+.libro-card-btn-success:hover {
+  background: var(--verde);
+  color: #fff;
+}
+
+/* Ocultar tabla en móvil, mostrar cards */
+@media (max-width: 1023px) {
+  .tabla-wrapper { display: none; }
+  .cards-mobile-wrapper { display: flex; }
+}
+
+@media (min-width: 1024px) {
+  .cards-mobile-wrapper { display: none; }
+  .tabla-wrapper { display: block; }
+}
 /* ============================================
    RESPONSIVE
    ============================================ */

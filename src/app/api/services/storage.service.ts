@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment.prod';
 import { API_URL } from '../api.config';
 
-// 👇 NUEVA INTERFAZ QUE COINCIDE CON EL BACKEND
 export interface UploadPdfResponse {
   success: boolean;
   message: string;

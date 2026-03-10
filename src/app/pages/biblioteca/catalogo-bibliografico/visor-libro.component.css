@@ -1,4 +1,4 @@
-/* ══ BREADCRUMB ══ */
+  /* ══ BREADCRUMB ══ */
 .breadcrumb-bar {
   display: flex;
   align-items: center;
@@ -116,7 +116,7 @@
   align-items: center;
   padding: 36px 16px 96px;
   font-family: 'Nunito', sans-serif;
-  overflow-x: hidden;   /* ← evita scroll horizontal */
+  overflow-x: hidden;   
 }
 
 /* Loading */
@@ -147,27 +147,27 @@
 
 /* ══ CANVAS CONTAINER — responsivo ══ */
 .canvas-container {
-  width: 100%;
-  max-width: 860px;
+  width: fit-content;
+  margin: 0 auto;
+  margin-bottom: 20px;
   overflow: hidden;
   border-radius: 4px;
   box-shadow:
     0 4px 14px rgba(20, 80, 140, 0.15),
     0 16px 40px rgba(20, 80, 140, 0.12);
   animation: fadeIn 0.3s ease;
-  margin-bottom: 20px;
+}
+
+.canvas-container canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  transition: width 0.25s ease, height 0.25s ease, opacity 0.2s ease;
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ✅ Canvas escala al ancho del contenedor */
-.canvas-container canvas {
-  display: block;
-  width: 100% !important;    /* fuerza que se adapte al contenedor */
-  height: auto !important;   /* mantiene proporción */
 }
 
 /* ══ NAVEGACIÓN FLOTANTE ══ */

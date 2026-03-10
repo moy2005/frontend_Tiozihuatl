@@ -5,17 +5,14 @@ import { environment } from '../environments/environment.prod';
 import { API_URL } from '../api.config';
 
 export interface Libro {
-   id: number;
+  id: number;
   titulo: string;
-  autor: string;
+  autores: string;
   editorial: string;
   materia: string;
-
   total: number | null;
   disponibles: number | null;
-
   pdf_url: string | null;
-
   tiene_fisico: number;
   tiene_digital: number;
   previewUrl?: string;
@@ -29,7 +26,6 @@ export class CatalogService {
 
   private baseUrl = `${API_URL}/catalog`;
   
-
   constructor(private http: HttpClient) {}
 
   obtenerCatalogo(
@@ -51,15 +47,10 @@ export class CatalogService {
   obtenerMaterias() {
     return this.http.get<{ nombre: string }[]>(`${this.baseUrl}/materias`);
   }
-/*
-  obtenerPdfSeguro(id: number) {
-    return this.http.get<{ url: string }>(
-      `${this.baseUrl}/libros/${id}/pdf`
-    );
-  }*/
+
   obtenerPdfSeguro(id: number) {
   return this.http.get<{ url: string, titulo: string }>(
-    `${this.baseUrl}/libros/${id}/pdf-url`  // ← ruta correcta
+    `${this.baseUrl}/libros/${id}/pdf-url` 
   );
 }
 

@@ -62,11 +62,6 @@ export class CalendarioComponent implements OnInit {
     }
   }
 
-  /**
-   * Para PDF: agrega #toolbar=0&navpanes=0&view=FitH
-   * → oculta la barra de herramientas y panel lateral del visor nativo
-   *   (Chrome/Edge lo respetan; Firefox lo ignora por diseño)
-   */
   private buildSafeUrl(url: string, tipo: string): SafeResourceUrl {
     const finalUrl = tipo === 'PDF'
       ? `${url}#toolbar=0&navpanes=0&view=FitH`

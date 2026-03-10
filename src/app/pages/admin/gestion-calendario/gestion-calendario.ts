@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '../../../api/environments/environment';
+import { environment } from '../../../api/environments/environment.prod';
 import { AdminCalendarService } from '../../../api/services/admin-calendar.service';
 import Swal from 'sweetalert2';
 
@@ -30,13 +30,15 @@ export class GestionCalendarioComponent {
   titulo = '';
   tipo_calendario: 'ALUMNO' | 'DOCENTE' = 'ALUMNO';
   tipo_archivo: 'PDF' | 'IMAGEN' = 'PDF';
-
   archivo: File | null = null;
   archivoNombre = '';
-
   idEdicion: number | null = null;
-
   titulo_seccion = '';
+  filtros = {
+  search: '',
+  tipo_calendario: '',
+  activo: ''};
+
   constructor(
     private http: HttpClient,
     private calendarService: AdminCalendarService
@@ -47,13 +49,39 @@ export class GestionCalendarioComponent {
   }
 
   // ==============================
-  // 📥 Cargar calendarios
+  //  Cargar calendarios
   // ==============================
   loadCalendars() {
-    console.log('loadCalendars llamado');
-    this.calendarService.getAll().subscribe(data => {
-      this.calendars = data;
+
+  this.cargando = true;
+
+  this.calendarService.getAll(this.filtros)
+    .subscribe({
+      next: (data) => {
+        this.calendars = data;
+        this.cargando = false;
+      },
+      error: () => {
+        this.cargando = false;
+      }
     });
+
+  }
+
+  buscarCalendarios() {
+    this.loadCalendars();
+  }
+
+limpiarFiltros() {
+
+  this.filtros = {
+    search: '',
+    tipo_calendario: '',
+    activo: ''
+  };
+
+    this.loadCalendars();
+
   }
 
   // ==============================
@@ -100,7 +128,7 @@ export class GestionCalendarioComponent {
 
   let archivo_url = '';
 
-  // 🔹 Subir archivo
+  //  Subir archivo
   if (this.archivo) {
 
     const formData = new FormData();
@@ -210,7 +238,7 @@ export class GestionCalendarioComponent {
   }
 }
   // ==============================
-  // ✏️ Editar
+  //  Editar
   // ==============================
   editar(calendar: any) {
     this.modoEdicion = true;
@@ -227,7 +255,7 @@ export class GestionCalendarioComponent {
   }
 
   // ==============================
-  // 🔄 Activar / Desactivar
+  // Activar / Desactivar
   // ==============================
   toggleStatus(calendar: any) {
     const nuevoEstado = calendar.activo ? 0 : 1;
@@ -239,7 +267,7 @@ export class GestionCalendarioComponent {
   }
 
   // ==============================
-  // 🗑 Eliminar
+  //  Eliminar
   // ==============================
   async delete(calendar: any) {
 
@@ -283,7 +311,7 @@ export class GestionCalendarioComponent {
   }
 
   // ==============================
-  // 🪟 Modal
+  // Modal
   // ==============================
   abrirModal() {
     this.resetForm();

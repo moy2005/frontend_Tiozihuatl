@@ -23,12 +23,43 @@
           <ion-icon name="calendar-outline"></ion-icon>
           Lista de Calendarios
         </h3>
+        
         <button class="btn-primary" (click)="abrirModal()">
           <ion-icon name="add-circle-outline"></ion-icon>
           Nuevo Calendario
         </button>
       </div>
+     <!-- FILTROS -->
+      <div class="filtros-bar">
+        <!-- el contenido interno queda igual -->
+        <input
+          type="text"
+          [(ngModel)]="filtros.search"
+          (keyup.enter)="buscarCalendarios()"
+          placeholder="Buscar calendario..."
+          class="modal-input">
 
+        <select
+          [(ngModel)]="filtros.tipo_calendario"
+          (change)="buscarCalendarios()"
+          class="modal-input">
+          <option value="">Todos</option>
+          <option value="ALUMNO">Alumno</option>
+          <option value="DOCENTE">Docente</option>
+        </select>
+
+        <select
+          [(ngModel)]="filtros.activo"
+          (change)="buscarCalendarios()"
+          class="modal-input">
+          <option value="">Todos</option>
+          <option value="1">Activo</option>
+          <option value="0">Inactivo</option>
+        </select>
+
+        <button (click)="buscarCalendarios()" class="btn-primary">Buscar</button>
+        <button (click)="limpiarFiltros()" class="btn-secondary">Limpiar</button>
+      </div>
       <!-- Loading -->
       <div *ngIf="cargando" class="flex flex-col items-center justify-center py-12 gap-4">
         <div class="loading-spinner"></div>

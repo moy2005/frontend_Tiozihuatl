@@ -51,6 +51,7 @@ export class CatalogoComponent implements OnInit {
       this.ordenAutor
     ).subscribe({
       next: (res) => {
+        this.paginaActual = 1;
         this.libros = res;
         this.libros.forEach(libro => {
           if (libro.tiene_digital && libro.id) {
@@ -80,6 +81,33 @@ export class CatalogoComponent implements OnInit {
   cerrarPdf(): void {
     this.pdfSeleccionado = null;
   }
+  // PAGINACIÓN
+  paginaActual = 1;
+  librosPorPagina = 12;
+
+  get librosPaginados(): Libro[] {
+    const inicio = (this.paginaActual - 1) * this.librosPorPagina;
+    return this.librosFiltrados.slice(inicio, inicio + this.librosPorPagina);
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.librosFiltrados.length / this.librosPorPagina);
+  }
+
+  get paginas(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+  }
+
+  get librosFiltrados(): Libro[] {
+    return this.libros; // ya vienen filtrados del backend
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas) return;
+    this.paginaActual = pagina;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
 
   // ─── Modal préstamo ───────────────────────────────────
 

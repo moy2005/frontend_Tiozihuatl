@@ -2,7 +2,6 @@
    CALENDARIO ESCOLAR
    #3FA6E8 azul · #1D3E8D oscuro · #2C3A6A texto · #EEF4FF fondo
 ================================================================ */
-
 :host { display: block; }
 
 .cal-page {
@@ -98,9 +97,7 @@
 }
 
 /* ================================================================
-   BOTÓN DESCARGAR — píldora elegante con bloque ícono
-   Inspirado en la SEP: ícono a la izquierda en bloque coloreado,
-   texto a la derecha sobre fondo azul sólido.
+   BOTÓN DESCARGAR 
 ================================================================ */
 .btn-download {
   flex-shrink: 0;

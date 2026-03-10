@@ -15,7 +15,7 @@ export interface LibroFormato {
 export interface LibroAdmin {
   id?: number;
   titulo: string;
-  autor: string;
+  autores: string;
   editorial?: string;
   categoria_id: number; 
   materias?: string;   
@@ -41,18 +41,38 @@ export class CatalogAdminService {
     return this.http.post(`${this.baseUrl}/libros`, data);
   }
 
-  obtenerLibros() {
-    return this.http.get<any>(`${this.baseUrl}/libros`).pipe(
-      map(response => {
-        // Si response.data existe y es array, usa eso
-        if (response && response.data && Array.isArray(response.data)) {
-          return response.data;
-        }
-        // Si response ya es array, úsalo
-        if (Array.isArray(response)) {
-          return response;
-        }
-        // Si no, devuelve array vacío
+  obtenerLibros(filtros?: any) {
+
+  let params: any = {};
+
+  if (filtros) {
+
+    if (filtros.search) params.search = filtros.search;
+
+    if (filtros.materia) params.materia = filtros.materia;
+
+    if (filtros.formato) params.formato = filtros.formato;
+
+    if (filtros.ordenAutor) params.ordenAutor = filtros.ordenAutor;
+
+    // SOLO enviar si tiene valor
+    if (filtros.activo !== '' && filtros.activo !== null && filtros.activo !== undefined) {
+      params.activo = filtros.activo;
+    }
+
+  }
+
+  return this.http.get<any>(`${this.baseUrl}/libros`, { params }).pipe(
+    map(response => {
+
+      if (response && response.data && Array.isArray(response.data)) {
+        return response.data;
+      }
+
+      if (Array.isArray(response)) {
+        return response;
+      }
+
         return [];
       })
     );

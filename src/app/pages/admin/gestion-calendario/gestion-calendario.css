@@ -1,4 +1,4 @@
-/* ============================================
+  /* ============================================
    GESTIÓN DE CALENDARIO
    ============================================ */
 .admin-content {
@@ -34,7 +34,7 @@
   border: 1px solid var(--color-borde);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  border-radius: 8px;
+  border-radius: 1px;
 }
 
 .admin-content .page-title {
@@ -57,7 +57,7 @@
 .admin-content .content-card {
   background: var(--color-contenedor);
   border: 1px solid var(--color-borde);
-  border-radius: 8px;
+  border-radius: 1px;
   overflow: hidden;
 }
 
@@ -627,6 +627,33 @@
   gap: 0.5rem;
   padding-top: 0.75rem;
   border-top: 1px solid #E5E7EB;
+}
+/* ============================================
+   FILTROS
+   ============================================ */
+.admin-content .filtros-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-borde);
+  background: #FFFFFF;
+}
+
+.admin-content .filtros-bar .modal-input {
+  width: auto;
+  min-width: 180px;
+  flex: 1 1 180px;
+  max-width: 260px;
+}
+
+.admin-content .filtros-bar .btn-primary,
+.admin-content .filtros-bar .btn-secondary {
+  padding: 0.55rem 1.1rem;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ============================================

@@ -2,7 +2,6 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
-
 import { CatalogAdminService, LibroAdmin } from '../../../api/services/admin.catalog.service';
 import { StorageService } from '../../../api/services/storage.service';
 
@@ -20,7 +19,7 @@ export class GestionCatalogoComponent implements OnInit {
 
   nuevoLibro: any = {
     titulo: '',
-    autor: '',
+    autores: '',
     editorial: '',
     materia_id: null,
     tiene_fisico: false,
@@ -44,6 +43,13 @@ export class GestionCatalogoComponent implements OnInit {
 
   mensajeErrorArchivo: string = '';
   archivoSeleccionado: File | null = null;
+  totalResultados: number = 0;
+  filtros = {
+  search: '',
+  materia: '',
+  formato: '',
+  activo: '',
+  ordenAutor: ''};
 
   constructor(
     private catalogAdminService: CatalogAdminService,
@@ -60,7 +66,7 @@ export class GestionCatalogoComponent implements OnInit {
   // ─────────────────────────────────────────
   cargarLibros(): void {
     this.cargandoTabla = true;
-    this.catalogAdminService.obtenerLibros().subscribe({
+    this.catalogAdminService.obtenerLibros(this.filtros).subscribe({
       next: (res) => {
         this.libros = res.map((libro: any) => ({
           ...libro,
@@ -68,6 +74,9 @@ export class GestionCatalogoComponent implements OnInit {
           tiene_fisico:  Number(libro.tiene_fisico)  === 1 ? 1 : 0,
           tiene_digital: Number(libro.tiene_digital) === 1 ? 1 : 0,
         }));
+
+        this.totalResultados = this.libros.length;
+
         this.cargandoTabla = false;
       },
       error: () => {
@@ -80,6 +89,33 @@ export class GestionCatalogoComponent implements OnInit {
         });
       }
     });
+  }
+  // ─────────────────────────────────────────
+  // AUTORES DINÁMICOS
+  // ─────────────────────────────────────────
+  agregarAutor(): void {
+    this.nuevoLibro.autores.push('');
+  }
+
+  eliminarAutor(index: number): void {
+    if (this.nuevoLibro.autores.length > 1) {
+      this.nuevoLibro.autores.splice(index, 1);
+    }
+  }
+
+  // ─────────────────────────────────────────
+  // APLICAR FILTROS
+  // ─────────────────────────────────────────
+  aplicarFiltros(): void {
+  this.cargarLibros();
+  }
+  
+  // ─────────────────────────────────────────
+  // BUSCAR
+  // ─────────────────────────────────────────
+
+  buscar(): void {
+    this.cargarLibros();
   }
 
   // ─────────────────────────────────────────
@@ -152,7 +188,11 @@ export class GestionCatalogoComponent implements OnInit {
 
     this.cargando = true;
     this.mensaje  = '';
-
+    // Convertir autores a string
+    this.nuevoLibro.autor = this.nuevoLibro.autores
+      .map((a: string) => a.trim())
+      .filter((a: string) => a)
+      .join('; ');
     const formatos: any[] = [];
 
     if (this.nuevoLibro.tiene_fisico) {
@@ -219,7 +259,8 @@ export class GestionCatalogoComponent implements OnInit {
     const primerMateriaId = materiaEncontrada ? Number(materiaEncontrada.id) : null;
     this.nuevoLibro = {
       titulo:        libro.titulo,
-      autor:         libro.autor,
+      autor: libro.autor,
+      autores: libro.autor ? libro.autor.split(';').map((a: string) => a.trim()) : [''],
       editorial:     libro.editorial,
       materia_id:    null, 
       tiene_fisico:  libro.tiene_fisico === 1,
@@ -249,6 +290,10 @@ export class GestionCatalogoComponent implements OnInit {
 
     this.cargando = true;
     this.mensaje  = '';
+    this.nuevoLibro.autor = this.nuevoLibro.autores
+    .map((a: string) => a.trim())
+    .filter((a: string) => a)
+    .join('; ');
 
     const payload: any = {
       titulo:        this.nuevoLibro.titulo,
@@ -377,6 +422,7 @@ export class GestionCatalogoComponent implements OnInit {
     this.nuevoLibro = {
       titulo:        '',
       autor:         '',
+      autores: [''], 
       editorial:     '',
       materia_id:    null,
       tiene_fisico:  false,
@@ -384,6 +430,10 @@ export class GestionCatalogoComponent implements OnInit {
       total:         0
     };
     this.pdfSeleccionado = null;
+  }
+
+  trackAutor(index: number, item: string) {
+    return index;
   }
 
   abrirModal(): void {
@@ -396,4 +446,18 @@ export class GestionCatalogoComponent implements OnInit {
     this.mostrarModal = false;
     this.resetFormulario();
   }
+  
+  limpiarFiltros() {
+
+  this.filtros = {
+    search: '',
+    materia: '',
+    formato: '',
+    activo: '',
+    ordenAutor: ''
+  };
+
+  this.cargarLibros();
+
+}
 }

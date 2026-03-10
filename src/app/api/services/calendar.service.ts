@@ -16,7 +16,7 @@ export class CalendarService {
     return this.http.get(`${this.apiUrl}/public/${tipo}`);
   }
 
-  // Docente
+  // Docente 
   getCalendarDocente() {
     return this.http.get(`${this.apiUrl}/docente`);
   }
