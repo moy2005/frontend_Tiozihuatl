@@ -87,6 +87,9 @@ export class CatalogAdminService {
   }
 
   obtenerMaterias() {
-  return this.http.get<any[]>(`${environment.apiUrl}/catalog/materias`);
+    return this.http.get<any[]>(`${environment.apiUrl}/catalog/materias`);
+  }
+  obtenerAutores(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/autores`);
 }
 }
