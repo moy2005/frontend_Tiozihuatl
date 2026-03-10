@@ -227,7 +227,7 @@
               <label><ion-icon name="book-outline"></ion-icon> Título *</label>
               <input type="text" [(ngModel)]="nuevoLibro.titulo" name="titulo" placeholder="Título del libro" required />
             </div>
-            
+
             <div class="form-group full-width">
               <label>
                 <ion-icon name="people-outline"></ion-icon>
@@ -235,51 +235,53 @@
               </label>
 
               <div class="autores-container">
+                <div class="autor-row" *ngFor="let autor of nuevoLibro.autores; let i = index; trackBy: trackAutor">
 
-             <div class="autor-row" *ngFor="let autor of nuevoLibro.autores; let i = index; trackBy: trackAutor">
+                  <div class="autor-input-wrap">
+                    <input
+                      type="text"
+                      [(ngModel)]="nuevoLibro.autores[i]"
+                      name="autor{{i}}"
+                      placeholder="Nombre del autor"
+                      autocomplete="off"
+                      (input)="buscarAutores($event, i)"
+                      (blur)="ocultarSugerencias(i)"
+                      required
+                    />
+                    <div class="autor-sugerencias" *ngIf="sugerenciasPorCampo[i] && sugerenciasPorCampo[i].length > 0">
+                      <div
+                        class="autor-sugerencia-item"
+                        *ngFor="let s of sugerenciasPorCampo[i]"
+                        (mousedown)="seleccionarAutor(s, i)">
+                        <ion-icon name="person-outline"></ion-icon>
+                        {{ s.nombre }}
+                      </div>
+                    </div>
+                  </div>
 
-                  <input
-                    type="text"
-                    [(ngModel)]="nuevoLibro.autores[i]"
-                    name="autor{{i}}"
-                    placeholder="Nombre del autor"
-                    required
-                  />
-
-                  <!-- Botón eliminar -->
-                  <button
-                    type="button"
-                    class="btn-autor-remove"
+                  <button type="button" class="btn-autor-remove"
                     *ngIf="nuevoLibro.autores.length > 1"
-                    (click)="eliminarAutor(i)"
-                  >
+                    (click)="eliminarAutor(i)">
                     <ion-icon name="remove-circle-outline"></ion-icon>
                   </button>
 
-                  <!-- Botón agregar -->
-                  <button
-                    type="button"
-                    class="btn-autor-add"
+                  <button type="button" class="btn-autor-add"
                     *ngIf="i === nuevoLibro.autores.length - 1"
-                    (click)="agregarAutor()"
-                  >
+                    (click)="agregarAutor()">
                     <ion-icon name="add-circle-outline"></ion-icon>
                   </button>
 
                 </div>
+              </div>  <!-- ← cierra autores-container -->
 
-              </div>
-
-              <small class="autor-hint">
-                Puede agregar múltiples autores del libro.
-              </small>
-
-            </div>
+              <small class="autor-hint">Puede agregar múltiples autores del libro.</small>
+            </div>  <!-- ← cierra form-group full-width de autores -->
 
             <div class="form-group">
               <label><ion-icon name="business-outline"></ion-icon> Editorial</label>
               <input type="text" [(ngModel)]="nuevoLibro.editorial" name="editorial" placeholder="Editorial" />
             </div>
+
             <div class="form-group">
               <label><ion-icon name="school-outline"></ion-icon> Materia *</label>
               <select [(ngModel)]="nuevoLibro.materia_id" name="materia_id" required>
@@ -287,8 +289,8 @@
                 <option *ngFor="let m of materias" [ngValue]="+m.id">{{ m.nombre }}</option>
               </select>
             </div>
-          </div>
 
+          </div>  <!-- ← cierra form-grid -->
           <div class="checkbox-group">
             <div class="checkbox-item">
               <input type="checkbox" [(ngModel)]="nuevoLibro.tiene_fisico" (change)="formatosEditados=true" name="tiene_fisico" id="check-fisico" />
