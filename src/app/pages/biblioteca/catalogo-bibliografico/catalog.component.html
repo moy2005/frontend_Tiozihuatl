@@ -1,4 +1,3 @@
-<style></style>
 <header class="header-catalogo">
   <div class="header-content">
     <h1>Biblioteca Digital Tiozihuatl</h1>
@@ -70,15 +69,13 @@
   <!-- CARDS -->
   <section class="catalogo-container">
 
-    <article *ngFor="let libro of libros" class="libro-card">
+    <article *ngFor="let libro of librosPaginados" class="libro-card">
 
       <!-- Preview PDF -->
       <div class="book-cover">
-
         <div *ngIf="libro.previewUrl; else placeholder">
           <img [src]="libro.previewUrl" class="pdf-preview">
         </div>
-
         <ng-template #placeholder>
           <div class="placeholder-cover">
             <ion-icon name="book-outline" class="placeholder-icon"></ion-icon>
@@ -86,35 +83,33 @@
             <span *ngIf="!libro.tiene_digital">Solo físico</span>
           </div>
         </ng-template>
-
       </div>
 
       <div class="libro-content">
-
         <h3>{{ libro.titulo }}</h3>
-
         <div class="libro-info">
-          <p><strong>Autor:</strong> {{ libro.autor }}</p>
+          <div class="autor-lista">
+            <span class="autor-label">Autor:</span>
+            <div class="autores-nombres">
+              <span *ngFor="let a of libro.autores?.split(';'); let last = last" class="autor-nombre">
+                {{ a.trim() }}<span *ngIf="!last"> · </span>
+              </span>
+            </div>
+          </div>
           <p><strong>Editorial:</strong> {{ libro.editorial }}</p>
         </div>
-
         <div class="badge-container">
           <span *ngIf="libro.tiene_fisico" class="badge fisico">
             <ion-icon name="cube-outline"></ion-icon>
             Físico ({{ libro.disponibles || 0 }})
           </span>
-
           <span *ngIf="libro.tiene_digital" class="badge digital">
             <ion-icon name="laptop-outline"></ion-icon>
             Digital
           </span>
         </div>
-
         <div class="acciones">
-          <button
-            *ngIf="libro.tiene_digital"
-            class="btn"
-            (click)="abrirPdf(libro)">
+          <button *ngIf="libro.tiene_digital" class="btn" (click)="abrirPdf(libro)">
             Ver PDF
           </button>
           <button
@@ -126,25 +121,28 @@
             {{ (libro.disponibles ?? 0) === 0 ? 'Sin stock' : 'Solicitar préstamo' }}
           </button>
         </div>
-
       </div>
 
     </article>
 
+  <!-- Paginación -->
+    <div class="paginacion" *ngIf="totalPaginas > 1">
+      <button class="pag-btn" (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1">&#9664;</button>
+
+      <ng-container *ngFor="let p of paginas">
+        <button class="pag-btn"
+          [class.activa]="p === paginaActual"
+          (click)="cambiarPagina(p)">
+          {{ p }}
+        </button>
+      </ng-container>
+
+      <button class="pag-btn" (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual === totalPaginas">&#9654;</button>
+    </div>
+
   </section>
 
 </div>
-
-<!-- MODAL PDF -->
-<div class="pdf-overlay" *ngIf="pdfSeleccionado" (click)="cerrarPdf()">
-  <div class="pdf-modal" (click)="$event.stopPropagation()">
-    <button class="cerrar" (click)="cerrarPdf()">
-      <ion-icon name="close-outline"></ion-icon>
-    </button>
-    <iframe [src]="pdfSeleccionado | safeUrl"></iframe>
-  </div>
-</div>
-
 
 <!-- MODAL PRÉSTAMO -->
 <div class="prestamo-overlay" *ngIf="modalPrestamo" (click)="cerrarModalPrestamo()">
@@ -189,7 +187,11 @@
         </div>
         <div>
           <p class="libro-titulo">{{ libroSeleccionado?.titulo }}</p>
-          <p class="libro-autor">{{ libroSeleccionado?.autor }}</p>
+          <div class="libro-autor">
+            <span *ngFor="let autor of libroSeleccionado?.autores?.split(';')">
+              {{ autor.trim() }}
+            </span>
+          </div>
         </div>
       </div>
 
