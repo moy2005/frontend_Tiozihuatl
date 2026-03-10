@@ -19,6 +19,8 @@ import { ContactanosComponent } from './pages/contactanos/contactanos';
 import { GestionNoticiasComponent } from './pages/admin/gestion-noticias/gestion-noticias';
 import { NoticiasComponent } from './pages/noticias/noticias';
 import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
+import { VisorLibroComponent } from './pages/biblioteca/catalogo-bibliografico/visor-libro.component';
+import { CalendarioComponent } from './pages/calendario/calendario.component';
 import { GestionCatalogoComponent} from './pages/admin/gestion-catalogo/gestion-catalogo';
 import { GestionCalendarioComponent } from './pages/admin/gestion-calendario/gestion-calendario'
 import { Error400Component } from './pages/error/error-400/error-400.component';
@@ -53,6 +55,7 @@ export const routes: Routes = [
   { path: 'contactanos',component: ContactanosComponent},
   { path: 'noticias',component: NoticiasComponent},
   { path: 'about', component: AboutComponent },
+  { path: 'calendario', component: CalendarioComponent},
 
   { path: 'catalogo', component: CatalogoComponent, canActivate: [AuthGuard],
     data: {
@@ -68,6 +71,7 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard] },
   { path: 'my-purchases', component: MyPurchases, canActivate: [AuthGuard] },
+  { path: 'biblioteca/libro/:id', component: VisorLibroComponent, canActivate: [AuthGuard], data: { roles: ['Alumno', 'Administrador', 'Docente', 'Bibliotecario'] }},
 
   // Panel de administrador con rutas anidadas
   { path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'], hideNavbar: true},
@@ -79,7 +83,7 @@ export const routes: Routes = [
       { path: 'contactos', component: GestionContactoComponent },
       { path:'noticias',component:GestionNoticiasComponent},
       { path: 'libros', component: GestionCatalogoComponent },
-      { path : 'calendario', component: GestionCalendarioComponent },
+      { path : 'calendario-admin', component: GestionCalendarioComponent },
       { path : 'prestamos', component:GestionPrestamosComponent },
       { path : 'backups', component:GestionBackupsComponent },
       { path: 'about', component: GestionAboutComponent },
