@@ -1,21 +1,18 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../environments/environment';
+import { environment } from '../environments/environment.prod';
 import { API_URL } from '../api.config';
 
 export interface Libro {
-   id: number;
+  id: number;
   titulo: string;
-  autor: string;
+  autores: string;
   editorial: string;
   materia: string;
-
   total: number | null;
   disponibles: number | null;
-
   pdf_url: string | null;
-
   tiene_fisico: number;
   tiene_digital: number;
   previewUrl?: string;
@@ -27,10 +24,8 @@ export interface Libro {
 })
 export class CatalogService {
 
-  //private readonly API_URL = 'http://localhost:4000/api/catalog';
   private baseUrl = `${API_URL}/catalog`;
   
-
   constructor(private http: HttpClient) {}
 
   obtenerCatalogo(
@@ -54,10 +49,10 @@ export class CatalogService {
   }
 
   obtenerPdfSeguro(id: number) {
-    return this.http.get<{ url: string }>(
-      `${this.baseUrl}/libros/${id}/pdf`
-    );
-  }
+  return this.http.get<{ url: string, titulo: string }>(
+    `${this.baseUrl}/libros/${id}/pdf-url` 
+  );
+}
 
   obtenerPreview(id: number) {
     return this.http.get<{ previewUrl: string }>(
