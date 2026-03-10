@@ -1,8 +1,6 @@
-/* ============================================
+  /* ============================================
    GESTIÓN DE CALENDARIO
-   Diseño idéntico a Gestión de Préstamos
    ============================================ */
-
 .admin-content {
   --color-fondo: #E3F2FD;
   --color-contenedor: #FFFFFF;
@@ -32,10 +30,11 @@
    HEADER
    ============================================ */
 .admin-content .header-section {
-  background: linear-gradient(var(--color-info));
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-info) 100%);
   border: 1px solid var(--color-borde);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
+  border-radius: 1px;
 }
 
 .admin-content .page-title {
@@ -58,6 +57,7 @@
 .admin-content .content-card {
   background: var(--color-contenedor);
   border: 1px solid var(--color-borde);
+  border-radius: 1px;
   overflow: hidden;
 }
 
@@ -95,7 +95,7 @@
 }
 
 .admin-content .table-header {
-  background: linear-gradient(var(--color-info));
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-info) 100%);
   border-bottom: 2px solid var(--color-primario);
 }
 
@@ -141,6 +141,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
+  border-radius: 4px;
 }
 
 .admin-content .badge-activo {
@@ -167,11 +168,24 @@
   border: 1px solid var(--color-primario);
 }
 
+/* Badges para tipo_calendario */
+.admin-content .badge-alumno {
+  color: #7C3AED;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid #7C3AED;
+}
+
+.admin-content .badge-docente {
+  color: var(--color-naranja);
+  background: rgba(255, 152, 0, 0.08);
+  border: 1px solid var(--color-naranja);
+}
+
 /* ============================================
    BOTONES PRINCIPALES
    ============================================ */
 .admin-content .btn-primary {
-  background: var(--color-info);
+  background: var(--color-primario);
   color: white;
   padding: 0.75rem 1.5rem;
   font-size: 0.875rem;
@@ -242,6 +256,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  border-radius: 4px;
 }
 
 .admin-content .btn-icon ion-icon {
@@ -263,6 +278,7 @@
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
   z-index: 10;
+  border-radius: 4px;
 }
 
 .admin-content .btn-icon:hover::after {
@@ -296,12 +312,13 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  border-radius: 4px;
 }
 
 .admin-content .btn-icon-mobile ion-icon { font-size: 1rem; }
 
 /* ============================================
-   LOADING — circular, igual que préstamos
+   LOADING — circular
    ============================================ */
 .admin-content .loading-spinner {
   border: 4px solid var(--color-borde);
@@ -380,13 +397,14 @@
   justify-content: space-between;
   padding: 1.5rem 2rem;
   border-bottom: 1px solid #E5E7EB;
-  background: #FFFFFF;
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-info) 100%);
+  border-radius: 12px 12px 0 0;
 }
 
 .admin-content .modal-title {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  color: #1E293B;
+  color: #FFFFFF;
   margin: 0;
   display: flex;
   align-items: center;
@@ -395,7 +413,7 @@
 
 .admin-content .modal-title ion-icon {
   font-size: 1.375rem;
-  color: var(--color-primario);
+  color: #FFFFFF;
 }
 
 .admin-content .btn-close {
@@ -404,16 +422,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F1F5F9;
+  background: rgba(255, 255, 255, 0.2);
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.admin-content .btn-close:hover { background: #E2E8F0; }
+.admin-content .btn-close:hover { background: rgba(255, 255, 255, 0.3); }
 .admin-content .btn-close:disabled { opacity: 0.6; cursor: not-allowed; }
-.admin-content .btn-close ion-icon { font-size: 1.5rem; color: #64748B; }
+.admin-content .btn-close ion-icon { font-size: 1.5rem; color: #FFFFFF; }
 
 .admin-content .modal-body {
   padding: 1.75rem 2rem;
@@ -430,6 +448,7 @@
   padding: 1.5rem 2rem;
   border-top: 1px solid #E5E7EB;
   background: #FFFFFF;
+  border-radius: 0 0 12px 12px;
 }
 
 /* Campos del modal */
@@ -470,6 +489,58 @@
   outline: none;
   border-color: var(--color-primario);
   box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
+}
+
+/* Select personalizado */
+.admin-content .select-wrap {
+  position: relative;
+}
+
+.admin-content .select-chevron {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: var(--color-texto-secundario);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.admin-content .select-input {
+  appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+/* Tag opcional */
+.admin-content .tag-opcional {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #94A3B8;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  margin-left: 0.25rem;
+}
+
+/* Hint de campo */
+.admin-content .campo-hint {
+  font-size: 0.75rem;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.admin-content .campo-hint ion-icon {
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  color: var(--color-info);
 }
 
 /* Upload zone */
@@ -524,6 +595,7 @@
 .admin-content .prestamo-card {
   background: linear-gradient(135deg, #FFFFFF 0%, #F0F8FF 100%);
   border: 1px solid var(--color-borde);
+  border-radius: 8px;
   padding: 1rem;
   transition: all 0.2s ease;
 }
@@ -555,6 +627,33 @@
   gap: 0.5rem;
   padding-top: 0.75rem;
   border-top: 1px solid #E5E7EB;
+}
+/* ============================================
+   FILTROS
+   ============================================ */
+.admin-content .filtros-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-borde);
+  background: #FFFFFF;
+}
+
+.admin-content .filtros-bar .modal-input {
+  width: auto;
+  min-width: 180px;
+  flex: 1 1 180px;
+  max-width: 260px;
+}
+
+.admin-content .filtros-bar .btn-primary,
+.admin-content .filtros-bar .btn-secondary {
+  padding: 0.55rem 1.1rem;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ============================================
