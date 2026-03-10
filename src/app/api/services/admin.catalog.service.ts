@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from '../environments/environment';
+import { environment } from '../environments/environment.prod';
 import { API_URL } from '../api.config';
 
 export interface LibroFormato {
@@ -15,10 +15,11 @@ export interface LibroFormato {
 export interface LibroAdmin {
   id?: number;
   titulo: string;
-  autor: string;
+  autores: string;
   editorial?: string;
   categoria_id: number; 
-  materia?: string;
+  materias?: string;   
+  materia_id?: number;
   tiene_fisico?: number;
   total?: number;
   disponibles?: number;
@@ -40,18 +41,38 @@ export class CatalogAdminService {
     return this.http.post(`${this.baseUrl}/libros`, data);
   }
 
-  obtenerLibros() {
-    return this.http.get<any>(`${this.baseUrl}/libros`).pipe(
-      map(response => {
-        // Si response.data existe y es array, usa eso
-        if (response && response.data && Array.isArray(response.data)) {
-          return response.data;
-        }
-        // Si response ya es array, úsalo
-        if (Array.isArray(response)) {
-          return response;
-        }
-        // Si no, devuelve array vacío
+  obtenerLibros(filtros?: any) {
+
+  let params: any = {};
+
+  if (filtros) {
+
+    if (filtros.search) params.search = filtros.search;
+
+    if (filtros.materia) params.materia = filtros.materia;
+
+    if (filtros.formato) params.formato = filtros.formato;
+
+    if (filtros.ordenAutor) params.ordenAutor = filtros.ordenAutor;
+
+    // SOLO enviar si tiene valor
+    if (filtros.activo !== '' && filtros.activo !== null && filtros.activo !== undefined) {
+      params.activo = filtros.activo;
+    }
+
+  }
+
+  return this.http.get<any>(`${this.baseUrl}/libros`, { params }).pipe(
+    map(response => {
+
+      if (response && response.data && Array.isArray(response.data)) {
+        return response.data;
+      }
+
+      if (Array.isArray(response)) {
+        return response;
+      }
+
         return [];
       })
     );
@@ -64,4 +85,8 @@ export class CatalogAdminService {
   cambiarEstado(id: number, activo: number): Observable<any> {
     return this.http.patch(`${this.baseUrl}/libros/${id}/estado`, { activo });
   }
+
+  obtenerMaterias() {
+  return this.http.get<any[]>(`${environment.apiUrl}/catalog/materias`);
+}
 }
