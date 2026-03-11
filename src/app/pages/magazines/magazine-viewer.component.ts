@@ -4,7 +4,10 @@ import { MagazinesService } from '../../api/services/magazines.service';
 import { CommonModule } from '@angular/common';
 import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.mjs';
+/*pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';*/
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${(pdfjsLib as any).version}/pdf.worker.min.js`;
+
 
 @Component({
   selector: 'app-magazine-viewer',
@@ -103,14 +106,14 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
   const container = document.getElementById('pdfContainer')!;
   container.innerHTML = '';
 
-  // 🔥 Esperar a que el DOM tenga tamaño real
+  // Esperar a que el DOM tenga tamaño real
   await new Promise(resolve => requestAnimationFrame(resolve));
 
   for (let pageNum = 1; pageNum <= this.totalPages; pageNum++) {
 
     const page = await this.pdfDoc.getPage(pageNum);
 
-    // 🔥 Obtener ancho real del contenedor
+    // Obtener ancho real del contenedor
     let containerWidth = container.clientWidth;
 
     // Si aún es 0 (muy raro pero puede pasar)
@@ -120,12 +123,8 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
 
     const baseViewport = page.getViewport({ scale: 1 });
 
-    // 🔥 Scale responsivo seguro
-    const responsiveScale = Math.max(
-      containerWidth / baseViewport.width,
-      0.5
-    );
-
+    //  Scale responsivo seguro
+    const responsiveScale = containerWidth / baseViewport.width;
     const finalScale = responsiveScale * this.zoomLevel;
 
     const viewport = page.getViewport({ scale: finalScale });
@@ -137,13 +136,16 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
 
     const dpr = window.devicePixelRatio || 1;
 
-    // 🔥 Canvas interno a alta resolución
+    // Canvas interno a alta resolución
     canvas.width = viewport.width * dpr;
     canvas.height = viewport.height * dpr;
 
-    // 🔥 Tamaño visual en pantalla
+    //  Tamaño visual en pantalla
     canvas.style.width = viewport.width + 'px';
     canvas.style.height = viewport.height + 'px';
+
+    canvas.style.display = "block";
+    canvas.style.margin = "0 auto";
 
     canvas.style.borderRadius = '8px';
     canvas.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
@@ -151,7 +153,7 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
 
     container.appendChild(canvas);
 
-    // 🔥 Escalar contexto para dpr
+    //  Escalar contexto para dpr
     context.scale(dpr, dpr);
 
     await page.render({
@@ -205,7 +207,7 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
         canvases.forEach(canvas => observer.observe(canvas));
         (this as any)._pageObserver = observer;
 
-        // 🔥 Forzar detección inmediata de la página visible actual
+        // Forzar detección inmediata de la página visible actual
         const firstVisible = Array.from(canvases).find(canvas => {
           const rect = canvas.getBoundingClientRect();
           return rect.top < window.innerHeight && rect.bottom > 0;
