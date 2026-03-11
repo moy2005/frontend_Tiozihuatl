@@ -14,13 +14,32 @@
     </div>
 
     <!-- ============================================================
+         BANNER CLOUDINARY
+    ============================================================ -->
+    <div class="cloudinary-banner mb-6">
+      <ion-icon name="cloud-outline"></ion-icon>
+      <div>
+        <p class="cloudinary-banner-titulo">Almacenamiento en la nube</p>
+        <p class="cloudinary-banner-desc">
+          Todos los respaldos (manuales y automáticos) se guardan automáticamente en
+          <strong>Cloudinary</strong> dentro de la carpeta
+          <span class="cloudinary-path">Respaldos de Base de Datos</span>
+          divididos en subcarpetas
+          <span class="cloudinary-path">Manuales</span> y
+          <span class="cloudinary-path">Automaticos</span>.
+          Los archivos se almacenan en formato <strong>.zip</strong>.
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================================================
          ACCIONES RÁPIDAS — Respaldo completo + por tabla
     ============================================================ -->
     <div class="content-card overflow-hidden mb-6">
 
       <div class="seccion-titulo">
         <h3>
-          <ion-icon name="download-outline"></ion-icon>
+          <ion-icon name="cloud-upload-outline"></ion-icon>
           Generar Respaldo Ahora
         </h3>
       </div>
@@ -34,7 +53,7 @@
             Respaldo Completo
           </p>
           <p class="accion-bloque-desc">
-            Guarda una copia de toda la base de datos en tu computadora.
+            Genera una copia completa de la base de datos y la guarda en Cloudinary.
           </p>
           <div class="accion-controles">
             <button
@@ -42,8 +61,8 @@
               (click)="backupCompleto()"
               [disabled]="cargandoCompleto">
               <span *ngIf="cargandoCompleto" class="loading-spinner-btn"></span>
-              <ion-icon *ngIf="!cargandoCompleto" name="download-outline"></ion-icon>
-              {{ cargandoCompleto ? 'Generando...' : 'Descargar Respaldo Completo' }}
+              <ion-icon *ngIf="!cargandoCompleto" name="cloud-upload-outline"></ion-icon>
+              {{ cargandoCompleto ? 'Generando...' : 'Guardar Respaldo Completo' }}
             </button>
           </div>
         </div>
@@ -55,7 +74,7 @@
             Respaldo de una Sección
           </p>
           <p class="accion-bloque-desc">
-            Selecciona una sección específica del sistema para respaldar.
+            Selecciona una sección específica del sistema para respaldar y guardar en Cloudinary.
           </p>
           <div class="accion-controles">
             <select class="form-select" [(ngModel)]="tablaSeleccionada">
@@ -67,8 +86,8 @@
               (click)="backupTabla()"
               [disabled]="cargandoTabla || !tablaSeleccionada">
               <span *ngIf="cargandoTabla" class="loading-spinner-btn"></span>
-              <ion-icon *ngIf="!cargandoTabla" name="download-outline"></ion-icon>
-              {{ cargandoTabla ? 'Generando...' : 'Descargar' }}
+              <ion-icon *ngIf="!cargandoTabla" name="cloud-upload-outline"></ion-icon>
+              {{ cargandoTabla ? 'Generando...' : 'Guardar Respaldo' }}
             </button>
           </div>
         </div>
@@ -200,7 +219,7 @@
               <td class="td-cell font-medium text-gray-900">{{ t.nombre_tarea }}</td>
               <td class="td-cell text-gray-600">{{ describirCron(t.cron_expression) }}</td>
               <td class="td-cell text-gray-600">
-                <span *ngIf="t.ultima_ejecucion">{{ t.ultima_ejecucion | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span *ngIf="t.ultima_ejecucion">{{ normalizarFecha(t.ultima_ejecucion) }}</span>
                 <span *ngIf="!t.ultima_ejecucion" class="sin-devolucion">Aún no ejecutado</span>
               </td>
               <td class="td-cell">
@@ -247,7 +266,7 @@
           <div class="card-fechas">
             <span>
               <ion-icon name="time-outline" class="text-blue-500"></ion-icon>
-              Última ejecución: {{ t.ultima_ejecucion ? (t.ultima_ejecucion | date:'dd/MM/yyyy HH:mm') : 'Aún no ejecutado' }}
+              Última ejecución: {{ t.ultima_ejecucion ? normalizarFecha(t.ultima_ejecucion) : 'Aún no ejecutado' }}
             </span>
           </div>
           <div class="card-acciones">
@@ -298,7 +317,6 @@
             (input)="aplicarFiltroHistorial()">
         </div>
 
-        <!-- Segmento Todos / Automáticos / Manuales -->
         <div class="filtro-segmento">
           <button
             *ngFor="let opt of opcionesFiltroTipo"
@@ -338,7 +356,7 @@
               <th class="th-cell"><ion-icon name="layers-outline"></ion-icon> Contenido</th>
               <th class="th-cell"><ion-icon name="flash-outline"></ion-icon> Tipo</th>
               <th class="th-cell"><ion-icon name="calendar-outline"></ion-icon> Fecha</th>
-              <th class="th-cell text-center"><ion-icon name="settings-outline"></ion-icon> Acción</th>
+              <th class="th-cell text-center"><ion-icon name="cloud-outline"></ion-icon> Ubicación</th>
             </tr>
           </thead>
           <tbody>
@@ -362,17 +380,13 @@
                 </span>
               </td>
               <td class="td-cell text-gray-600">
-                {{ b.fecha | date:'dd/MM/yyyy HH:mm' }}
+               {{ normalizarFecha(b.fecha) }}
               </td>
               <td class="td-cell text-center">
-                <button
-                  *ngIf="b.tipo === 'automatico' && b.url_backup"
-                  (click)="descargarBackupAutomatico(b)"
-                  class="btn-icon btn-icon-primary"
-                  title="Descargar respaldo">
-                  <ion-icon name="download-outline"></ion-icon>
-                </button>
-                <span *ngIf="b.tipo !== 'automatico'" class="sin-devolucion">—</span>
+                <span class="cloudinary-tag">
+                  <ion-icon name="cloud-done-outline"></ion-icon>
+                  Cloudinary
+                </span>
               </td>
             </tr>
           </tbody>
@@ -399,20 +413,16 @@
           <div class="card-fechas">
             <span>
               <ion-icon name="calendar-outline" class="text-blue-500"></ion-icon>
-              {{ b.fecha | date:'dd/MM/yyyy HH:mm' }}
+          {{ normalizarFecha(b.fecha) }}
             </span>
             <span *ngIf="b.tabla_afectada">
               <ion-icon name="grid-outline" class="text-blue-500"></ion-icon>
               Sección: {{ etiquetaTabla(b.tabla_afectada) }}
             </span>
-          </div>
-          <div class="card-acciones" *ngIf="b.tipo === 'automatico' && b.url_backup">
-            <button
-              (click)="descargarBackupAutomatico(b)"
-              class="btn-icon-mobile btn-icon-primary flex-1">
-              <ion-icon name="download-outline"></ion-icon>
-              <span>Descargar</span>
-            </button>
+            <span>
+              <ion-icon name="cloud-done-outline" class="text-blue-500"></ion-icon>
+              Guardado en Cloudinary
+            </span>
           </div>
         </div>
       </div>
@@ -420,20 +430,4 @@
     </div>
 
   </div>
-
-  <!-- ============================================================
-       OVERLAY DE DESCARGA — igual que modal de observaciones
-  ============================================================ -->
-  <div *ngIf="cargandoDescarga" class="modal-overlay">
-    <div class="modal-container" style="max-width: 26rem;">
-      <div class="upload-loading-overlay" style="position: relative; border-radius: 12px;">
-        <div class="upload-loading-content">
-          <div class="loading-spinner"></div>
-          <p class="mt-4 text-white font-semibold text-lg">Descargando respaldo...</p>
-          <p class="text-blue-200 text-sm">Por favor espere</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>

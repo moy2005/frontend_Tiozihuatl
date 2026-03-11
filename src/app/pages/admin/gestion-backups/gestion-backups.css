@@ -957,3 +957,71 @@
    ============================================ */
 .admin-content ion-icon { pointer-events: none; }
 .admin-content * { box-sizing: border-box; }
+
+
+
+/* ============================================
+   BANNER CLOUDINARY
+   Agregar al final de gestion-backups.css
+   ============================================ */
+
+.admin-content .cloudinary-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  background: linear-gradient(135deg, #E3F2FD 0%, #EDE7F6 100%);
+  border: 1px solid #B39DDB;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.admin-content .cloudinary-banner > ion-icon {
+  font-size: 1.75rem;
+  color: #7E57C2;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.admin-content .cloudinary-banner-titulo {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #4527A0;
+  margin: 0 0 0.25rem 0;
+}
+
+.admin-content .cloudinary-banner-desc {
+  font-size: 0.8125rem;
+  color: #37474F;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.admin-content .cloudinary-path {
+  display: inline-block;
+  background: rgba(126, 87, 194, 0.12);
+  color: #512DA8;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid rgba(126, 87, 194, 0.25);
+}
+
+/* Tag "Cloudinary" en la columna de ubicación */
+.admin-content .cloudinary-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7E57C2;
+  background: rgba(126, 87, 194, 0.1);
+  border: 1px solid #B39DDB;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.admin-content .cloudinary-tag ion-icon {
+  font-size: 0.875rem;
+}

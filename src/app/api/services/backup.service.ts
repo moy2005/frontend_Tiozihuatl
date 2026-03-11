@@ -15,32 +15,22 @@ export class BackupService {
   }
 
   backupDatabase() {
-    return this.http.get(`${this.api}/database`, {
-      headers: this.getAuthHeaders(),
-      responseType: 'blob',
-      observe: 'response'
-    });
+    return this.http.get<{ message: string; fileName: string; url: string }>(
+      `${this.api}/database`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   backupTable(table: string) {
-    return this.http.get(`${this.api}/table/${table}`, {
-      headers: this.getAuthHeaders(),
-      responseType: 'blob',
-      observe: 'response'
-    });
+    return this.http.get<{ message: string; fileName: string; url: string }>(
+      `${this.api}/table/${table}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   getBackupHistory() {
     return this.http.get<any[]>(`${this.api}/history`, {
       headers: this.getAuthHeaders()
-    });
-  }
-
-  //  Descarga el .sql desde la URL de Cloudinary
-  downloadFromUrl(url: string) {
-    return this.http.get(url, {
-      responseType: 'blob',
-      observe: 'response'
     });
   }
 

@@ -8,7 +8,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
-
 import { BackupService } from '../../../api/services/backup.service';
 import { AutomationService } from '../../../api/services/automation.service';
 import { firstValueFrom } from 'rxjs';
@@ -33,7 +32,6 @@ export class GestionBackupsComponent implements OnInit {
   cargandoProgramar = false;
   cargandoTareas    = false;
   cargandoHistorial = false;
-  cargandoDescarga  = false;
 
   // ----------------------------------------------------------------
   // BACKUP POR TABLA
@@ -131,17 +129,6 @@ export class GestionBackupsComponent implements OnInit {
   // UTILIDADES
   // ----------------------------------------------------------------
 
-  private descargarArchivo(blob: Blob, nombre: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const a   = document.createElement('a');
-    a.href     = url;
-    a.download = nombre;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  }
-
   toggleDia(value: number): void {
     if (this.diasSeleccionados.includes(value)) {
       this.diasSeleccionados = this.diasSeleccionados.filter(d => d !== value);
@@ -150,68 +137,84 @@ export class GestionBackupsComponent implements OnInit {
     }
   }
 
-
-describirCron(expr: string): string {
-  if (!expr) return '—';
-  const partes = expr.trim().split(/\s+/);
-  if (partes.length < 5) return expr;
-
-  const min      = partes[0];
-  const hora     = partes[1];
-  const diasExpr = partes[4];
-
-  if (hora.startsWith('*/')) {
-    const h = hora.replace('*/', '');
-    return `Cada ${h} hora${Number(h) !== 1 ? 's' : ''}`;
-  }
-
-  // Convertir UTC a hora local
-  const fechaUTC = new Date();
-  fechaUTC.setUTCHours(Number(hora), Number(min), 0, 0);
-  const horaLocal = fechaUTC.getHours();
-  const minLocal  = fechaUTC.getMinutes();
-  const horaFmt   = `${String(horaLocal).padStart(2, '0')}:${String(minLocal).padStart(2, '0')}`;
-
-  if (diasExpr !== '*') {
-    const nombresDias: Record<string, string> = {
-      '0': 'Dom', '1': 'Lun', '2': 'Mar',
-      '3': 'Mié', '4': 'Jue', '5': 'Vie', '6': 'Sáb'
-    };
-    const nombres = diasExpr.split(',').map(d => nombresDias[d] ?? d).join(', ');
-    return `${nombres} a las ${horaFmt}`;
-  }
-
-  return `Todos los días a las ${horaFmt}`;
+  /**
+   * El driver MySQL2 con timezone: '-06:00' ya entrega las fechas
+   * en hora local (UTC-6). Solo normalizamos el formato de string
+   * para que el constructor Date las interprete correctamente
+   * sin aplicar ninguna conversión de zona adicional.
+   */
+normalizarFecha(fecha: string | null): string {
+  if (!fecha) return '';
+  const date = new Date(fecha);
+  return date.toLocaleString('es-MX', {
+    timeZone: 'America/Mexico_City',
+    day:      '2-digit',
+    month:    '2-digit',
+    year:     'numeric',
+    hour:     '2-digit',
+    minute:   '2-digit',
+    hour12:   false
+  });
 }
+  describirCron(expr: string): string {
+    if (!expr) return '—';
+    const partes = expr.trim().split(/\s+/);
+    if (partes.length < 5) return expr;
+
+    const min      = partes[0];
+    const hora     = partes[1];
+    const diasExpr = partes[4];
+
+    if (hora.startsWith('*/')) {
+      const h = hora.replace('*/', '');
+      return `Cada ${h} hora${Number(h) !== 1 ? 's' : ''}`;
+    }
+
+    const fechaUTC = new Date();
+    fechaUTC.setUTCHours(Number(hora), Number(min), 0, 0);
+    const horaLocal = fechaUTC.getHours();
+    const minLocal  = fechaUTC.getMinutes();
+    const horaFmt   = `${String(horaLocal).padStart(2, '0')}:${String(minLocal).padStart(2, '0')}`;
+
+    if (diasExpr !== '*') {
+      const nombresDias: Record<string, string> = {
+        '0': 'Dom', '1': 'Lun', '2': 'Mar',
+        '3': 'Mié', '4': 'Jue', '5': 'Vie', '6': 'Sáb'
+      };
+      const nombres = diasExpr.split(',').map(d => nombresDias[d] ?? d).join(', ');
+      return `${nombres} a las ${horaFmt}`;
+    }
+
+    return `Todos los días a las ${horaFmt}`;
+  }
 
   // ----------------------------------------------------------------
-  // GENERADOR CRON (interno)
+  // GENERADOR CRON
   // ----------------------------------------------------------------
 
-private generarCron(): string {
-  const partes = this.horaInicio.split(':');
-  let h = parseInt(partes[0]);
-  const m = parseInt(partes[1]);
+  private generarCron(): string {
+    const partes = this.horaInicio.split(':');
+    const h = parseInt(partes[0]);
+    const m = parseInt(partes[1]);
 
-  // Convertir hora local a UTC
-  const fecha = new Date();
-  fecha.setHours(h, m, 0, 0);
-  const hUTC = fecha.getUTCHours();
-  const mUTC = fecha.getUTCMinutes();
+    const fecha = new Date();
+    fecha.setHours(h, m, 0, 0);
+    const hUTC = fecha.getUTCHours();
+    const mUTC = fecha.getUTCMinutes();
 
-  if (this.tipoFrecuencia === 'daily') {
-    return `${mUTC} ${hUTC} * * *`;
+    if (this.tipoFrecuencia === 'daily') {
+      return `${mUTC} ${hUTC} * * *`;
+    }
+    if (this.tipoFrecuencia === 'interval') {
+      if (this.intervaloHoras < 2) throw new Error('Intervalo inválido');
+      return `0 */${this.intervaloHoras} * * *`;
+    }
+    if (this.tipoFrecuencia === 'days') {
+      if (this.diasSeleccionados.length === 0) throw new Error('Sin días seleccionados');
+      return `${mUTC} ${hUTC} * * ${this.diasSeleccionados.join(',')}`;
+    }
+    throw new Error('Frecuencia inválida');
   }
-  if (this.tipoFrecuencia === 'interval') {
-    if (this.intervaloHoras < 2) throw new Error('Intervalo inválido');
-    return `0 */${this.intervaloHoras} * * *`;
-  }
-  if (this.tipoFrecuencia === 'days') {
-    if (this.diasSeleccionados.length === 0) throw new Error('Sin días seleccionados');
-    return `${mUTC} ${hUTC} * * ${this.diasSeleccionados.join(',')}`;
-  }
-  throw new Error('Frecuencia inválida');
-}
 
   // ----------------------------------------------------------------
   // BACKUP COMPLETO
@@ -220,12 +223,12 @@ private generarCron(): string {
   async backupCompleto(): Promise<void> {
     this.cargandoCompleto = true;
     try {
-      const response = await firstValueFrom(this.backupService.backupDatabase());
-      const blob     = response.body as Blob;
-      const cd       = response.headers.get('content-disposition');
-      const fileName = cd?.split('filename=')[1]?.replace(/"/g, '') || 'backup.sql';
-      this.descargarArchivo(blob, fileName);
-      Swal.fire('Respaldo generado', 'El archivo fue descargado correctamente.', 'success');
+      const res: any = await firstValueFrom(this.backupService.backupDatabase());
+      Swal.fire({
+        title: 'Respaldo generado',
+        html: `El respaldo <b>${res.fileName}</b> fue guardado correctamente en Cloudinary.`,
+        icon: 'success'
+      });
       await this.cargarHistorial();
     } catch {
       Swal.fire('Error', 'No se pudo generar el respaldo.', 'error');
@@ -245,42 +248,19 @@ private generarCron(): string {
     }
     this.cargandoTabla = true;
     try {
-      const response = await firstValueFrom(
+      const res: any = await firstValueFrom(
         this.backupService.backupTable(this.tablaSeleccionada)
       );
-      const blob     = response.body as Blob;
-      const cd       = response.headers.get('content-disposition');
-      const fileName = cd?.split('filename=')[1]?.replace(/"/g, '') || 'backup.sql';
-      this.descargarArchivo(blob, fileName);
-      Swal.fire(
-        'Respaldo generado',
-        `Sección "${this.etiquetaTabla(this.tablaSeleccionada)}" respaldada correctamente.`,
-        'success'
-      );
+      Swal.fire({
+        title: 'Respaldo generado',
+        html: `La sección "<b>${this.etiquetaTabla(this.tablaSeleccionada)}</b>" fue respaldada y guardada en Cloudinary.`,
+        icon: 'success'
+      });
       await this.cargarHistorial();
     } catch {
       Swal.fire('Error', 'No se pudo generar el respaldo.', 'error');
     } finally {
       this.cargandoTabla = false;
-    }
-  }
-
-  // ----------------------------------------------------------------
-  // DESCARGA DESDE CLOUDINARY
-  // ----------------------------------------------------------------
-
-  async descargarBackupAutomatico(backup: any): Promise<void> {
-    this.cargandoDescarga = true;
-    try {
-      const response = await firstValueFrom(
-        this.backupService.downloadFromUrl(backup.url_backup)
-      );
-      const blob = response.body as Blob;
-      this.descargarArchivo(blob, backup.nombre_archivo);
-    } catch {
-      Swal.fire('Error', 'No se pudo descargar el respaldo.', 'error');
-    } finally {
-      this.cargandoDescarga = false;
     }
   }
 
@@ -316,13 +296,10 @@ private generarCron(): string {
       await this.cargarTareas();
     } catch (e: unknown) {
       console.error(e);
-
       let mensaje = 'Error';
-
       if (e instanceof HttpErrorResponse) {
         mensaje = e.error?.message || e.message;
       }
-
       Swal.fire('Error', mensaje, 'error');
     } finally {
       this.cargandoProgramar = false;
@@ -385,6 +362,7 @@ private generarCron(): string {
       const data: any = await firstValueFrom(this.backupService.getBackupHistory());
       this.historialCompleto = data as any[];
       this.aplicarFiltroHistorial();
+      console.log('fecha raw del primer registro:', (data as any[])[0]?.fecha);
     } catch (e) {
       console.error(e);
     } finally {
