@@ -109,14 +109,20 @@ body {
   padding: 40px 16px 200px; /* 🔥 espacio real para el nav */
 }
 
+#pdfContainer canvas {
+  max-width: 100%;
+  height: auto;
+}
+
 #pdfContainer {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 60px; /* 👈 separación real entre páginas */
-  padding-top: 40px; /* 👈 separación superior */
+  gap: 50px;
 }
-
 
 /* Loading */
 .loading-state {
