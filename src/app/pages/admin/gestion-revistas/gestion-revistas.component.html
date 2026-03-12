@@ -1,274 +1,489 @@
 <div class="admin-content">
   <div class="max-w-[95%] mx-auto">
 
-    <!-- =========================
+    <!-- ══════════════════════════════════════════════════════
          HEADER
-    ========================== -->
-    <div class="card-azul mb-6">
-      <div class="flex justify-between items-center flex-wrap gap-4">
-        <h2 class="page-title flex items-center gap-3">
-          <ion-icon name="book-outline"></ion-icon>
-          Gestión de Revistas
-        </h2>
-
-        <button
-          class="btn-success flex items-center gap-2"
-          (click)="openModal()"
-          [disabled]="loading">
-          <ion-icon name="add-circle-outline"></ion-icon>
-          Nueva Revista
-        </button>
+    ══════════════════════════════════════════════════════ -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <h2 class="page-title">Gestión de Revistas</h2>
+        <div class="flex flex-wrap gap-2">
+          <button class="btn-export flex items-center gap-2"
+                  (click)="exportarExcel()"
+                  [disabled]="loading || revistasFiltradas.length === 0"
+                  title="Exportar tabla actual a CSV">
+            <ion-icon name="download-outline"></ion-icon>
+            Exportar CSV
+            <span *ngIf="revistasFiltradas.length > 0" class="export-badge">
+              {{ revistasFiltradas.length }}
+            </span>
+          </button>
+          <button class="btn-primary flex items-center gap-2"
+                  (click)="openModal()"
+                  [disabled]="loading">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            Nueva Revista
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- =========================
+    <!-- ══════════════════════════════════════════════════════
          TABS
-    ========================== -->
-    <div class="flex gap-4 mb-6">
-     <button class="btn-primary"
-        (click)="cambiarVista('revistas')">
-  📚 Revistas
-    </button>
-
-    <button class="btn-gray"
-            (click)="cambiarVista('auditoria')">
-      🛡 Auditoría
-    </button>
-
+    ══════════════════════════════════════════════════════ -->
+    <div class="tabs-row mb-6">
+      <button class="tab-btn" [class.tab-btn-active]="vista === 'revistas'"
+              (click)="cambiarVista('revistas')">
+        <ion-icon name="book-outline"></ion-icon>
+        Revistas
+      </button>
+      <button class="tab-btn" [class.tab-btn-active]="vista === 'auditoria'"
+              (click)="cambiarVista('auditoria')">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        Auditoría
+      </button>
     </div>
 
-    <!-- =========================================================
+    <!-- ══════════════════════════════════════════════════════
          SECCIÓN REVISTAS
-    ========================================================== -->
+    ══════════════════════════════════════════════════════ -->
     <div *ngIf="vista === 'revistas'">
 
+      <!-- ══════════════════════════════════════════════════
+           FILTROS
+      ══════════════════════════════════════════════════ -->
+      <div class="filtros-section">
+
+        <!-- Cabecera de filtros -->
+        <div class="filtros-header">
+          <div class="filtros-titulo">
+            <ion-icon name="funnel-outline"></ion-icon>
+            <span>Filtrar revistas</span>
+            <span *ngIf="filtrosActivos" class="filtros-badge-count">
+              {{ revistasFiltradas.length }}
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button *ngIf="filtrosActivos" (click)="limpiarFiltrosRevistas()" class="filtros-limpiar">
+              <ion-icon name="close-circle-outline"></ion-icon>
+              <span class="hidden sm:inline">Limpiar filtros</span>
+            </button>
+            <button (click)="toggleFiltros()" class="btn-filter" [ngClass]="{'btn-filter-active': filtrosExpandidos}">
+              <ion-icon [name]="filtrosExpandidos ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+              <span class="hidden sm:inline">{{ filtrosExpandidos ? 'Ocultar' : 'Mostrar' }} filtros</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid de filtros -->
+        <div *ngIf="filtrosExpandidos" class="filtros-body">
+          <div class="filtros-grid">
+
+            <!-- Estado -->
+            <div class="filtro-item">
+              <label class="filtro-label">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                Estado
+              </label>
+              <select [(ngModel)]="filtrosRevistas.estado" (change)="aplicarFiltrosRevistas()" class="filtro-select">
+                <option value="">Todos los estados</option>
+                <option value="Activa">Activa</option>
+                <option value="Inactiva">Inactiva</option>
+              </select>
+            </div>
+
+            <!-- Descuento -->
+            <div class="filtro-item">
+              <label class="filtro-label">
+                <ion-icon name="pricetag-outline"></ion-icon>
+                Descuento
+              </label>
+              <select [(ngModel)]="filtrosRevistas.descuento" (change)="aplicarFiltrosRevistas()" class="filtro-select">
+                <option value="">Todos</option>
+                <option value="activo">Con descuento</option>
+                <option value="inactivo">Sin descuento</option>
+              </select>
+            </div>
+
+            <!-- Búsqueda por título -->
+            <div class="filtro-item">
+              <label class="filtro-label">
+                <ion-icon name="search-outline"></ion-icon>
+                Título
+              </label>
+              <input type="text"
+                     [(ngModel)]="filtrosRevistas.titulo"
+                     (input)="aplicarFiltrosRevistas()"
+                     placeholder="Buscar por título..."
+                     class="filtro-select filtro-input-text" />
+            </div>
+
+          </div>
+
+          <!-- Tags de filtros activos -->
+          <div *ngIf="filtrosActivos" class="filtros-activos-tags">
+            <span class="filtros-activos-label">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              Filtros aplicados:
+            </span>
+            <span *ngIf="filtrosRevistas.estado" class="filtro-tag">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              {{ filtrosRevistas.estado }}
+              <button (click)="filtrosRevistas.estado = ''; aplicarFiltrosRevistas()">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </span>
+            <span *ngIf="filtrosRevistas.descuento" class="filtro-tag">
+              <ion-icon name="pricetag-outline"></ion-icon>
+              {{ filtrosRevistas.descuento === 'activo' ? 'Con descuento' : 'Sin descuento' }}
+              <button (click)="filtrosRevistas.descuento = ''; aplicarFiltrosRevistas()">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </span>
+            <span *ngIf="filtrosRevistas.titulo" class="filtro-tag">
+              <ion-icon name="search-outline"></ion-icon>
+              "{{ filtrosRevistas.titulo }}"
+              <button (click)="filtrosRevistas.titulo = ''; aplicarFiltrosRevistas()">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </span>
+          </div>
+        </div>
+
+        <!-- Banner resultado (panel cerrado con filtros activos) -->
+        <div *ngIf="filtrosActivos && !filtrosExpandidos" class="filter-banner">
+          <ion-icon name="funnel-outline"></ion-icon>
+          <span>Mostrando <strong>{{ revistasFiltradas.length }}</strong> revista(s) con filtros activos</span>
+          <button (click)="limpiarFiltrosRevistas()" class="btn-ghost ml-auto">
+            <ion-icon name="close-outline"></ion-icon>
+            Limpiar
+          </button>
+        </div>
+
+      </div>
+
       <!-- LOADING -->
-      <div *ngIf="loading && magazines.length === 0" class="card-azul text-center py-12">
-        <div class="loading-spinner"></div>
-        <p class="mt-4 text-[#5A6B8C] font-medium">Cargando revistas...</p>
+      <div *ngIf="loading && magazines.length === 0" class="content-card text-center py-12">
+        <div class="loading-spinner inline-block"></div>
+        <p class="mt-4 text-gray-600 font-medium">Cargando revistas...</p>
       </div>
 
       <!-- TABLA -->
-      <div *ngIf="!loading" class="card-azul overflow-hidden">
+      <div *ngIf="!loading" class="content-card overflow-hidden">
 
-        <div class="overflow-x-auto">
-          <table class="revistas-table">
+        <!-- Sin resultados -->
+        <div *ngIf="revistasFiltradas.length === 0" class="text-center py-16">
+          <ion-icon name="book-outline"
+            style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
+          <p style="color:#64748B; font-weight:500;">No se encontraron revistas</p>
+          <p *ngIf="filtrosActivos" style="color:#94A3B8; font-size:0.875rem; margin-top:0.25rem;">
+            Intenta ajustar los filtros
+          </p>
+        </div>
+
+        <!-- Tabla desktop -->
+        <div *ngIf="revistasFiltradas.length > 0" class="hidden lg:block overflow-x-auto">
+          <table class="min-w-full">
             <thead class="table-header">
               <tr>
-                <th>Título</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Estado</th>
-                <th>Descuento</th>
-                <th class="text-center">Acciones</th>
+                <th class="th-cell">Título</th>
+                <th class="th-cell">Descripción</th>
+                <th class="th-cell">Precio</th>
+                <th class="th-cell">Estado</th>
+                <th class="th-cell">Descuento</th>
+                <th class="th-cell text-center">Acciones</th>
               </tr>
             </thead>
-
             <tbody>
-              <tr *ngIf="magazines.length === 0">
-                <td colspan="6" class="empty-row">
-                  No hay revistas registradas
+              <tr *ngFor="let mag of revistasFiltradas; trackBy: trackById" class="table-row">
+
+                <td class="td-cell font-medium text-gray-900">{{ mag.titulo }}</td>
+
+                <td class="td-cell text-gray-500 text-sm td-descripcion">
+                  {{ mag.descripcion ? (mag.descripcion.length > 60 ? (mag.descripcion | slice:0:60) + '...' : mag.descripcion) : '—' }}
                 </td>
-              </tr>
 
-                <tr *ngFor="let mag of magazines; trackBy: trackById">
+                <td class="td-cell font-medium text-gray-900">${{ mag.precio }}</td>
 
-                  <!-- 1. Título -->
-                  <td class="title-cell">{{ mag.titulo }}</td>
+                <td class="td-cell">
+                  <span class="badge-estado"
+                    [ngClass]="mag.estado === 'Activa' ? 'badge-activo' : 'badge-inactivo'">
+                    {{ mag.estado }}
+                  </span>
+                </td>
 
-                  <!-- 2. Precio -->
-                  <td>$ {{ mag.precio }}</td>
+                <td class="td-cell">
+                  <span *ngIf="mag.descuento_activo" class="badge-estado badge-descuento">Activo</span>
+                  <span *ngIf="!mag.descuento_activo" style="color:#CBD5E1;">—</span>
+                </td>
 
-                  <!-- 3. Stock -->
-                  <td>
-                    <span class="badge" [ngClass]="mag.stock > 0 ? 'badge-success' : 'badge-danger'">
-                      {{ mag.stock > 0 ? '📦 ' + mag.stock : '❌' }}
-                    </span>
-                  </td>
-
-                  <!-- 4. Estado -->
-                  <td>
-                    <span class="badge" [ngClass]="mag.estado === 'Activa' ? 'badge-success' : 'badge-gray'">
-                      {{ mag.estado }}
-                    </span>
-                  </td>
-
-                  <!-- 5. Descuento -->
-                  <td>
-                    <span *ngIf="mag.descuento_activo" class="badge badge-warning">Activo</span>
-                    <span *ngIf="!mag.descuento_activo" class="text-muted">—</span>
-                  </td>
-
-
-                  <!-- 7. Acciones -->
-                  <td class="actions-cell">
-                    <button class="btn-primary" (click)="editMagazine(mag)">Editar</button>
-                    <button
-                      *ngIf="mag.id_revista"
-                      [ngClass]="mag.estado === 'Activa' ? 'btn-danger' : 'btn-success'"
-                      (click)="toggleMagazine(mag.id_revista!)">
-                      {{ mag.estado === 'Activa' ? 'Desactivar' : 'Activar' }}
+                <td class="td-cell">
+                  <div class="flex justify-center gap-2">
+                    <button (click)="editMagazine(mag)"
+                            class="btn-icon btn-icon-primary"
+                            title="Editar revista">
+                      <ion-icon name="create-outline"></ion-icon>
                     </button>
-                  </td>
+                    <button *ngIf="mag.id_revista && mag.estado === 'Activa'"
+                            (click)="toggleMagazine(mag.id_revista!)"
+                            class="btn-icon btn-icon-danger"
+                            title="Desactivar revista">
+                      <ion-icon name="close-circle-outline"></ion-icon>
+                    </button>
+                    <button *ngIf="mag.id_revista && mag.estado !== 'Activa'"
+                            (click)="toggleMagazine(mag.id_revista!)"
+                            class="btn-icon btn-icon-success"
+                            title="Activar revista">
+                      <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    </button>
+                  </div>
+                </td>
 
-                </tr>
+              </tr>
             </tbody>
           </table>
         </div>
 
+        <!-- Cards móvil -->
+        <div *ngIf="revistasFiltradas.length > 0" class="lg:hidden p-4 space-y-4">
+          <div *ngFor="let mag of revistasFiltradas; trackBy: trackById" class="user-card">
+            <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="badge-estado"
+                    [ngClass]="mag.estado === 'Activa' ? 'badge-activo' : 'badge-inactivo'">
+                    {{ mag.estado }}
+                  </span>
+                  <span *ngIf="mag.descuento_activo" class="badge-estado badge-descuento">
+                    Descuento activo
+                  </span>
+                </div>
+                <h4 class="text-lg font-bold text-gray-900">{{ mag.titulo }}</h4>
+                <p *ngIf="mag.descripcion" class="text-sm text-gray-500 mt-1">
+                  {{ mag.descripcion.length > 80 ? (mag.descripcion | slice:0:80) + '...' : mag.descripcion }}
+                </p>
+                <p class="text-sm font-semibold text-gray-700 mt-1">${{ mag.precio }}</p>
+              </div>
+            </div>
+            <div class="flex gap-2 pt-3 border-t border-gray-200">
+              <button (click)="editMagazine(mag)"
+                      class="btn-icon-mobile btn-icon-primary flex-1">
+                <ion-icon name="create-outline"></ion-icon><span>Editar</span>
+              </button>
+              <button *ngIf="mag.id_revista && mag.estado === 'Activa'"
+                      (click)="toggleMagazine(mag.id_revista!)"
+                      class="btn-icon-mobile btn-icon-danger flex-1">
+                <ion-icon name="close-circle-outline"></ion-icon><span>Desactivar</span>
+              </button>
+              <button *ngIf="mag.id_revista && mag.estado !== 'Activa'"
+                      (click)="toggleMagazine(mag.id_revista!)"
+                      class="btn-icon-mobile btn-icon-success flex-1">
+                <ion-icon name="checkmark-circle-outline"></ion-icon><span>Activar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- =========================================================
+    <!-- ══════════════════════════════════════════════════════
          SECCIÓN AUDITORÍA
-    ========================================================== -->
-    <div *ngIf="vista === 'auditoria'" class="card-azul">
+    ══════════════════════════════════════════════════════ -->
+    <div *ngIf="vista === 'auditoria'">
 
-      <!-- FILTROS -->
-      <div class="flex flex-wrap gap-4 mb-6">
-
-        <input
-          type="text"
-          [(ngModel)]="filtros.usuario"
-          placeholder="Buscar por usuario"
-          class="input-field w-60" />
-
-        <input
-          type="date"
-          [(ngModel)]="filtros.fecha_inicio"
-          class="input-field" />
-
-        <input
-          type="date"
-          [(ngModel)]="filtros.fecha_fin"
-          class="input-field" />
-
-        <button
-          class="btn-primary"
-          (click)="aplicarFiltros()">
-          Filtrar
-        </button>
-
-        <button
-          class="btn-gray"
-          (click)="limpiarFiltros()">
-          Limpiar
-        </button>
-
+      <div class="filtros-section mb-4">
+        <div class="filtros-header">
+          <div class="filtros-titulo">
+            <ion-icon name="funnel-outline"></ion-icon>
+            <span>Filtrar auditoría</span>
+          </div>
+        </div>
+        <div class="filtros-body">
+          <div class="filtros-grid-auditoria">
+            <div class="filtro-item">
+              <label class="filtro-label">
+                <ion-icon name="person-outline"></ion-icon>
+                Usuario
+              </label>
+              <input type="text"
+                     [(ngModel)]="filtros.usuario"
+                     placeholder="Buscar por usuario"
+                     class="filtro-input" />
+            </div>
+            <div class="filtro-item">
+              <label class="filtro-label">
+                <ion-icon name="calendar-outline"></ion-icon>
+                Fecha inicio
+              </label>
+              <input type="date" [(ngModel)]="filtros.fecha_inicio" class="filtro-input" />
+            </div>
+            <div class="filtro-item">
+              <label class="filtro-label">
+                <ion-icon name="calendar-outline"></ion-icon>
+                Fecha fin
+              </label>
+              <input type="date" [(ngModel)]="filtros.fecha_fin" class="filtro-input" />
+            </div>
+            <div class="filtro-item filtro-btns">
+              <button class="btn-primary flex items-center gap-1" (click)="aplicarFiltros()">
+                <ion-icon name="search-outline"></ion-icon>
+                Filtrar
+              </button>
+              <button class="btn-secondary flex items-center gap-1" (click)="limpiarFiltros()">
+                <ion-icon name="close-outline"></ion-icon>
+                Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- LOADING AUDITORÍA -->
-      <div *ngIf="cargandoAuditoria" class="text-center py-8">
-        <div class="loading-spinner"></div>
-      </div>
-      <p class="text-sm text-muted mb-2">
-        Total registros: {{ auditoria.length }}
-      </p>
+      <div class="content-card overflow-hidden">
+        <div *ngIf="cargandoAuditoria" class="text-center py-12">
+          <div class="loading-spinner inline-block"></div>
+          <p class="mt-4 text-gray-600 font-medium">Cargando auditoría...</p>
+        </div>
 
+        <div *ngIf="!cargandoAuditoria">
+          <div class="px-6 py-3 border-b border-gray-100" style="font-size:0.82rem; color:#64748B;">
+            Total registros: <strong style="color:#2196F3;">{{ auditoria.length }}</strong>
+          </div>
 
-      <!-- TABLA AUDITORÍA -->
-      <div *ngIf="!cargandoAuditoria" class="overflow-x-auto">
-        <table class="revistas-table">
-          <thead class="table-header">
-            <tr>
-              <th>ID</th>
-              <th>Usuario</th>
-              <th>Acción</th>
-              <th>Descripción</th>
-              <th>IP</th>
-              <th>Fecha</th>
-            </tr>
-          </thead>
+          <div *ngIf="auditoria.length === 0" class="text-center py-16">
+            <ion-icon name="shield-checkmark-outline"
+              style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
+            <p style="color:#64748B; font-weight:500;">No hay registros de auditoría</p>
+          </div>
 
-          <tbody>
-            <tr *ngIf="auditoria.length === 0">
-              <td colspan="6" class="empty-row">
-                No hay registros de auditoría
-              </td>
-            </tr>
+          <div *ngIf="auditoria.length > 0" class="hidden lg:block overflow-x-auto">
+            <table class="min-w-full">
+              <thead class="table-header">
+                <tr>
+                  <th class="th-cell">ID</th>
+                  <th class="th-cell">Usuario</th>
+                  <th class="th-cell">Acción</th>
+                  <th class="th-cell">Descripción</th>
+                  <th class="th-cell">IP</th>
+                  <th class="th-cell">Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let log of auditoria" class="table-row">
+                  <td class="td-cell text-gray-500 text-sm">{{ log.id_auditoria }}</td>
+                  <td class="td-cell font-medium text-gray-900">{{ log.usuario }}</td>
+                  <td class="td-cell">
+                    <span class="badge-estado" [ngClass]="{
+                      'badge-activo':    log.accion === 'COMPRA' || log.accion === 'ACTIVAR_REVISTA',
+                      'badge-inactivo':  log.accion === 'DELETE_REVISTA',
+                      'badge-descuento': log.accion === 'DESACTIVAR_REVISTA',
+                      'badge-edit':      log.accion === 'UPDATE_REVISTA'
+                    }">
+                      {{ log.accion === 'UPDATE_REVISTA'     ? 'EDITADO'     :
+                         log.accion === 'DESACTIVAR_REVISTA' ? 'DESACTIVADO' :
+                         log.accion === 'ACTIVAR_REVISTA'    ? 'ACTIVADO'    :
+                         log.accion === 'DELETE_REVISTA'     ? 'ELIMINADO'   :
+                         log.accion }}
+                    </span>
+                  </td>
+                  <td class="td-cell text-gray-600 text-sm">{{ log.descripcion }}</td>
+                  <td class="td-cell text-gray-500 text-sm font-mono">{{ log.ip_address }}</td>
+                  <td class="td-cell text-gray-500 text-sm">{{ log.fecha | date:'short' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-            <tr *ngFor="let log of auditoria">
-              <td>{{ log.id_auditoria }}</td>
-              <td>{{ log.usuario }}</td>
-
-                <td>
-                  <span class="badge" [ngClass]="{
-                    'badge-success':  log.accion === 'COMPRA',
-                    'badge-primary':  log.accion === 'UPDATE_REVISTA',
-                    'badge-warning':  log.accion === 'DESACTIVAR_REVISTA',
-                    'badge-activar':  log.accion === 'ACTIVAR_REVISTA',
-                    'badge-danger':   log.accion === 'DELETE_REVISTA'
+          <div *ngIf="auditoria.length > 0" class="lg:hidden p-4 space-y-4">
+            <div *ngFor="let log of auditoria" class="user-card">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-semibold text-gray-500">ID: {{ log.id_auditoria }}</span>
+                  <span class="badge-estado" [ngClass]="{
+                    'badge-activo':    log.accion === 'COMPRA' || log.accion === 'ACTIVAR_REVISTA',
+                    'badge-inactivo':  log.accion === 'DELETE_REVISTA',
+                    'badge-descuento': log.accion === 'DESACTIVAR_REVISTA',
+                    'badge-edit':      log.accion === 'UPDATE_REVISTA'
                   }">
-                    {{
-                      log.accion === 'UPDATE_REVISTA'     ? 'EDITADO'      :
-                      log.accion === 'DESACTIVAR_REVISTA' ? 'DESACTIVADO'  :
-                      log.accion === 'ACTIVAR_REVISTA'    ? 'ACTIVADO'     :
-                      log.accion === 'DELETE_REVISTA'     ? 'ELIMINADO'    :
-                      log.accion
-                    }}
+                    {{ log.accion === 'UPDATE_REVISTA'     ? 'EDITADO'     :
+                       log.accion === 'DESACTIVAR_REVISTA' ? 'DESACTIVADO' :
+                       log.accion === 'ACTIVAR_REVISTA'    ? 'ACTIVADO'    :
+                       log.accion === 'DELETE_REVISTA'     ? 'ELIMINADO'   :
+                       log.accion }}
                   </span>
-                </td>
-
-              <td>{{ log.descripcion }}</td>
-              <td>{{ log.ip_address }}</td>
-              <td>{{ log.fecha | date:'short' }}</td>
-            </tr>
-          </tbody>
-        </table>
+                </div>
+                <h4 class="text-base font-bold text-gray-900">{{ log.usuario }}</h4>
+                <p class="text-sm text-gray-600 mt-1">{{ log.descripcion }}</p>
+                <div class="flex gap-3 mt-2 text-xs text-gray-400">
+                  <span class="font-mono">{{ log.ip_address }}</span>
+                  <span>{{ log.fecha | date:'short' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
     </div>
 
   </div>
 
-  <!-- =========================================================
+  <!-- ══════════════════════════════════════════════════════
        MODAL CREAR / EDITAR
-  ========================================================== -->
+  ══════════════════════════════════════════════════════ -->
   <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
-
     <div class="modal-container" (click)="$event.stopPropagation()">
 
       <div class="modal-header">
-        <h3>
-          {{ form.id_revista ? 'Editar Revista' : 'Nueva Revista' }}
-        </h3>
-        <button (click)="closeModal()">✕</button>
+        <div class="modal-header-left">
+          <div class="modal-icon-wrapper" style="background:#DBEAFE; border:1px solid #93C5FD;">
+            <ion-icon name="book-outline" style="font-size:1.25rem; color:#1E40AF;"></ion-icon>
+          </div>
+          <div>
+            <h3 class="modal-title">{{ form.id_revista ? 'Editar Revista' : 'Nueva Revista' }}</h3>
+            <p class="modal-subtitle">
+              {{ form.id_revista ? 'Modifica los datos de la revista' : 'Completa los datos para crear' }}
+            </p>
+          </div>
+        </div>
+        <button (click)="closeModal()" class="btn-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
       </div>
 
       <div class="modal-body">
-
-        <div class="form-group">
-          <label>Título</label>
-          <input [(ngModel)]="form.titulo" />
-        </div>
-
-        <div class="form-group">
-          <label>Descripción</label>
-          <textarea rows="4" [(ngModel)]="form.descripcion"></textarea>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Precio</label>
-            <input type="number" [(ngModel)]="form.precio" />
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">Título</label>
+            <input [(ngModel)]="form.titulo" placeholder="Ingresa el título de la revista" class="form-input" />
           </div>
-
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">Descripción</label>
+            <textarea rows="3" [(ngModel)]="form.descripcion" placeholder="Descripción de la revista" class="form-input"></textarea>
+          </div>
           <div class="form-group">
-            <label>Stock</label>
-            <input type="number" [(ngModel)]="form.stock" />
+            <label class="form-label">Precio</label>
+            <input type="number" [(ngModel)]="form.precio" placeholder="0.00" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stock</label>
+            <input type="number" [(ngModel)]="form.stock" placeholder="0" class="form-input" />
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">Archivo PDF</label>
+            <input type="file" (change)="onFileSelected($event)" class="form-input" />
           </div>
         </div>
-
-        <div class="form-group">
-          <label>PDF</label>
-          <input type="file" (change)="onFileSelected($event)" />
-        </div>
-
       </div>
 
       <div class="modal-footer">
-        <button class="btn-gray" (click)="closeModal()">Cancelar</button>
-        <button class="btn-success" (click)="saveMagazine()">Guardar</button>
+        <button (click)="closeModal()" class="btn-secondary">
+          <ion-icon name="close-outline"></ion-icon>
+          Cancelar
+        </button>
+        <button (click)="saveMagazine()" class="btn-primary">
+          <ion-icon name="checkmark-outline"></ion-icon>
+          {{ form.id_revista ? 'Guardar Cambios' : 'Crear Revista' }}
+        </button>
       </div>
 
     </div>
