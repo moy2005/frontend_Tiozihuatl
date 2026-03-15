@@ -45,6 +45,7 @@ export class AdminLayoutComponent implements OnInit {
     { label: 'Revistas',   icon: 'ph-newspaper',       route: '/admin/revistas' },
     { label: 'Préstamos',  icon: 'ph-book-bookmark',   route: '/admin/prestamos' },
     { label: 'Respaldos',  icon: 'ph-download-simple', route: '/admin/backups' },
+    { label: 'Monitoreo',  icon: 'ph-monitor',         route: '/admin/monitoreo' },
   ];
 
   constructor(private router: Router) {}

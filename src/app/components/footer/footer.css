@@ -1,0 +1,249 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700;800;900&display=swap');
+
+:root {
+  --f-main:      #3FA6E8;
+  --f-dark:      #1565C0;
+  --f-white:     #ffffff;
+  --f-white-75:  rgba(255,255,255,0.82);
+  --f-white-30:  rgba(255,255,255,0.30);
+  --f-social-bg: rgba(0,0,0,0.20);
+  --font:        'Nunito', sans-serif;
+}
+
+/* ── OLA ────────────────────────────────────────────────────── */
+.iest-wave-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 120px;
+  line-height: 0;
+  overflow: hidden;
+  background-color: var(--f-main);
+  transform: translateY(100%);
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.iest-wave-wrap.is-visible { transform: translateY(0%); }
+.iest-wave-svg         { display: block; width: 100%; height: 100%; }
+.iest-wave-path--back  { animation: waveA 9s ease-in-out infinite alternate; }
+.iest-wave-path--front { animation: waveB 6s ease-in-out infinite alternate; }
+@keyframes waveA { from { transform: translateX(0); } to { transform: translateX(-3%); } }
+@keyframes waveB { from { transform: translateX(0); } to { transform: translateX(2%);  } }
+
+/* ── FOOTER ─────────────────────────────────────────────────── */
+.iest-footer {
+  background: var(--f-main);
+  color: var(--f-white);
+  font-family: var(--font);
+  padding: 0;
+  position: relative;
+}
+
+/* ── SENTINEL ────────────────────────────────────────────────── */
+.iest-hero-sentinel {
+  position: relative;
+  height: 220vh;
+}
+
+/* ── STICKY ──────────────────────────────────────────────────── */
+.iest-hero-sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  background: var(--f-main);
+}
+
+/* ── CAPA 1: CONTENIDO ───────────────────────────────────────
+   padding-top aumentado para que el contenido aparezca
+   visualmente más abajo dentro del sticky.
+────────────────────────────────────────────────────────────── */
+.iest-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 200px 8% 0;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+/* ── CAPA 2: OVERLAY ─────────────────────────────────────────── */
+.iest-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--f-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 6%;
+  pointer-events: none;
+  will-change: background;
+}
+
+/* ── LOGO grande ────────────────────────────────────────────── */
+.iest-hero__logo-wrap {
+  flex-shrink: 0;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+.iest-hero__logo {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.28));
+}
+
+/* ── NOMBRE grande ──────────────────────────────────────────── */
+.iest-hero__name {
+  font-family: var(--font);
+  font-weight: 900;
+  color: var(--f-white);
+  line-height: 1.05;
+  margin: 0;
+  letter-spacing: -0.02em;
+  will-change: transform, opacity;
+  transform-origin: center center;
+  text-align: center;
+  width: 100%;
+  font-size: clamp(2.8rem, 9vw, 7rem);
+}
+.iest-hero__name-sub {
+  font-family: var(--font);
+  font-weight: 900;
+  color: var(--f-white);
+  line-height: 1.0;
+  margin: 0;
+  letter-spacing: -0.02em;
+  will-change: transform, opacity;
+  transform-origin: center center;
+  text-align: center;
+  width: 100%;
+  font-size: clamp(2.2rem, 7vw, 5.6rem);
+}
+
+/* ── BADGE MINI ─────────────────────────────────────────────── */
+.iest-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 44px;
+  opacity: 0;
+  will-change: opacity;
+}
+.iest-badge__logo {
+  width: 46px; height: 46px;
+  object-fit: contain; flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+}
+.iest-badge__name {
+  font-family: var(--font);
+  font-size: 1.1rem; font-weight: 800;
+  color: var(--f-white);
+  letter-spacing: -0.01em; line-height: 1.3;
+}
+
+/* ── GRID ───────────────────────────────────────────────────── */
+.iest-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px 48px;
+}
+
+/* ── TÍTULOS ────────────────────────────────────────────────── */
+.iest-col__title {
+  font-family: var(--font);
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--f-white);
+  margin: 0 0 14px 0; padding-bottom: 10px;
+  border-bottom: 1px solid var(--f-white-30);
+}
+
+/* ── LINKS ──────────────────────────────────────────────────── */
+.iest-col__list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.iest-col__link {
+  font-family: var(--font); font-size: 0.95rem; font-weight: 400;
+  color: var(--f-white-75); text-decoration: none;
+  transition: color 0.18s ease, padding-left 0.18s ease;
+  display: inline-block;
+}
+.iest-col__link:hover { color: var(--f-white); padding-left: 6px; }
+
+.iest-col__body {
+  font-family: var(--font); font-size: 0.92rem; line-height: 1.7;
+  color: var(--f-white-75); margin: 0 0 18px 0;
+}
+
+/* ── BOTÓN ──────────────────────────────────────────────────── */
+.iest-btn {
+  display: inline-block; background: var(--f-dark); color: var(--f-white);
+  text-decoration: none; font-family: var(--font); font-size: 0.8rem;
+  font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 10px 24px; border-radius: 100px;
+  transition: background 0.22s ease, transform 0.18s ease;
+  margin-bottom: 18px;
+}
+.iest-btn:hover { background: #0D47A1; transform: translateY(-2px); }
+
+/* ── CONTACTO ───────────────────────────────────────────────── */
+.iest-contacts { display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
+.iest-contact  { display: flex; align-items: flex-start; gap: 8px; font-size: 0.85rem; color: var(--f-white-75); line-height: 1.5; }
+.iest-contact svg { flex-shrink: 0; margin-top: 2px; opacity: 0.8; }
+
+/* ── DOTS ───────────────────────────────────────────────────── */
+.iest-dots { display: flex; gap: 6px; padding: 16px 0; }
+.iest-dots span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--f-white); opacity: 0.6;
+  animation: dotBounce 1.2s ease-in-out infinite;
+}
+.iest-dots span:nth-child(2) { animation-delay: 0.18s; }
+.iest-dots span:nth-child(3) { animation-delay: 0.36s; }
+
+/* ── BOTTOM ─────────────────────────────────────────────────── */
+.iest-bottom {
+  margin-top: 48px;
+  border-top: 1px solid var(--f-white-30);
+  padding: 20px 0 36px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 14px;
+}
+.iest-bottom__copy {
+  font-family: var(--font); font-size: 0.8rem; font-weight: 300;
+  color: var(--f-white-75); margin: 0;
+}
+
+/* ── SOCIAL ─────────────────────────────────────────────────── */
+.iest-social { display: flex; gap: 10px; }
+.iest-social__btn {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--f-social-bg); color: var(--f-white);
+  text-decoration: none; transition: background 0.2s ease, transform 0.18s ease;
+}
+.iest-social__btn:hover { background: var(--f-dark); transform: translateY(-3px) scale(1.08); }
+
+/* ── KEYFRAMES ──────────────────────────────────────────────── */
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0.55); opacity: 0.4; }
+  40%           { transform: scale(1);    opacity: 1;   }
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .iest-grid { grid-template-columns: 1fr 1fr; gap: 36px 40px; }
+}
+@media (max-width: 640px) {
+  .iest-hero-sentinel  { height: 190vh; }
+  .iest-hero__logo     { width: 80px; height: 80px; }
+  .iest-hero__name     { font-size: clamp(1.8rem, 8vw, 3rem); }
+  .iest-hero__name-sub { font-size: clamp(1.5rem, 7vw, 2.4rem); }
+  .iest-content        { padding: 80px 6% 0; }
+  .iest-grid           { grid-template-columns: 1fr; gap: 28px; }
+  .iest-bottom         { flex-direction: column; align-items: flex-start; }
+  .iest-badge          { flex-wrap: wrap; }
+  .iest-badge__name    { font-size: 0.95rem; }
+}

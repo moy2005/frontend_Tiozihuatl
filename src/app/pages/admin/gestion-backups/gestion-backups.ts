@@ -188,6 +188,16 @@ normalizarFecha(fecha: string | null): string {
     return `Todos los días a las ${horaFmt}`;
   }
 
+formatearFechaHora(fecha: string | null): string {
+  if (!fecha) return '—';
+
+  // 2026-03-11T19:58:21.000Z
+  const [fechaParte, horaParte] = fecha.split('T');
+
+  const hora = horaParte.substring(0, 5); // 19:58
+
+  return `${fechaParte} ${hora}`;
+}
   // ----------------------------------------------------------------
   // GENERADOR CRON
   // ----------------------------------------------------------------

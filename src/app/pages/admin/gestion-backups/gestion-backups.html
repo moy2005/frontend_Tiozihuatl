@@ -219,7 +219,7 @@
               <td class="td-cell font-medium text-gray-900">{{ t.nombre_tarea }}</td>
               <td class="td-cell text-gray-600">{{ describirCron(t.cron_expression) }}</td>
               <td class="td-cell text-gray-600">
-                <span *ngIf="t.ultima_ejecucion">{{ normalizarFecha(t.ultima_ejecucion) }}</span>
+                <span *ngIf="t.ultima_ejecucion">{{ formatearFechaHora(t.ultima_ejecucion) }}</span>
                 <span *ngIf="!t.ultima_ejecucion" class="sin-devolucion">Aún no ejecutado</span>
               </td>
               <td class="td-cell">
@@ -266,7 +266,7 @@
           <div class="card-fechas">
             <span>
               <ion-icon name="time-outline" class="text-blue-500"></ion-icon>
-              Última ejecución: {{ t.ultima_ejecucion ? normalizarFecha(t.ultima_ejecucion) : 'Aún no ejecutado' }}
+              Última ejecución: {{ t.ultima_ejecucion ? formatearFechaHora(t.ultima_ejecucion) : 'Aún no ejecutado' }}
             </span>
           </div>
           <div class="card-acciones">
@@ -380,7 +380,7 @@
                 </span>
               </td>
               <td class="td-cell text-gray-600">
-               {{ normalizarFecha(b.fecha) }}
+               {{formatearFechaHora(b.fecha) }}
               </td>
               <td class="td-cell text-center">
                 <span class="cloudinary-tag">
@@ -413,7 +413,7 @@
           <div class="card-fechas">
             <span>
               <ion-icon name="calendar-outline" class="text-blue-500"></ion-icon>
-          {{ normalizarFecha(b.fecha) }}
+          {{ b.fecha }}
             </span>
             <span *ngIf="b.tabla_afectada">
               <ion-icon name="grid-outline" class="text-blue-500"></ion-icon>

@@ -38,6 +38,7 @@ import { AboutComponent } from './pages/about/about.component';
 import { GestionAboutComponent } from './pages/admin/gestion-about/gestion-about';
 import { GestionRevistasComponent } from './pages/admin/gestion-revistas/gestion-revistas.component';
 import { MyPurchases } from './pages/my-purchases/my-purchases';
+import { MonitoreoComponent } from './pages/admin/monitoreo/monitoreo';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -87,7 +88,8 @@ export const routes: Routes = [
       { path : 'prestamos', component:GestionPrestamosComponent },
       { path : 'backups', component:GestionBackupsComponent },
       { path: 'about', component: GestionAboutComponent },
-      { path: 'revistas', component: GestionRevistasComponent }
+      { path: 'revistas', component: GestionRevistasComponent },
+      { path: 'monitoreo', component: MonitoreoComponent }
     ]
   },
   
