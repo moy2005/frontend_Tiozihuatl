@@ -158,8 +158,45 @@ export class ContactanosComponent implements OnInit {
    */
   private normalizeWhatsApp(whatsapp: string): string {
     if (!whatsapp) return '';
-    
-    // Remover todos los caracteres que no sean números
     return whatsapp.replace(/\D/g, '');
+  }
+
+  /**
+   * Formatear string de horarios en bloques estructurados para la UI
+   */
+  getFormattedSchedule(): { days: string, hours: string }[] {
+    if (!this.contacto.horario) return [];
+
+    // Ejemplo string: "Lunes a viernes de 10:00 a.m. a 4:00 p.m. Sábados y domingos cerrado."
+    // Separamos por punto o mayúsculas intermedias si no hay punto
+    const parts = this.contacto.horario.split(/\.\s+(?=[A-Z])|\.\s*$/).filter(p => p.trim() !== '');
+    
+    return parts.map(part => {
+      let days = part;
+      let hours = '';
+
+      // Buscar " de " o ":" como separador entre días y horas
+      const match = part.match(/^(.*?)(?:\s+de\s+|\s+:\s+|\s*:\s*)(.*)$/i);
+      
+      if (match) {
+        days = match[1].trim();
+        hours = match[2].trim();
+      } else {
+        // Casos como "Sábados y domingos cerrado"
+        const cerradoMatch = part.match(/^(.*?)\s+(cerrado)$/i);
+        if (cerradoMatch) {
+          days = cerradoMatch[1].trim();
+          hours = 'Cerrado';
+        }
+      }
+
+      // Limpiar y capitalizar
+      days = days.charAt(0).toUpperCase() + days.slice(1);
+      if (hours !== 'Cerrado') {
+        hours = hours.replace(/\./g, '').trim(); // p.m. -> pm
+      }
+
+      return { days, hours };
+    });
   }
 }

@@ -233,7 +233,7 @@
 
 <!-- ================= NAVBAR MÓVIL ================= -->
 <nav class="navbar-mobile fixed top-0 left-0 right-0 z-50 bg-[#3FA6E8]">
-  <input type="checkbox" id="menu-toggle" />
+  <input type="checkbox" id="menu-toggle" [checked]="isMobileMenuOpen" (change)="toggleMobileMenu($event)" />
 
   <div class="px-4 py-3">
     <div class="flex items-center justify-between">

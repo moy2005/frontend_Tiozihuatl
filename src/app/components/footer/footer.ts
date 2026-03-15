@@ -62,6 +62,8 @@ export class Footer implements OnInit, AfterViewInit, OnDestroy {
   };
 
   private scrollListener!: () => void;
+  private resizeListener!: () => void;
+  private resizeTimeout: any;
   private waveObserver!:   IntersectionObserver;
 
   private destLogo!:    { x: number; y: number; scale: number };
@@ -81,6 +83,7 @@ export class Footer implements OnInit, AfterViewInit, OnDestroy {
       setTimeout(() => {
         this.calcDestinations();
         this.initScrollTransform();
+        this.initResizeListener();
         this.initWaveObserver();
       }, 120);
     });
@@ -88,10 +91,27 @@ export class Footer implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     window.removeEventListener('scroll', this.scrollListener);
+    window.removeEventListener('resize', this.resizeListener);
+    if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
     this.waveObserver?.disconnect();
   }
 
+  private initResizeListener(): void {
+    this.resizeListener = () => {
+      if (this.resizeTimeout) { clearTimeout(this.resizeTimeout); }
+      this.resizeTimeout = setTimeout(() => {
+        this.calcDestinations();
+        if (this.scrollListener) {
+          this.scrollListener(); // Force scroll view recalculation
+        }
+      }, 150);
+    };
+    window.addEventListener('resize', this.resizeListener, { passive: true });
+  }
+
   private calcDestinations(): void {
+    if (window.innerWidth <= 640) return;
+
     const logo    = this.logoEl?.nativeElement;
     const name    = this.nameEl?.nativeElement;
     const badge   = this.badgeEl?.nativeElement;
@@ -119,7 +139,7 @@ export class Footer implements OnInit, AfterViewInit, OnDestroy {
     };
 
     this.destName = {
-      x:     badgeNameRect.left - nameRect.left,
+      x:     badgeNameRect.left + badgeNameRect.width / 2 - (nameRect.left + nameRect.width / 2),
       y:     badgeNameRect.top  + badgeNameRect.height / 2 - (nameRect.top + nameRect.height / 2),
       scale: Math.min(nameScaleFinal, 0.32),
     };
@@ -127,7 +147,7 @@ export class Footer implements OnInit, AfterViewInit, OnDestroy {
     if (nameSub) {
       const nameSubRect = nameSub.getBoundingClientRect();
       this.destNameSub = {
-        x:     badgeNameRect.left - nameSubRect.left,
+        x:     badgeNameRect.left + badgeNameRect.width / 2 - (nameSubRect.left + nameSubRect.width / 2),
         y:     badgeNameRect.top  + badgeNameRect.height / 2 - (nameSubRect.top + nameSubRect.height / 2),
         scale: Math.min(nameScaleFinal * 0.8, 0.28),
       };
@@ -158,6 +178,19 @@ export class Footer implements OnInit, AfterViewInit, OnDestroy {
     if (!logo || !name || !sentinel || !badge || !overlay) return;
 
     this.scrollListener = () => {
+      const viewW   = window.innerWidth;
+      
+      if (viewW <= 640) {
+        // En móvil no hay animación, se delega al CSS.
+        // Limpiamos estilos en línea por si se venía de una pantalla grande.
+        logo.style.visibility = ''; logo.style.transform = '';
+        name.style.visibility = ''; name.style.transform = '';
+        if (nameSub) { nameSub.style.visibility = ''; nameSub.style.transform = ''; }
+        badge.style.opacity = '';
+        overlay.style.background = '';
+        return;
+      }
+
       const viewH   = window.innerHeight;
       const scrollY = window.scrollY;
 

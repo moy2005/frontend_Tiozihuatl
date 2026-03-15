@@ -25,6 +25,9 @@ export class Navbar implements OnInit, OnDestroy {
   cargandoNoticiasMenu = false;
   noticiasPanelVisible = false;
 
+  // ── Menú móvil ──────────────────────────────────────────────────────
+  isMobileMenuOpen = false;
+
   private panelShowTimeout: any;
   private panelHideTimeout: any;
 
@@ -44,6 +47,7 @@ export class Navbar implements OnInit, OnDestroy {
       .subscribe(() => {
         this.verificarAutenticacion();
         this.noticiasPanelVisible = false;
+        this.isMobileMenuOpen = false;
       });
   }
 
@@ -165,5 +169,10 @@ export class Navbar implements OnInit, OnDestroy {
     this.panelHideTimeout = setTimeout(() => {
       this.noticiasPanelVisible = false;
     }, 120);
+  }
+
+  // ── Menú móvil ──────────────────────────────────────────────────────
+  toggleMobileMenu(event: Event) {
+    this.isMobileMenuOpen = (event.target as HTMLInputElement).checked;
   }
 }

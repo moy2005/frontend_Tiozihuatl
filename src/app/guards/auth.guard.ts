@@ -51,7 +51,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private redirectToLogin(msg: string): UrlTree {
-    Swal.fire('Sesión cerrada', msg, 'info');
+    Swal.fire('Autenticación requerida', msg, 'info');
     localStorage.clear();
     return this.router.createUrlTree(['/login']);
   }

@@ -42,7 +42,7 @@ section#inicio .fade-in > span.inline-block:first-child { animation: fadeInDown 
 section#inicio h1 { animation: fadeInLeft .8s ease-out .3s both; }
 section#inicio .fade-in > p { animation: fadeInUp .8s ease-out .5s both; }
 section#inicio > svg { animation: waveSlide 1.2s ease-out; }
-section#inicio > svg path { animation: waveMotion 8s ease-in-out infinite; transform-origin: center; }
+/* La animación infinita de waveMotion ha sido eliminada a petición del usuario para que quede estática de entrada */
 section#inicio > .absolute.inset-0 { animation: bgZoom 20s ease-in-out infinite alternate; }
 .texto{
     font-family: 'Nunito', sans-serif;
