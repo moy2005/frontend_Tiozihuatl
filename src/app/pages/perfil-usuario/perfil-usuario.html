@@ -4,11 +4,10 @@
 
 /* ── RESET & BASE ─────────────────────────────── */
 .perfil-page *, .perfil-page *::before, .perfil-page *::after { box-sizing: border-box; margin: 0; padding: 0; }
-.perfil-page ion-icon { pointer-events: none; display: block; }
 
 .perfil-page {
   font-family: 'Outfit', sans-serif;
-  background: #F2F6FB;
+  background: white;
   min-height: 100vh;
   padding: 5.5rem 1rem 3rem;
   color: #1C2B3A;
@@ -18,120 +17,144 @@
 .pf-wrap { max-width: 960px; margin: 0 auto; }
 
 /* ══════════════════════════════════════════════
-   HERO BANNER
+   HERO BANNER — estilo my-loans
 ══════════════════════════════════════════════ */
 .pf-hero {
-  background: #3FA6E8;
-  border-radius: 18px 18px 0 0;
-  padding: 2.75rem 2.5rem 0;
+  background: linear-gradient(135deg, #3FA6E8, #1E88E5);
+  padding: 4rem 2rem 6rem;
   position: relative;
   overflow: hidden;
+  margin-bottom: 0;
+  border-radius: 18px 18px 0 0;
 }
 
-/* Círculos decorativos — muy sutiles */
-.pf-hero::before {
-  content: '';
-  position: absolute;
-  width: 320px; height: 320px;
-  border-radius: 50%;
-  border: 48px solid rgba(255,255,255,0.04);
-  top: -100px; right: -80px;
-  pointer-events: none;
-}
+.pf-hero::before { display: none; }
+
 .pf-hero::after {
   content: '';
   position: absolute;
-  width: 160px; height: 160px;
-  border-radius: 50%;
-  border: 28px solid rgba(255,255,255,0.035);
-  top: 30px; right: 160px;
-  pointer-events: none;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,0 C150,50 350,50 600,30 C850,10 1050,30 1200,0 L1200,100 L0,100 Z' fill='%23ffffff'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom;
+  z-index: 1;
+  animation: pf-wave 1.2s ease-out;
 }
 
-/* Contenido hero */
-.pf-hero-inner {
-  display: flex;
-  align-items: center;      /* ← centrado vertical, no pegado al fondo */
-  gap: 1.25rem;
+@keyframes pf-wave {
+  from { opacity: 0; transform: translateY(100px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pf-hero-content {
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
   position: relative;
   z-index: 2;
-  padding-bottom: 1.75rem;
+  animation: pf-fadedown 0.8s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Ícono sin fondo ni borde — centrado en el hero */
-.pf-avatar {
-  flex-shrink: 0;
-  margin-bottom: 0;
-  line-height: 0;
-  /* lo empujamos un poco hacia arriba respecto al centro */
-  align-self: flex-end;
-  margin-bottom: -24px;
-}
-.pf-avatar ion-icon {
-  font-size: 7.5rem;
-  color: rgba(255,255,255,0.82);
-  display: block;
-  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.2));
+@keyframes pf-fadedown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Nombre */
-.pf-hero-text {
-  padding-bottom: 0;
-  flex: 1;
+.pf-hero-badge {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pf-scalein 0.6s ease-out 0.2s both;
 }
+
+@keyframes pf-scalein {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.pf-hero-badge i {
+  font-size: 5rem;
+  color: white;
+  line-height: 1;
+}
+
 .pf-hero-name {
-  font-size: clamp(1.55rem, 3.8vw, 2.2rem);
+  font-size: clamp(1.55rem, 3.8vw, 2.75rem);
   font-weight: 800;
-  color: #FFFFFF;
-  line-height: 1.1;
+  color: #ffffff;
+  margin: 0 0 0.4rem 0;
   letter-spacing: -0.02em;
-  margin-bottom: 0.6rem;
+  line-height: 1.1;
 }
+
+.pf-hero-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 1rem 0;
+  font-weight: 400;
+}
+
 .pf-hero-chips {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.45rem;
+  margin-bottom: 1.25rem;
 }
+
 .pf-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.28rem;
-  background: rgba(255,255,255,0.09);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.75);
-  font-size: 0.71rem;
+  gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.72rem;
   font-weight: 600;
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.7rem;
   border-radius: 999px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.pf-chip ion-icon { font-size: 0.72rem; }
 
-/* Botón admin en hero */
-.pf-hero-action {
-  padding-bottom: 0;
-  flex-shrink: 0;
-  align-self: center;
+.pf-chip i {
+  font-size: 0.85rem;
+  line-height: 1;
 }
-.btn-hero-admin {
-  background: rgba(255,255,255,0.09);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.84);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
+
+.pf-hero-admin-btn {
+  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
   transition: background 0.2s;
   white-space: nowrap;
 }
-.btn-hero-admin:hover { background: rgba(255,255,255,0.16); }
-.btn-hero-admin ion-icon { font-size: 0.88rem; }
+
+.pf-hero-admin-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+.pf-hero-admin-btn i {
+  font-size: 0.95rem;
+  line-height: 1;
+}
 
 /* ══════════════════════════════════════════════
    BARRA BLANCA DE TRANSICIÓN
@@ -139,7 +162,7 @@
 .pf-topbar {
   background: #FFFFFF;
   border-bottom: 1px solid #E4EDF6;
-  height: 48px;   /* espacio para el avatar sobreexpuesto */
+  height: 48px;
 }
 
 /* ══════════════════════════════════════════════
@@ -170,6 +193,7 @@
   border-radius: 11px;
   overflow: hidden;
 }
+
 .pf-side-block-title {
   padding: 0.52rem 0.9rem;
   border-bottom: 1px solid #E4EDF6;
@@ -182,7 +206,12 @@
   align-items: center;
   gap: 0.32rem;
 }
-.pf-side-block-title ion-icon { font-size: 0.78rem; }
+
+.pf-side-block-title i {
+  font-size: 0.9rem;
+  line-height: 1;
+  color: #3FA6E8;
+}
 
 .pf-side-row {
   padding: 0.6rem 0.9rem;
@@ -191,7 +220,9 @@
   flex-direction: column;
   gap: 0.08rem;
 }
+
 .pf-side-row:last-child { border-bottom: none; }
+
 .pf-side-label {
   font-size: 0.63rem;
   font-weight: 700;
@@ -199,6 +230,7 @@
   text-transform: uppercase;
   color: #8AAABB;
 }
+
 .pf-side-value {
   font-size: 0.875rem;
   font-weight: 600;
@@ -214,6 +246,7 @@
   border-radius: 11px;
   overflow: hidden;
 }
+
 .pf-pass-title {
   padding: 0.52rem 0.9rem;
   border-bottom: 1px solid #E4EDF6;
@@ -226,7 +259,13 @@
   align-items: center;
   gap: 0.32rem;
 }
-.pf-pass-title ion-icon { font-size: 0.78rem; }
+
+.pf-pass-title i {
+  font-size: 0.9rem;
+  line-height: 1;
+  color: #3FA6E8;
+}
+
 .pf-pass-body {
   padding: 0.9rem;
   display: flex;
@@ -241,6 +280,7 @@
   border-radius: 8px;
   padding: 0.7rem;
 }
+
 .pf-strength-lbl {
   font-size: 0.62rem;
   font-weight: 700;
@@ -249,30 +289,39 @@
   color: #8AAABB;
   margin-bottom: 0.5rem;
 }
+
 .pf-bars { display: flex; gap: 3px; margin-bottom: 0.6rem; }
+
 .pf-bar {
-  flex: 1; height: 4px;
+  flex: 1;
+  height: 4px;
   background: #C8D9EA;
   border-radius: 2px;
   transition: background 0.25s;
 }
+
 .pf-bar.weak   { background: #B85C5C; }
 .pf-bar.medium { background: #C4943A; }
 .pf-bar.strong { background: #3A7A50; }
 
 .pf-checks { display: flex; flex-direction: column; gap: 0.2rem; }
+
 .pf-check {
   display: flex;
   align-items: center;
   gap: 0.36rem;
   font-size: 0.72rem;
   font-weight: 500;
-
   color: #9AB0C0;
   transition: color 0.2s;
 }
+
 .pf-check.ok { color: #3A7A50; }
-.pf-check ion-icon { font-size: 0.76rem; }
+
+.pf-check i {
+  font-size: 0.9rem;
+  line-height: 1;
+}
 
 /* ══════════════════════════════════════════════
    PANEL PRINCIPAL
@@ -291,6 +340,7 @@
   border-bottom: 2px solid #E4EDF6;
   margin-bottom: 1.1rem;
 }
+
 .pf-section-title {
   font-size: 1rem;
   font-weight: 700;
@@ -299,7 +349,12 @@
   align-items: center;
   gap: 0.45rem;
 }
-.pf-section-title ion-icon { font-size: 1.05rem; color: #5A96C8; }
+
+.pf-section-title i {
+  font-size: 1.1rem;
+  color: #3FA6E8;
+  line-height: 1;
+}
 
 /* Aviso */
 .pf-notice {
@@ -312,8 +367,21 @@
   border-radius: 0 6px 6px 0;
   margin-bottom: 1.1rem;
 }
-.pf-notice ion-icon { color: #5A96C8; font-size: 0.88rem; margin-top: 2px; flex-shrink: 0; }
-.pf-notice p { font-size: 0.73rem; color: #3A6080; font-weight: 500; line-height: 1.45; }
+
+.pf-notice i {
+  color: #5A96C8;
+  font-size: 1rem;
+  margin-top: 1px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.pf-notice p {
+  font-size: 0.73rem;
+  color: #3A6080;
+  font-weight: 500;
+  line-height: 1.45;
+}
 
 /* Grid de campos */
 .pf-fields {
@@ -321,16 +389,28 @@
   grid-template-columns: 1fr 1fr;
   gap: 0.9rem 1.1rem;
 }
+
 .pf-field-full { grid-column: 1 / -1; }
 
 .pf-field { display: flex; flex-direction: column; gap: 0.25rem; }
+
 .pf-field-label {
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #8AAABB;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
+
+.pf-field-label i {
+  font-size: 0.85rem;
+  color: #3FA6E8;
+  line-height: 1;
+}
+
 .pf-field-static {
   padding: 0.55rem 0.82rem;
   background: #F2F6FB;
@@ -340,6 +420,7 @@
   font-weight: 500;
   color: #3A5570;
 }
+
 .pf-field-input {
   padding: 0.55rem 0.82rem;
   background: #FFFFFF;
@@ -352,10 +433,11 @@
   width: 100%;
   transition: border-color 0.18s, box-shadow 0.18s;
 }
+
 .pf-field-input:focus {
   outline: none;
-  border-color: #5A96C8;
-  box-shadow: 0 0 0 3px rgba(90,150,200,0.12);
+  border-color: #3FA6E8;
+  box-shadow: 0 0 0 3px rgba(63, 166, 232, 0.12);
 }
 
 /* ══════════════════════════════════════════════
@@ -376,7 +458,12 @@
   transition: all 0.18s;
   white-space: nowrap;
 }
-.pf-btn ion-icon { font-size: 0.9rem; }
+
+.pf-btn i {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
 .pf-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .pf-btn-full { width: 100%; }
 
@@ -416,36 +503,50 @@
   padding: 4.5rem 1rem;
   gap: 1rem;
 }
+
 .pf-spinner {
-  width: 2.25rem; height: 2.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border: 3px solid #DDE8F2;
-  border-top-color: #2A6096;
+  border-top-color: #3FA6E8;
   border-radius: 50%;
   animation: pf-spin 0.7s linear infinite;
 }
+
 @keyframes pf-spin { to { transform: rotate(360deg); } }
+
 .pf-loading p { font-size: 0.84rem; color: #7A94AA; font-weight: 500; }
 
 /* ══════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE HERO
 ══════════════════════════════════════════════ */
+@media (max-width: 760px) {
+  .pf-hero { padding: 3rem 1.5rem 5rem; }
+  .pf-hero-name { font-size: 1.75rem; }
+  .pf-hero::after { height: 60px; }
+  .pf-topbar { height: 42px; }
+}
 
-/* Tablet */
+@media (max-width: 520px) {
+  .pf-hero { padding: 2.5rem 1rem 4rem; }
+  .pf-hero-name { font-size: 1.4rem; }
+  .pf-hero-badge { width: 60px; height: 60px; }
+  .pf-hero-badge i { font-size: 3.5rem; }
+  .pf-hero::after { height: 50px; }
+  .pf-topbar { height: 36px; }
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE GENERAL
+══════════════════════════════════════════════ */
 @media (max-width: 760px) {
   .perfil-page { padding-top: 4.5rem; padding-left: 0.75rem; padding-right: 0.75rem; }
-  .pf-hero { padding: 2rem 1.5rem 0; border-radius: 14px 14px 0 0; }
-  .pf-hero-inner { gap: 1rem; }
-  .pf-avatar ion-icon { font-size: 5.5rem; }
-  .pf-avatar { margin-bottom: -18px; }
-  .pf-hero-action { display: none; }
-  .pf-topbar { height: 42px; }
   .pf-body {
     grid-template-columns: 1fr;
     padding: 1.5rem;
     gap: 1.5rem;
     border-radius: 0 0 14px 14px;
   }
-  /* En tablet/mobile, sidebar en fila */
   .pf-sidebar {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -455,15 +556,8 @@
   .pf-admin-mobile-btn { display: flex !important; }
 }
 
-/* Mobile */
 @media (max-width: 520px) {
   .perfil-page { padding-top: 4.25rem; padding-left: 0.5rem; padding-right: 0.5rem; }
-  .pf-hero { padding: 1.5rem 1rem 0; }
-  .pf-hero-inner { flex-wrap: nowrap; }
-  .pf-hero-name { font-size: 1.25rem; }
-  .pf-avatar ion-icon { font-size: 4.25rem; }
-  .pf-avatar { margin-bottom: -14px; }
-  .pf-topbar { height: 36px; }
   .pf-body { padding: 1rem; gap: 1.25rem; }
   .pf-sidebar { grid-template-columns: 1fr; }
   .pf-pass-block { grid-column: 1; }
@@ -487,37 +581,41 @@
 
     <!-- ═══════════ HERO ═══════════ -->
     <div class="pf-hero">
-      <div class="pf-hero-inner">
+      <div class="pf-hero-content">
 
-        <!-- Ícono plano — sin fondo ni borde, sobresale hacia abajo -->
-        <div class="pf-avatar">
-          <ion-icon name="person-outline"></ion-icon>
+        <div class="pf-hero-badge">
+          <i class="{{ iconoPorRol }}"></i>
         </div>
 
-        <!-- Nombre + chips -->
-        <div class="pf-hero-text">
-          <h1 class="pf-hero-name">
-            {{ user.nombre }} {{ user.a_paterno }} {{ user.a_materno }}
-          </h1>
-          <div class="pf-hero-chips">
-            <span class="pf-chip">
-              <ion-icon name="shield-checkmark-outline"></ion-icon>
-              {{ user.rol }}
-            </span>
-            <span *ngIf="user.matricula" class="pf-chip">
-              <ion-icon name="id-card-outline"></ion-icon>
-              {{ user.matricula }}
-            </span>
-          </div>
+        <h1 class="pf-hero-name">
+          {{ user.nombre }} {{ user.a_paterno }} {{ user.a_materno }}
+        </h1>
+
+        <p class="pf-hero-subtitle">
+         Matricula: {{ user.matricula || 'Sin matricula registrado' }}
+        </p>
+
+        <div class="pf-hero-chips">
+          <span class="pf-chip">
+            <i class="ph ph-shield-check"></i>
+            {{ user.rol }}
+          </span>
+          <span *ngIf="user.carrera" class="pf-chip">
+            <i class="ph ph-graduation-cap"></i>
+            {{ user.carrera }}
+          </span>
+          <span *ngIf="user.semestre" class="pf-chip">
+            <i class="ph ph-books"></i>
+            {{ user.semestre }}
+          </span>
         </div>
 
-        <!-- Botón admin (solo desktop) -->
-        <div *ngIf="user.rol === 'Administrador'" class="pf-hero-action">
-          <button (click)="irPanelAdmin()" class="btn-hero-admin">
-            <ion-icon name="settings-outline"></ion-icon>
-            Panel de administración
-          </button>
-        </div>
+        <button *ngIf="user.rol === 'Administrador'"
+                (click)="irPanelAdmin()"
+                class="pf-hero-admin-btn">
+          <i class="ph ph-gear"></i>
+          Panel de administración
+        </button>
 
       </div>
     </div>
@@ -534,7 +632,7 @@
         <!-- Datos de cuenta -->
         <div class="pf-side-block">
           <div class="pf-side-block-title">
-            <ion-icon name="card-outline"></ion-icon>
+            <i class="ph ph-credit-card"></i>
             Cuenta
           </div>
           <div class="pf-side-row">
@@ -551,24 +649,28 @@
           </div>
         </div>
 
-       
-
         <!-- Contraseña -->
         <div class="pf-pass-block">
           <div class="pf-pass-title">
-            <ion-icon name="lock-closed-outline"></ion-icon>
+            <i class="ph ph-lock-key"></i>
             Cambiar contraseña
           </div>
           <div class="pf-pass-body">
 
             <div class="pf-field">
-              <label class="pf-field-label">Contraseña actual</label>
+              <label class="pf-field-label">
+                <i class="ph ph-lock-simple"></i>
+                Contraseña actual
+              </label>
               <input type="password" [(ngModel)]="contrasenaActual"
                      class="pf-field-input" placeholder="••••••••" />
             </div>
 
             <div class="pf-field">
-              <label class="pf-field-label">Nueva contraseña</label>
+              <label class="pf-field-label">
+                <i class="ph ph-lock-key-open"></i>
+                Nueva contraseña
+              </label>
               <input type="password" [(ngModel)]="nuevaContrasena"
                      (input)="onPasswordInput()"
                      class="pf-field-input" placeholder="••••••••" />
@@ -583,23 +685,23 @@
               </div>
               <div class="pf-checks">
                 <div class="pf-check" [class.ok]="hasLowercase()">
-                  <ion-icon [name]="hasLowercase() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  <i [class]="hasLowercase() ? 'ph ph-check-circle' : 'ph ph-circle'"></i>
                   Minúsculas
                 </div>
                 <div class="pf-check" [class.ok]="hasUppercase()">
-                  <ion-icon [name]="hasUppercase() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  <i [class]="hasUppercase() ? 'ph ph-check-circle' : 'ph ph-circle'"></i>
                   Mayúsculas
                 </div>
                 <div class="pf-check" [class.ok]="hasNumber()">
-                  <ion-icon [name]="hasNumber() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  <i [class]="hasNumber() ? 'ph ph-check-circle' : 'ph ph-circle'"></i>
                   Números
                 </div>
                 <div class="pf-check" [class.ok]="hasSpecialChar()">
-                  <ion-icon [name]="hasSpecialChar() ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  <i [class]="hasSpecialChar() ? 'ph ph-check-circle' : 'ph ph-circle'"></i>
                   Caracteres especiales
                 </div>
                 <div class="pf-check" [class.ok]="nuevaContrasena.length >= 8">
-                  <ion-icon [name]="nuevaContrasena.length >= 8 ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  <i [class]="nuevaContrasena.length >= 8 ? 'ph ph-check-circle' : 'ph ph-circle'"></i>
                   8 caracteres mínimo
                 </div>
               </div>
@@ -608,7 +710,7 @@
             <button (click)="cambiarContrasena()"
                     [disabled]="cargando || !validarPasswordFuerte()"
                     class="pf-btn pf-btn-primary pf-btn-full">
-              <ion-icon name="sync-outline"></ion-icon>
+              <i class="ph ph-arrows-clockwise"></i>
               {{ cargando ? 'Actualizando...' : 'Actualizar contraseña' }}
             </button>
 
@@ -626,7 +728,7 @@
              class="pf-admin-mobile-btn"
              style="display:none;">
           <button (click)="irPanelAdmin()" class="pf-btn pf-btn-primary pf-btn-full">
-            <ion-icon name="settings-outline"></ion-icon>
+            <i class="ph ph-gear"></i>
             Panel de administración
           </button>
         </div>
@@ -635,17 +737,17 @@
         <div>
           <div class="pf-section-head">
             <span class="pf-section-title">
-              <ion-icon name="id-card-outline"></ion-icon>
+              <i class="ph ph-identification-card"></i>
               Información personal
             </span>
             <div style="display:flex; gap:0.45rem; flex-wrap:wrap;">
               <button *ngIf="!editando" (click)="habilitarEdicion()" class="pf-btn pf-btn-outline">
-                <ion-icon name="create-outline"></ion-icon>
+                <i class="ph ph-pencil-simple"></i>
                 Editar
               </button>
               <ng-container *ngIf="editando">
                 <button (click)="guardarCambios()" [disabled]="cargando" class="pf-btn pf-btn-save">
-                  <ion-icon name="checkmark-outline"></ion-icon>
+                  <i class="ph ph-check"></i>
                   Guardar
                 </button>
                 <button (click)="editando = false" class="pf-btn pf-btn-ghost">
@@ -656,14 +758,17 @@
           </div>
 
           <div class="pf-notice">
-            <ion-icon name="information-circle-outline"></ion-icon>
+            <i class="ph ph-info"></i>
             <p>Los campos con fondo gris son gestionados por la institución y no pueden editarse directamente.</p>
           </div>
 
           <div class="pf-fields">
 
             <div *ngIf="mostrarCampo('nombre')" class="pf-field">
-              <label class="pf-field-label">Nombre</label>
+              <label class="pf-field-label">
+                <i class="ph ph-user"></i>
+                Nombre
+              </label>
               <input *ngIf="editando && editable('nombre')" type="text"
                      [(ngModel)]="user.nombre" class="pf-field-input" placeholder="Tu nombre" />
               <div *ngIf="!editando || !editable('nombre')" class="pf-field-static">
@@ -672,7 +777,10 @@
             </div>
 
             <div *ngIf="mostrarCampo('a_paterno')" class="pf-field">
-              <label class="pf-field-label">Apellido paterno</label>
+              <label class="pf-field-label">
+                <i class="ph ph-user"></i>
+                Apellido paterno
+              </label>
               <input *ngIf="editando && editable('a_paterno')" type="text"
                      [(ngModel)]="user.a_paterno" class="pf-field-input" placeholder="Apellido paterno" />
               <div *ngIf="!editando || !editable('a_paterno')" class="pf-field-static">
@@ -681,7 +789,10 @@
             </div>
 
             <div *ngIf="mostrarCampo('a_materno')" class="pf-field">
-              <label class="pf-field-label">Apellido materno</label>
+              <label class="pf-field-label">
+                <i class="ph ph-user"></i>
+                Apellido materno
+              </label>
               <input *ngIf="editando && editable('a_materno')" type="text"
                      [(ngModel)]="user.a_materno" class="pf-field-input" placeholder="Apellido materno" />
               <div *ngIf="!editando || !editable('a_materno')" class="pf-field-static">
@@ -690,7 +801,10 @@
             </div>
 
             <div *ngIf="mostrarCampo('correo')" class="pf-field">
-              <label class="pf-field-label">Correo electrónico</label>
+              <label class="pf-field-label">
+                <i class="ph ph-envelope-simple"></i>
+                Correo electrónico
+              </label>
               <input *ngIf="editando && editable('correo')" type="email"
                      [(ngModel)]="user.correo" class="pf-field-input" placeholder="correo@ejemplo.com" />
               <div *ngIf="!editando || !editable('correo')" class="pf-field-static">
@@ -699,7 +813,10 @@
             </div>
 
             <div *ngIf="mostrarCampo('telefono')" class="pf-field">
-              <label class="pf-field-label">Teléfono de contacto</label>
+              <label class="pf-field-label">
+                <i class="ph ph-phone"></i>
+                Teléfono de contacto
+              </label>
               <input *ngIf="editando && editable('telefono')" type="tel"
                      [(ngModel)]="user.telefono" class="pf-field-input" placeholder="Número de teléfono" />
               <div *ngIf="!editando || !editable('telefono')" class="pf-field-static">
@@ -708,17 +825,26 @@
             </div>
 
             <div *ngIf="mostrarCampo('matricula')" class="pf-field">
-              <label class="pf-field-label">Matrícula</label>
+              <label class="pf-field-label">
+                <i class="ph ph-identification-badge"></i>
+                Matrícula
+              </label>
               <div class="pf-field-static">{{ user.matricula || '—' }}</div>
             </div>
 
             <div *ngIf="mostrarCampo('carrera')" class="pf-field pf-field-full">
-              <label class="pf-field-label">Carrera</label>
+              <label class="pf-field-label">
+                <i class="ph ph-graduation-cap"></i>
+                Carrera
+              </label>
               <div class="pf-field-static">{{ user.carrera || '—' }}</div>
             </div>
 
             <div *ngIf="mostrarCampo('semestre')" class="pf-field">
-              <label class="pf-field-label">Semestre</label>
+              <label class="pf-field-label">
+                <i class="ph ph-books"></i>
+                Semestre
+              </label>
               <div class="pf-field-static">
                 {{ user.semestre ? user.semestre : '—' }}
               </div>

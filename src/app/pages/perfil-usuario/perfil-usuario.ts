@@ -27,6 +27,17 @@ export class PerfilUsuarioComponent implements OnInit {
     this.obtenerPerfil();
   }
 
+  get iconoPorRol(): string {
+  switch (this.user.rol) {
+    case 'Administrador':  return 'ph ph-user';
+    case 'Docente':        return 'ph ph-chalkboard-teacher';
+    case 'Bibliotecario':  return 'ph ph-books';
+    case 'Alumno':         return 'ph ph-student';
+    case 'Visitante':      return 'ph ph-user';
+    default:               return 'ph ph-user';
+  }
+}
+
   /** 🧠 Obtener datos del perfil */
   async obtenerPerfil() {
     this.cargando = true;

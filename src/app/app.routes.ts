@@ -39,6 +39,7 @@ import { GestionAboutComponent } from './pages/admin/gestion-about/gestion-about
 import { GestionRevistasComponent } from './pages/admin/gestion-revistas/gestion-revistas.component';
 import { MyPurchases } from './pages/my-purchases/my-purchases';
 import { MonitoreoComponent } from './pages/admin/monitoreo/monitoreo';
+import { MyLoans } from './pages/my-loans/my-loans';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -72,6 +73,7 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard] },
   { path: 'my-purchases', component: MyPurchases, canActivate: [AuthGuard] },
+  { path: 'my-loans', component: MyLoans, canActivate: [AuthGuard] },
   { path: 'biblioteca/libro/:id', component: VisorLibroComponent, canActivate: [AuthGuard], data: { roles: ['Alumno', 'Administrador', 'Docente', 'Bibliotecario'] }},
 
   // Panel de administrador con rutas anidadas

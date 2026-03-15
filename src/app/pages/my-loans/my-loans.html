@@ -1,0 +1,130 @@
+<!-- Hero Section -->
+<div class="hero-section">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <i class="ph ph-book"></i>
+    </div>
+    <h1 class="hero-title">Mis Préstamos</h1>
+    <p class="hero-subtitle">Gestiona tus libros actualmente en préstamo y el historial reciente.</p>
+  </div>
+</div>
+
+<div class="loans-page">
+
+  <!-- Filtros -->
+  <div class="loans-filters">
+    <div class="loans-filter-bar">
+      <button
+        *ngFor="let f of filtrosDisponibles"
+        (click)="cambiarFiltro(f)"
+        class="loans-filter-btn"
+        [class.active]="filtroActual === f">
+        {{ f }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading — skeletons -->
+  <div *ngIf="cargando" class="loans-loading-grid">
+    <div class="loans-skeleton" *ngFor="let i of [1,2,3,4]">
+      <div class="skeleton-cover"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-badge"></div>
+        <div class="skeleton-title long"></div>
+        <div class="skeleton-title short"></div>
+        <div class="skeleton-line w-full"></div>
+        <div class="skeleton-line w-3-4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!cargando && mensajeError" class="loans-error">
+    <i class="ph ph-warning-circle"></i>
+    <p>{{ mensajeError }}</p>
+    <button class="loans-error-btn" (click)="cargarMisPrestamos()">Reintentar</button>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!cargando && !mensajeError && prestamosFiltrados.length === 0"
+       class="loans-empty">
+    <div class="loans-empty-icon">
+      <i class="ph ph-books"></i>
+    </div>
+    <h2>No hay préstamos para mostrar</h2>
+    <p>No se encontraron libros prestados en esta categoría.</p>
+    
+  </div>
+
+  <!-- Grid de préstamos -->
+  <div *ngIf="!cargando && !mensajeError && prestamosFiltrados.length > 0"
+       class="loans-grid">
+
+    <article
+      *ngFor="let p of prestamosFiltrados"
+      class="loan-card card-transition"
+      [class.devuelto]="p.estado.toLowerCase() === 'devuelto'">
+
+      <!-- Portada -->
+      <div class="loan-cover-wrap"
+           [class.devuelto]="p.estado.toLowerCase() === 'devuelto'">
+        <div *ngIf="p.previewUrl; else placeholder" class="loan-cover-img">
+          <img [src]="p.previewUrl" alt="Portada">
+        </div>
+        <ng-template #placeholder>
+          <div class="loan-cover-placeholder">
+            <i class="ph ph-book-open-text"></i>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="loan-body">
+
+        <!-- Badge + menú -->
+        <div class="loan-top">
+          <span class="loan-badge activo"    *ngIf="p.estado.toLowerCase() === 'activo'">Activo</span>
+          <span class="loan-badge vencido"   *ngIf="p.estado.toLowerCase() === 'vencido'">Vencido</span>
+          <span class="loan-badge devuelto"  *ngIf="p.estado.toLowerCase() === 'devuelto'">Devuelto</span>
+          <span class="loan-badge cancelado" *ngIf="p.estado.toLowerCase() === 'cancelado'">Cancelado</span>
+          <button class="loan-menu-btn">
+            <i class="ph ph-dots-three"></i>
+          </button>
+        </div>
+
+        <!-- Título -->
+        <h3 class="loan-title" [title]="p.titulo">
+          {{ p.titulo || 'Libro Desconocido' }}
+        </h3>
+
+        <!-- Fechas -->
+        <div class="loan-dates">
+          <div class="loan-date-row">
+            <span class="loan-date-label">Prestado:</span>
+            <span class="loan-date-value">{{ formatearFecha(p.fecha_prestamo) }}</span>
+          </div>
+          <div class="loan-date-row" *ngIf="p.estado.toLowerCase() !== 'devuelto'">
+            <span class="loan-date-label">Devolver:</span>
+            <span class="loan-date-value"
+                  [class.vencido]="p.estado.toLowerCase() === 'vencido'">
+              {{ formatearFecha(p.fecha_vencimiento) }}
+            </span>
+          </div>
+          <div class="loan-date-row"
+               *ngIf="p.estado.toLowerCase() === 'devuelto' && p.fecha_devolucion">
+            <span class="loan-date-label">Devuelto:</span>
+            <span class="loan-date-value muted">{{ formatearFecha(p.fecha_devolucion) }}</span>
+          </div>
+        </div>
+
+        <!-- Observaciones -->
+        <div class="loan-obs" *ngIf="p.observaciones" [title]="p.observaciones">
+          <i class="ph ph-fill ph-info"></i>{{ p.observaciones }}
+        </div>
+
+      </div>
+    </article>
+
+  </div>
+
+</div>
