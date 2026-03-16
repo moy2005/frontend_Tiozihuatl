@@ -16,7 +16,7 @@ import { UserProfileService } from '../../api/services/user-profile.service';
 })
 export class PerfilUsuarioComponent implements OnInit {
   user: any = {};
-  cargando = false;
+  cargando = true;
   editando = false;
   contrasenaActual = '';
   nuevaContrasena = '';

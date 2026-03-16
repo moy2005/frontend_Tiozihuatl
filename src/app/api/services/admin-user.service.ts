@@ -129,4 +129,13 @@ getOpcionesPorPeriodo(id_periodo: number | string): Observable<{ semestres: any[
   });
 }
 
+/** Regenerar token de activación */
+regenerarToken(id_usuario: number): Observable<any> {
+  return this.http.post(
+    `${this.api}/regenerar-token/${id_usuario}`,
+    {},
+    { headers: this.getAuthHeaders() }
+  );
+}
+
 }

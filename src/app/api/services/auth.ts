@@ -136,4 +136,18 @@ export class AuthService {
   resetPassword(payload: { token: string; nuevaContrasena: string }) {
     return this.http.post(`${this.api}/password/reset`, payload);
   }
+
+  /** Verificar token de activación antes de mostrar formulario */
+verifyActivationToken(token: string): Observable<any> {
+  return this.http.get(`${this.api}/auth/activate-account?token=${token}`);
+}
+
+/** Activar cuenta con token + contraseña */
+activateAccount(payload: {
+  token: string;
+  password: string;
+  confirm_password: string;
+}): Observable<any> {
+  return this.http.post(`${this.api}/auth/activate-account`, payload);
+}
 }

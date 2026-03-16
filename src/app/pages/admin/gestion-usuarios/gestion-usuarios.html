@@ -27,18 +27,15 @@
     </div>
 
     <!-- ══════════════════════════════════════════════════════
-         FILTROS INLINE MEJORADOS
+         FILTROS INLINE
     ══════════════════════════════════════════════════════ -->
     <div class="filtros-section">
 
-      <!-- Cabecera de filtros -->
       <div class="filtros-header">
         <div class="filtros-titulo">
           <ion-icon name="funnel-outline"></ion-icon>
           <span>Filtrar usuarios</span>
-          <span *ngIf="filtrosActivos" class="filtros-badge-count">
-            {{ usuarios.length }}
-          </span>
+          <span *ngIf="filtrosActivos" class="filtros-badge-count">{{ usuarios.length }}</span>
         </div>
         <div class="flex items-center gap-2">
           <button *ngIf="filtrosActivos" (click)="limpiarFiltros()" class="filtros-limpiar">
@@ -52,73 +49,45 @@
         </div>
       </div>
 
-      <!-- Grid de filtros -->
       <div *ngIf="filtrosExpandidos" class="filtros-body">
         <div class="filtros-grid">
-
-          <!-- Rol -->
           <div class="filtro-item">
-            <label class="filtro-label">
-              <ion-icon name="person-outline"></ion-icon>
-              Rol
-            </label>
+            <label class="filtro-label"><ion-icon name="person-outline"></ion-icon> Rol</label>
             <select [(ngModel)]="filtros.rol" (change)="aplicarFiltros()" class="filtro-select">
               <option value="">Todos los roles</option>
               <option *ngFor="let r of roles" [value]="r.nombre_rol">{{ r.nombre_rol }}</option>
             </select>
           </div>
-
-          <!-- Carrera -->
           <div class="filtro-item">
-            <label class="filtro-label">
-              <ion-icon name="school-outline"></ion-icon>
-              Carrera
-            </label>
+            <label class="filtro-label"><ion-icon name="school-outline"></ion-icon> Carrera</label>
             <select [(ngModel)]="filtros.id_carrera" (change)="aplicarFiltros()" class="filtro-select">
               <option value="">Todas las carreras</option>
               <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
             </select>
           </div>
-
-          <!-- Periodo -->
           <div class="filtro-item">
-            <label class="filtro-label">
-              <ion-icon name="calendar-outline"></ion-icon>
-              Periodo
-            </label>
+            <label class="filtro-label"><ion-icon name="calendar-outline"></ion-icon> Periodo</label>
             <select [(ngModel)]="filtros.id_periodo" (change)="onPeriodoFiltroChange()" class="filtro-select">
               <option value="">Todos los periodos</option>
               <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
             </select>
           </div>
-
-          <!-- Semestre -->
           <div class="filtro-item">
-            <label class="filtro-label">
-              <ion-icon name="layers-outline"></ion-icon>
-              Semestre
-            </label>
+            <label class="filtro-label"><ion-icon name="layers-outline"></ion-icon> Semestre</label>
             <select [(ngModel)]="filtros.id_semestre" (change)="aplicarFiltros()" class="filtro-select">
               <option value="">Todos los semestres</option>
               <option *ngFor="let s of semestresFiltro" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
             </select>
           </div>
-
-          <!-- Grupo -->
           <div class="filtro-item">
-            <label class="filtro-label">
-              <ion-icon name="people-circle-outline"></ion-icon>
-              Grupo
-            </label>
+            <label class="filtro-label"><ion-icon name="people-circle-outline"></ion-icon> Grupo</label>
             <select [(ngModel)]="filtros.grupo" (change)="aplicarFiltros()" class="filtro-select">
               <option value="">Todos los grupos</option>
               <option *ngFor="let g of gruposFiltro" [value]="g">Grupo {{ g }}</option>
             </select>
           </div>
-
         </div>
 
-        <!-- Tags de filtros activos -->
         <div *ngIf="filtrosActivos" class="filtros-activos-tags">
           <span class="filtros-activos-label">
             <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -152,7 +121,6 @@
         </div>
       </div>
 
-      <!-- Banner resultado (cuando hay filtros y panel cerrado) -->
       <div *ngIf="filtrosActivos && !filtrosExpandidos" class="filter-banner">
         <ion-icon name="funnel-outline"></ion-icon>
         <span>Mostrando <strong>{{ usuariosPaginados.length }}</strong> usuario(s) con filtros activos</span>
@@ -177,13 +145,10 @@
     ══════════════════════════════════════════════════════ -->
     <div *ngIf="!cargando" class="content-card overflow-hidden">
 
-      <!-- Sin resultados -->
       <div *ngIf="usuarios.length === 0" class="text-center py-16">
         <ion-icon name="people-outline" style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
         <p style="color:#64748B; font-weight:500;">No se encontraron usuarios</p>
-        <p *ngIf="filtrosActivos" style="color:#94A3B8; font-size:0.875rem; margin-top:0.25rem;">
-          Intenta ajustar los filtros
-        </p>
+        <p *ngIf="filtrosActivos" style="color:#94A3B8; font-size:0.875rem; margin-top:0.25rem;">Intenta ajustar los filtros</p>
       </div>
 
       <!-- Desktop -->
@@ -227,8 +192,13 @@
                 <span *ngIf="!u.semestre && !u.grupo" style="color:#CBD5E1;">—</span>
               </td>
               <td class="td-cell">
-                <span class="badge-estado" [ngClass]="u.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
-                  {{ u.estado }}
+                <span class="badge-estado"
+                  [ngClass]="{
+                    'badge-activo'   : u.estado === 'Activo',
+                    'badge-inactivo' : u.estado === 'Inactivo',
+                    'badge-pending'  : u.estado === 'pending_activation'
+                  }">
+                  {{ u.estado === 'pending_activation' ? 'Pendiente' : u.estado }}
                 </span>
               </td>
               <td class="td-cell">
@@ -247,6 +217,10 @@
                     class="btn-icon btn-icon-success" title="Activar usuario">
                     <ion-icon name="checkmark-circle-outline"></ion-icon>
                   </button>
+                  <button *ngIf="u.estado === 'pending_activation'" (click)="regenerarToken(u)"
+                    class="btn-icon btn-icon-warning" title="Regenerar token de activación">
+                    <ion-icon name="key-outline"></ion-icon>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -261,14 +235,19 @@
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-xs font-semibold text-gray-500">ID: {{ u.id_usuario }}</span>
-                <span class="badge-estado" [ngClass]="u.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
-                  {{ u.estado }}
+                <span class="badge-estado"
+                  [ngClass]="{
+                    'badge-activo'   : u.estado === 'Activo',
+                    'badge-inactivo' : u.estado === 'Inactivo',
+                    'badge-pending'  : u.estado === 'pending_activation'
+                  }">
+                  {{ u.estado === 'pending_activation' ? 'Pendiente' : u.estado }}
                 </span>
               </div>
               <h4 class="text-lg font-bold text-gray-900">{{ u.nombre }} {{ u.a_paterno }} {{ u.a_materno }}</h4>
               <ng-container *ngIf="filtros.rol === 'Alumno'">
                 <div class="grid grid-cols-2 gap-2 mt-2 text-sm">
-                  <div class="col-span-2 bg-blue-50 border border-blue-200">
+                  <div class="col-span-2 bg-blue-50 border border-blue-200 p-2 rounded">
                     <span class="text-xs text-blue-600 block">Matrícula</span>
                     <span class="font-medium text-blue-800">{{ u.matricula || '—' }}</span>
                   </div>
@@ -312,6 +291,10 @@
               class="btn-icon-mobile btn-icon-success flex-1">
               <ion-icon name="checkmark-circle-outline"></ion-icon><span>Activar</span>
             </button>
+            <button *ngIf="u.estado === 'pending_activation'" (click)="regenerarToken(u)"
+              class="btn-icon-mobile btn-icon-warning flex-1">
+              <ion-icon name="key-outline"></ion-icon><span>Token</span>
+            </button>
           </div>
         </div>
       </div>
@@ -322,7 +305,6 @@
       <div *ngIf="mostrarModalAvanzar" class="modal-overlay" (click)="cerrarModalAvanzar()">
         <div class="modal-container modal-avanzar" (click)="$event.stopPropagation()">
 
-          <!-- Header -->
           <div class="modal-header modal-header-warning">
             <div class="modal-header-left">
               <div class="modal-icon-wrapper modal-icon-warning">
@@ -333,7 +315,6 @@
                 <p class="modal-subtitle">Paso {{ pasoAvanzar }} de 2 — {{ pasoAvanzar === 1 ? 'Selección de periodos' : 'Asignación de acciones' }}</p>
               </div>
             </div>
-            <!-- Stepper -->
             <div class="modal-stepper">
               <div class="stepper-step" [ngClass]="pasoAvanzar >= 1 ? 'stepper-active' : ''">
                 <span class="stepper-num">1</span>
@@ -352,14 +333,9 @@
 
           <div class="modal-body">
 
-            <!-- ── PASO 1: Seleccionar periodos ── -->
             <div *ngIf="pasoAvanzar === 1">
-
-              <!-- Aviso informativo -->
               <div class="avanzar-info-box">
-                <div class="avanzar-info-icon">
-                  <ion-icon name="information-circle-outline"></ion-icon>
-                </div>
+                <div class="avanzar-info-icon"><ion-icon name="information-circle-outline"></ion-icon></div>
                 <div class="avanzar-info-content">
                   <p class="avanzar-info-titulo">¿Cómo funciona?</p>
                   <p class="avanzar-info-texto">
@@ -370,15 +346,10 @@
                 </div>
               </div>
 
-              <!-- Selección de periodos -->
               <div class="avanzar-periodos-grid">
-
-                <!-- Periodo origen -->
                 <div class="avanzar-periodo-card avanzar-periodo-origen">
                   <div class="avanzar-periodo-header">
-                    <div class="avanzar-periodo-icono origen">
-                      <ion-icon name="archive-outline"></ion-icon>
-                    </div>
+                    <div class="avanzar-periodo-icono origen"><ion-icon name="archive-outline"></ion-icon></div>
                     <div>
                       <p class="avanzar-periodo-titulo">Periodo Origen</p>
                       <p class="avanzar-periodo-desc">Periodo a cerrar</p>
@@ -387,8 +358,7 @@
                   <select [(ngModel)]="avanzarData.id_periodo_origen" class="form-input avanzar-select">
                     <option value="">Seleccionar periodo...</option>
                     <option *ngFor="let p of periodos" [value]="p.id_periodo">
-                      {{ p.nombre }}
-                      <ng-container *ngIf="p.estado === 'Activo'"> — Activo</ng-container>
+                      {{ p.nombre }}<ng-container *ngIf="p.estado === 'Activo'"> — Activo</ng-container>
                     </option>
                   </select>
                   <p class="avanzar-periodo-hint">
@@ -397,17 +367,11 @@
                   </p>
                 </div>
 
-                <!-- Flecha central -->
-                <div class="avanzar-flecha">
-                  <ion-icon name="arrow-forward-outline"></ion-icon>
-                </div>
+                <div class="avanzar-flecha"><ion-icon name="arrow-forward-outline"></ion-icon></div>
 
-                <!-- Periodo destino -->
                 <div class="avanzar-periodo-card avanzar-periodo-destino">
                   <div class="avanzar-periodo-header">
-                    <div class="avanzar-periodo-icono destino">
-                      <ion-icon name="enter-outline"></ion-icon>
-                    </div>
+                    <div class="avanzar-periodo-icono destino"><ion-icon name="enter-outline"></ion-icon></div>
                     <div>
                       <p class="avanzar-periodo-titulo">Periodo Destino</p>
                       <p class="avanzar-periodo-desc">Periodo nuevo</p>
@@ -415,11 +379,9 @@
                   </div>
                   <select [(ngModel)]="avanzarData.id_periodo_destino" class="form-input avanzar-select">
                     <option value="">Seleccionar periodo...</option>
-                    <option *ngFor="let p of periodos"
-                      [value]="p.id_periodo"
+                    <option *ngFor="let p of periodos" [value]="p.id_periodo"
                       [disabled]="p.id_periodo == avanzarData.id_periodo_origen">
-                      {{ p.nombre }}
-                      <ng-container *ngIf="p.estado === 'Activo'"> — Activo</ng-container>
+                      {{ p.nombre }}<ng-container *ngIf="p.estado === 'Activo'"> — Activo</ng-container>
                     </option>
                   </select>
                   <p class="avanzar-periodo-hint">
@@ -427,14 +389,10 @@
                     Periodo al que pasarán los alumnos.
                   </p>
                 </div>
-
               </div>
             </div>
 
-            <!-- ── PASO 2: Checklist de alumnos ── -->
             <div *ngIf="pasoAvanzar === 2">
-
-              <!-- Resumen de periodos seleccionados -->
               <div class="avanzar-resumen-periodos">
                 <div class="avanzar-resumen-chip origen">
                   <ion-icon name="archive-outline"></ion-icon>
@@ -451,7 +409,6 @@
                 </div>
               </div>
 
-              <!-- Acciones masivas -->
               <div class="avanzar-acciones-masivas">
                 <span class="avanzar-acciones-label">
                   <ion-icon name="flash-outline"></ion-icon>
@@ -459,21 +416,17 @@
                 </span>
                 <div class="avanzar-acciones-btns">
                   <button (click)="toggleTodosAvanzar('AVANZAR')" class="accion-masiva-btn accion-avanzar">
-                    <ion-icon name="arrow-up-circle-outline"></ion-icon>
-                    Todos avanzan
+                    <ion-icon name="arrow-up-circle-outline"></ion-icon>Todos avanzan
                   </button>
                   <button (click)="toggleTodosAvanzar('REPETIR')" class="accion-masiva-btn accion-repetir">
-                    <ion-icon name="refresh-circle-outline"></ion-icon>
-                    Todos repiten
+                    <ion-icon name="refresh-circle-outline"></ion-icon>Todos repiten
                   </button>
                   <button (click)="toggleTodosAvanzar('BAJA')" class="accion-masiva-btn accion-baja">
-                    <ion-icon name="remove-circle-outline"></ion-icon>
-                    Todos de baja
+                    <ion-icon name="remove-circle-outline"></ion-icon>Todos de baja
                   </button>
                 </div>
               </div>
 
-              <!-- Tabla de alumnos -->
               <div class="avanzar-tabla-wrapper">
                 <table class="avanzar-tabla">
                   <thead>
@@ -513,7 +466,6 @@
                 </table>
               </div>
 
-              <!-- Resumen de contadores -->
               <div class="avanzar-contadores">
                 <div class="contador-chip contador-avanzar">
                   <ion-icon name="arrow-up-circle-outline"></ion-icon>
@@ -528,19 +480,15 @@
                   <span><strong>{{ countAccion('BAJA') }}</strong> de baja</span>
                 </div>
               </div>
-
             </div>
           </div>
 
-          <!-- Footer dinámico por paso -->
           <div class="modal-footer">
             <ng-container *ngIf="pasoAvanzar === 1">
               <button (click)="cerrarModalAvanzar()" class="btn-secondary">
-                <ion-icon name="close-outline"></ion-icon>
-                Cancelar
+                <ion-icon name="close-outline"></ion-icon> Cancelar
               </button>
-              <button
-                (click)="cargarPreviewAvance()"
+              <button (click)="cargarPreviewAvance()"
                 [disabled]="cargandoPreview || !avanzarData.id_periodo_origen || !avanzarData.id_periodo_destino"
                 class="btn-primary flex items-center gap-2">
                 <div *ngIf="cargandoPreview" class="loading-spinner-sm"></div>
@@ -549,14 +497,11 @@
                 <ion-icon *ngIf="!cargandoPreview" name="arrow-forward-outline"></ion-icon>
               </button>
             </ng-container>
-
             <ng-container *ngIf="pasoAvanzar === 2">
               <button (click)="pasoAvanzar = 1" class="btn-secondary">
-                <ion-icon name="arrow-back-outline"></ion-icon>
-                Atrás
+                <ion-icon name="arrow-back-outline"></ion-icon> Atrás
               </button>
-              <button
-                (click)="ejecutarAvanzarSemestre()"
+              <button (click)="ejecutarAvanzarSemestre()"
                 [disabled]="cargandoAvanzar || alumnosParaAvance.length === 0"
                 class="btn-danger flex items-center gap-2">
                 <div *ngIf="cargandoAvanzar" class="loading-spinner-sm"></div>
@@ -568,7 +513,6 @@
 
         </div>
       </div>
-
 
       <!-- ════════════════════════════════════════════════════════
            MODAL: CREAR / EDITAR USUARIO
@@ -618,8 +562,8 @@
 
               <div class="form-group" *ngIf="!editando">
                 <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('contrasena')}">Contraseña *</label>
-                <input [(ngModel)]="nuevoUsuario.contrasena" placeholder="Exactamente 8 caracteres"
-                  type="password" minlength="8" maxlength="8"
+                <input [(ngModel)]="nuevoUsuario.contrasena" placeholder="Mínimo 8 caracteres"
+                  type="password" minlength="8"
                   [disabled]="!campoActivo('contrasena')" class="form-input" />
               </div>
 
@@ -633,7 +577,7 @@
                   </div>
                 </div>
                 <input [(ngModel)]="nuevaContrasena" placeholder="Ingresa una nueva contraseña para cambiarla"
-                  type="password" minlength="8" maxlength="8" class="form-input" />
+                  type="password" minlength="8" class="form-input" />
                 <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
                   <ion-icon name="information-circle-outline" class="text-sm"></ion-icon>
                   Dejar vacío para mantener la contraseña actual
@@ -705,7 +649,6 @@
         </div>
       </div>
 
-
       <!-- ════════════════════════════════════════════════════════
            MODAL: VER DETALLES
       ════════════════════════════════════════════════════════ -->
@@ -747,8 +690,13 @@
               </div>
               <div class="detail-item">
                 <span class="detail-label">Estado</span>
-                <span class="badge-estado" [ngClass]="usuarioSeleccionado.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
-                  {{ usuarioSeleccionado.estado }}
+                <span class="badge-estado"
+                  [ngClass]="{
+                    'badge-activo'   : usuarioSeleccionado.estado === 'Activo',
+                    'badge-inactivo' : usuarioSeleccionado.estado === 'Inactivo',
+                    'badge-pending'  : usuarioSeleccionado.estado === 'pending_activation'
+                  }">
+                  {{ usuarioSeleccionado.estado === 'pending_activation' ? 'Pendiente' : usuarioSeleccionado.estado }}
                 </span>
               </div>
               <div class="detail-item detail-item-full">
@@ -772,12 +720,11 @@
         </div>
       </div>
 
-
       <!-- ════════════════════════════════════════════════════════
            MODAL: IMPORTAR EXCEL
       ════════════════════════════════════════════════════════ -->
       <div *ngIf="mostrarModalImportacion" class="modal-overlay" (click)="cerrarImportacion()">
-        <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-container modal-import" (click)="$event.stopPropagation()">
 
           <div class="modal-header">
             <h3 class="modal-title flex items-center gap-2">
@@ -791,6 +738,8 @@
 
           <div class="modal-body">
             <div class="import-section">
+
+              <!-- Rol -->
               <div class="form-group">
                 <label class="form-label">Rol *</label>
                 <select [(ngModel)]="importData.id_rol" (change)="onRolImportChange()" class="form-input">
@@ -798,6 +747,8 @@
                   <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
                 </select>
               </div>
+
+              <!-- Campos de alumno -->
               <div class="form-group" *ngIf="esAlumnoImport">
                 <label class="form-label">Periodo *</label>
                 <select [(ngModel)]="importData.id_periodo" class="form-input">
@@ -827,18 +778,92 @@
                   <option value="B">B</option>
                 </select>
               </div>
+
+              <!-- Archivo -->
               <div class="form-group">
                 <label class="form-label">Archivo Excel (.xlsx) *</label>
                 <input type="file" accept=".xlsx" (change)="onFileSelected($event)" class="form-input" />
               </div>
+
+              <!-- Descargar plantilla -->
               <div class="form-group">
                 <button class="btn-secondary w-full flex items-center justify-center gap-2" (click)="descargarPlantilla()">
                   <ion-icon name="download-outline"></ion-icon>
                   Descargar Plantilla Modelo
                 </button>
               </div>
+
+              <!-- ── PREVIEW EXCEL ── -->
+              <div *ngIf="mostrarPreview && previewImport.length > 0" class="import-preview">
+
+                <div class="import-preview-header">
+                  <div class="import-preview-titulo">
+                    <ion-icon name="eye-outline"></ion-icon>
+                    <span>Vista previa — {{ previewImport.length }} fila(s) detectadas</span>
+                  </div>
+                  <span *ngIf="previewImport.length === 50" class="import-preview-aviso">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    Mostrando primeras 50 filas
+                  </span>
+                </div>
+
+                <div class="import-preview-tabla-wrap">
+                  <table class="import-preview-tabla">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Matrícula</th>
+                        <th>Apellido Paterno</th>
+                        <th>Apellido Materno</th>
+                        <th>Nombre</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of previewImport; let i = index"
+                        [ngClass]="{
+                          'preview-fila-ok'   :  row.matricula && row.a_paterno && row.a_materno && row.nombre,
+                          'preview-fila-error': !row.matricula || !row.a_paterno || !row.a_materno || !row.nombre
+                        }">
+                        <td class="preview-td-num">{{ i + 1 }}</td>
+                        <td class="preview-td">
+                          <span *ngIf="row.matricula" class="preview-chip-ok">{{ row.matricula }}</span>
+                          <span *ngIf="!row.matricula" class="preview-chip-error">Sin matrícula</span>
+                        </td>
+                        <td class="preview-td">{{ row.a_paterno || '—' }}</td>
+                        <td class="preview-td">{{ row.a_materno || '—' }}</td>
+                        <td class="preview-td">{{ row.nombre    || '—' }}</td>
+                        <td class="preview-td">
+                          <span *ngIf="row.matricula && row.a_paterno && row.a_materno && row.nombre"
+                            class="preview-badge-ok">
+                            <ion-icon name="checkmark-outline"></ion-icon>Listo
+                          </span>
+                          <span *ngIf="!row.matricula || !row.a_paterno || !row.a_materno || !row.nombre"
+                            class="preview-badge-error">
+                            <ion-icon name="warning-outline"></ion-icon>Incompleto
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="import-preview-resumen">
+                  <div class="preview-resumen-chip preview-resumen-ok">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    <strong>{{ filasValidas }}</strong>&nbsp;filas válidas
+                  </div>
+                  <div class="preview-resumen-chip preview-resumen-error">
+                    <ion-icon name="close-circle-outline"></ion-icon>
+                    <strong>{{ filasInvalidas }}</strong>&nbsp;incompletas
+                  </div>
+                </div>
+
+              </div>
+
             </div>
 
+            <!-- Resultado importación -->
             <div *ngIf="resultadoImportacion" class="resultado-importacion">
               <p class="resultado-titulo">Resultado de la importación</p>
               <div class="resultado-grid resultado-grid-simple">
@@ -890,18 +915,16 @@
           </div>
 
           <div class="pagination-controls">
-            <button class="pagination-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1" title="Página anterior">
+            <button class="pagination-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
               <ion-icon name="chevron-back-outline"></ion-icon>
             </button>
-
             <ng-container *ngFor="let page of paginas">
               <button *ngIf="page !== '...'" class="pagination-btn" [class.active]="paginaActual === page" (click)="irAPagina(page)">
                 {{ page }}
               </button>
               <span *ngIf="page === '...'" class="pagination-dots">...</span>
             </ng-container>
-
-            <button class="pagination-btn" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas" title="Página siguiente">
+            <button class="pagination-btn" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
               <ion-icon name="chevron-forward-outline"></ion-icon>
             </button>
           </div>

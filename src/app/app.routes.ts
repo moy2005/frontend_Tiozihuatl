@@ -28,7 +28,6 @@ import { Error404Component } from './pages/error/error-404/error-404.component';
 import { Error500Component } from './pages/error/error-500/error-500.component';
 import { GestionPrestamosComponent } from './pages/admin/gestion-prestamos/gestion-prestamos';
 import { GestionBackupsComponent} from './pages/admin/gestion-backups/gestion-backups';
-
 import { MagazinesComponent } from './pages/magazines/magazines.component';
 import { MagazineViewerComponent } from './pages/magazines/magazine-viewer.component';
 import { MagazineDetailComponent } from './pages/magazines/magazine-detail.component';
@@ -40,6 +39,7 @@ import { GestionRevistasComponent } from './pages/admin/gestion-revistas/gestion
 import { MyPurchases } from './pages/my-purchases/my-purchases';
 import { MonitoreoComponent } from './pages/admin/monitoreo/monitoreo';
 import { MyLoans } from './pages/my-loans/my-loans';
+import { ActivateAccountComponent } from './auth/activate-account/activate-account';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -58,12 +58,8 @@ export const routes: Routes = [
   { path: 'noticias',component: NoticiasComponent},
   { path: 'about', component: AboutComponent },
   { path: 'calendario', component: CalendarioComponent},
-
-  { path: 'catalogo', component: CatalogoComponent, canActivate: [AuthGuard],
-    data: {
-      roles: ['Alumno', 'Administrador', 'Docente','Bibliotecario'] 
-      }
-  },
+  { path: 'activar', component: ActivateAccountComponent },
+  { path: 'catalogo', component: CatalogoComponent, canActivate: [AuthGuard], data: { roles: ['Alumno', 'Administrador', 'Docente','Bibliotecario'] }},
 
   // Protegidas (todas con AuthGuard)
   { path: 'perfil', component: PerfilUsuarioComponent, canActivate: [AuthGuard] },

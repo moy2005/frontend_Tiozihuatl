@@ -1,0 +1,141 @@
+<section class="activate-page min-h-screen flex items-center justify-center px-4 py-16">
+  <div class="w-full max-w-md">
+    <div class="activate-container">
+
+      <!-- Logo -->
+      <div class="flex flex-col items-center mb-6 text-center">
+        <img
+          src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
+          class="w-40 h-40 object-contain"
+          alt="Logo Instituto" />
+        <h1 class="mt-4 text-2xl font-bold activate-title">Activar Cuenta</h1>
+      </div>
+
+      <!-- ── PASO: Verificando token ── -->
+      <div *ngIf="step === 'verifying'" class="text-center py-10">
+        <div class="activate-spinner"></div>
+        <p class="mt-4 text-gray-500">Verificando tu enlace de activación...</p>
+      </div>
+
+      <!-- ── PASO: Token inválido o expirado ── -->
+      <div *ngIf="step === 'error'" class="activate-card activate-card-error">
+        <div class="activate-icon-wrap activate-icon-error">
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </div>
+        <h2 class="activate-card-title">Enlace no válido</h2>
+        <p class="activate-card-desc">
+          Este enlace de activación es inválido o ya expiró.<br />
+          Solicita uno nuevo al administrador de la institución.
+        </p>
+        <button (click)="irAlLogin()" class="activate-btn-secondary mt-4">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+          Volver al inicio
+        </button>
+      </div>
+
+      <!-- ── PASO: Formulario de contraseña ── -->
+      <div *ngIf="step === 'form'" class="activate-inner">
+
+        <!-- Bienvenida personalizada -->
+        <div class="activate-bienvenida">
+          <ion-icon name="person-circle-outline"></ion-icon>
+          <div>
+            <p class="activate-bienvenida-nombre">{{ nombreUsuario }}</p>
+            <p class="activate-bienvenida-matricula">Matrícula: {{ matricula }}</p>
+          </div>
+        </div>
+
+        <p class="activate-instruccion">
+          Elige una contraseña segura para acceder al sistema.
+          Deberás usarla cada vez que inicies sesión.
+        </p>
+
+        <!-- Contraseña -->
+        <div class="activate-form-group">
+          <label class="activate-label">Nueva contraseña</label>
+          <div class="activate-input-wrap">
+            <ion-icon name="lock-closed-outline" class="activate-input-icon"></ion-icon>
+            <input
+              [type]="mostrarPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              placeholder="Mínimo 8 caracteres"
+              class="activate-input"
+              [class.input-error]="password.length > 0 && !passwordValida"
+              [class.input-ok]="passwordValida" />
+            <button
+              type="button"
+              (click)="mostrarPassword = !mostrarPassword"
+              class="activate-eye-btn">
+              <ion-icon [name]="mostrarPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+          <p *ngIf="password.length > 0 && !passwordValida" class="activate-hint activate-hint-error">
+            <ion-icon name="warning-outline"></ion-icon>
+            Mínimo 8 caracteres
+          </p>
+          <p *ngIf="passwordValida" class="activate-hint activate-hint-ok">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            Contraseña válida
+          </p>
+        </div>
+
+        <!-- Confirmar contraseña -->
+        <div class="activate-form-group">
+          <label class="activate-label">Confirmar contraseña</label>
+          <div class="activate-input-wrap">
+            <ion-icon name="lock-closed-outline" class="activate-input-icon"></ion-icon>
+            <input
+              [type]="mostrarConfirm ? 'text' : 'password'"
+              [(ngModel)]="confirm_password"
+              placeholder="Repite tu contraseña"
+              class="activate-input"
+              [class.input-error]="confirm_password.length > 0 && !passwordsCoinciden"
+              [class.input-ok]="confirm_password.length > 0 && passwordsCoinciden" />
+            <button
+              type="button"
+              (click)="mostrarConfirm = !mostrarConfirm"
+              class="activate-eye-btn">
+              <ion-icon [name]="mostrarConfirm ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+          <p *ngIf="confirm_password.length > 0 && !passwordsCoinciden" class="activate-hint activate-hint-error">
+            <ion-icon name="warning-outline"></ion-icon>
+            Las contraseñas no coinciden
+          </p>
+          <p *ngIf="confirm_password.length > 0 && passwordsCoinciden" class="activate-hint activate-hint-ok">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            Las contraseñas coinciden
+          </p>
+        </div>
+
+        <!-- Botón activar -->
+        <button
+          (click)="activarCuenta()"
+          [disabled]="cargando || !passwordValida || !passwordsCoinciden"
+          class="activate-btn-primary">
+          <div *ngIf="cargando" class="activate-spinner-sm"></div>
+          <ion-icon *ngIf="!cargando" name="checkmark-circle-outline"></ion-icon>
+          {{ cargando ? 'Activando cuenta...' : 'Activar mi cuenta' }}
+        </button>
+
+      </div>
+
+      <!-- ── PASO: Éxito ── -->
+      <div *ngIf="step === 'success'" class="activate-card activate-card-success">
+        <div class="activate-icon-wrap activate-icon-success">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+        </div>
+        <h2 class="activate-card-title">¡Cuenta activada!</h2>
+        <p class="activate-card-desc">
+          Tu cuenta ha sido activada correctamente.<br />
+          Ya puedes iniciar sesión con tu matrícula y contraseña.
+        </p>
+        <button (click)="irAlLogin()" class="activate-btn-primary mt-4">
+          <ion-icon name="log-in-outline"></ion-icon>
+          Ir al inicio de sesión
+        </button>
+      </div>
+
+    </div>
+  </div>
+</section>

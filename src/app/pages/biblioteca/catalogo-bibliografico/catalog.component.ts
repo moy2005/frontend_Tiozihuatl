@@ -3,14 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CatalogService, Libro } from '../../../api/services/catalog.service';
 import { PrestamoService } from '../../../api/services/prestamo.service';
-import { SafeUrlPipe } from '../../../pipes/safe-url.pipe';
-import { environment } from '../../../api/environments/environment.prod';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [CommonModule, FormsModule, SafeUrlPipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

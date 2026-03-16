@@ -21,8 +21,8 @@ export class GestionUsuariosComponent implements OnInit {
   roles: any[] = [];
   carreras: any[] = [];
   semestres: any[] = [];
-  periodos: any[] = [];    
-periodosActivos: any[] = []; // solo activos — para crear/importar
+  periodos: any[] = [];
+  periodosActivos: any[] = [];
 
   // ── Estado UI ──────────────────────────────────────────────
   cargando = false;
@@ -38,8 +38,12 @@ periodosActivos: any[] = []; // solo activos — para crear/importar
   cargandoImport = false;
   archivoSeleccionado: File | null = null;
   resultadoImportacion: any = null;
-  importData: any = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' }; // ✅ CAMBIO: añadido id_periodo
+  importData: any = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
   esAlumnoImport = false;
+
+  // ── Preview Excel ──────────────────────────────────────────
+  previewImport: any[] = [];
+  mostrarPreview = false;
 
   // ── Filtros avanzados ──────────────────────────────────────
   mostrarFiltros = false;
@@ -51,29 +55,26 @@ periodosActivos: any[] = []; // solo activos — para crear/importar
     id_periodo: ''
   };
   filtrosActivos = false;
-  semestresFiltro: any[] = [];   // ← nuevo
-gruposFiltro: string[] = [];   // ← nuevo
+  semestresFiltro: any[] = [];
+  gruposFiltro: string[] = [];
 
-// ── Avanzar semestre ───────────────────────────────────────────
-mostrarModalAvanzar = false;
-pasoAvanzar = 1;
-cargandoAvanzar = false;
-cargandoPreview = false;
-alumnosParaAvance: any[] = [];
-avanzarData: any = {
-  id_periodo_origen: '',
-  id_periodo_destino: ''
-};
-
+  // ── Avanzar semestre ───────────────────────────────────────
+  mostrarModalAvanzar = false;
+  pasoAvanzar = 1;
+  cargandoAvanzar = false;
+  cargandoPreview = false;
+  alumnosParaAvance: any[] = [];
+  avanzarData: any = {
+    id_periodo_origen: '',
+    id_periodo_destino: ''
+  };
 
   // ── Paginación ─────────────────────────────────────────────
-paginaActual = 1;
-itemsPorPagina = 15;
-totalPaginas = 0;
-filtrosExpandidos = false; // Para controlar visibilidad de filtros en móvil
-Math = Math; // Para usar en el template
-
-
+  paginaActual = 1;
+  itemsPorPagina = 15;
+  totalPaginas = 0;
+  filtrosExpandidos = false;
+  Math = Math;
 
   constructor(
     private adminService: AdminUserService,
@@ -101,122 +102,127 @@ Math = Math; // Para usar en el template
       id_rol: '',
       id_carrera: '',
       id_semestre: '',
-      id_periodo: '', // ✅ CAMBIO: añadido
+      id_periodo: '',
       estado: 'Activo',
     };
   }
 
-  onPeriodoFiltroChange() {
-  // Resetear semestre y grupo al cambiar periodo
-  this.filtros.id_semestre = '';
-  this.filtros.grupo = '';
-  this.semestresFiltro = [];
-  this.gruposFiltro = [];
+  // ── Getters preview ────────────────────────────────────────
 
-  if (!this.filtros.id_periodo) {
-    // Sin periodo: volver a los catálogos completos
-    this.semestresFiltro = this.semestres;
-    this.gruposFiltro = ['A', 'B'];
-    this.aplicarFiltros();
-    return;
+  get filasValidas(): number {
+    return this.previewImport.filter(
+      r => r.matricula && r.a_paterno && r.a_materno && r.nombre
+    ).length;
   }
 
-  this.adminService.getOpcionesPorPeriodo(this.filtros.id_periodo).subscribe({
-    next: (res) => {
-      this.semestresFiltro = res.semestres;
-      this.gruposFiltro = res.grupos;
-      this.aplicarFiltros();
-    },
-    error: (err) => console.error('❌ Error al cargar opciones del periodo:', err)
-  });
-}
+  get filasInvalidas(): number {
+    return this.previewImport.filter(
+      r => !r.matricula || !r.a_paterno || !r.a_materno || !r.nombre
+    ).length;
+  }
 
+  // ── Periodo filtro ─────────────────────────────────────────
+
+  onPeriodoFiltroChange() {
+    this.filtros.id_semestre = '';
+    this.filtros.grupo = '';
+    this.semestresFiltro = [];
+    this.gruposFiltro = [];
+
+    if (!this.filtros.id_periodo) {
+      this.semestresFiltro = this.semestres;
+      this.gruposFiltro = ['A', 'B'];
+      this.aplicarFiltros();
+      return;
+    }
+
+    this.adminService.getOpcionesPorPeriodo(this.filtros.id_periodo).subscribe({
+      next: (res) => {
+        this.semestresFiltro = res.semestres;
+        this.gruposFiltro = res.grupos;
+        this.aplicarFiltros();
+      },
+      error: (err) => console.error('❌ Error al cargar opciones del periodo:', err)
+    });
+  }
+
+  // ── Paginación ─────────────────────────────────────────────
 
   get usuariosPaginados() {
-  const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-  const fin = inicio + this.itemsPorPagina;
-  return this.usuarios.slice(inicio, fin);
-}
-
-// ── Métodos de paginación ──────────────────────────────────
-
-calcularTotalPaginas() {
-  this.totalPaginas = Math.ceil(this.usuarios.length / this.itemsPorPagina);
-  if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
-    this.paginaActual = this.totalPaginas;
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    return this.usuarios.slice(inicio, fin);
   }
-}
 
-get paginas(): (number | string)[] {
-  this.calcularTotalPaginas();
-  const total = this.totalPaginas;
-  const actual = this.paginaActual;
-  const delta = 2; // Número de páginas a mostrar a cada lado
-  const rango: number[] = [];
-  const rangoConPuntos: (number | string)[] = [];
-
-  for (let i = 1; i <= total; i++) {
-    if (
-      i === 1 || 
-      i === total || 
-      (i >= actual - delta && i <= actual + delta)
-    ) {
-      rango.push(i);
+  calcularTotalPaginas() {
+    this.totalPaginas = Math.ceil(this.usuarios.length / this.itemsPorPagina);
+    if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
+      this.paginaActual = this.totalPaginas;
     }
   }
 
-  let previo: number | null = null;
-  for (const i of rango) {
-    if (previo && i - previo !== 1) {
-      rangoConPuntos.push('...');
+  get paginas(): (number | string)[] {
+    this.calcularTotalPaginas();
+    const total = this.totalPaginas;
+    const actual = this.paginaActual;
+    const delta = 2;
+    const rango: number[] = [];
+    const rangoConPuntos: (number | string)[] = [];
+
+    for (let i = 1; i <= total; i++) {
+      if (i === 1 || i === total || (i >= actual - delta && i <= actual + delta)) {
+        rango.push(i);
+      }
     }
-    rangoConPuntos.push(i);
-    previo = i;
+
+    let previo: number | null = null;
+    for (const i of rango) {
+      if (previo && i - previo !== 1) {
+        rangoConPuntos.push('...');
+      }
+      rangoConPuntos.push(i);
+      previo = i;
+    }
+
+    return rangoConPuntos;
   }
 
-  return rangoConPuntos;
-}
-
-irAPagina(pagina: number | string) {
-  if (typeof pagina === 'number') {
-    this.paginaActual = pagina;
+  irAPagina(pagina: number | string) {
+    if (typeof pagina === 'number') {
+      this.paginaActual = pagina;
+    }
   }
-}
 
-paginaAnterior() {
-  if (this.paginaActual > 1) {
-    this.paginaActual--;
+  paginaAnterior() {
+    if (this.paginaActual > 1) this.paginaActual--;
   }
-}
 
-paginaSiguiente() {
-  if (this.paginaActual < this.totalPaginas) {
-    this.paginaActual++;
+  paginaSiguiente() {
+    if (this.paginaActual < this.totalPaginas) this.paginaActual++;
   }
-}
 
-cambiarItemsPorPagina() {
-  this.paginaActual = 1;
-  this.calcularTotalPaginas();
-}
+  cambiarItemsPorPagina() {
+    this.paginaActual = 1;
+    this.calcularTotalPaginas();
+  }
 
-toggleFiltros() {
-  this.filtrosExpandidos = !this.filtrosExpandidos;
-}
+  toggleFiltros() {
+    this.filtrosExpandidos = !this.filtrosExpandidos;
+  }
 
   // ── Carga de datos ─────────────────────────────────────────
 
-cargarUsuarios() {
-  this.cargando = true;
-  this.adminService.getAll().subscribe({
-    next: (res) => {
-      this.usuarios = res;
-      this.calcularTotalPaginas();
-    },
-    error: () => Swal.fire('Error', 'No se pudieron cargar los usuarios.', 'error'),
-    complete: () => (this.cargando = false),
-  });
-}
+  cargarUsuarios() {
+    this.cargando = true;
+    this.adminService.getAll().subscribe({
+      next: (res) => {
+        this.usuarios = res;
+        this.calcularTotalPaginas();
+      },
+      error: () => Swal.fire('Error', 'No se pudieron cargar los usuarios.', 'error'),
+      complete: () => (this.cargando = false),
+    });
+  }
 
   cargarRoles() {
     this.adminService.getRoles().subscribe({
@@ -225,41 +231,38 @@ cargarUsuarios() {
     });
   }
 
- cargarCatalogos() {
-  this.adminService.getCarreras().subscribe({
-    next: (res) => (this.carreras = res),
-    error: (err) => console.error('❌ Error al obtener carreras:', err),
-  });
+  cargarCatalogos() {
+    this.adminService.getCarreras().subscribe({
+      next: (res) => (this.carreras = res),
+      error: (err) => console.error('❌ Error al obtener carreras:', err),
+    });
 
-  this.adminService.getSemestres().subscribe({
-    next: (res) => {
-      this.semestres = res;
-      this.semestresFiltro = res; // ← inicializar con todos
-    },
-    error: (err) => console.error('❌ Error al obtener semestres:', err),
-  });
+    this.adminService.getSemestres().subscribe({
+      next: (res) => {
+        this.semestres = res;
+        this.semestresFiltro = res;
+      },
+      error: (err) => console.error('❌ Error al obtener semestres:', err),
+    });
 
-  // Grupos por defecto
-  this.gruposFiltro = ['A', 'B'];
-}
+    this.gruposFiltro = ['A', 'B'];
+  }
 
-cargarPeriodosActivos() {
-  // Todos los periodos para filtros y avanzar semestre
-  this.adminService.getPeriodosTodos().subscribe({
-    next: (res) => {
-      this.periodos = Array.isArray(res) ? res : (res ? [res] : []);
-    },
-    error: (err) => console.error('❌ Error al obtener periodos:', err),
-  });
+  cargarPeriodosActivos() {
+    this.adminService.getPeriodosTodos().subscribe({
+      next: (res) => {
+        this.periodos = Array.isArray(res) ? res : (res ? [res] : []);
+      },
+      error: (err) => console.error('❌ Error al obtener periodos:', err),
+    });
 
-  // Solo activos para crear/importar alumnos
-  this.adminService.getPeriodosActivos().subscribe({
-    next: (res) => {
-      this.periodosActivos = Array.isArray(res) ? res : (res ? [res] : []);
-    },
-    error: (err) => console.error('❌ Error al obtener periodos activos:', err),
-  });
-}
+    this.adminService.getPeriodosActivos().subscribe({
+      next: (res) => {
+        this.periodosActivos = Array.isArray(res) ? res : (res ? [res] : []);
+      },
+      error: (err) => console.error('❌ Error al obtener periodos activos:', err),
+    });
+  }
 
   // ── Filtros avanzados ──────────────────────────────────────
 
@@ -271,36 +274,36 @@ cargarPeriodosActivos() {
     this.mostrarFiltros = false;
   }
 
-aplicarFiltros() {
-  const hayFiltro = Object.values(this.filtros).some(v => v !== '');
-  if (!hayFiltro) {
-    this.limpiarFiltros();
-    return;
+  aplicarFiltros() {
+    const hayFiltro = Object.values(this.filtros).some(v => v !== '');
+    if (!hayFiltro) {
+      this.limpiarFiltros();
+      return;
+    }
+
+    this.cargando = true;
+    this.filtrosActivos = true;
+    this.paginaActual = 1;
+
+    this.adminService.getFiltered(this.filtros).subscribe({
+      next: (res) => {
+        this.usuarios = res;
+        this.cargando = false;
+        this.calcularTotalPaginas();
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudieron aplicar los filtros.', 'error');
+        this.cargando = false;
+      }
+    });
   }
 
-  this.cargando = true;
-  this.filtrosActivos = true;
-  this.paginaActual = 1; // Resetear a primera página
-
-  this.adminService.getFiltered(this.filtros).subscribe({
-    next: (res) => {
-      this.usuarios = res;
-      this.cargando = false;
-      this.calcularTotalPaginas();
-    },
-    error: () => {
-      Swal.fire('Error', 'No se pudieron aplicar los filtros.', 'error');
-      this.cargando = false;
-    }
-  });
-}
-
-limpiarFiltros() {
-  this.filtros = { rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
-  this.filtrosActivos = false;
-  this.paginaActual = 1; // Resetear a primera página
-  this.cargarUsuarios();
-}
+  limpiarFiltros() {
+    this.filtros = { rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
+    this.filtrosActivos = false;
+    this.paginaActual = 1;
+    this.cargarUsuarios();
+  }
 
   get rolFiltroNombre(): string {
     return this.getRolNombre(this.filtros.id_rol) || '';
@@ -312,118 +315,117 @@ limpiarFiltros() {
 
   // ── Avanzar semestre ───────────────────────────────────────
 
-abrirModalAvanzar() {
-  this.avanzarData = { id_periodo_origen: '', id_periodo_destino: '' };
-  this.alumnosParaAvance = [];
-  this.pasoAvanzar = 1;
-  this.mostrarModalAvanzar = true;
-}
+  abrirModalAvanzar() {
+    this.avanzarData = { id_periodo_origen: '', id_periodo_destino: '' };
+    this.alumnosParaAvance = [];
+    this.pasoAvanzar = 1;
+    this.mostrarModalAvanzar = true;
+  }
 
-cerrarModalAvanzar() {
-  this.mostrarModalAvanzar = false;
-  this.pasoAvanzar = 1;
-  this.alumnosParaAvance = [];
-}
+  cerrarModalAvanzar() {
+    this.mostrarModalAvanzar = false;
+    this.pasoAvanzar = 1;
+    this.alumnosParaAvance = [];
+  }
 
-cargarPreviewAvance() {
-  if (!this.avanzarData.id_periodo_origen) return;
-  this.cargandoPreview = true;
+  cargarPreviewAvance() {
+    if (!this.avanzarData.id_periodo_origen) return;
+    this.cargandoPreview = true;
 
-  this.adminService.getPreviewAvance(this.avanzarData.id_periodo_origen).subscribe({
-    next: (res) => {
-      this.alumnosParaAvance = res.map(a => ({ ...a, accion: 'AVANZAR' }));
-      this.cargandoPreview = false;
-      this.pasoAvanzar = 2;
-    },
-    error: () => {
-      this.cargandoPreview = false;
-      Swal.fire('Error', 'No se pudieron cargar los alumnos del periodo.', 'error');
-    }
-  });
-}
+    this.adminService.getPreviewAvance(this.avanzarData.id_periodo_origen).subscribe({
+      next: (res) => {
+        this.alumnosParaAvance = res.map(a => ({ ...a, accion: 'AVANZAR' }));
+        this.cargandoPreview = false;
+        this.pasoAvanzar = 2;
+      },
+      error: () => {
+        this.cargandoPreview = false;
+        Swal.fire('Error', 'No se pudieron cargar los alumnos del periodo.', 'error');
+      }
+    });
+  }
 
-countAccion(accion: string): number {
-  return this.alumnosParaAvance.filter(a => a.accion === accion).length;
-}
+  countAccion(accion: string): number {
+    return this.alumnosParaAvance.filter(a => a.accion === accion).length;
+  }
 
-toggleTodosAvanzar(accion: string) {
-  this.alumnosParaAvance.forEach(a => a.accion = accion);
-}
+  toggleTodosAvanzar(accion: string) {
+    this.alumnosParaAvance.forEach(a => a.accion = accion);
+  }
 
   ejecutarAvanzarSemestre() {
-  const avanzar = this.countAccion('AVANZAR');
-  const repetir = this.countAccion('REPETIR');
-  const baja    = this.countAccion('BAJA');
+    const avanzar = this.countAccion('AVANZAR');
+    const repetir = this.countAccion('REPETIR');
+    const baja    = this.countAccion('BAJA');
 
-  const periodoOrigenNombre = this.periodos.find(p => p.id_periodo == this.avanzarData.id_periodo_origen)?.nombre || `#${this.avanzarData.id_periodo_origen}`;
-  const periodoDestinoNombre = this.periodos.find(p => p.id_periodo == this.avanzarData.id_periodo_destino)?.nombre || `#${this.avanzarData.id_periodo_destino}`;
+    const periodoOrigenNombre  = this.periodos.find(p => p.id_periodo == this.avanzarData.id_periodo_origen)?.nombre  || `#${this.avanzarData.id_periodo_origen}`;
+    const periodoDestinoNombre = this.periodos.find(p => p.id_periodo == this.avanzarData.id_periodo_destino)?.nombre || `#${this.avanzarData.id_periodo_destino}`;
 
-  Swal.fire({
-    title: '¿Confirmar proceso?',
-    html: `
-      <div style="text-align:left; font-size:0.875rem;">
-        <p><strong>Origen:</strong> ${periodoOrigenNombre}</p>
-        <p><strong>Destino:</strong> ${periodoDestinoNombre}</p>
-        <hr style="margin: 0.75rem 0;">
-<p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
-  <ion-icon name="arrow-up-circle-outline" style="font-size:1.1rem; color:#16A34A;"></ion-icon>
-  <strong>${avanzar}</strong> alumnos avanzan de semestre
-</p>
-<p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
-  <ion-icon name="refresh-circle-outline" style="font-size:1.1rem; color:#D97706;"></ion-icon>
-  <strong>${repetir}</strong> alumnos repiten
-</p>
-<p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
-  <ion-icon name="remove-circle-outline" style="font-size:1.1rem; color:#DC2626;"></ion-icon>
-  <strong>${baja}</strong> alumnos de baja
-</p>
-        <hr style="margin: 0.75rem 0;">
-        <p style="color:#DC2626; font-size:0.8rem;">Esta acción no se puede deshacer.</p>
-      </div>
-    `,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#E53E3E',
-    cancelButtonColor: '#6B7280',
-    confirmButtonText: 'Sí, procesar',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.cargandoAvanzar = true;
+    Swal.fire({
+      title: '¿Confirmar proceso?',
+      html: `
+        <div style="text-align:left; font-size:0.875rem;">
+          <p><strong>Origen:</strong> ${periodoOrigenNombre}</p>
+          <p><strong>Destino:</strong> ${periodoDestinoNombre}</p>
+          <hr style="margin: 0.75rem 0;">
+          <p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
+            <ion-icon name="arrow-up-circle-outline" style="font-size:1.1rem; color:#16A34A;"></ion-icon>
+            <strong>${avanzar}</strong> alumnos avanzan de semestre
+          </p>
+          <p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
+            <ion-icon name="refresh-circle-outline" style="font-size:1.1rem; color:#D97706;"></ion-icon>
+            <strong>${repetir}</strong> alumnos repiten
+          </p>
+          <p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
+            <ion-icon name="remove-circle-outline" style="font-size:1.1rem; color:#DC2626;"></ion-icon>
+            <strong>${baja}</strong> alumnos de baja
+          </p>
+          <hr style="margin: 0.75rem 0;">
+          <p style="color:#DC2626; font-size:0.8rem;">Esta acción no se puede deshacer.</p>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#E53E3E',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: 'Sí, procesar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.cargandoAvanzar = true;
 
-      const payload = {
-        id_periodo_origen: this.avanzarData.id_periodo_origen,
-        id_periodo_destino: this.avanzarData.id_periodo_destino,
-        alumnos: this.alumnosParaAvance.map(a => ({
-          id_usuario: a.id_usuario,
-          accion: a.accion
-        }))
-      };
+        const payload = {
+          id_periodo_origen : this.avanzarData.id_periodo_origen,
+          id_periodo_destino: this.avanzarData.id_periodo_destino,
+          alumnos: this.alumnosParaAvance.map(a => ({
+            id_usuario: a.id_usuario,
+            accion    : a.accion
+          }))
+        };
 
-      this.adminService.avanzarSemestre(payload).subscribe({
-        next: (res) => {
-          this.cargandoAvanzar = false;
-          this.cerrarModalAvanzar();
-          Swal.fire({
-            title: '¡Proceso completado!',
-            html: `<strong>${res.alumnosProcesados}</strong> alumno(s) procesado(s) correctamente.`,
-            icon: 'success'
-          });
-          this.filtrosActivos ? this.aplicarFiltros() : this.cargarUsuarios();
-        },
-        error: (err) => {
-          this.cargandoAvanzar = false;
-          Swal.fire('Error', err?.error?.error || 'No se pudo procesar el avance.', 'error');
-        }
-      });
-    }
-  });
-}
+        this.adminService.avanzarSemestre(payload).subscribe({
+          next: (res) => {
+            this.cargandoAvanzar = false;
+            this.cerrarModalAvanzar();
+            Swal.fire({
+              title: '¡Proceso completado!',
+              html : `<strong>${res.alumnosProcesados}</strong> alumno(s) procesado(s) correctamente.`,
+              icon : 'success'
+            });
+            this.filtrosActivos ? this.aplicarFiltros() : this.cargarUsuarios();
+          },
+          error: (err) => {
+            this.cargandoAvanzar = false;
+            Swal.fire('Error', err?.error?.error || 'No se pudo procesar el avance.', 'error');
+          }
+        });
+      }
+    });
+  }
 
-
-getNombrePeriodo(id: any): string {
-  return this.periodos.find(p => p.id_periodo == id)?.nombre || `#${id}`;
-}
+  getNombrePeriodo(id: any): string {
+    return this.periodos.find(p => p.id_periodo == id)?.nombre || `#${id}`;
+  }
 
   // ── Ver detalles ───────────────────────────────────────────
 
@@ -444,12 +446,12 @@ getNombrePeriodo(id: any): string {
 
     Swal.fire({
       title: `¿Deseas ${accion} a este usuario?`,
-      text: `El usuario pasará a estado ${nuevoEstado}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: nuevoEstado === 'Activo' ? '#16A34A' : '#E53E3E',
-      cancelButtonColor: '#6B7280',
-      confirmButtonText: `Sí, ${accion}`,
+      text : `El usuario pasará a estado ${nuevoEstado}.`,
+      icon : 'warning',
+      showCancelButton   : true,
+      confirmButtonColor : nuevoEstado === 'Activo' ? '#16A34A' : '#E53E3E',
+      cancelButtonColor  : '#6B7280',
+      confirmButtonText  : `Sí, ${accion}`,
     }).then((r) => {
       if (r.isConfirmed) {
         const payload = { estado: nuevoEstado };
@@ -475,7 +477,6 @@ getNombrePeriodo(id: any): string {
       case 'Administrador':
         return true;
       case 'Alumno':
-        // ✅ CAMBIO: añadido 'id_periodo'
         return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','id_carrera','id_semestre','id_periodo','grupo','estado'].includes(campo);
       case 'Docente':
         return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','id_carrera','estado'].includes(campo);
@@ -496,9 +497,9 @@ getNombrePeriodo(id: any): string {
   // ── Guardar usuario ────────────────────────────────────────
 
   guardarUsuario() {
-    const user = this.nuevoUsuario;
+    const user   = this.nuevoUsuario;
     const isEdit = !!user.id_usuario;
-    const rol = this.getRolNombre(user.id_rol);
+    const rol    = this.getRolNombre(user.id_rol);
 
     if (!user.nombre || !user.correo || !user.id_rol) {
       Swal.fire('Campos incompletos', 'Nombre, correo y rol son obligatorios.', 'info');
@@ -514,7 +515,6 @@ getNombrePeriodo(id: any): string {
         Swal.fire('Grupo requerido', 'Alumno debe tener un grupo válido (A o B).', 'info');
         return;
       }
-      // ✅ CAMBIO: periodo obligatorio solo al crear
       if (!isEdit && !user.id_periodo) {
         Swal.fire('Periodo requerido', 'Alumno debe tener un periodo asignado.', 'info');
         return;
@@ -525,23 +525,23 @@ getNombrePeriodo(id: any): string {
         return;
       }
       user.id_semestre = null;
-      user.grupo = null;
-      user.id_periodo = null; // ✅ CAMBIO: limpiar para no-alumnos
+      user.grupo       = null;
+      user.id_periodo  = null;
     } else if (rol === 'Bibliotecario') {
       if (!user.matricula || !user.telefono) {
         Swal.fire('Campos requeridos', 'Bibliotecario debe tener matrícula y teléfono.', 'info');
         return;
       }
-      user.id_carrera = null;
+      user.id_carrera  = null;
       user.id_semestre = null;
-      user.grupo = null;
-      user.id_periodo = null; // ✅ CAMBIO: limpiar para no-alumnos
+      user.grupo       = null;
+      user.id_periodo  = null;
     } else if (rol === 'Visitante') {
-      user.id_carrera = null;
+      user.id_carrera  = null;
       user.id_semestre = null;
-      user.matricula = null;
-      user.grupo = null;
-      user.id_periodo = null; // ✅ CAMBIO: limpiar para no-alumnos
+      user.matricula   = null;
+      user.grupo       = null;
+      user.id_periodo  = null;
     }
 
     const payload = { ...user };
@@ -552,7 +552,6 @@ getNombrePeriodo(id: any): string {
       } else {
         delete payload.contrasena;
       }
-      // ✅ CAMBIO: no enviar id_periodo si no se cambió al editar
       if (!payload.id_periodo) {
         delete payload.id_periodo;
       }
@@ -570,10 +569,10 @@ getNombrePeriodo(id: any): string {
     request.subscribe({
       next: (res) => {
         Swal.fire('Éxito', res.message || 'Operación exitosa.', 'success');
-        this.nuevoUsuario = this.resetForm();
+        this.nuevoUsuario  = this.resetForm();
         this.nuevaContrasena = '';
-        this.editando = false;
-        this.mostrarModal = false;
+        this.editando      = false;
+        this.mostrarModal  = false;
         this.filtrosActivos ? this.aplicarFiltros() : this.cargarUsuarios();
       },
       error: (err) =>
@@ -582,10 +581,10 @@ getNombrePeriodo(id: any): string {
   }
 
   editarUsuario(u: any) {
-    this.nuevoUsuario = { ...u, id_periodo: '' }; // ✅ CAMBIO: id_periodo vacío al editar (es opcional cambiarlo)
+    this.nuevoUsuario    = { ...u, id_periodo: '' };
     this.nuevaContrasena = '';
-    this.editando = true;
-    this.mostrarModal = true;
+    this.editando        = true;
+    this.mostrarModal    = true;
   }
 
   volverAlPerfil() {
@@ -596,10 +595,12 @@ getNombrePeriodo(id: any): string {
 
   abrirModalImportacion() {
     this.mostrarModalImportacion = true;
-    this.resultadoImportacion = null;
-    this.importData = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' }; // ✅ CAMBIO: añadido id_periodo
-    this.archivoSeleccionado = null;
-    this.esAlumnoImport = false;
+    this.resultadoImportacion    = null;
+    this.importData              = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
+    this.archivoSeleccionado     = null;
+    this.previewImport           = [];
+    this.mostrarPreview          = false;
+    this.esAlumnoImport          = false;
   }
 
   cerrarImportacion() {
@@ -610,24 +611,50 @@ getNombrePeriodo(id: any): string {
     const rol = this.getRolNombre(this.importData.id_rol);
     this.esAlumnoImport = rol === 'Alumno';
     if (!this.esAlumnoImport) {
-      this.importData.id_carrera = '';
+      this.importData.id_carrera  = '';
       this.importData.id_semestre = '';
-      this.importData.grupo = '';
-      this.importData.id_periodo = ''; // ✅ CAMBIO: limpiar periodo
+      this.importData.grupo       = '';
+      this.importData.id_periodo  = '';
     }
   }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
-    if (file) this.archivoSeleccionado = file;
+    if (!file) return;
+
+    this.archivoSeleccionado = file;
+    this.previewImport       = [];
+    this.mostrarPreview      = false;
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      try {
+        import('xlsx').then(XLSX => {
+          const data     = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheet    = workbook.Sheets[workbook.SheetNames[0]];
+          const rows: any[] = XLSX.utils.sheet_to_json(sheet);
+
+          this.previewImport  = rows.slice(0, 50);
+          this.mostrarPreview = rows.length > 0;
+
+          if (!rows.length) {
+            Swal.fire('Archivo vacío', 'El archivo Excel no contiene datos.', 'warning');
+          }
+        });
+      } catch {
+        Swal.fire('Error', 'No se pudo leer el archivo Excel.', 'error');
+      }
+    };
+    reader.readAsArrayBuffer(file);
   }
 
   descargarPlantilla() {
     this.adminService.downloadTemplate().subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
+        const a   = document.createElement('a');
+        a.href     = url;
         a.download = 'plantilla_importacion_usuarios.xlsx';
         document.body.appendChild(a);
         a.click();
@@ -635,6 +662,42 @@ getNombrePeriodo(id: any): string {
         window.URL.revokeObjectURL(url);
       },
       error: () => Swal.fire('Error', 'No se pudo descargar la plantilla.', 'error')
+    });
+  }
+
+  regenerarToken(usuario: any) {
+    Swal.fire({
+      title: '¿Regenerar token de activación?',
+      html : `
+        <p>Se generará un nuevo enlace para <strong>${usuario.a_paterno} ${usuario.nombre}</strong>.</p>
+        <p class="text-sm text-gray-500 mt-1">El token anterior quedará inválido.</p>
+      `,
+      icon            : 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#2196F3',
+      cancelButtonColor : '#6B7280',
+      confirmButtonText : 'Sí, regenerar',
+      cancelButtonText  : 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.adminService.regenerarToken(usuario.id_usuario).subscribe({
+          next: (res) => {
+            if (res.tokens_excel_b64) {
+              this.descargarExcelTokens(
+                res.tokens_excel_b64,
+                `token_${usuario.matricula || usuario.id_usuario}.xlsx`
+              );
+            }
+            Swal.fire({
+              icon : 'success',
+              title: 'Token regenerado',
+              text : 'Se descargó el nuevo token de activación.',
+            });
+          },
+          error: (err) =>
+            Swal.fire('Error', err?.error?.error || 'No se pudo regenerar el token.', 'error'),
+        });
+      }
     });
   }
 
@@ -651,7 +714,6 @@ getNombrePeriodo(id: any): string {
       Swal.fire('Error', 'Alumno requiere grupo (A o B).', 'warning');
       return;
     }
-    // ✅ CAMBIO: validar periodo para alumnos
     if (this.esAlumnoImport && !this.importData.id_periodo) {
       Swal.fire('Error', 'Alumno requiere un periodo.', 'warning');
       return;
@@ -662,27 +724,57 @@ getNombrePeriodo(id: any): string {
     }
 
     const formData = new FormData();
-    formData.append('file', this.archivoSeleccionado);
-    formData.append('id_rol', this.importData.id_rol);
-    formData.append('id_carrera', this.importData.id_carrera || '');
+    formData.append('file',        this.archivoSeleccionado);
+    formData.append('id_rol',      this.importData.id_rol);
+    formData.append('id_carrera',  this.importData.id_carrera  || '');
     formData.append('id_semestre', this.importData.id_semestre || '');
-    formData.append('grupo', this.importData.grupo || '');
-    formData.append('id_periodo', this.importData.id_periodo || ''); // ✅ CAMBIO: añadido
+    formData.append('grupo',       this.importData.grupo       || '');
+    formData.append('id_periodo',  this.importData.id_periodo  || '');
 
     this.cargandoImport = true;
 
     this.adminService.importExcel(formData).subscribe({
       next: (res) => {
-        console.log('📦 Respuesta importación:', JSON.stringify(res)); 
         this.resultadoImportacion = res;
-        this.cargandoImport = false;
+        this.cargandoImport       = false;
         this.cargarUsuarios();
-        Swal.fire('Éxito', 'Importación completada.', 'success');
+
+        if (res.tokens_excel_b64 && res.insertados > 0) {
+          this.descargarExcelTokens(res.tokens_excel_b64, 'tokens_activacion.xlsx');
+        }
+
+        Swal.fire({
+          icon : 'success',
+          title: 'Importación completada',
+          html : `
+            <p><strong>${res.insertados}</strong> usuario(s) creados correctamente.</p>
+            ${res.omitidos > 0 ? `<p class="text-sm text-gray-500 mt-1">${res.omitidos} fila(s) omitidas.</p>` : ''}
+            ${res.insertados > 0 ? '<p class="text-sm text-blue-600 mt-2">Se descargó el archivo con los tokens de activación.</p>' : ''}
+          `,
+        });
       },
       error: (err) => {
         this.cargandoImport = false;
         Swal.fire('Error', err?.error?.error || 'Error al importar.', 'error');
-      }
+      },
     });
+  }
+
+  private descargarExcelTokens(base64: string, nombreArchivo: string) {
+    const byteCharacters = atob(base64);
+    const byteNumbers    = Array.from(byteCharacters, c => c.charCodeAt(0));
+    const byteArray      = new Uint8Array(byteNumbers);
+    const blob           = new Blob([byteArray], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
+    const url  = window.URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = nombreArchivo;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   }
 }
