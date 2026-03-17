@@ -14,7 +14,8 @@ import { Router } from '@angular/router';
   imports: [CommonModule, FormsModule, SafeUrlPipe],
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  encapsulation: ViewEncapsulation.None 
 })
 export class CatalogoComponent implements OnInit, OnDestroy {
 
