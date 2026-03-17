@@ -11,9 +11,9 @@
           <button class="btn-export flex items-center gap-2"
                   (click)="exportarExcel()"
                   [disabled]="loading || revistasFiltradas.length === 0"
-                  title="Exportar tabla actual a CSV">
+                  title="Exportar tabla actual a Excel">
             <ion-icon name="download-outline"></ion-icon>
-            Exportar CSV
+            Exportar Excel
             <span *ngIf="revistasFiltradas.length > 0" class="export-badge">
               {{ revistasFiltradas.length }}
             </span>
@@ -49,12 +49,8 @@
     ══════════════════════════════════════════════════════ -->
     <div *ngIf="vista === 'revistas'">
 
-      <!-- ══════════════════════════════════════════════════
-           FILTROS
-      ══════════════════════════════════════════════════ -->
+      <!-- FILTROS -->
       <div class="filtros-section">
-
-        <!-- Cabecera de filtros -->
         <div class="filtros-header">
           <div class="filtros-titulo">
             <ion-icon name="funnel-outline"></ion-icon>
@@ -75,11 +71,8 @@
           </div>
         </div>
 
-        <!-- Grid de filtros -->
         <div *ngIf="filtrosExpandidos" class="filtros-body">
           <div class="filtros-grid">
-
-            <!-- Estado -->
             <div class="filtro-item">
               <label class="filtro-label">
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -91,8 +84,6 @@
                 <option value="Inactiva">Inactiva</option>
               </select>
             </div>
-
-            <!-- Descuento -->
             <div class="filtro-item">
               <label class="filtro-label">
                 <ion-icon name="pricetag-outline"></ion-icon>
@@ -104,8 +95,6 @@
                 <option value="inactivo">Sin descuento</option>
               </select>
             </div>
-
-            <!-- Búsqueda por título -->
             <div class="filtro-item">
               <label class="filtro-label">
                 <ion-icon name="search-outline"></ion-icon>
@@ -117,10 +106,8 @@
                      placeholder="Buscar por título..."
                      class="filtro-select filtro-input-text" />
             </div>
-
           </div>
 
-          <!-- Tags de filtros activos -->
           <div *ngIf="filtrosActivos" class="filtros-activos-tags">
             <span class="filtros-activos-label">
               <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -150,7 +137,6 @@
           </div>
         </div>
 
-        <!-- Banner resultado (panel cerrado con filtros activos) -->
         <div *ngIf="filtrosActivos && !filtrosExpandidos" class="filter-banner">
           <ion-icon name="funnel-outline"></ion-icon>
           <span>Mostrando <strong>{{ revistasFiltradas.length }}</strong> revista(s) con filtros activos</span>
@@ -159,7 +145,6 @@
             Limpiar
           </button>
         </div>
-
       </div>
 
       <!-- LOADING -->
@@ -170,8 +155,6 @@
 
       <!-- TABLA -->
       <div *ngIf="!loading" class="content-card overflow-hidden">
-
-        <!-- Sin resultados -->
         <div *ngIf="revistasFiltradas.length === 0" class="text-center py-16">
           <ion-icon name="book-outline"
             style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
@@ -196,49 +179,40 @@
             </thead>
             <tbody>
               <tr *ngFor="let mag of revistasFiltradas; trackBy: trackById" class="table-row">
-
                 <td class="td-cell font-medium text-gray-900">{{ mag.titulo }}</td>
-
                 <td class="td-cell text-gray-500 text-sm td-descripcion">
                   {{ mag.descripcion ? (mag.descripcion.length > 60 ? (mag.descripcion | slice:0:60) + '...' : mag.descripcion) : '—' }}
                 </td>
-
                 <td class="td-cell font-medium text-gray-900">${{ mag.precio }}</td>
-
                 <td class="td-cell">
                   <span class="badge-estado"
                     [ngClass]="mag.estado === 'Activa' ? 'badge-activo' : 'badge-inactivo'">
                     {{ mag.estado }}
                   </span>
                 </td>
-
                 <td class="td-cell">
                   <span *ngIf="mag.descuento_activo" class="badge-estado badge-descuento">Activo</span>
                   <span *ngIf="!mag.descuento_activo" style="color:#CBD5E1;">—</span>
                 </td>
-
                 <td class="td-cell">
                   <div class="flex justify-center gap-2">
-                    <button (click)="editMagazine(mag)"
-                            class="btn-icon btn-icon-primary"
-                            title="Editar revista">
+                    <button (click)="editMagazine(mag)" class="btn-icon btn-icon-primary" title="Editar revista">
                       <ion-icon name="create-outline"></ion-icon>
                     </button>
-                    <button *ngIf="mag.id_revista && mag.estado === 'Activa'"
-                            (click)="toggleMagazine(mag.id_revista!)"
+                    <button *ngIf="mag.estado === 'Activa'"
+                            (click)="toggleMagazine(mag)"
                             class="btn-icon btn-icon-danger"
                             title="Desactivar revista">
                       <ion-icon name="close-circle-outline"></ion-icon>
                     </button>
-                    <button *ngIf="mag.id_revista && mag.estado !== 'Activa'"
-                            (click)="toggleMagazine(mag.id_revista!)"
+                    <button *ngIf="mag.estado !== 'Activa'"
+                            (click)="toggleMagazine(mag)"
                             class="btn-icon btn-icon-success"
                             title="Activar revista">
                       <ion-icon name="checkmark-circle-outline"></ion-icon>
                     </button>
                   </div>
                 </td>
-
               </tr>
             </tbody>
           </table>
@@ -266,24 +240,22 @@
               </div>
             </div>
             <div class="flex gap-2 pt-3 border-t border-gray-200">
-              <button (click)="editMagazine(mag)"
-                      class="btn-icon-mobile btn-icon-primary flex-1">
+              <button (click)="editMagazine(mag)" class="btn-icon-mobile btn-icon-primary flex-1">
                 <ion-icon name="create-outline"></ion-icon><span>Editar</span>
               </button>
-              <button *ngIf="mag.id_revista && mag.estado === 'Activa'"
-                      (click)="toggleMagazine(mag.id_revista!)"
+              <button *ngIf="mag.estado === 'Activa'"
+                      (click)="toggleMagazine(mag)"
                       class="btn-icon-mobile btn-icon-danger flex-1">
                 <ion-icon name="close-circle-outline"></ion-icon><span>Desactivar</span>
               </button>
-              <button *ngIf="mag.id_revista && mag.estado !== 'Activa'"
-                      (click)="toggleMagazine(mag.id_revista!)"
+              <button *ngIf="mag.estado !== 'Activa'"
+                      (click)="toggleMagazine(mag)"
                       class="btn-icon-mobile btn-icon-success flex-1">
                 <ion-icon name="checkmark-circle-outline"></ion-icon><span>Activar</span>
               </button>
             </div>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -291,7 +263,6 @@
          SECCIÓN AUDITORÍA
     ══════════════════════════════════════════════════════ -->
     <div *ngIf="vista === 'auditoria'">
-
       <div class="filtros-section mb-4">
         <div class="filtros-header">
           <div class="filtros-titulo">
@@ -476,13 +447,248 @@
       </div>
 
       <div class="modal-footer">
-        <button (click)="closeModal()" class="btn-secondary">
+        <button (click)="closeModal()" [disabled]="saving" class="btn-secondary">
           <ion-icon name="close-outline"></ion-icon>
           Cancelar
         </button>
-        <button (click)="saveMagazine()" class="btn-primary">
-          <ion-icon name="checkmark-outline"></ion-icon>
-          {{ form.id_revista ? 'Guardar Cambios' : 'Crear Revista' }}
+        <button (click)="saveMagazine()" [disabled]="saving" class="btn-primary">
+          <ion-icon *ngIf="!saving" name="checkmark-outline"></ion-icon>
+          {{ saving ? 'Guardando...' : (form.id_revista ? 'Guardar Cambios' : 'Crear Revista') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL EXPORTACIÓN PERSONALIZADA
+  ══════════════════════════════════════════════════════ -->
+  <div *ngIf="showExportModal" class="modal-overlay export-overlay" (click)="closeExportModal()">
+    <div class="modal-container export-modal-container" (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="modal-header export-modal-header">
+        <div class="modal-header-left">
+          <div class="modal-icon-wrapper" style="background:#F0FDF4; border:1px solid #86EFAC;">
+            <ion-icon name="document-text-outline" style="font-size:1.25rem; color:#16A34A;"></ion-icon>
+          </div>
+          <div>
+            <h3 class="modal-title">Exportar a Excel</h3>
+            <p class="modal-subtitle">Personaliza los campos y opciones de exportación</p>
+          </div>
+        </div>
+        <button (click)="closeExportModal()" class="btn-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body export-modal-body">
+        <div class="export-layout">
+
+          <!-- ── Columna izquierda: Campos ── -->
+          <div class="export-col">
+
+            <!-- Sección campos -->
+            <div class="export-section">
+              <div class="export-section-header">
+                <div class="export-section-title">
+                  <ion-icon name="list-outline"></ion-icon>
+                  <span>Campos a exportar</span>
+                </div>
+                <div class="export-campo-acciones">
+                  <button class="export-link-btn" (click)="toggleTodosCampos(true)">
+                    Seleccionar todo
+                  </button>
+                  <span class="export-divider">|</span>
+                  <button class="export-link-btn export-link-danger" (click)="toggleTodosCampos(false)">
+                    Ninguno
+                  </button>
+                </div>
+              </div>
+
+              <div class="export-campos-lista">
+                <div *ngFor="let campo of camposOrdenados"
+                     class="export-campo-item"
+                     [class.export-campo-activo]="campo.activo">
+
+                  <label class="export-campo-label">
+                    <div class="export-checkbox-wrap">
+                      <input type="checkbox"
+                             [(ngModel)]="campo.activo"
+                             class="export-checkbox" />
+                      <span class="export-checkbox-custom"></span>
+                    </div>
+                    <div class="export-campo-info">
+                      <span class="export-campo-nombre">{{ campo.label }}</span>
+                      <span class="export-campo-key">{{ campo.key }}</span>
+                    </div>
+                  </label>
+
+                  <div class="export-orden-btns">
+                    <button class="export-orden-btn"
+                            (click)="moverCampo(campo, 'arriba')"
+                            title="Mover arriba">
+                      <ion-icon name="chevron-up-outline"></ion-icon>
+                    </button>
+                    <button class="export-orden-btn"
+                            (click)="moverCampo(campo, 'abajo')"
+                            title="Mover abajo">
+                      <ion-icon name="chevron-down-outline"></ion-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contador de campos -->
+              <div class="export-campos-counter">
+                <ion-icon name="checkmark-circle-outline"
+                          [style.color]="camposSeleccionados > 0 ? '#16A34A' : '#94A3B8'">
+                </ion-icon>
+                <span>
+                  <strong [style.color]="camposSeleccionados > 0 ? '#16A34A' : '#94A3B8'">
+                    {{ camposSeleccionados }}
+                  </strong>
+                  de {{ camposExportables.length }} campos seleccionados
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ── Columna derecha: Opciones + Vista previa ── -->
+          <div class="export-col">
+
+            <!-- Opciones de exportación -->
+            <div class="export-section">
+              <div class="export-section-header">
+                <div class="export-section-title">
+                  <ion-icon name="settings-outline"></ion-icon>
+                  <span>Opciones</span>
+                </div>
+              </div>
+
+              <div class="export-opciones">
+                <div class="export-input-group">
+                  <label class="export-input-label">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    Filtrar por estado
+                  </label>
+                  <div class="export-estado-opciones">
+                    <label class="export-estado-opt"
+                          [class.export-estado-opt-activo]="opcionesExport.filtroEstado === ''">
+                      <input type="radio" name="filtroEstado"
+                            [(ngModel)]="opcionesExport.filtroEstado" value="" />
+                      <span>Todas</span>
+                    </label>
+                    <label class="export-estado-opt export-estado-opt-green"
+                          [class.export-estado-opt-activo]="opcionesExport.filtroEstado === 'Activa'">
+                      <input type="radio" name="filtroEstado"
+                            [(ngModel)]="opcionesExport.filtroEstado" value="Activa" />
+                      <span>Solo activas</span>
+                    </label>
+                    <label class="export-estado-opt export-estado-opt-red"
+                          [class.export-estado-opt-activo]="opcionesExport.filtroEstado === 'Inactiva'">
+                      <input type="radio" name="filtroEstado"
+                            [(ngModel)]="opcionesExport.filtroEstado" value="Inactiva" />
+                      <span>Solo inactivas</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="export-input-group">
+                  <label class="export-input-label">
+                    <ion-icon name="document-outline"></ion-icon>
+                    Nombre de la hoja
+                  </label>
+                  <input type="text"
+                         [(ngModel)]="opcionesExport.nombreHoja"
+                         class="export-text-input"
+                         placeholder="Revistas" />
+                </div>
+
+                <div class="export-input-group">
+                  <label class="export-input-label">
+                    <ion-icon name="save-outline"></ion-icon>
+                    Nombre del archivo
+                  </label>
+                  <div class="export-filename-wrap">
+                    <input type="text"
+                           [(ngModel)]="opcionesExport.nombreArchivo"
+                           class="export-text-input"
+                           placeholder="revistas_exportacion" />
+                    <span class="export-filename-ext">.xlsx</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Vista previa -->
+            <div class="export-preview">
+              <!-- Headers -->
+              <div class="export-preview-header-row">
+                <ng-container *ngFor="let campo of camposOrdenados">
+                  <span *ngIf="campo.activo" class="export-preview-th">
+                    {{ campo.label }}
+                  </span>
+                </ng-container>
+                <span *ngIf="camposSeleccionados === 0" class="export-preview-empty">
+                  Selecciona al menos un campo
+                </span>
+              </div>
+
+              <!-- Mini tabla con datos reales -->
+              <div class="export-preview-tabla" *ngIf="camposSeleccionados > 0 && revistasFiltradas.length > 0">
+                <div class="export-preview-row"
+                    *ngFor="let mag of revistasFiltradas | slice:0:3">
+                  <ng-container *ngFor="let campo of camposOrdenados">
+                    <span *ngIf="campo.activo" class="export-preview-cell">
+                      <ng-container [ngSwitch]="campo.key">
+                        <span *ngSwitchCase="'titulo'"     class="cell-titulo">{{ mag.titulo }}</span>
+                        <span *ngSwitchCase="'descripcion'" class="cell-desc">{{ (mag.descripcion || '—') | slice:0:25 }}...</span>
+                        <span *ngSwitchCase="'precio'"     class="cell-precio">${{ mag.precio }}</span>
+                        <span *ngSwitchCase="'stock'"      class="cell-stock">{{ mag.stock }}</span>
+                        <span *ngSwitchCase="'estado'"     class="cell-estado"
+                              [class.cell-activa]="mag.estado === 'Activa'"
+                              [class.cell-inactiva]="mag.estado !== 'Activa'">
+                          {{ mag.estado }}
+                        </span>
+                        <span *ngSwitchCase="'descuento_activo'" class="cell-desc">
+                          {{ mag.descuento_activo ? 'Sí' : 'No' }}
+                        </span>
+                      </ng-container>
+                    </span>
+                  </ng-container>
+                </div>
+
+                <div class="export-preview-more" *ngIf="revistasFiltradas.length > 3">
+                  + {{ revistasFiltradas.length - 3 }} registros más...
+                </div>
+              </div>
+
+              <!-- Hint -->
+              <div class="export-preview-hint">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                Se exportarán <strong>{{ revistasFiltradas.length }}</strong>
+                revista(s) {{ opcionesExport.filtroEstado
+                  ? '(solo ' + opcionesExport.filtroEstado.toLowerCase() + 's)'
+                  : 'en total' }}
+              </div>
+            </div>
+
+      <!-- Footer -->
+      <div class="modal-footer export-modal-footer">
+        <button (click)="closeExportModal()" class="btn-secondary">
+          <ion-icon name="close-outline"></ion-icon>
+          Cancelar
+        </button>
+        <button (click)="ejecutarExportacion()"
+                class="btn-export-confirm"
+                [disabled]="camposSeleccionados === 0">
+          <ion-icon name="download-outline"></ion-icon>
+          Descargar Excel
+          <span *ngIf="camposSeleccionados > 0" class="export-badge" style="background:#16A34A;">
+            {{ camposSeleccionados }} campos
+          </span>
         </button>
       </div>
 
