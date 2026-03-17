@@ -2,249 +2,307 @@
   <div class="header-content">
     <h1>Tienda de Revistas</h1>
     <p class="eslogan">Tu conocimiento en enfermería, al alcance de un clic</p>
-
     <div class="search-container">
-      <input
-        type="text"
-        class="search-box"
+      <input type="text" class="search-box"
         placeholder="Buscar revista por título..."
         [(ngModel)]="searchTerm"
-        (input)="applyFilters()"
-      />
+        (input)="applyFilters()" />
       <button class="search-icon" (click)="applyFilters()">
         <ion-icon name="search-outline"></ion-icon>
       </button>
     </div>
   </div>
+
+    <!-- OLA ANIMADA -->
+  <div class="header-wave">
+    <svg viewBox="0 0 1440 90" preserveAspectRatio="none"
+         xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M0,60 C360,100 1080,20 1440,55 L1440,90 L0,90 Z"
+        fill="#f8fafc"/>
+    </svg>
+  </div>
 </header>
 
 <!-- ========================= -->
-<!-- RESUMEN CARRITO -->
+<!-- RESUMEN CARRITO           -->
 <!-- ========================= -->
-
-<div class="cart-summary bg-white shadow-md rounded-xl p-4 mb-6 flex justify-between items-center">
-  <div class="font-semibold text-gray-700">
-    🛒 {{ cartCount }} artículos en el carrito
+<div class="cart-summary">
+  <div class="cart-summary-info">
+    <ion-icon name="cart-outline"></ion-icon>
+    <span>{{ cartCount }} artículo{{ cartCount !== 1 ? 's' : '' }} en el carrito</span>
   </div>
-
-  <button 
-    (click)="toggleCart()"
-    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+  <button (click)="toggleCart()" class="cart-summary-btn">
+    <ion-icon name="bag-handle-outline"></ion-icon>
     Ver carrito
+    <span *ngIf="cartCount > 0" class="cart-summary-badge">{{ cartCount }}</span>
   </button>
 </div>
 
-
 <!-- ========================= -->
-<!-- LAYOUT PRINCIPAL -->
+<!-- LAYOUT PRINCIPAL          -->
 <!-- ========================= -->
-
 <div class="catalog-layout">
 
-  <!-- 🔵 PANEL DE FILTROS -->
-<aside class="filters-panel">
+  <!-- BARRA DE FILTROS HORIZONTAL -->
+  <div class="filtros-bar-wrap">
+    <div class="filtros-bar">
 
-  <div class="filters-header">
-    <span class="filters-title">
-      <ion-icon name="filter-outline"></ion-icon> Filtros
-    </span>
-    <button class="clear-btn" (click)="clearFilters()">Limpiar</button>
-  </div>
+      <span class="filtros-bar-label">
+        <ion-icon name="funnel-outline"></ion-icon>
+        Filtrar
+      </span>
 
-  <!-- ORDENAR A-Z -->
-  <div class="filter-group">
-    <button class="filter-accordion" (click)="toggleFilter('orden')">
-      <span><ion-icon name="text-outline"></ion-icon> Ordenar A-Z</span>
-      <ion-icon [name]="filterOpen.orden ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-    </button>
-    <div class="filter-body" [class.open]="filterOpen.orden">
-      <label class="radio-option" *ngFor="let op of [
-        {label: 'Sin orden', value: ''},
-        {label: 'A → Z', value: 'asc'},
-        {label: 'Z → A', value: 'desc'}
-      ]">
-        <input type="radio" name="alpha" [value]="op.value"
-          [(ngModel)]="sortAlpha" (change)="sortOrder=sortAlpha; applyFilters()">
-        <span>{{ op.label }}</span>
-      </label>
-    </div>
-  </div>
+      <div class="filtros-divider-v"></div>
 
-  <!-- ORDENAR PRECIO -->
-  <div class="filter-group">
-    <button class="filter-accordion" (click)="toggleFilter('precio')">
-      <span><ion-icon name="pricetag-outline"></ion-icon> Precio</span>
-      <ion-icon [name]="filterOpen.precio ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-    </button>
-    <div class="filter-body" [class.open]="filterOpen.precio">
-      <label class="radio-option" *ngFor="let op of [
-        {label: 'Sin orden', value: ''},
-        {label: 'Menor precio', value: 'price_asc'},
-        {label: 'Mayor precio', value: 'price_desc'}
-      ]">
-        <input type="radio" name="price" [value]="op.value"
-          [(ngModel)]="sortPrice" (change)="sortOrder=sortPrice; applyFilters()">
-        <span>{{ op.label }}</span>
-      </label>
-    </div>
-  </div>
-
-  <!-- FILTRO POR LETRA -->
-  <div class="filter-group">
-    <button class="filter-accordion" (click)="toggleFilter('letra')">
-      <span><ion-icon name="language-outline"></ion-icon> Letra inicial</span>
-      <ion-icon [name]="filterOpen.letra ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-    </button>
-    <div class="filter-body" [class.open]="filterOpen.letra">
-      <div class="alphabet">
-        <button
-          *ngFor="let letter of alphabet"
-          (click)="filterByLetter(letter)"
-          [class.active]="selectedLetter === letter">
-          {{ letter }}
-        </button>
+      <!-- Ordenar A-Z -->
+      <div class="chip-wrap">
+        <select class="chip-select"
+                [class.activo]="sortAlpha !== ''"
+                [(ngModel)]="sortAlpha"
+                (change)="sortOrder = sortAlpha; applyFilters()">
+          <option value="">Ordenar A-Z</option>
+          <option value="asc">A → Z</option>
+          <option value="desc">Z → A</option>
+        </select>
+        <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
       </div>
+
+      <!-- Precio -->
+      <div class="chip-wrap">
+        <select class="chip-select"
+                [class.activo]="sortPrice !== ''"
+                [(ngModel)]="sortPrice"
+                (change)="sortOrder = sortPrice; applyFilters()">
+          <option value="">Ordenar por precio</option>
+          <option value="price_asc">Menor precio</option>
+          <option value="price_desc">Mayor precio</option>
+        </select>
+        <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
+      </div>
+
+      <!-- Letra inicial -->
+      <div class="chip-wrap chip-wrap-letras">
+        <select class="chip-select"
+                [class.activo]="selectedLetter !== ''"
+                [(ngModel)]="selectedLetter"
+                (change)="filterByLetter(selectedLetter)">
+          <option value="">Letra inicial</option>
+          <option *ngFor="let letter of alphabet" [value]="letter">{{ letter }}</option>
+        </select>
+        <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
+      </div>
+
+      <!-- Borrar filtros -->
+      <button class="btn-borrar-filtros"
+              *ngIf="sortAlpha !== '' || sortPrice !== '' || selectedLetter !== '' || searchTerm !== ''"
+              (click)="clearFilters()">
+        <ion-icon name="close-circle-outline"></ion-icon>
+        Borrar filtros
+      </button>
+
+      <div class="filtros-spacer"></div>
+
+      <!-- Contador -->
+      <span class="resultados-count" *ngIf="!loading">
+        {{ magazines.length }} revista{{ magazines.length !== 1 ? 's' : '' }}
+      </span>
+
     </div>
   </div>
 
-</aside>
-
-  <!-- 📚 GRID REVISTAS (ÚNICO) -->
+  <!-- GRID REVISTAS -->
   <div class="catalog-content">
-
     <div *ngIf="loading" class="loading-state">
       <div class="spinner"></div>
       <p>Cargando catálogo...</p>
     </div>
 
     <div class="grid" *ngIf="!loading">
-
       <div class="card" *ngFor="let m of magazines">
 
-  <img 
-    [src]="getPdfCover(m.pdf_public_id)" 
-    class="cover">
+        <div class="card-cover-wrap">
+          <img [src]="getPdfCover(m.pdf_public_id)" class="cover" [alt]="m.titulo" />
+          <span *ngIf="m.descuento_activo" class="card-badge card-badge-sale">OFERTA</span>
+          <span *ngIf="isPurchased(m.id_magazine)" class="card-badge card-badge-owned">
+            <ion-icon name="checkmark-circle-outline"></ion-icon> Adquirida
+          </span>
+        </div>
 
-    <!-- 🔥 Agregar este wrapper -->
-    <div class="card-body">
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-category">Enfermería</span>
+          </div>
+          <h3 class="card-title">{{ m.titulo }}</h3>
+          <p class="card-desc" *ngIf="m.descripcion">
+            {{ m.descripcion.length > 60 ? (m.descripcion | slice:0:60) + '...' : m.descripcion }}
+          </p>
+          <div class="card-footer">
+            <div class="card-price-wrap">
+              <span class="card-price">${{ m.precio }}</span>
+            </div>
+            <div class="card-actions">
+              <a [routerLink]="['/magazines', m.id_magazine]" class="btn-view" title="Ver detalle">
+                <ion-icon name="eye-outline"></ion-icon>
+              </a>
+              <button *ngIf="!isPurchased(m.id_magazine)"
+                (click)="addToCart(m)" class="btn-cart" title="Agregar al carrito">
+                <ion-icon name="cart-outline"></ion-icon>
+              </button>
+              <a *ngIf="isPurchased(m.id_magazine)"
+                [routerLink]="['/magazines', m.id_magazine]" class="btn-owned" title="Leer ahora">
+                <ion-icon name="book-outline"></ion-icon>
+              </a>
+            </div>
+          </div>
+        </div>
 
-      <h3>{{ m.titulo }}</h3>
-      <p class="price">${{ m.precio }}</p>
-
-      <div class="actions">
-        <a 
-          [routerLink]="['/magazines', m.id_magazine]" 
-          class="btn-view">
-          Ver detalle
-        </a>
-
-        <button 
-          *ngIf="!isPurchased(m.id_magazine)"
-          (click)="addToCart(m)" 
-          class="btn-cart">
-          Comprar
-        </button>
-
-        <a 
-          *ngIf="isPurchased(m.id_magazine)"
-          [routerLink]="['/magazines', m.id_magazine]"
-          class="btn-view bg-green-600 hover:bg-green-700">
-          Leer ahora
-        </a>
       </div>
-
     </div>
-
-  </div>
-
-    </div>
-
   </div>
 
 </div>
 
 <!-- ===================================== -->
-<!-- 🛒 OVERLAY -->
+<!-- OVERLAY CARRITO                       -->
 <!-- ===================================== -->
-<div 
-  *ngIf="cartOpen"
-  class="fixed inset-0 bg-black/50 z-40"
-  (click)="closeCart()">
-</div>
+<div *ngIf="cartOpen" class="cart-overlay" (click)="closeCart()"></div>
 
 <!-- ===================================== -->
-<!-- 🛒 DRAWER LATERAL -->
+<!-- DRAWER CARRITO                        -->
 <!-- ===================================== -->
-<div 
-  class="fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300"
-  [class.translate-x-full]="!cartOpen">
+<div class="cart-drawer" [class.cart-drawer-open]="cartOpen">
 
-  <div class="p-6 flex justify-between items-center border-b">
-    <h2 class="text-xl font-bold">🛒 Tu Carrito</h2>
-    <button (click)="closeCart()" class="text-gray-500 hover:text-black text-xl">✕</button>
+  <div class="cart-drawer-header">
+    <div class="cart-drawer-title">
+      <ion-icon name="bag-handle-outline"></ion-icon>
+      <span>Tu Carrito</span>
+      <span *ngIf="cartCount > 0" class="cart-drawer-count">{{ cartCount }}</span>
+    </div>
+    <button (click)="closeCart()" class="cart-drawer-close">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
   </div>
 
-  <div class="p-6 flex flex-col gap-4 overflow-y-auto h-[65%]">
-
-    <div *ngFor="let item of cartItems" class="flex justify-between items-center border-b pb-3">
-      <div>
-        <p class="font-semibold">{{ item.titulo }}</p>
-        <p class="text-sm text-gray-500">${{ item.precio }}</p>
+  <div class="cart-drawer-items">
+    <div *ngFor="let item of cartItems" class="cart-item">
+      <div class="cart-item-icon">
+        <ion-icon name="document-text-outline"></ion-icon>
       </div>
-      <button (click)="removeItem(item.id)" class="text-red-500 text-sm hover:underline">
-        Eliminar
+      <div class="cart-item-info">
+        <p class="cart-item-title">{{ item.titulo }}</p>
+        <p class="cart-item-price">${{ item.precio }}</p>
+      </div>
+      <button (click)="removeItem(item.id)" class="cart-item-remove" title="Eliminar">
+        <ion-icon name="trash-outline"></ion-icon>
       </button>
     </div>
 
-    <div *ngIf="cartItems.length === 0" class="text-center text-gray-400 mt-10">
-      Tu carrito está vacío
+    <div *ngIf="cartItems.length === 0" class="cart-empty">
+      <ion-icon name="cart-outline"></ion-icon>
+      <p>Tu carrito está vacío</p>
+      <span>Agrega revistas para comenzar</span>
     </div>
-
   </div>
 
-  <div class="p-6 border-t bg-gray-50">
-    <div class="flex justify-between font-bold text-lg mb-4">
-      <span>Total:</span>
-      <span>${{ total }}</span>
+  <div class="cart-drawer-footer" *ngIf="cartItems.length > 0">
+    <div class="cart-total">
+      <span>Total</span>
+      <span class="cart-total-amount">${{ total }}</span>
     </div>
-
-    <button 
-      (click)="simulatePayment()"
-      [disabled]="processingPayment"
-      class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex justify-center items-center gap-2">
-
-      <span *ngIf="!processingPayment">💳 Pagar ahora</span>
-
-      <span *ngIf="processingPayment" class="flex items-center gap-2">
-        <span class="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
+    <button (click)="simulatePayment()" [disabled]="processingPayment" class="btn-pay">
+      <span *ngIf="!processingPayment">
+        <ion-icon name="card-outline"></ion-icon>
+        Pagar ahora
+      </span>
+      <span *ngIf="processingPayment" class="btn-pay-loading">
+        <span class="pay-spinner"></span>
         Procesando...
       </span>
+    </button>
+  </div>
 
+</div>
+
+<!-- ===================================== -->
+<!-- MODAL PAGO EXITOSO                    -->
+<!-- ===================================== -->
+<div *ngIf="paymentSuccess" class="modal-overlay-pay">
+  <div class="modal-pay">
+    <div class="modal-pay-icon modal-pay-icon-success">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+    </div>
+    <h2>¡Pago exitoso!</h2>
+    <p>Gracias por tu compra. Tus revistas ya están disponibles.</p>
+    <button (click)="paymentSuccess = false" class="modal-pay-btn">
+      Continuar comprando
     </button>
   </div>
 </div>
 
 <!-- ===================================== -->
-<!-- 💳 MODAL PAGO EXITOSO -->
+<!-- MODAL PAGO RECHAZADO                  -->
 <!-- ===================================== -->
-<div 
-  *ngIf="paymentSuccess"
-  class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
-
-  <div class="bg-white p-10 rounded-2xl shadow-2xl text-center w-96">
-
-    <div class="text-green-500 text-5xl mb-4">✔</div>
-
-    <h2 class="text-2xl font-bold mb-2">Pago exitoso</h2>
-    <p class="text-gray-500 mb-6">
-      Gracias por tu compra.
-    </p>
-
-    <button 
-      (click)="paymentSuccess = false"
-      class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-      Continuar
+<div *ngIf="paymentRejected" class="modal-overlay-pay">
+  <div class="modal-pay">
+    <div class="modal-pay-icon modal-pay-icon-error">
+      <ion-icon name="close-circle-outline"></ion-icon>
+    </div>
+    <h2>Pago rechazado</h2>
+    <p>No se pudo procesar tu pago. Por favor intenta nuevamente.</p>
+    <button (click)="paymentRejected = false" class="modal-pay-btn modal-pay-btn-error">
+      Intentar de nuevo
     </button>
+  </div>
+</div>
 
+<!-- ===================================== -->
+<!-- MODAL AGREGADO AL CARRITO             -->
+<!-- ===================================== -->
+<div *ngIf="showCartModal" class="modal-overlay-pay" (click)="showCartModal = false">
+  <div class="modal-pay modal-cart-added" (click)="$event.stopPropagation()">
+
+    <div class="modal-pay-icon modal-pay-icon-success">
+      <ion-icon name="cart-outline"></ion-icon>
+    </div>
+
+    <h2>¡Agregado al carrito!</h2>
+    <p>"<strong>{{ cartAddedMagazine?.titulo }}</strong>" se agregó correctamente.</p>
+
+    <div class="modal-cart-price">
+      ${{ cartAddedMagazine?.precio }}
+    </div>
+
+    <div class="modal-cart-btns">
+      <button (click)="showCartModal = false" class="modal-pay-btn modal-btn-secondary">
+        Seguir comprando
+      </button>
+      <button (click)="showCartModal = false; toggleCart()" class="modal-pay-btn">
+        <ion-icon name="bag-handle-outline"></ion-icon>
+        Ver carrito
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================================== -->
+<!-- TOASTS                                -->
+<!-- ===================================== -->
+<div class="toast-container">
+  <div *ngFor="let toast of toasts"
+       class="toast"
+       [class]="'toast toast-' + toast.type"
+       (click)="removeToast(toast.id)">
+    <div class="toast-icon">
+      <ion-icon [name]="toast.icon"></ion-icon>
+    </div>
+    <div class="toast-content">
+      <p class="toast-title">{{ toast.title }}</p>
+      <p class="toast-message">{{ toast.message }}</p>
+    </div>
+    <button class="toast-close" (click)="removeToast(toast.id)">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
   </div>
 </div>
