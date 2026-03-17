@@ -1,174 +1,196 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation,inject } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MagazinesService } from '../../api/services/magazines.service';
 import { CartService } from '../../api/services/cart.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { HttpHeaders } from '@angular/common/http'
-import { environment } from '../../../app/api/environments/environment.prod';
+import { HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../app/api/environments/environment';
 import { FormsModule } from '@angular/forms';
+
+/* ── Toast ── */
+interface Toast {
+  id: number;
+  type: 'success' | 'error' | 'info' | 'warning';
+  title: string;
+  message: string;
+  icon: string;
+}
+
 @Component({
   selector: 'app-magazines',
   standalone: true,
   imports: [CommonModule, RouterModule, HttpClientModule, FormsModule],
   templateUrl: './magazines.component.html',
-  styleUrls: ['./magazines.component.css'],
+  styleUrls: ['./magazines.component.css'], 
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
 export class MagazinesComponent implements OnInit {
 
-    // ✅ inject() en lugar de constructor
   private magazineService = inject(MagazinesService);
-  private cartService = inject(CartService);
-  private http = inject(HttpClient);
+  private cartService     = inject(CartService);
+  private http            = inject(HttpClient);
 
-  magazines: any[] = [];
-  loading = true;
-  cartCount = 0;
-  cartOpen = false;
-  cartItems: any[] = [];
-  total = 0;
-  paymentSuccess = false;
-  paymentRejected = false;
-  processingPayment = false;
-  purchasedIds: number[] = [];
-  purchasedMagazines: any[] = [];
-  searchTerm = '';
-  sortOrder = '';
-  selectedLetter = '';
-  alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  magazines: any[]         = [];
+  loading                  = true;
+  cartCount                = 0;
+  cartOpen                 = false;
+  cartItems: any[]         = [];
+  total                    = 0;
+  paymentSuccess           = false;
+  paymentRejected          = false;
+  processingPayment        = false;
+  purchasedIds: number[]   = [];
+  purchasedMagazines: any[]= [];
+  searchTerm               = '';
+  sortOrder                = '';
+  selectedLetter           = '';
+  alphabet                 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  sortAlpha                = '';
+  sortPrice                = '';
+  cartAddedMagazine: any = null;  // revista recién agregada
+  showCartModal = false;           // controla el modal
 
-  sortAlpha = '';        // A-Z / Z-A
-  sortPrice = '';        // precio asc/desc
-  filterOpen = {
-    orden: true,
-    precio: true,
-    letra: true
-  };
 
-  
+  filterOpen = { orden: true, precio: true, letra: true };
 
-  constructor(
-  
-  ) {}
+  /* ── Toasts ── */
+  toasts: Toast[]  = [];
+  private toastId  = 0;
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadMagazines();
     this.updateCart();
-
-    this.cartService.cart$.subscribe(() => {
-      this.updateCart();
-    });
-
-    this.cartService.cart$.subscribe(cart => {
-      this.cartCount = cart.length;
-    });
+    this.cartService.cart$.subscribe(() => this.updateCart());
+    this.cartService.cart$.subscribe(cart => this.cartCount = cart.length);
   }
 
-  loadPurchases() {
-    this.http.get<any[]>(
-      `${environment.apiUrl}/magazines/my-purchases`
-    ).subscribe(data => {
-      this.purchasedMagazines = data;
-    });
+  /* ── Toast helper ── */
+  showToast(type: Toast['type'], title: string, message: string, icon: string): void {
+    const id = ++this.toastId;
+    this.toasts.push({ id, type, title, message, icon });
+    setTimeout(() => this.removeToast(id), 3500);
   }
 
-  loadMagazines() {
+  removeToast(id: number): void {
+    this.toasts = this.toasts.filter(t => t.id !== id);
+  }
+
+  /* ── Datos ── */
+  loadPurchases(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/magazines/my-purchases`)
+      .subscribe(data => this.purchasedMagazines = data);
+  }
+
+  loadMagazines(): void {
     this.magazineService.getCatalog().subscribe((res: any) => {
       this.magazines = res.data;
-      this.loading = false;
+      this.loading   = false;
     });
   }
 
-  toggleCart() {
-    this.cartOpen = !this.cartOpen;
+  /* ── Carrito ── */
+  toggleCart(): void { this.cartOpen = !this.cartOpen; }
+  closeCart():  void { this.cartOpen = false; }
+
+  updateCart(): void {
+    this.cartItems = this.cartService.getItems();
+    this.cartCount = this.cartItems.length;
+    this.total     = this.cartItems.reduce((s, i) => s + (Number(i.precio) || 0), 0);
   }
 
-  toggleFilter(section: 'orden' | 'precio' | 'letra') {
+  addToCart(magazine: any): void {
+    const yaEnCarrito = this.cartItems.some(i => i.id === magazine.id_magazine);
+    if (yaEnCarrito) {
+      this.showToast('warning', 'Ya en el carrito', `"${magazine.titulo}" ya fue agregado.`, 'cart-outline');
+      return;
+    }
+
+    this.cartService.add({
+      id:       magazine.id_magazine,
+      titulo:   magazine.titulo,
+      precio:   Number(magazine.precio),
+      quantity: 1
+    });
+    this.updateCart();
+
+    // ✅ Muestra modal central en lugar del toast
+    this.cartAddedMagazine = magazine;
+    this.showCartModal = true;
+    setTimeout(() => this.showCartModal = false, 3000); // se cierra solo en 3s
+  }
+
+  removeItem(id: number): void {
+    const item = this.cartItems.find(i => i.id === id);
+    this.cartService.remove(id);
+    this.updateCart();
+    if (item) {
+      this.showToast('info', 'Eliminado', `"${item.titulo}" fue removido del carrito.`, 'trash-outline');
+    }
+  }
+
+  /* ── Filtros ── */
+  toggleFilter(section: 'orden' | 'precio' | 'letra'): void {
     this.filterOpen[section] = !this.filterOpen[section];
   }
 
-  clearFilters() {
-    this.sortOrder = '';
-    this.sortAlpha = '';
-    this.sortPrice = '';
-    this.selectedLetter = '';
-    this.searchTerm = '';
+  clearFilters(): void {
+    this.sortOrder = ''; this.sortAlpha = ''; this.sortPrice = '';
+    this.selectedLetter = ''; this.searchTerm = '';
     this.loadMagazines();
   }
-  closeCart() {
-    this.cartOpen = false;
-  }
 
-
-  applyFilters() {
+  applyFilters(): void {
     this.magazineService.getFiltered({
       search: this.searchTerm,
-      sort: this.sortOrder || this.sortAlpha || this.sortPrice,
+      sort:   this.sortOrder || this.sortAlpha || this.sortPrice,
       letter: this.selectedLetter
-    }).subscribe((res: any) => {
-      this.magazines = res.data;
-    });
+    }).subscribe((res: any) => this.magazines = res.data);
   }
 
-  filterByLetter(letter: string) {
+  filterByLetter(letter: string): void {
     this.selectedLetter = letter;
     this.applyFilters();
   }
 
-  private getAuthHeaders() {
-    //const token = localStorage.getItem('accessToken');
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-  }
+  /* ── Pago ── */
+  simulatePayment(): void {
+    if (this.cartItems.length === 0) return;
 
-  updateCart() {
-    this.cartItems = this.cartService.getItems();
-    this.cartCount = this.cartItems.length;
-    this.total = this.cartItems.reduce((sum, item) => {
-      return sum + (Number(item.precio) || 0);
-    }, 0);
-  }
+    this.processingPayment = true;
+    const aprobado = Math.random() > 0.2;
 
-  removeItem(id: number) {
-    this.cartService.remove(id);
-    this.updateCart();
-  }
+    setTimeout(() => {
+      if (!aprobado) {
+        this.processingPayment = false;
+        this.paymentRejected   = true;
+        this.showToast('error', 'Pago rechazado', 'No se pudo procesar tu pago. Intenta de nuevo.', 'close-circle-outline');
+        return;
+      }
 
- simulatePayment() {
-  if (this.cartItems.length === 0) return;
-
-  this.processingPayment = true;
-  const aprobado = Math.random() > 0.2;
-
-  setTimeout(() => {
-    if (!aprobado) {
-      this.processingPayment = false;
-      this.paymentRejected = true;
-      return;
-    }
-
-     this.magazineService.savePurchase(this.cartItems)
-
-      .subscribe({
+      this.magazineService.savePurchase(this.cartItems).subscribe({
         next: () => {
           this.processingPayment = false;
-          this.paymentSuccess = true;
+          this.paymentSuccess    = true;
           this.cartService.clear();
           this.updateCart();
+          this.closeCart();
+          this.showToast('success', '¡Compra exitosa!', 'Tus revistas están listas para leer.', 'bag-check-outline');
         },
         error: (err) => {
-          console.log("Error backend:", err);
+          console.error('Error backend:', err);
           this.processingPayment = false;
-          this.paymentRejected = true;
+          this.paymentRejected   = true;
+          this.showToast('error', 'Error en compra', 'Ocurrió un error al procesar tu compra.', 'alert-circle-outline');
         }
       });
-  }, 1500);
-}
+    }, 1500);
+  }
 
+  /* ── Helpers ── */
   isPurchased(id: number): boolean {
     return this.purchasedIds.includes(id);
   }
@@ -179,14 +201,8 @@ export class MagazinesComponent implements OnInit {
     return `https://res.cloudinary.com/dtfto3sgm/image/upload/pg_1,w_300,h_400,c_fill/${cleanId}.jpg`;
   }
 
-  addToCart(magazine: any) {
-    this.cartService.add({
-      id: magazine.id_magazine,
-      titulo: magazine.titulo,
-      precio: Number(magazine.precio),
-      quantity: 1
-    });
-    this.updateCart();
+  private getAuthHeaders(): HttpHeaders {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
+    return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 }
-
