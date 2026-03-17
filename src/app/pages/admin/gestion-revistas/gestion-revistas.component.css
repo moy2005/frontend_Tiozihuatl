@@ -25,10 +25,10 @@
 }
 
 /* ============================================
-   HEADER — igual al de usuarios (sin border-radius)
+   HEADER
    ============================================ */
 .admin-content .header-section {
-  background: linear-gradient(135deg, #1976D2 0%, #03A9F4 100%);
+  background: linear-gradient(var(--color-info));
   border: 1px solid var(--color-borde);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -97,7 +97,7 @@
 }
 
 .admin-content .table-header {
-  background: linear-gradient(135deg, #1976D2 0%, #03A9F4 100%);
+  background: linear-gradient(var(--color-info));
   border-bottom: 2px solid var(--color-primario);
 }
 
@@ -131,7 +131,7 @@
 }
 
 /* ============================================
-   BADGES — rectangulares como usuarios
+   BADGES
    ============================================ */
 .admin-content .badge-estado {
   display: inline-flex;
@@ -167,7 +167,7 @@
 }
 
 /* ============================================
-   BOTÓN EXPORTAR CSV
+   BOTÓN EXPORTAR
    ============================================ */
 .admin-content .btn-export {
   background: white;
@@ -198,11 +198,8 @@
   transform: none;
 }
 
-.admin-content .btn-export ion-icon {
-  font-size: 1.1rem;
-}
+.admin-content .btn-export ion-icon { font-size: 1.1rem; }
 
-/* Badge contador en botón exportar */
 .admin-content .export-badge {
   background: #16A34A;
   color: white;
@@ -580,7 +577,7 @@
 }
 
 /* ============================================
-   FILTROS — estilo idéntico a usuarios
+   FILTROS
    ============================================ */
 .admin-content .filtros-section {
   background: var(--color-contenedor);
@@ -710,13 +707,11 @@
   background-color: white;
 }
 
-/* Input de texto dentro de filtros (búsqueda por título) */
 .admin-content .filtro-input-text {
   background-image: none;
   padding-right: 0.75rem;
 }
 
-/* Tags de filtros activos */
 .admin-content .filtros-activos-tags {
   display: flex;
   align-items: center;
@@ -777,7 +772,6 @@
 .admin-content .filtro-tag button:hover { background: rgba(33, 150, 243, 0.4); }
 .admin-content .filtro-tag button ion-icon { font-size: 0.7rem; }
 
-/* Banner filtros activos (panel cerrado) */
 .admin-content .filter-banner {
   display: flex;
   align-items: center;
@@ -854,12 +848,475 @@
 .admin-content * { box-sizing: border-box; }
 
 /* ============================================
+   ████████████████████████████████████████████
+   MODAL EXPORTACIÓN PERSONALIZADA
+   ████████████████████████████████████████████
+   ============================================ */
+
+/* Overlay con tono verde sutilmente diferenciado */
+.admin-content .export-overlay {
+  z-index: 60;
+}
+
+/* Contenedor más ancho para el modal de exportación */
+.admin-content .export-modal-container {
+  max-width: 72rem;
+}
+
+/* Header con acento verde */
+.admin-content .export-modal-header {
+  border-bottom: 2px solid #D1FAE5;
+  background: #F0FDF4;
+}
+
+/* Body del modal con padding ajustado */
+.admin-content .export-modal-body {
+  padding: 1.5rem 1.75rem;
+  background: #F8FAFC;
+}
+
+/* Layout de dos columnas */
+.admin-content .export-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+/* Columna */
+.admin-content .export-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Sección dentro del modal */
+.admin-content .export-section {
+  background: white;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.admin-content .export-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.125rem;
+  background: #EBF5FB;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.admin-content .export-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-primario-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-content .export-section-title ion-icon {
+  font-size: 1rem;
+  color: var(--color-primario);
+}
+
+/* Acciones rápidas de campos */
+.admin-content .export-campo-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-content .export-link-btn {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primario);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.15s;
+}
+
+.admin-content .export-link-btn:hover { color: var(--color-primario-dark); }
+
+.admin-content .export-link-danger { color: var(--color-peligro); }
+.admin-content .export-link-danger:hover { color: #B91C1C; }
+
+.admin-content .export-divider {
+  color: #CBD5E1;
+  font-size: 0.75rem;
+}
+
+/* Lista de campos */
+.admin-content .export-campos-lista {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.admin-content .export-campo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 7px;
+  background: #FAFAFA;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.admin-content .export-campo-item:hover {
+  border-color: var(--color-primario-mid);
+  background: #F0F8FF;
+}
+
+.admin-content .export-campo-activo {
+  border-color: #86EFAC;
+  background: #F0FDF4;
+}
+
+.admin-content .export-campo-activo:hover {
+  border-color: #4ADE80;
+  background: #DCFCE7;
+}
+
+.admin-content .export-campo-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex: 1;
+  cursor: pointer;
+}
+
+/* Checkbox personalizado */
+.admin-content .export-checkbox-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.admin-content .export-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.admin-content .export-checkbox-custom {
+  display: block;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid #CBD5E1;
+  border-radius: 4px;
+  background: white;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.admin-content .export-checkbox:checked + .export-checkbox-custom {
+  background: #16A34A;
+  border-color: #16A34A;
+}
+
+.admin-content .export-checkbox:checked + .export-checkbox-custom::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid white;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+/* Info del campo */
+.admin-content .export-campo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.admin-content .export-campo-nombre {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.admin-content .export-campo-key {
+  font-size: 0.7rem;
+  color: #94A3B8;
+  font-family: 'Courier New', monospace;
+}
+
+/* Botones de orden */
+.admin-content .export-orden-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: 0.5rem;
+}
+
+.admin-content .export-orden-btn {
+  width: 1.4rem;
+  height: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #64748B;
+}
+
+.admin-content .export-orden-btn:hover {
+  background: var(--color-primario);
+  border-color: var(--color-primario);
+  color: white;
+}
+
+.admin-content .export-orden-btn ion-icon { font-size: 0.75rem; }
+
+/* Contador de campos seleccionados */
+.admin-content .export-campos-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1.125rem;
+  border-top: 1px solid var(--color-borde);
+  background: #F8FAFC;
+  font-size: 0.8rem;
+  color: #64748B;
+}
+
+.admin-content .export-campos-counter ion-icon { font-size: 1rem; }
+
+/* ── Opciones ── */
+.admin-content .export-opciones {
+  padding: 0.875rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.admin-content .export-opcion-item {
+  border: 1px solid #E2E8F0;
+  border-radius: 7px;
+  padding: 0.75rem;
+  background: #FAFAFA;
+  transition: all 0.15s ease;
+}
+
+.admin-content .export-opcion-item:hover {
+  border-color: var(--color-primario-mid);
+  background: #F0F8FF;
+}
+
+.admin-content .export-opcion-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+}
+
+.admin-content .export-opcion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.admin-content .export-opcion-nombre {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.admin-content .export-opcion-desc {
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+/* Inputs de texto para nombre */
+.admin-content .export-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.admin-content .export-input-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primario-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-content .export-input-label ion-icon {
+  font-size: 0.875rem;
+  color: var(--color-primario);
+}
+
+.admin-content .export-text-input {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: #1E293B;
+  background: white;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  width: 100%;
+}
+
+.admin-content .export-text-input:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
+}
+
+.admin-content .export-filename-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.admin-content .export-filename-wrap .export-text-input {
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+}
+
+.admin-content .export-filename-ext {
+  padding: 0.5rem 0.75rem;
+  background: #F0F8FF;
+  border: 1px solid #CBD5E1;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primario-dark);
+  white-space: nowrap;
+}
+
+/* ── Vista previa ── */
+.admin-content .export-preview-section {
+  flex: 1;
+}
+
+.admin-content .export-preview {
+  padding: 0.875rem 1.125rem;
+}
+
+.admin-content .export-preview-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  min-height: 2.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: #F0F8FF;
+  border: 1px solid var(--color-borde);
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.admin-content .export-preview-th {
+  background: #1565C0;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  animation: fadeInTag 0.2s ease;
+}
+
+@keyframes fadeInTag {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.admin-content .export-preview-empty {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  font-style: italic;
+}
+
+.admin-content .export-preview-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8rem;
+  color: #64748B;
+  padding: 0.5rem 0.625rem;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 6px;
+}
+
+.admin-content .export-preview-hint ion-icon {
+  color: #D97706;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.admin-content .export-preview-hint strong { color: #1565C0; }
+
+/* ── Footer del modal de exportación ── */
+.admin-content .export-modal-footer {
+  background: #F0FDF4;
+  border-top: 1px solid #D1FAE5;
+}
+
+.admin-content .btn-export-confirm {
+  background: #16A34A;
+  color: white;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.25);
+}
+
+.admin-content .btn-export-confirm:hover:not(:disabled) {
+  background: #15803D;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+}
+
+.admin-content .btn-export-confirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.admin-content .btn-export-confirm ion-icon { font-size: 1.1rem; }
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 1024px) {
   .admin-content .filtros-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-content .filtros-grid-auditoria { grid-template-columns: 1fr; }
   .admin-content .form-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-content .export-layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
@@ -875,4 +1332,122 @@
   .admin-content .btn-primary,
   .admin-content .btn-secondary { width: 100%; justify-content: center; }
   .admin-content .filtro-btns { flex-direction: row; }
+  .admin-content .export-modal-container { max-width: 100%; }
+  .admin-content .export-modal-footer { flex-direction: column; }
+  .admin-content .btn-export-confirm { width: 100%; justify-content: center; }
+}
+
+
+.admin-content .export-estado-opciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-content .export-estado-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.875rem;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: white;
+}
+
+.admin-content .export-estado-opt input[type="radio"] { display: none; }
+
+.admin-content .export-estado-opt:hover {
+  border-color: var(--color-primario-mid);
+  color: var(--color-primario-dark);
+}
+
+.admin-content .export-estado-opt-activo {
+  border-color: var(--color-primario);
+  background: var(--color-primario-light);
+  color: var(--color-primario-dark);
+}
+
+.admin-content .export-estado-opt-green.export-estado-opt-activo {
+  border-color: #16A34A;
+  background: #F0FDF4;
+  color: #15803D;
+}
+
+.admin-content .export-estado-opt-red.export-estado-opt-activo {
+  border-color: #DC2626;
+  background: #FFF1F2;
+  color: #B91C1C;
+}
+
+
+/* ── Mini tabla vista previa ── */
+.admin-content .export-preview-tabla {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.admin-content .export-preview-row {
+  display: flex;
+  gap: 0;
+  background: white;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.admin-content .export-preview-row:nth-child(even) {
+  background: #F0F8FF;
+}
+
+.admin-content .export-preview-row:last-child {
+  border-bottom: none;
+}
+
+.admin-content .export-preview-cell {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.72rem;
+  color: #334155;
+  border-right: 1px solid #F1F5F9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.admin-content .export-preview-cell:last-child {
+  border-right: none;
+}
+
+.admin-content .cell-titulo  { font-weight: 600; color: #1E293B; }
+.admin-content .cell-precio  { font-weight: 700; color: #1565C0; }
+.admin-content .cell-desc    { color: #64748B; }
+.admin-content .cell-stock   { color: #475569; text-align: center; }
+
+.admin-content .cell-activa  {
+  color: #16A34A;
+  font-weight: 600;
+}
+
+.admin-content .cell-inactiva {
+  color: #DC2626;
+  font-weight: 600;
+}
+
+.admin-content .export-preview-more {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.72rem;
+  color: #94A3B8;
+  font-style: italic;
+  background: #F8FAFC;
+  border-top: 1px dashed var(--color-borde);
+  text-align: center;
 }
