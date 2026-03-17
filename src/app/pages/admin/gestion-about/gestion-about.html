@@ -1,155 +1,230 @@
-<div class="p-6 max-w-7xl mx-auto">
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
 
-  <!-- Header -->
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">
-      Gestión · Quiénes Somos
-    </h1>
-
-    <button
-      class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-             transition-all shadow-md flex items-center gap-2"
-      (click)="nuevoAbout()"
-      [disabled]="cargando">
-      + Nuevo Contenido
-    </button>
-  </div>
-
-  <!-- Loader -->
-  <div *ngIf="cargando && abouts.length === 0" class="text-center py-12">
-    <div class="animate-spin h-10 w-10 border-b-2 border-blue-600 rounded-full mx-auto"></div>
-    <p class="mt-3 text-gray-600">Cargando contenido...</p>
-  </div>
-
-  <!-- Tabla -->
-  <div *ngIf="!cargando || abouts.length > 0" class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="w-full">
-      <thead class="bg-blue-600 text-white">
-        <tr>
-          <th class="px-6 py-4 text-left">Tipo</th>
-          <th class="px-6 py-4 text-left">Título</th>
-          <th class="px-6 py-4 text-left">Estado</th>
-          <th class="px-6 py-4 text-left w-40">Acciones</th>
-        </tr>
-      </thead>
-
-      <tbody class="divide-y">
-        <tr *ngIf="abouts.length === 0">
-          <td colspan="4" class="text-center py-10 text-gray-500">
-            No hay contenido registrado
-          </td>
-        </tr>
-
-        <tr *ngFor="let item of abouts" class="hover:bg-gray-50">
-          <td class="px-6 py-4 font-semibold">{{ item.type }}</td>
-          <td class="px-6 py-4">{{ item.title }}</td>
-          <td class="px-6 py-4">
-            <span
-              class="px-3 py-1 rounded-full text-xs font-medium"
-              [ngClass]="item.status === 'Activo'
-                ? 'bg-green-100 text-green-700'
-                : 'bg-gray-200 text-gray-600'">
-              {{ item.status }}
-            </span>
-          </td>
-          <td class="px-6 py-4 flex gap-2">
-            <button
-              class="px-3 py-1 text-blue-600 border border-blue-200 rounded hover:bg-blue-50"
-              (click)="editarAbout(item)">
-              Editar
-            </button>
-            <button
-              class="px-3 py-1 text-red-600 border border-red-200 rounded hover:bg-red-50"
-              (click)="eliminarAbout(item.id_about)">
-              Eliminar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- MODAL -->
-  <div *ngIf="mostrarModal" class="fixed inset-0 z-50 flex items-center justify-center">
-
-    <!-- Overlay -->
-    <div
-      class="absolute inset-0 bg-black bg-opacity-50"
-      (click)="cancelar()">
+    <!-- ══════════════════════════════════════════════════════
+         HEADER
+    ══════════════════════════════════════════════════════ -->
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <h2 class="page-title">Gestión de Quiénes Somos</h2>
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="btn-primary flex items-center gap-2"
+            (click)="nuevoAbout()"
+            [disabled]="cargando">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            Nuevo Contenido
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Modal -->
-    <div
-      class="relative bg-white rounded-xl shadow-xl max-w-2xl w-full z-10"
-      (click)="$event.stopPropagation()">
+    <!-- ══════════════════════════════════════════════════════
+         LOADING
+    ══════════════════════════════════════════════════════ -->
+    <div *ngIf="cargando && abouts.length === 0" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 text-gray-600 font-medium">Cargando contenido...</p>
+    </div>
 
-      <!-- Header -->
-      <div class="bg-blue-600 text-white px-6 py-4 rounded-t-xl flex justify-between">
-        <h2 class="text-lg font-bold">
-          {{ aboutForm.id_about ? 'Editar Contenido' : 'Nuevo Contenido' }}
-        </h2>
-        <button (click)="cancelar()">✕</button>
+    <!-- ══════════════════════════════════════════════════════
+         TABLA
+    ══════════════════════════════════════════════════════ -->
+    <div *ngIf="!cargando || abouts.length > 0" class="content-card overflow-hidden">
+
+      <!-- Sin resultados -->
+      <div *ngIf="abouts.length === 0" class="text-center py-16">
+        <ion-icon name="information-circle-outline"
+          style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
+        <p style="color:#64748B; font-weight:500;">No hay contenido registrado</p>
       </div>
 
-      <!-- Body -->
-      <div class="p-6 space-y-4">
+      <!-- Tabla desktop -->
+      <div *ngIf="abouts.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell">Tipo</th>
+              <th class="th-cell">Título</th>
+              <th class="th-cell">Contenido</th>
+              <th class="th-cell">Estado</th>
+              <th class="th-cell text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of abouts" class="table-row">
 
-        <div>
-          <label class="font-semibold text-sm">Tipo</label>
-          <select
-            [(ngModel)]="aboutForm.type"
-            [disabled]="guardando"
-            class="w-full border rounded-lg px-4 py-2">
-            <option value="MISION">Misión</option>
-            <option value="VISION">Visión</option>
-            <option value="VALORES">Valores</option>
-          </select>
-        </div>
+              <td class="td-cell">
+                <span class="badge-tipo" [ngClass]="{
+                  'badge-mision':  item.type === 'MISION',
+                  'badge-vision':  item.type === 'VISION',
+                  'badge-valores': item.type === 'VALORES'
+                }">
+                  <ion-icon [name]="
+                    item.type === 'MISION'  ? 'flag-outline' :
+                    item.type === 'VISION'  ? 'eye-outline'  :
+                    'star-outline'
+                  "></ion-icon>
+                  {{ item.type === 'MISION' ? 'Misión' :
+                     item.type === 'VISION' ? 'Visión' : 'Valores' }}
+                </span>
+              </td>
 
-        <div>
-          <label class="font-semibold text-sm">Título *</label>
-          <input
-            [(ngModel)]="aboutForm.title"
-            [disabled]="guardando"
-            class="w-full border rounded-lg px-4 py-2"
-            placeholder="Ej. Nuestra Misión">
-        </div>
+              <td class="td-cell font-medium text-gray-900">{{ item.title }}</td>
 
-        <div>
-          <label class="font-semibold text-sm">Contenido *</label>
-          <textarea
-            [(ngModel)]="aboutForm.content"
-            [disabled]="guardando"
-            rows="5"
-            class="w-full border rounded-lg px-4 py-2"
-            placeholder="Texto descriptivo..."></textarea>
-        </div>
+              <td class="td-cell text-gray-500 text-sm td-contenido">
+                {{ item.content && item.content.length > 80
+                   ? (item.content | slice:0:80) + '...'
+                   : (item.content || '—') }}
+              </td>
 
-        <div>
-          <label class="font-semibold text-sm">Estado</label>
-          <select
-            [(ngModel)]="aboutForm.status"
-            [disabled]="guardando"
-            class="w-full border rounded-lg px-4 py-2">
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
-          </select>
+              <td class="td-cell">
+                <span class="badge-estado"
+                  [ngClass]="item.status === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
+                  {{ item.status }}
+                </span>
+              </td>
+
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+                  <button
+                    (click)="editarAbout(item)"
+                    class="btn-icon btn-icon-primary"
+                    title="Editar contenido">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                  <button
+                    (click)="eliminarAbout(item.id_about)"
+                    class="btn-icon btn-icon-danger"
+                    title="Eliminar contenido">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Cards móvil -->
+      <div *ngIf="abouts.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let item of abouts" class="user-card">
+          <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="badge-tipo" [ngClass]="{
+                  'badge-mision':  item.type === 'MISION',
+                  'badge-vision':  item.type === 'VISION',
+                  'badge-valores': item.type === 'VALORES'
+                }">
+                  {{ item.type === 'MISION' ? 'Misión' :
+                     item.type === 'VISION' ? 'Visión' : 'Valores' }}
+                </span>
+                <span class="badge-estado"
+                  [ngClass]="item.status === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
+                  {{ item.status }}
+                </span>
+              </div>
+              <h4 class="text-lg font-bold text-gray-900">{{ item.title }}</h4>
+              <p class="text-sm text-gray-500 mt-1">
+                {{ item.content && item.content.length > 100
+                   ? (item.content | slice:0:100) + '...'
+                   : (item.content || '—') }}
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-2 pt-3 border-t border-gray-200">
+            <button (click)="editarAbout(item)" class="btn-icon-mobile btn-icon-primary flex-1">
+              <ion-icon name="create-outline"></ion-icon><span>Editar</span>
+            </button>
+            <button (click)="eliminarAbout(item.id_about)" class="btn-icon-mobile btn-icon-danger flex-1">
+              <ion-icon name="trash-outline"></ion-icon><span>Eliminar</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-end gap-3">
-        <button
-          class="px-4 py-2 bg-gray-200 rounded"
-          (click)="cancelar()"
-          [disabled]="guardando">
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL CREAR / EDITAR
+  ══════════════════════════════════════════════════════ -->
+  <div *ngIf="mostrarModal" class="modal-overlay" (click)="cancelar()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-icon-wrapper" style="background:#DBEAFE; border:1px solid #93C5FD;">
+            <ion-icon name="information-circle-outline" style="font-size:1.25rem; color:#1E40AF;"></ion-icon>
+          </div>
+          <div>
+            <h3 class="modal-title">
+              {{ aboutForm.id_about ? 'Editar Contenido' : 'Nuevo Contenido' }}
+            </h3>
+            <p class="modal-subtitle">
+              {{ aboutForm.id_about ? 'Modifica la información' : 'Completa los campos para crear' }}
+            </p>
+          </div>
+        </div>
+        <button (click)="cancelar()" class="btn-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select [(ngModel)]="aboutForm.type" [disabled]="guardando" class="form-input">
+              <option value="MISION">Misión</option>
+              <option value="VISION">Visión</option>
+              <option value="VALORES">Valores</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select [(ngModel)]="aboutForm.status" [disabled]="guardando" class="form-input">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">Título *</label>
+            <input
+              [(ngModel)]="aboutForm.title"
+              [disabled]="guardando"
+              placeholder="Ej. Nuestra Misión"
+              class="form-input" />
+          </div>
+
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">Contenido *</label>
+            <textarea
+              [(ngModel)]="aboutForm.content"
+              [disabled]="guardando"
+              rows="5"
+              placeholder="Texto descriptivo..."
+              class="form-input"></textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="cancelar()" [disabled]="guardando" class="btn-secondary">
+          <ion-icon name="close-outline"></ion-icon>
           Cancelar
         </button>
-        <button
-          class="px-4 py-2 bg-blue-600 text-white rounded"
-          (click)="guardarAbout()"
-          [disabled]="guardando">
-          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        <button (click)="guardarAbout()" [disabled]="guardando" class="btn-primary">
+          <ion-icon *ngIf="!guardando" name="checkmark-outline"></ion-icon>
+          <div *ngIf="guardando" class="loading-spinner-sm"></div>
+          {{ guardando ? 'Guardando...' : (aboutForm.id_about ? 'Guardar Cambios' : 'Crear Contenido') }}
         </button>
       </div>
 
