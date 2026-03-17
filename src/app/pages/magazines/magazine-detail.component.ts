@@ -140,5 +140,4 @@ addToCart() {
     // 🔥 Redirigir al visor propio en lugar de iframe
     this.router.navigate(['/magazines/view', this.magazineId]);
   }
-
 }
