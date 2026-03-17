@@ -1,6 +1,5 @@
 <section class="about-hero">
   <div class="hero-content">
-    <!-- 🔥 Agregar esta línea: -->
     <div class="hero-badge">Instituto Tiozihuatl</div>
     <h1>Quiénes Somos</h1>
     <p>
@@ -8,61 +7,127 @@
       y la visión que impulsa nuestra labor educativa.
     </p>
   </div>
-
-  <!-- OLA SVG - Curva suave como en la imagen -->
-  <svg
-    class="hero-wave"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 1440 120"
-    preserveAspectRatio="none"
-  >
-    <path
-      d="M0,64 C240,96 480,32 720,48 C960,64 1200,96 1440,64 L1440,120 L0,120 Z"
-    ></path>
-  </svg>
 </section>
 
-<!-- CONTENIDO -->
+<!-- OLA -->
+<div class="hero-wave-wrap">
+  <svg viewBox="0 0 1440 90" preserveAspectRatio="none"
+       xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 C360,100 1080,20 1440,55 L1440,90 L0,90 Z"
+          fill="#EAF5FE"/>
+  </svg>
+</div>
+
+<!-- ═══════════════════════════
+     SKELETON LOADING
+═══════════════════════════ -->
+<div *ngIf="cargando" class="about-container">
+
+  <!-- Skeleton card 1 -->
+  <div class="skeleton-card">
+    <div class="skeleton-header">
+      <div class="skeleton-icon"></div>
+      <div class="skeleton-title"></div>
+    </div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line skeleton-line-md"></div>
+    <div class="skeleton-line skeleton-line-sm"></div>
+  </div>
+
+  <!-- Skeleton card 2 -->
+  <div class="skeleton-card">
+    <div class="skeleton-header">
+      <div class="skeleton-icon"></div>
+      <div class="skeleton-title"></div>
+    </div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line skeleton-line-md"></div>
+    <div class="skeleton-line skeleton-line-sm"></div>
+  </div>
+
+  <!-- Skeleton valores -->
+  <div class="skeleton-card">
+    <div class="skeleton-header">
+      <div class="skeleton-icon"></div>
+      <div class="skeleton-title"></div>
+    </div>
+    <div class="skeleton-grid">
+      <div class="skeleton-chip" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════
+     CONTENIDO REAL
+═══════════════════════════ -->
 <div class="about-container" *ngIf="!cargando">
 
   <!-- MISIÓN -->
-  <section *ngIf="mision" class="about-card">
-    <h2>
-      <ion-icon name="rocket-outline"></ion-icon>
-      {{ mision.title }}
-    </h2>
-    <p>{{ mision.content }}</p>
+  <section *ngIf="mision" class="about-card about-card-mision">
+    <div class="about-card-inner">
+      <div class="about-card-icon-wrap about-card-icon-blue">
+        <ion-icon name="rocket-outline"></ion-icon>
+      </div>
+      <div class="about-card-text">
+        <h2>{{ mision.title }}</h2>
+        <p>{{ mision.content }}</p>
+      </div>
+    </div>
+    <div class="about-card-img-wrap">
+      <img
+        src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop&q=80"
+        alt="Misión institucional"
+        class="about-card-img" />
+      <div class="about-card-img-overlay"></div>
+    </div>
   </section>
 
   <!-- VISIÓN -->
-  <section *ngIf="vision" class="about-card">
-    <h2>
-      <ion-icon name="eye-outline"></ion-icon>
-      {{ vision.title }}
-    </h2>
-    <p>{{ vision.content }}</p>
+  <section *ngIf="vision" class="about-card about-card-vision">
+    <div class="about-card-img-wrap">
+      <img
+        src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop"
+        alt="Visión institucional"
+        class="about-card-img" />
+      <div class="about-card-img-overlay"></div>
+    </div>
+    <div class="about-card-inner">
+      <div class="about-card-icon-wrap about-card-icon-teal">
+        <ion-icon name="eye-outline"></ion-icon>
+      </div>
+      <div class="about-card-text">
+        <h2>{{ vision.title }}</h2>
+        <p>{{ vision.content }}</p>
+      </div>
+    </div>
   </section>
 
   <!-- VALORES -->
-  <section *ngIf="valores?.length" class="about-card">
-    <h2>
-      <ion-icon name="ribbon-outline"></ion-icon>
-      Nuestros Valores
-    </h2>
-
+  <section *ngIf="valores?.length" class="about-card about-card-valores">
+    <div class="valores-header">
+      <div class="about-card-icon-wrap about-card-icon-purple">
+        <ion-icon name="ribbon-outline"></ion-icon>
+      </div>
+      <div>
+        <h2>Nuestros Valores</h2>
+        <p class="valores-subtitle">Los principios que guían cada acción institucional</p>
+      </div>
+    </div>
     <ul class="valores-list">
-      <li *ngFor="let v of valores">
+          <li *ngFor="let v of valores; let i = index"
+        [style.animation-delay]="(i * 0.08) + 's'">
+      <div class="valor-icon-wrap">
         <ion-icon name="checkmark-circle-outline"></ion-icon>
-        <span>{{ v.content }}</span>
-      </li>
+      </div>
+      <div class="valor-texto">
+        <strong class="valor-titulo">{{ v.title }}</strong>
+        <span class="valor-desc">{{ v.content }}</span>
+      </div>
+    </li>
     </ul>
   </section>
-</div>
 
-<!-- LOADING -->
-<div *ngIf="cargando" class="loading-wrapper">
-  <div class="loader"></div>
-  <p>Cargando información institucional...</p>
 </div>
 
 <!-- EMPTY -->
