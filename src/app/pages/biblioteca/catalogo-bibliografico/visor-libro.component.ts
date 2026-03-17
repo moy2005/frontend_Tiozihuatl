@@ -4,10 +4,8 @@ import { CommonModule } from '@angular/common';
 import { environment } from '../../../api/environments/environment.prod';
 import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString();
+pdfjsLib.GlobalWorkerOptions.workerSrc = 
+  `https://unpkg.com/pdfjs-dist@4.10.38/legacy/build/pdf.worker.min.js`;
 
 @Component({
   selector: 'app-visor-libro',
