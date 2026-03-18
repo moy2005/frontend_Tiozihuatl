@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { environment } from '../../../api/environments/environment.prod';
 import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = 
-  `https://unpkg.com/pdfjs-dist@4.10.38/legacy/build/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
 
 @Component({
   selector: 'app-visor-libro',
@@ -27,15 +27,33 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
   cargando = true;
 
   private scrollHandler: any;
+  private resizeTimeout: any;
+  private renderTasks: Map<number, any> = new Map();
+  private renderVersion = 0;
+
 
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.libroId = this.route.snapshot.paramMap.get('id')!;
     this.cargarPdf();
-  }
 
+    window.addEventListener('resize', () => {
+      clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = setTimeout(() => {
+        if (this.pdfDoc) {
+          this.ajustarScale();
+          this.renderTodasLasPaginas();
+        }
+      }, 300);
+    });
+  }
   ngOnDestroy(): void {
+    clearTimeout(this.resizeTimeout); 
+    this.renderTasks.forEach((task) => {
+      try { task.cancel(); } catch (e) {}
+    });
+    this.renderTasks.clear();
     window.removeEventListener('scroll', this.scrollHandler);
   }
 
@@ -68,41 +86,70 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
       console.error('Error:', err);
       this.cargando = false;
     });
+    
   }
 
   ajustarScale() {
     const padding = window.innerWidth < 600 ? 16 : 32;
     const anchoDisponible = Math.min(window.innerWidth - padding, 860);
     const dpr = window.devicePixelRatio || 1;
-    this.renderScale = (anchoDisponible / 595) * dpr;
+    const divisor = window.innerWidth < 600 ? 500 : 595;
+    this.renderScale = (anchoDisponible / divisor) * dpr;
     this.scale = 1.0;
   }
-    renderTodasLasPaginas() {
+  
+  renderTodasLasPaginas() {
+    this.renderVersion++; 
+    const currentVersion = this.renderVersion;
+
+    setTimeout(() => {
       for (let i = 1; i <= this.totalPages; i++) {
-        this.renderPagina(i);
+        this.renderPagina(i, currentVersion);
       }
+    }, 50);
   }
 
-  renderPagina(num: number) {
-  this.pdfDoc.getPage(num).then((page: any) => {
-    const dpr = window.devicePixelRatio || 1;
-    const viewport = page.getViewport({ scale: this.renderScale });
-    const canvas: any = document.getElementById(`page-${num}`);
-    if (!canvas) return;
-    const context = canvas.getContext('2d');
 
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-    // ✅ Tamaño visual base sin zoom
-    canvas.style.width = (viewport.width / dpr) + 'px';
-    canvas.style.height = (viewport.height / dpr) + 'px';
+  renderPagina(num: number, version?: number) {
+    const v = version ?? this.renderVersion;
 
-    page.render({ canvasContext: context, viewport });
+    this.pdfDoc.getPage(num).then((page: any) => {
+      if (v !== this.renderVersion) return; 
+
+      const dpr = window.devicePixelRatio || 1;
+      const viewport = page.getViewport({ scale: this.renderScale });
+      const canvas: any = document.getElementById(`page-${num}`);
+      if (!canvas) return;
+      const context = canvas.getContext('2d');
+
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      const anchoVisual = viewport.width / dpr;
+      const anchoMax = window.innerWidth - (window.innerWidth < 600 ? 16 : 32);
+      const anchoFinal = Math.min(anchoVisual, anchoMax);
+      const ratio = anchoFinal / anchoVisual;
+      const alturaFinal = (viewport.height / dpr) * ratio;
+
+      canvas.style.width = anchoFinal + 'px';
+      canvas.style.height = alturaFinal + 'px';
+
+      const task = page.render({ canvasContext: context, viewport });
+      this.renderTasks.set(num, task);
+
+      task.promise
+        .then(() => { this.renderTasks.delete(num); })
+        .catch((err: any) => {
+          if (err?.name !== 'RenderingCancelledException') {
+            console.error('Error render página', num, err);
+          }
+          this.renderTasks.delete(num);
+        });
     });
   }
-
+  
   zoomIn() {
-    if (this.scale >= 2.0) return;
+    if (this.scale >= 1.5) return; 
     this.scale = Math.round((this.scale + 0.1) * 10) / 10;
     this.rerenderConZoom();
   }
@@ -112,38 +159,60 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
     this.scale = Math.round((this.scale - 0.1) * 10) / 10;
     this.rerenderConZoom();
   }
+  
   rerenderConZoom() {
-    // En lugar de CSS transform, re-renderiza con escala ajustada
+    this.renderVersion++; 
+    const currentVersion = this.renderVersion;
     for (let i = 1; i <= this.totalPages; i++) {
-      this.renderPaginaConZoom(i);
+      this.renderPaginaConZoom(i, currentVersion);
     }
   }
 
-renderPaginaConZoom(num: number) {
-  this.pdfDoc.getPage(num).then((page: any) => {
-    const dpr = window.devicePixelRatio || 1;
-    const escalaFinal = this.renderScale * this.scale;
-    const viewport = page.getViewport({ scale: escalaFinal });
-    const canvas: any = document.getElementById(`page-${num}`);
-    if (!canvas) return;
+ renderPaginaConZoom(num: number, version?: number) {
+    const v = version ?? this.renderVersion;
 
-    // Canvas temporal fuera de pantalla
-    const offscreen = document.createElement('canvas');
-    offscreen.height = viewport.height;
-    offscreen.width = viewport.width;
+    this.pdfDoc.getPage(num).then((page: any) => {
+      if (v !== this.renderVersion) return; 
 
-    const context = offscreen.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const escalaFinal = this.renderScale * this.scale;
+      const viewport = page.getViewport({ scale: escalaFinal });
+      const canvas: any = document.getElementById(`page-${num}`);
+      if (!canvas) return;
 
-    page.render({ canvasContext: context, viewport }).promise.then(() => {
-      // Solo cuando terminó de renderizar, actualizamos el canvas visible
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      canvas.style.width = (viewport.width / dpr) + 'px';
-      canvas.style.height = (viewport.height / dpr) + 'px';
-      canvas.getContext('2d').drawImage(offscreen, 0, 0);
+      const offscreen = document.createElement('canvas');
+      offscreen.height = viewport.height;
+      offscreen.width = viewport.width;
+      const context = offscreen.getContext('2d');
+
+      const task = page.render({ canvasContext: context, viewport });
+      this.renderTasks.set(num, task);
+
+      task.promise.then(() => {
+        if (v !== this.renderVersion) return; // ✅ verificar de nuevo al terminar
+        this.renderTasks.delete(num);
+
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const anchoVisual = viewport.width / dpr;
+        const anchoMax = window.innerWidth - (window.innerWidth < 600 ? 16 : 32);
+        const anchoFinal = Math.min(anchoVisual, anchoMax);
+        const ratio = anchoFinal / anchoVisual;
+        const alturaFinal = (viewport.height / dpr) * ratio;
+
+        canvas.style.width = anchoFinal + 'px';
+        canvas.style.height = alturaFinal + 'px';
+        canvas.getContext('2d').drawImage(offscreen, 0, 0);
+      }).catch((err: any) => {
+        if (err?.name !== 'RenderingCancelledException') {
+          console.error('Error zoom página', num, err);
+        }
+        this.renderTasks.delete(num);
+      });
     });
-  });
-}
+  }
+
   escucharScroll() {
     this.scrollHandler = () => {
       for (let i = 1; i <= this.totalPages; i++) {
@@ -176,5 +245,9 @@ renderPaginaConZoom(num: number) {
     if (canvas) {
       canvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  }
+
+  isMobile(): boolean {
+    return window.innerWidth < 600;
   }
 }
