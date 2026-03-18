@@ -8,6 +8,10 @@
   font-family: 'Nunito', sans-serif;
   font-size: 0.83rem;
   font-weight: 700;
+
+  position: sticky; 
+  top: 0;           
+  z-index: 11; 
 }
 
 .breadcrumb-bar a {
@@ -27,7 +31,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  max-width: 500px;
 }
 
 /* ══ TOOLBAR ══ */
@@ -160,8 +164,6 @@
 
 .canvas-container canvas {
   display: block;
-  max-width: 100%;
-  height: auto;
   transition: width 0.25s ease, height 0.25s ease, opacity 0.2s ease;
 }
 
@@ -229,7 +231,7 @@
   }
 
   .breadcrumb-bar .current {
-    max-width: 130px;
+    max-width: 300px;
   }
 
   .visor-toolbar {
@@ -262,6 +264,8 @@
   .canvas-container {
     margin-bottom: 12px;
     border-radius: 2px;
+    overflow-x: auto;           
+    -webkit-overflow-scrolling: touch;
   }
 
   .bottom-nav {
@@ -280,4 +284,5 @@
     min-width: 60px;
     font-size: 0.8rem;
   }
+
 }
