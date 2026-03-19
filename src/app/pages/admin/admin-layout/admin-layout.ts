@@ -40,6 +40,7 @@ export class AdminLayoutComponent implements OnInit {
     { label: 'Preguntas',  icon: 'ph-question',        route: '/admin/preguntas' },
     { label: 'Contactos',  icon: 'ph-envelope',        route: '/admin/contactos', badge: 5 },
     { label: 'Noticias',   icon: 'ph-megaphone',       route: '/admin/noticias' },
+    { label: 'Quienes Somos',   icon: 'ph ph-buildings',       route: '/admin/about' },
     { label: 'Libros',     icon: 'ph-books',           route: '/admin/libros' },
     { label: 'Calendario', icon: 'ph-calendar',        route: '/admin/calendario-admin' },
     { label: 'Revistas',   icon: 'ph-newspaper',       route: '/admin/revistas' },
