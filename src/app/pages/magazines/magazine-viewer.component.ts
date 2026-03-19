@@ -5,9 +5,9 @@ import { CommonModule } from '@angular/common';
 import * as pdfjsLib from 'pdfjs-dist';
 
 /*pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';*/
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${(pdfjsLib as any).version}/pdf.worker.min.js`;
-
+/*pdfjsLib.GlobalWorkerOptions.workerSrc =
+  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${(pdfjsLib as any).version}/pdf.worker.min.js`;*/
+ pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.mjs'; 
 
 @Component({
   selector: 'app-magazine-viewer',
