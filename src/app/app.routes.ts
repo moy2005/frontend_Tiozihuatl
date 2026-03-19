@@ -40,6 +40,8 @@ import { MyPurchases } from './pages/my-purchases/my-purchases';
 import { MonitoreoComponent } from './pages/admin/monitoreo/monitoreo';
 import { MyLoans } from './pages/my-loans/my-loans';
 import { ActivateAccountComponent } from './auth/activate-account/activate-account';
+import { GestionMantenimientoComponent } from './pages/admin/gestion-maintenance/gestion-maintenance';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -87,7 +89,8 @@ export const routes: Routes = [
       { path : 'backups', component:GestionBackupsComponent },
       { path: 'about', component: GestionAboutComponent },
       { path: 'revistas', component: GestionRevistasComponent },
-      { path: 'monitoreo', component: MonitoreoComponent }
+      { path: 'monitoreo', component: MonitoreoComponent },
+      { path: 'mantenimiento', component: GestionMantenimientoComponent},
     ]
   },
   
