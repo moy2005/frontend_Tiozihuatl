@@ -1,0 +1,416 @@
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
+
+    <div class="header-section mb-6">
+      <h2 class="page-title">
+        <ion-icon name="construct-outline"></ion-icon>
+        Optimización de Rendimiento
+      </h2>
+    </div>
+
+    <div class="estado-banner mb-6"
+         [ngClass]="{
+           'estado-success': status?.estado === 'success',
+           'estado-warning': status?.estado === 'warning',
+           'estado-danger':  status?.estado === 'danger' || !status
+         }">
+      <div class="estado-banner-icono">
+        <ion-icon *ngIf="status?.estado === 'success'" name="checkmark-circle-outline"></ion-icon>
+        <ion-icon *ngIf="status?.estado === 'warning'" name="warning-outline"></ion-icon>
+        <ion-icon *ngIf="status?.estado === 'danger' || !status" name="alert-circle-outline"></ion-icon>
+      </div>
+      <div class="estado-banner-texto">
+        <p class="estado-banner-titulo">Estado del sistema</p>
+        <p class="estado-banner-desc">{{ status?.mensaje ?? 'Verificando estado...' }}</p>
+        <p *ngIf="status?.ultimo" class="estado-banner-meta">
+          Última ejecución: {{ normalizarFecha(status.ultimo.fecha) }} —
+          {{ status.ultimo.tablas_ok }} tablas optimizadas en {{ status.ultimo.duracion_seg }}s
+        </p>
+      </div>
+    </div>
+
+    <div class="content-card overflow-hidden mb-6">
+      <div class="seccion-titulo">
+        <h3>
+          <ion-icon name="speedometer-outline"></ion-icon>
+          Optimización de base de datos
+        </h3>
+      </div>
+
+      <div class="acciones-panel">
+        <div class="accion-bloque">
+          <p class="accion-bloque-titulo">
+            <ion-icon name="flash-outline"></ion-icon>
+            Ejecutar optimización ahora
+          </p>
+          <p class="accion-bloque-desc">
+            Actualiza las estadísticas internas y reorganiza los índices de las
+            tablas principales para mejorar la velocidad de consultas.
+          </p>
+          <div class="accion-controles">
+            <button class="btn-primary" (click)="ejecutarMantenimiento()" [disabled]="ejecutando">
+              <span *ngIf="ejecutando" class="loading-spinner-btn"></span>
+              <ion-icon *ngIf="!ejecutando" name="construct-outline"></ion-icon>
+              {{ ejecutando ? 'Optimizando...' : 'Ejecutar optimización' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="accion-bloque">
+          <p class="accion-bloque-titulo">
+            <ion-icon name="server-outline"></ion-icon>
+            Tablas incluidas en el proceso
+          </p>
+          <p class="accion-bloque-desc">
+            Se seleccionaron las tablas con mayor actividad de índices en el sistema.
+          </p>
+          <div class="tablas-chips">
+            <span *ngFor="let t of tablasMantenimiento" class="tabla-chip">
+              <ion-icon name="grid-outline"></ion-icon>
+              {{ t.etiqueta }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proceso-pasos">
+        <div class="paso">
+          <div class="paso-numero">1</div>
+          <div class="paso-texto">
+            <strong>Actualización de estadísticas</strong>
+            <span>Recalcula la distribución de datos para que el sistema elija el camino más rápido.</span>
+          </div>
+        </div>
+        <div class="paso-flecha"><ion-icon name="arrow-forward-outline"></ion-icon></div>
+        <div class="paso">
+          <div class="paso-numero">2</div>
+          <div class="paso-texto">
+            <strong>Reorganización de índices</strong>
+            <span>Compacta y reconstruye los índices internos eliminando fragmentación.</span>
+          </div>
+        </div>
+        <div class="paso-flecha"><ion-icon name="arrow-forward-outline"></ion-icon></div>
+        <div class="paso">
+          <div class="paso-numero">3</div>
+          <div class="paso-texto">
+            <strong>Registro de resultados</strong>
+            <span>Genera un log con fecha, duración y resultado tabla por tabla.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-card overflow-hidden mb-6">
+      <div class="seccion-titulo">
+        <h3>
+          <ion-icon name="alarm-outline"></ion-icon>
+          Programar optimización automática
+        </h3>
+      </div>
+      <div class="seccion-cuerpo">
+        <div class="form-group mb-4">
+          <label class="form-label">¿Con qué frecuencia se ejecuta?</label>
+          <div class="frecuencia-grupo">
+            <button *ngFor="let opt of opcionesFrecuencia"
+                    class="frecuencia-btn"
+                    [class.frecuencia-btn-activo]="tipoFrecuencia === opt.value"
+                    (click)="tipoFrecuencia = opt.value">
+              <ion-icon [name]="opt.icon"></ion-icon>
+              {{ opt.label }}
+            </button>
+          </div>
+          <small class="form-hint">Se recomienda ejecutar semanalmente en horario de baja actividad.</small>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group" *ngIf="tipoFrecuencia !== 'interval'">
+            <label class="form-label">¿A qué hora?</label>
+            <input type="time" [(ngModel)]="horaInicio" class="form-input">
+          </div>
+          <div class="form-group" *ngIf="tipoFrecuencia === 'interval'">
+            <label class="form-label">¿Cada cuántas horas?</label>
+            <div class="horas-control">
+              <button class="horas-btn" (click)="intervaloHoras = intervaloHoras > 2 ? intervaloHoras - 1 : 2">−</button>
+              <span class="horas-valor">{{ intervaloHoras }} h</span>
+              <button class="horas-btn" (click)="intervaloHoras = intervaloHoras < 24 ? intervaloHoras + 1 : 24">+</button>
+            </div>
+            <small class="form-hint">Mínimo 2 horas · Máximo 24 horas</small>
+          </div>
+          <div class="form-group" *ngIf="tipoFrecuencia === 'days'">
+            <label class="form-label">¿Qué días?</label>
+            <div class="dias-grupo">
+              <button *ngFor="let d of dias"
+                      class="dia-circulo"
+                      [class.dia-circulo-activo]="diasSeleccionados.includes(d.value)"
+                      (click)="toggleDia(d.value)">
+                {{ d.label }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary mt-2" (click)="programarMantenimiento()" [disabled]="cargandoProgramar">
+          <span *ngIf="cargandoProgramar" class="loading-spinner-btn"></span>
+          <ion-icon *ngIf="!cargandoProgramar" name="checkmark-circle-outline"></ion-icon>
+          {{ cargandoProgramar ? 'Guardando...' : 'Guardar programación' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="content-card overflow-hidden mb-6">
+      <div class="seccion-titulo">
+        <h3><ion-icon name="list-outline"></ion-icon> Programaciones activas</h3>
+        <button class="btn-refresh" (click)="cargarTareas()">
+          <ion-icon name="refresh-outline"></ion-icon> Actualizar
+        </button>
+      </div>
+
+      <div *ngIf="cargandoTareas" class="text-center py-12">
+        <div class="loading-spinner inline-block"></div>
+      </div>
+      <div *ngIf="!cargandoTareas && tareas.length === 0" class="sin-resultados">
+        <ion-icon name="calendar-outline"></ion-icon>
+        No hay optimizaciones programadas aún
+      </div>
+
+      <div *ngIf="!cargandoTareas && tareas.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell">Nombre</th>
+              <th class="th-cell">Frecuencia</th>
+              <th class="th-cell">Última ejecución</th>
+              <th class="th-cell">Estado</th>
+              <th class="th-cell text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of tareas" class="table-row">
+              <td class="td-cell font-medium">{{ t.nombre_tarea }}</td>
+              <td class="td-cell">{{ describirCron(t.cron_expression) }}</td>
+              <td class="td-cell">
+                <span *ngIf="t.ultima_ejecucion">{{ normalizarFecha(t.ultima_ejecucion) }}</span>
+                <span *ngIf="!t.ultima_ejecucion" class="sin-devolucion">Aún no ejecutado</span>
+              </td>
+              <td class="td-cell">
+                <span class="badge-estado" [ngClass]="t.activo ? 'badge-activo' : 'badge-cancelado'">
+                  {{ t.activo ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+                  <button (click)="toggleTask(t.id_tarea)" class="btn-icon"
+                          [ngClass]="t.activo ? 'btn-icon-warning' : 'btn-icon-success'"
+                          [title]="t.activo ? 'Pausar' : 'Activar'">
+                    <ion-icon [name]="t.activo ? 'pause-outline' : 'play-outline'"></ion-icon>
+                  </button>
+                  <button (click)="eliminarTarea(t.id_tarea)" class="btn-icon btn-icon-danger" title="Eliminar">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!cargandoTareas && tareas.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let t of tareas" class="prestamo-card">
+          <div class="card-header">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="badge-estado" [ngClass]="t.activo ? 'badge-activo' : 'badge-cancelado'">
+                  {{ t.activo ? 'Activa' : 'Inactiva' }}
+                </span>
+              </div>
+              <p class="card-nombre">{{ t.nombre_tarea }}</p>
+              <p class="card-titulo">{{ describirCron(t.cron_expression) }}</p>
+            </div>
+          </div>
+          <div class="card-fechas">
+            <span>
+              <ion-icon name="time-outline"></ion-icon>
+              {{ t.ultima_ejecucion ? normalizarFecha(t.ultima_ejecucion) : 'Aún no ejecutado' }}
+            </span>
+          </div>
+          <div class="card-acciones">
+            <button (click)="toggleTask(t.id_tarea)" class="btn-icon-mobile flex-1"
+                    [ngClass]="t.activo ? 'btn-icon-warning' : 'btn-icon-success'">
+              <ion-icon [name]="t.activo ? 'pause-outline' : 'play-outline'"></ion-icon>
+              <span>{{ t.activo ? 'Pausar' : 'Activar' }}</span>
+            </button>
+            <button (click)="eliminarTarea(t.id_tarea)" class="btn-icon-mobile btn-icon-danger flex-1">
+              <ion-icon name="trash-outline"></ion-icon>
+              <span>Eliminar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-card overflow-hidden">
+      <div class="seccion-titulo">
+        <h3><ion-icon name="time-outline"></ion-icon> Historial de optimizaciones</h3>
+        <button class="btn-refresh" (click)="cargarLogs()">
+          <ion-icon name="refresh-outline"></ion-icon> Actualizar
+        </button>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filtros-bar">
+        <div class="filtro-busqueda">
+          <ion-icon name="search-outline"></ion-icon>
+          <input
+            type="text"
+            placeholder="Buscar por fecha, resultado, duración..."
+            [(ngModel)]="filtroBusqueda"
+            class="filtro-input"
+          />
+        </div>
+        <div class="filtro-origen-grupo">
+          <button class="filtro-origen-btn"
+                  [class.filtro-origen-activo]="filtroOrigen === 'todos'"
+                  (click)="filtroOrigen = 'todos'">
+            <ion-icon name="list-outline"></ion-icon> Todos
+          </button>
+          <button class="filtro-origen-btn"
+                  [class.filtro-origen-activo]="filtroOrigen === 'automatico'"
+                  (click)="filtroOrigen = 'automatico'">
+            <ion-icon name="flash-outline"></ion-icon> Automáticos
+          </button>
+          <button class="filtro-origen-btn"
+                  [class.filtro-origen-activo]="filtroOrigen === 'manual'"
+                  (click)="filtroOrigen = 'manual'">
+            <ion-icon name="hand-left-outline"></ion-icon> Manuales
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="cargandoLogs" class="text-center py-12">
+        <div class="loading-spinner inline-block"></div>
+      </div>
+
+      <div *ngIf="!cargandoLogs && logsFiltrados.length === 0" class="sin-resultados">
+        <ion-icon name="time-outline"></ion-icon>
+        {{ logs.length === 0 ? 'No hay ejecuciones registradas aún' : 'No hay resultados para los filtros aplicados' }}
+      </div>
+
+      <!-- Desktop -->
+      <div *ngIf="!cargandoLogs && logsFiltrados.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell">Fecha</th>
+              <th class="th-cell">Origen</th>
+              <th class="th-cell">Tablas</th>
+              <th class="th-cell">Duración</th>
+              <th class="th-cell">Resultado</th>
+              <th class="th-cell text-center">Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let log of logsFiltrados" class="table-row">
+              <td class="td-cell">{{ normalizarFecha(log.fecha) }}</td>
+              <td class="td-cell">
+                <span class="badge-estado"
+                      [ngClass]="log.origen === 'automatico' ? 'badge-automatico' : 'badge-manual'">
+                  <ion-icon [name]="log.origen === 'automatico' ? 'flash-outline' : 'hand-left-outline'"></ion-icon>
+                  {{ log.origen === 'automatico' ? 'Automático' : 'Manual' }}
+                </span>
+              </td>
+              <td class="td-cell">{{ log.tablas_ok }} / {{ log.tablas_procesadas }}</td>
+              <td class="td-cell">{{ log.duracion_seg }}s</td>
+              <td class="td-cell">
+                <span class="badge-estado" [ngClass]="badgeEstado(log)">{{ calcularEstado(log) }}</span>
+              </td>
+              <td class="td-cell text-center">
+                <button (click)="verDetalle(log)" class="btn-icon btn-icon-primary" title="Ver log completo">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile -->
+      <div *ngIf="!cargandoLogs && logsFiltrados.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let log of logsFiltrados" class="prestamo-card">
+          <div class="card-header">
+            <div class="flex-1">
+              <div class="flex flex-wrap gap-2 mb-2">
+                <span class="badge-estado"
+                      [ngClass]="log.origen === 'automatico' ? 'badge-automatico' : 'badge-manual'">
+                  <ion-icon [name]="log.origen === 'automatico' ? 'flash-outline' : 'hand-left-outline'"></ion-icon>
+                  {{ log.origen === 'automatico' ? 'Automático' : 'Manual' }}
+                </span>
+                <span class="badge-estado" [ngClass]="badgeEstado(log)">{{ calcularEstado(log) }}</span>
+              </div>
+              <p class="card-nombre">{{ normalizarFecha(log.fecha) }}</p>
+              <p class="card-titulo">{{ log.tablas_ok }}/{{ log.tablas_procesadas }} tablas · {{ log.duracion_seg }}s</p>
+            </div>
+          </div>
+          <div class="card-acciones">
+            <button (click)="verDetalle(log)" class="btn-icon-mobile btn-icon-primary flex-1">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <span>Ver detalle</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+<!-- MODAL DETALLE -->
+  <div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <ion-icon name="document-text-outline"></ion-icon>
+          Detalle de ejecución
+        </h3>
+        <button class="btn-close" (click)="cerrarModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="cargandoDetalle" class="text-center py-8">
+          <div class="loading-spinner inline-block"></div>
+        </div>
+
+        <div *ngIf="!cargandoDetalle && logDetalle">
+          <div class="detalle-resumen">
+            <div class="detalle-stat">
+              <span class="detalle-stat-valor">{{ logDetalle.tablas_procesadas }}</span>
+              <span class="detalle-stat-label">Tablas procesadas</span>
+            </div>
+            <div class="detalle-stat">
+              <span class="detalle-stat-valor" style="color:#4CAF50">{{ logDetalle.tablas_ok }}</span>
+              <span class="detalle-stat-label">Exitosas</span>
+            </div>
+            <div class="detalle-stat">
+              <span class="detalle-stat-valor" style="color:#F44336">{{ logDetalle.tablas_error }}</span>
+              <span class="detalle-stat-label">Con error</span>
+            </div>
+            <div class="detalle-stat">
+              <span class="detalle-stat-valor">{{ logDetalle.duracion_seg }}s</span>
+              <span class="detalle-stat-label">Duración</span>
+            </div>
+          </div>
+
+          <label class="form-label mb-2">Registro completo</label>
+          <pre class="log-pre">{{ logDetalle.log_texto }}</pre>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+
+ </div>
+</div>
