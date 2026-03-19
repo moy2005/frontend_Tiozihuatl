@@ -1,26 +1,19 @@
 <div class="admin-content">
   <div class="max-w-[95%] mx-auto">
 
-    <!-- ══════════════════════════════════════════════════════
-         HEADER
-    ══════════════════════════════════════════════════════ -->
+    <!-- HEADER -->
     <div class="header-section mb-6">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h2 class="page-title">Gestión de Revistas</h2>
         <div class="flex flex-wrap gap-2">
           <button class="btn-export flex items-center gap-2"
                   (click)="exportarExcel()"
-                  [disabled]="loading || revistasFiltradas.length === 0"
-                  title="Exportar tabla actual a Excel">
+                  [disabled]="loading || revistasFiltradas.length === 0">
             <ion-icon name="download-outline"></ion-icon>
             Exportar Excel
-            <span *ngIf="revistasFiltradas.length > 0" class="export-badge">
-              {{ revistasFiltradas.length }}
-            </span>
+            <span *ngIf="revistasFiltradas.length > 0" class="export-badge">{{ revistasFiltradas.length }}</span>
           </button>
-          <button class="btn-primary flex items-center gap-2"
-                  (click)="openModal()"
-                  [disabled]="loading">
+          <button class="btn-primary flex items-center gap-2" (click)="openModal()" [disabled]="loading">
             <ion-icon name="add-circle-outline"></ion-icon>
             Nueva Revista
           </button>
@@ -28,36 +21,27 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         TABS
-    ══════════════════════════════════════════════════════ -->
+    <!-- TABS -->
     <div class="tabs-row mb-6">
-      <button class="tab-btn" [class.tab-btn-active]="vista === 'revistas'"
-              (click)="cambiarVista('revistas')">
+      <button class="tab-btn" [class.tab-btn-active]="vista === 'revistas'" (click)="cambiarVista('revistas')">
         <ion-icon name="book-outline"></ion-icon>
         Revistas
       </button>
-      <button class="tab-btn" [class.tab-btn-active]="vista === 'auditoria'"
-              (click)="cambiarVista('auditoria')">
+      <button class="tab-btn" [class.tab-btn-active]="vista === 'auditoria'" (click)="cambiarVista('auditoria')">
         <ion-icon name="shield-checkmark-outline"></ion-icon>
         Auditoría
       </button>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         SECCIÓN REVISTAS
-    ══════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN REVISTAS -->
     <div *ngIf="vista === 'revistas'">
 
-      <!-- FILTROS -->
       <div class="filtros-section">
         <div class="filtros-header">
           <div class="filtros-titulo">
             <ion-icon name="funnel-outline"></ion-icon>
             <span>Filtrar revistas</span>
-            <span *ngIf="filtrosActivos" class="filtros-badge-count">
-              {{ revistasFiltradas.length }}
-            </span>
+            <span *ngIf="filtrosActivos" class="filtros-badge-count">{{ revistasFiltradas.length }}</span>
           </div>
           <div class="flex items-center gap-2">
             <button *ngIf="filtrosActivos" (click)="limpiarFiltrosRevistas()" class="filtros-limpiar">
@@ -74,10 +58,7 @@
         <div *ngIf="filtrosExpandidos" class="filtros-body">
           <div class="filtros-grid">
             <div class="filtro-item">
-              <label class="filtro-label">
-                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                Estado
-              </label>
+              <label class="filtro-label"><ion-icon name="checkmark-circle-outline"></ion-icon> Estado</label>
               <select [(ngModel)]="filtrosRevistas.estado" (change)="aplicarFiltrosRevistas()" class="filtro-select">
                 <option value="">Todos los estados</option>
                 <option value="Activa">Activa</option>
@@ -85,10 +66,7 @@
               </select>
             </div>
             <div class="filtro-item">
-              <label class="filtro-label">
-                <ion-icon name="pricetag-outline"></ion-icon>
-                Descuento
-              </label>
+              <label class="filtro-label"><ion-icon name="pricetag-outline"></ion-icon> Descuento</label>
               <select [(ngModel)]="filtrosRevistas.descuento" (change)="aplicarFiltrosRevistas()" class="filtro-select">
                 <option value="">Todos</option>
                 <option value="activo">Con descuento</option>
@@ -96,22 +74,15 @@
               </select>
             </div>
             <div class="filtro-item">
-              <label class="filtro-label">
-                <ion-icon name="search-outline"></ion-icon>
-                Título
-              </label>
-              <input type="text"
-                     [(ngModel)]="filtrosRevistas.titulo"
-                     (input)="aplicarFiltrosRevistas()"
-                     placeholder="Buscar por título..."
-                     class="filtro-select filtro-input-text" />
+              <label class="filtro-label"><ion-icon name="search-outline"></ion-icon> Título</label>
+              <input type="text" [(ngModel)]="filtrosRevistas.titulo" (input)="aplicarFiltrosRevistas()"
+                     placeholder="Buscar por título..." class="filtro-select filtro-input-text" />
             </div>
           </div>
 
           <div *ngIf="filtrosActivos" class="filtros-activos-tags">
             <span class="filtros-activos-label">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-              Filtros aplicados:
+              <ion-icon name="checkmark-circle-outline"></ion-icon> Filtros aplicados:
             </span>
             <span *ngIf="filtrosRevistas.estado" class="filtro-tag">
               <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -141,30 +112,23 @@
           <ion-icon name="funnel-outline"></ion-icon>
           <span>Mostrando <strong>{{ revistasFiltradas.length }}</strong> revista(s) con filtros activos</span>
           <button (click)="limpiarFiltrosRevistas()" class="btn-ghost ml-auto">
-            <ion-icon name="close-outline"></ion-icon>
-            Limpiar
+            <ion-icon name="close-outline"></ion-icon> Limpiar
           </button>
         </div>
       </div>
 
-      <!-- LOADING -->
       <div *ngIf="loading && magazines.length === 0" class="content-card text-center py-12">
         <div class="loading-spinner inline-block"></div>
         <p class="mt-4 text-gray-600 font-medium">Cargando revistas...</p>
       </div>
 
-      <!-- TABLA -->
       <div *ngIf="!loading" class="content-card overflow-hidden">
         <div *ngIf="revistasFiltradas.length === 0" class="text-center py-16">
-          <ion-icon name="book-outline"
-            style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
+          <ion-icon name="book-outline" style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
           <p style="color:#64748B; font-weight:500;">No se encontraron revistas</p>
-          <p *ngIf="filtrosActivos" style="color:#94A3B8; font-size:0.875rem; margin-top:0.25rem;">
-            Intenta ajustar los filtros
-          </p>
+          <p *ngIf="filtrosActivos" style="color:#94A3B8; font-size:0.875rem; margin-top:0.25rem;">Intenta ajustar los filtros</p>
         </div>
 
-        <!-- Tabla desktop -->
         <div *ngIf="revistasFiltradas.length > 0" class="hidden lg:block overflow-x-auto">
           <table class="min-w-full">
             <thead class="table-header">
@@ -185,8 +149,7 @@
                 </td>
                 <td class="td-cell font-medium text-gray-900">${{ mag.precio }}</td>
                 <td class="td-cell">
-                  <span class="badge-estado"
-                    [ngClass]="mag.estado === 'Activa' ? 'badge-activo' : 'badge-inactivo'">
+                  <span class="badge-estado" [ngClass]="mag.estado === 'Activa' ? 'badge-activo' : 'badge-inactivo'">
                     {{ mag.estado }}
                   </span>
                 </td>
@@ -199,16 +162,12 @@
                     <button (click)="editMagazine(mag)" class="btn-icon btn-icon-primary" title="Editar revista">
                       <ion-icon name="create-outline"></ion-icon>
                     </button>
-                    <button *ngIf="mag.estado === 'Activa'"
-                            (click)="toggleMagazine(mag)"
-                            class="btn-icon btn-icon-danger"
-                            title="Desactivar revista">
+                    <button *ngIf="mag.estado === 'Activa'" (click)="toggleMagazine(mag)"
+                            class="btn-icon btn-icon-danger" title="Desactivar revista">
                       <ion-icon name="close-circle-outline"></ion-icon>
                     </button>
-                    <button *ngIf="mag.estado !== 'Activa'"
-                            (click)="toggleMagazine(mag)"
-                            class="btn-icon btn-icon-success"
-                            title="Activar revista">
+                    <button *ngIf="mag.estado !== 'Activa'" (click)="toggleMagazine(mag)"
+                            class="btn-icon btn-icon-success" title="Activar revista">
                       <ion-icon name="checkmark-circle-outline"></ion-icon>
                     </button>
                   </div>
@@ -218,19 +177,13 @@
           </table>
         </div>
 
-        <!-- Cards móvil -->
         <div *ngIf="revistasFiltradas.length > 0" class="lg:hidden p-4 space-y-4">
           <div *ngFor="let mag of revistasFiltradas; trackBy: trackById" class="user-card">
             <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
-                  <span class="badge-estado"
-                    [ngClass]="mag.estado === 'Activa' ? 'badge-activo' : 'badge-inactivo'">
-                    {{ mag.estado }}
-                  </span>
-                  <span *ngIf="mag.descuento_activo" class="badge-estado badge-descuento">
-                    Descuento activo
-                  </span>
+                  <span class="badge-estado" [ngClass]="mag.estado === 'Activa' ? 'badge-activo' : 'badge-inactivo'">{{ mag.estado }}</span>
+                  <span *ngIf="mag.descuento_activo" class="badge-estado badge-descuento">Descuento activo</span>
                 </div>
                 <h4 class="text-lg font-bold text-gray-900">{{ mag.titulo }}</h4>
                 <p *ngIf="mag.descripcion" class="text-sm text-gray-500 mt-1">
@@ -243,14 +196,10 @@
               <button (click)="editMagazine(mag)" class="btn-icon-mobile btn-icon-primary flex-1">
                 <ion-icon name="create-outline"></ion-icon><span>Editar</span>
               </button>
-              <button *ngIf="mag.estado === 'Activa'"
-                      (click)="toggleMagazine(mag)"
-                      class="btn-icon-mobile btn-icon-danger flex-1">
+              <button *ngIf="mag.estado === 'Activa'" (click)="toggleMagazine(mag)" class="btn-icon-mobile btn-icon-danger flex-1">
                 <ion-icon name="close-circle-outline"></ion-icon><span>Desactivar</span>
               </button>
-              <button *ngIf="mag.estado !== 'Activa'"
-                      (click)="toggleMagazine(mag)"
-                      class="btn-icon-mobile btn-icon-success flex-1">
+              <button *ngIf="mag.estado !== 'Activa'" (click)="toggleMagazine(mag)" class="btn-icon-mobile btn-icon-success flex-1">
                 <ion-icon name="checkmark-circle-outline"></ion-icon><span>Activar</span>
               </button>
             </div>
@@ -259,9 +208,7 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         SECCIÓN AUDITORÍA
-    ══════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN AUDITORÍA -->
     <div *ngIf="vista === 'auditoria'">
       <div class="filtros-section mb-4">
         <div class="filtros-header">
@@ -273,37 +220,23 @@
         <div class="filtros-body">
           <div class="filtros-grid-auditoria">
             <div class="filtro-item">
-              <label class="filtro-label">
-                <ion-icon name="person-outline"></ion-icon>
-                Usuario
-              </label>
-              <input type="text"
-                     [(ngModel)]="filtros.usuario"
-                     placeholder="Buscar por usuario"
-                     class="filtro-input" />
+              <label class="filtro-label"><ion-icon name="person-outline"></ion-icon> Usuario</label>
+              <input type="text" [(ngModel)]="filtros.usuario" placeholder="Buscar por usuario" class="filtro-input" />
             </div>
             <div class="filtro-item">
-              <label class="filtro-label">
-                <ion-icon name="calendar-outline"></ion-icon>
-                Fecha inicio
-              </label>
+              <label class="filtro-label"><ion-icon name="calendar-outline"></ion-icon> Fecha inicio</label>
               <input type="date" [(ngModel)]="filtros.fecha_inicio" class="filtro-input" />
             </div>
             <div class="filtro-item">
-              <label class="filtro-label">
-                <ion-icon name="calendar-outline"></ion-icon>
-                Fecha fin
-              </label>
+              <label class="filtro-label"><ion-icon name="calendar-outline"></ion-icon> Fecha fin</label>
               <input type="date" [(ngModel)]="filtros.fecha_fin" class="filtro-input" />
             </div>
             <div class="filtro-item filtro-btns">
               <button class="btn-primary flex items-center gap-1" (click)="aplicarFiltros()">
-                <ion-icon name="search-outline"></ion-icon>
-                Filtrar
+                <ion-icon name="search-outline"></ion-icon> Filtrar
               </button>
               <button class="btn-secondary flex items-center gap-1" (click)="limpiarFiltros()">
-                <ion-icon name="close-outline"></ion-icon>
-                Limpiar
+                <ion-icon name="close-outline"></ion-icon> Limpiar
               </button>
             </div>
           </div>
@@ -315,18 +248,14 @@
           <div class="loading-spinner inline-block"></div>
           <p class="mt-4 text-gray-600 font-medium">Cargando auditoría...</p>
         </div>
-
         <div *ngIf="!cargandoAuditoria">
           <div class="px-6 py-3 border-b border-gray-100" style="font-size:0.82rem; color:#64748B;">
             Total registros: <strong style="color:#2196F3;">{{ auditoria.length }}</strong>
           </div>
-
           <div *ngIf="auditoria.length === 0" class="text-center py-16">
-            <ion-icon name="shield-checkmark-outline"
-              style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
+            <ion-icon name="shield-checkmark-outline" style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
             <p style="color:#64748B; font-weight:500;">No hay registros de auditoría</p>
           </div>
-
           <div *ngIf="auditoria.length > 0" class="hidden lg:block overflow-x-auto">
             <table class="min-w-full">
               <thead class="table-header">
@@ -350,11 +279,10 @@
                       'badge-descuento': log.accion === 'DESACTIVAR_REVISTA',
                       'badge-edit':      log.accion === 'UPDATE_REVISTA'
                     }">
-                      {{ log.accion === 'UPDATE_REVISTA'     ? 'EDITADO'     :
+                      {{ log.accion === 'UPDATE_REVISTA' ? 'EDITADO' :
                          log.accion === 'DESACTIVAR_REVISTA' ? 'DESACTIVADO' :
-                         log.accion === 'ACTIVAR_REVISTA'    ? 'ACTIVADO'    :
-                         log.accion === 'DELETE_REVISTA'     ? 'ELIMINADO'   :
-                         log.accion }}
+                         log.accion === 'ACTIVAR_REVISTA' ? 'ACTIVADO' :
+                         log.accion === 'DELETE_REVISTA' ? 'ELIMINADO' : log.accion }}
                     </span>
                   </td>
                   <td class="td-cell text-gray-600 text-sm">{{ log.descripcion }}</td>
@@ -364,7 +292,6 @@
               </tbody>
             </table>
           </div>
-
           <div *ngIf="auditoria.length > 0" class="lg:hidden p-4 space-y-4">
             <div *ngFor="let log of auditoria" class="user-card">
               <div class="flex-1">
@@ -376,11 +303,10 @@
                     'badge-descuento': log.accion === 'DESACTIVAR_REVISTA',
                     'badge-edit':      log.accion === 'UPDATE_REVISTA'
                   }">
-                    {{ log.accion === 'UPDATE_REVISTA'     ? 'EDITADO'     :
+                    {{ log.accion === 'UPDATE_REVISTA' ? 'EDITADO' :
                        log.accion === 'DESACTIVAR_REVISTA' ? 'DESACTIVADO' :
-                       log.accion === 'ACTIVAR_REVISTA'    ? 'ACTIVADO'    :
-                       log.accion === 'DELETE_REVISTA'     ? 'ELIMINADO'   :
-                       log.accion }}
+                       log.accion === 'ACTIVAR_REVISTA' ? 'ACTIVADO' :
+                       log.accion === 'DELETE_REVISTA' ? 'ELIMINADO' : log.accion }}
                   </span>
                 </div>
                 <h4 class="text-base font-bold text-gray-900">{{ log.usuario }}</h4>
@@ -398,12 +324,9 @@
 
   </div>
 
-  <!-- ══════════════════════════════════════════════════════
-       MODAL CREAR / EDITAR
-  ══════════════════════════════════════════════════════ -->
+  <!-- MODAL CREAR / EDITAR -->
   <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
     <div class="modal-container" (click)="$event.stopPropagation()">
-
       <div class="modal-header">
         <div class="modal-header-left">
           <div class="modal-icon-wrapper" style="background:#DBEAFE; border:1px solid #93C5FD;">
@@ -411,16 +334,13 @@
           </div>
           <div>
             <h3 class="modal-title">{{ form.id_revista ? 'Editar Revista' : 'Nueva Revista' }}</h3>
-            <p class="modal-subtitle">
-              {{ form.id_revista ? 'Modifica los datos de la revista' : 'Completa los datos para crear' }}
-            </p>
+            <p class="modal-subtitle">{{ form.id_revista ? 'Modifica los datos de la revista' : 'Completa los datos para crear' }}</p>
           </div>
         </div>
         <button (click)="closeModal()" class="btn-close">
           <ion-icon name="close-outline"></ion-icon>
         </button>
       </div>
-
       <div class="modal-body">
         <div class="form-grid">
           <div class="form-group" style="grid-column: 1 / -1;">
@@ -445,11 +365,9 @@
           </div>
         </div>
       </div>
-
       <div class="modal-footer">
         <button (click)="closeModal()" [disabled]="saving" class="btn-secondary">
-          <ion-icon name="close-outline"></ion-icon>
-          Cancelar
+          <ion-icon name="close-outline"></ion-icon> Cancelar
         </button>
         <button (click)="saveMagazine()" [disabled]="saving" class="btn-primary">
           <ion-icon *ngIf="!saving" name="checkmark-outline"></ion-icon>
@@ -459,13 +377,10 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════
-       MODAL EXPORTACIÓN PERSONALIZADA
-  ══════════════════════════════════════════════════════ -->
+  <!-- MODAL EXPORTACIÓN PERSONALIZADA -->
   <div *ngIf="showExportModal" class="modal-overlay export-overlay" (click)="closeExportModal()">
     <div class="modal-container export-modal-container" (click)="$event.stopPropagation()">
 
-      <!-- Header -->
       <div class="modal-header export-modal-header">
         <div class="modal-header-left">
           <div class="modal-icon-wrapper" style="background:#F0FDF4; border:1px solid #86EFAC;">
@@ -484,10 +399,8 @@
       <div class="modal-body export-modal-body">
         <div class="export-layout">
 
-          <!-- ── Columna izquierda: Campos ── -->
+          <!-- Columna izquierda -->
           <div class="export-col">
-
-            <!-- Sección campos -->
             <div class="export-section">
               <div class="export-section-header">
                 <div class="export-section-title">
@@ -495,26 +408,18 @@
                   <span>Campos a exportar</span>
                 </div>
                 <div class="export-campo-acciones">
-                  <button class="export-link-btn" (click)="toggleTodosCampos(true)">
-                    Seleccionar todo
-                  </button>
+                  <button class="export-link-btn" (click)="toggleTodosCampos(true)">Seleccionar todo</button>
                   <span class="export-divider">|</span>
-                  <button class="export-link-btn export-link-danger" (click)="toggleTodosCampos(false)">
-                    Ninguno
-                  </button>
+                  <button class="export-link-btn export-link-danger" (click)="toggleTodosCampos(false)">Ninguno</button>
                 </div>
               </div>
-
               <div class="export-campos-lista">
                 <div *ngFor="let campo of camposOrdenados"
                      class="export-campo-item"
                      [class.export-campo-activo]="campo.activo">
-
                   <label class="export-campo-label">
                     <div class="export-checkbox-wrap">
-                      <input type="checkbox"
-                             [(ngModel)]="campo.activo"
-                             class="export-checkbox" />
+                      <input type="checkbox" [(ngModel)]="campo.activo" class="export-checkbox" />
                       <span class="export-checkbox-custom"></span>
                     </div>
                     <div class="export-campo-info">
@@ -522,42 +427,28 @@
                       <span class="export-campo-key">{{ campo.key }}</span>
                     </div>
                   </label>
-
                   <div class="export-orden-btns">
-                    <button class="export-orden-btn"
-                            (click)="moverCampo(campo, 'arriba')"
-                            title="Mover arriba">
+                    <button class="export-orden-btn" (click)="moverCampo(campo, 'arriba')" title="Mover arriba">
                       <ion-icon name="chevron-up-outline"></ion-icon>
                     </button>
-                    <button class="export-orden-btn"
-                            (click)="moverCampo(campo, 'abajo')"
-                            title="Mover abajo">
+                    <button class="export-orden-btn" (click)="moverCampo(campo, 'abajo')" title="Mover abajo">
                       <ion-icon name="chevron-down-outline"></ion-icon>
                     </button>
                   </div>
                 </div>
               </div>
-
-              <!-- Contador de campos -->
               <div class="export-campos-counter">
-                <ion-icon name="checkmark-circle-outline"
-                          [style.color]="camposSeleccionados > 0 ? '#16A34A' : '#94A3B8'">
-                </ion-icon>
+                <ion-icon name="checkmark-circle-outline" [style.color]="camposSeleccionados > 0 ? '#16A34A' : '#94A3B8'"></ion-icon>
                 <span>
-                  <strong [style.color]="camposSeleccionados > 0 ? '#16A34A' : '#94A3B8'">
-                    {{ camposSeleccionados }}
-                  </strong>
+                  <strong [style.color]="camposSeleccionados > 0 ? '#16A34A' : '#94A3B8'">{{ camposSeleccionados }}</strong>
                   de {{ camposExportables.length }} campos seleccionados
                 </span>
               </div>
             </div>
-
           </div>
 
-          <!-- ── Columna derecha: Opciones + Vista previa ── -->
+          <!-- Columna derecha -->
           <div class="export-col">
-
-            <!-- Opciones de exportación -->
             <div class="export-section">
               <div class="export-section-header">
                 <div class="export-section-title">
@@ -565,7 +456,6 @@
                   <span>Opciones</span>
                 </div>
               </div>
-
               <div class="export-opciones">
                 <div class="export-input-group">
                   <label class="export-input-label">
@@ -573,117 +463,93 @@
                     Filtrar por estado
                   </label>
                   <div class="export-estado-opciones">
-                    <label class="export-estado-opt"
-                          [class.export-estado-opt-activo]="opcionesExport.filtroEstado === ''">
-                      <input type="radio" name="filtroEstado"
-                            [(ngModel)]="opcionesExport.filtroEstado" value="" />
+                    <label class="export-estado-opt" [class.export-estado-opt-activo]="opcionesExport.filtroEstado === ''">
+                      <input type="radio" name="filtroEstado" [(ngModel)]="opcionesExport.filtroEstado" value="" />
                       <span>Todas</span>
                     </label>
-                    <label class="export-estado-opt export-estado-opt-green"
-                          [class.export-estado-opt-activo]="opcionesExport.filtroEstado === 'Activa'">
-                      <input type="radio" name="filtroEstado"
-                            [(ngModel)]="opcionesExport.filtroEstado" value="Activa" />
+                    <label class="export-estado-opt export-estado-opt-green" [class.export-estado-opt-activo]="opcionesExport.filtroEstado === 'Activa'">
+                      <input type="radio" name="filtroEstado" [(ngModel)]="opcionesExport.filtroEstado" value="Activa" />
                       <span>Solo activas</span>
                     </label>
-                    <label class="export-estado-opt export-estado-opt-red"
-                          [class.export-estado-opt-activo]="opcionesExport.filtroEstado === 'Inactiva'">
-                      <input type="radio" name="filtroEstado"
-                            [(ngModel)]="opcionesExport.filtroEstado" value="Inactiva" />
+                    <label class="export-estado-opt export-estado-opt-red" [class.export-estado-opt-activo]="opcionesExport.filtroEstado === 'Inactiva'">
+                      <input type="radio" name="filtroEstado" [(ngModel)]="opcionesExport.filtroEstado" value="Inactiva" />
                       <span>Solo inactivas</span>
                     </label>
                   </div>
                 </div>
-
                 <div class="export-input-group">
                   <label class="export-input-label">
-                    <ion-icon name="document-outline"></ion-icon>
-                    Nombre de la hoja
+                    <ion-icon name="document-outline"></ion-icon> Nombre de la hoja
                   </label>
-                  <input type="text"
-                         [(ngModel)]="opcionesExport.nombreHoja"
-                         class="export-text-input"
-                         placeholder="Revistas" />
+                  <input type="text" [(ngModel)]="opcionesExport.nombreHoja" class="export-text-input" placeholder="Revistas" />
                 </div>
-
                 <div class="export-input-group">
                   <label class="export-input-label">
-                    <ion-icon name="save-outline"></ion-icon>
-                    Nombre del archivo
+                    <ion-icon name="save-outline"></ion-icon> Nombre del archivo
                   </label>
                   <div class="export-filename-wrap">
-                    <input type="text"
-                           [(ngModel)]="opcionesExport.nombreArchivo"
-                           class="export-text-input"
-                           placeholder="revistas_exportacion" />
+                    <input type="text" [(ngModel)]="opcionesExport.nombreArchivo" class="export-text-input" placeholder="revistas_exportacion" />
                     <span class="export-filename-ext">.xlsx</span>
                   </div>
                 </div>
-
               </div>
             </div>
 
             <!-- Vista previa -->
-            <div class="export-preview">
-              <!-- Headers -->
-              <div class="export-preview-header-row">
-                <ng-container *ngFor="let campo of camposOrdenados">
-                  <span *ngIf="campo.activo" class="export-preview-th">
-                    {{ campo.label }}
-                  </span>
-                </ng-container>
-                <span *ngIf="camposSeleccionados === 0" class="export-preview-empty">
-                  Selecciona al menos un campo
-                </span>
+            <div class="export-section export-preview-section">
+              <div class="export-section-header">
+                <div class="export-section-title">
+                  <ion-icon name="eye-outline"></ion-icon>
+                  <span>Vista previa</span>
+                </div>
               </div>
-
-              <!-- Mini tabla con datos reales -->
-              <div class="export-preview-tabla" *ngIf="camposSeleccionados > 0 && revistasFiltradas.length > 0">
-                <div class="export-preview-row"
-                    *ngFor="let mag of revistasFiltradas | slice:0:3">
+              <div class="export-preview">
+                <div class="export-preview-header-row">
                   <ng-container *ngFor="let campo of camposOrdenados">
-                    <span *ngIf="campo.activo" class="export-preview-cell">
-                      <ng-container [ngSwitch]="campo.key">
-                        <span *ngSwitchCase="'titulo'"     class="cell-titulo">{{ mag.titulo }}</span>
-                        <span *ngSwitchCase="'descripcion'" class="cell-desc">{{ (mag.descripcion || '—') | slice:0:25 }}...</span>
-                        <span *ngSwitchCase="'precio'"     class="cell-precio">${{ mag.precio }}</span>
-                        <span *ngSwitchCase="'stock'"      class="cell-stock">{{ mag.stock }}</span>
-                        <span *ngSwitchCase="'estado'"     class="cell-estado"
-                              [class.cell-activa]="mag.estado === 'Activa'"
-                              [class.cell-inactiva]="mag.estado !== 'Activa'">
-                          {{ mag.estado }}
-                        </span>
-                        <span *ngSwitchCase="'descuento_activo'" class="cell-desc">
-                          {{ mag.descuento_activo ? 'Sí' : 'No' }}
-                        </span>
-                      </ng-container>
-                    </span>
+                    <span *ngIf="campo.activo" class="export-preview-th">{{ campo.label }}</span>
                   </ng-container>
+                  <span *ngIf="camposSeleccionados === 0" class="export-preview-empty">Selecciona al menos un campo</span>
                 </div>
-
-                <div class="export-preview-more" *ngIf="revistasFiltradas.length > 3">
-                  + {{ revistasFiltradas.length - 3 }} registros más...
+                <div class="export-preview-tabla" *ngIf="camposSeleccionados > 0 && revistasFiltradas.length > 0">
+                  <div class="export-preview-row" *ngFor="let mag of revistasFiltradas | slice:0:3">
+                    <ng-container *ngFor="let campo of camposOrdenados">
+                      <span *ngIf="campo.activo" class="export-preview-cell">
+                        <ng-container [ngSwitch]="campo.key">
+                          <span *ngSwitchCase="'titulo'"           class="cell-titulo">{{ mag.titulo }}</span>
+                          <span *ngSwitchCase="'descripcion'"      class="cell-desc">{{ (mag.descripcion || '—') | slice:0:25 }}...</span>
+                          <span *ngSwitchCase="'precio'"           class="cell-precio">${{ mag.precio }}</span>
+                          <span *ngSwitchCase="'stock'"            class="cell-stock">{{ mag.stock }}</span>
+                          <span *ngSwitchCase="'estado'"           class="cell-estado"
+                                [class.cell-activa]="mag.estado === 'Activa'"
+                                [class.cell-inactiva]="mag.estado !== 'Activa'">{{ mag.estado }}</span>
+                          <span *ngSwitchCase="'descuento_activo'" class="cell-desc">{{ mag.descuento_activo ? 'Sí' : 'No' }}</span>
+                        </ng-container>
+                      </span>
+                    </ng-container>
+                  </div>
+                  <div class="export-preview-more" *ngIf="revistasFiltradas.length > 3">
+                    + {{ revistasFiltradas.length - 3 }} registros más...
+                  </div>
                 </div>
-              </div>
-
-              <!-- Hint -->
-              <div class="export-preview-hint">
-                <ion-icon name="information-circle-outline"></ion-icon>
-                Se exportarán <strong>{{ revistasFiltradas.length }}</strong>
-                revista(s) {{ opcionesExport.filtroEstado
-                  ? '(solo ' + opcionesExport.filtroEstado.toLowerCase() + 's)'
-                  : 'en total' }}
+                <div class="export-preview-hint">
+                  <ion-icon name="information-circle-outline"></ion-icon>
+                  Se exportarán <strong>{{ revistasFiltradas.length }}</strong>
+                  revista(s) {{ opcionesExport.filtroEstado
+                    ? '(solo ' + opcionesExport.filtroEstado.toLowerCase() + 's)'
+                    : 'en total' }}
+                </div>
               </div>
             </div>
 
-      <!-- Footer -->
+          </div>
+        </div>
+      </div>
+
       <div class="modal-footer export-modal-footer">
         <button (click)="closeExportModal()" class="btn-secondary">
-          <ion-icon name="close-outline"></ion-icon>
-          Cancelar
+          <ion-icon name="close-outline"></ion-icon> Cancelar
         </button>
-        <button (click)="ejecutarExportacion()"
-                class="btn-export-confirm"
-                [disabled]="camposSeleccionados === 0">
+        <button (click)="ejecutarExportacion()" class="btn-export-confirm" [disabled]="camposSeleccionados === 0">
           <ion-icon name="download-outline"></ion-icon>
           Descargar Excel
           <span *ngIf="camposSeleccionados > 0" class="export-badge" style="background:#16A34A;">
