@@ -1,16 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, finalize, shareReplay, tap } from 'rxjs/operators';
 import { API_URL } from '../api.config';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, tap, filter, take, switchMap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private api = `${API_URL}`;
-
-  // ✅ Control para evitar múltiples refresh simultáneos
-  private isRefreshing = false;
-  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+  private refreshRequest$: Observable<any> | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -24,12 +21,19 @@ export class AuthService {
   }): Observable<any> {
     return this.http.post(`${this.api}/auth/register`, data);
   }
+
   verificarCorreo(correo: string) {
-    return this.http.get<{ exists: boolean }>(`${this.api}/auth/check-email?correo=${correo}`);
+    return this.http.get<{ exists: boolean }>(
+      `${this.api}/auth/check-email?correo=${correo}`,
+    );
   }
+
   verificarTelefono(telefono: string) {
-    return this.http.get<{ exists: boolean }>(`${this.api}/auth/check-phone?telefono=${telefono}`);
+    return this.http.get<{ exists: boolean }>(
+      `${this.api}/auth/check-phone?telefono=${telefono}`,
+    );
   }
+
   login(data: {
     credential: string;
     contrasena: string;
@@ -42,8 +46,9 @@ export class AuthService {
     const token = localStorage.getItem('accessToken');
     if (!token) {
       this.clearSession();
-      return throwError(() => new Error('No hay sesión activa.'));
+      return throwError(() => new Error('No hay sesiÃ³n activa.'));
     }
+
     return this.http
       .post(
         `${this.api}/auth/logout`,
@@ -59,95 +64,174 @@ export class AuthService {
       );
   }
 
-  /**
-   * ✅ Refresh serializado — solo una petición real a la vez.
-   * Las demás esperan el resultado de la primera.
-   */
   refreshToken(): Observable<any> {
     const refresh = localStorage.getItem('refreshToken');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = this.getSessionUserId();
 
-    if (!refresh || !user?.id) {
+    if (!refresh || refresh === 'biometric-placeholder' || !userId) {
       this.clearSession();
-      return throwError(() => new Error('Sesión expirada.'));
+      return throwError(() => new Error('SesiÃ³n expirada.'));
     }
 
-    // Si ya hay un refresh en curso, esperar su resultado
-    if (this.isRefreshing) {
-      return this.refreshTokenSubject.pipe(
-        filter((token) => token !== null),
-        take(1),
-        switchMap((token) => [{ accessToken: token }]),
-      );
+    if (this.refreshRequest$) {
+      return this.refreshRequest$;
     }
 
-    // Primera petición — iniciar el refresh
-    this.isRefreshing = true;
-    this.refreshTokenSubject.next(null);
+    const payload = { id_usuario: userId, refreshToken: refresh };
 
-    const payload = { id_usuario: user.id, refreshToken: refresh };
-
-    return this.http.post(`${this.api}/auth/refresh`, payload).pipe(
+    this.refreshRequest$ = this.http.post(`${this.api}/auth/refresh`, payload).pipe(
       tap((res: any) => {
-        if (res?.accessToken && res?.refreshToken) {
-          localStorage.setItem('accessToken', res.accessToken);
-          localStorage.setItem('refreshToken', res.refreshToken);
-          this.refreshTokenSubject.next(res.accessToken);
-          this.isRefreshing = false;
-        } else {
+        if (!res?.accessToken) {
+          this.clearSession();
+          throw new Error('No se recibiÃ³ un access token nuevo.');
+        }
+
+        this.storeSession({
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken || refresh,
+          user: this.getStoredUser(),
+        });
+      }),
+      catchError((err) => {
+        if (err.status === 401 || err.status === 403) {
           this.clearSession();
         }
+        return throwError(() => err);
       }),
-     catchError((err) => {
-    // Solo limpiar si el token es realmente inválido (401)
-    // No limpiar por errores de red (0, 500, etc.)
-    if (err.status === 401) {
-      this.clearSession();
-    }
-    this.isRefreshing = false; // siempre liberar el lock
-    return throwError(() => err);
-  }),
+      finalize(() => {
+        this.refreshRequest$ = null;
+      }),
+      shareReplay(1),
     );
+
+    return this.refreshRequest$;
   }
 
   clearSession() {
-    this.isRefreshing = false;
-    this.refreshTokenSubject.next(null);
+    this.refreshRequest$ = null;
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
   }
 
   preRegistro(data: any) {
     return this.http.post(`${this.api}/auth/pre-registro`, data);
   }
+
   verifyEmailLink(token: string) {
     return this.http.get(`${this.api}/auth/verify-email?token=${token}`);
   }
+
   finalizarRegistro(data: any) {
     return this.http.post(`${this.api}/auth/finalizar-registro`, data);
   }
+
   forgotPassword(payload: { correo: string; palabra_secreta: string }) {
     return this.http.post(`${this.api}/password/forgot`, payload);
   }
+
   validateToken(token: string) {
     return this.http.get(`${this.api}/password/validate?token=${token}`);
   }
+
   resetPassword(payload: { token: string; nuevaContrasena: string }) {
     return this.http.post(`${this.api}/password/reset`, payload);
   }
 
-  /** Verificar token de activación antes de mostrar formulario */
-verifyActivationToken(token: string): Observable<any> {
-  return this.http.get(`${this.api}/auth/activate-account?token=${token}`);
-}
+  verifyActivationToken(token: string): Observable<any> {
+    return this.http.get(`${this.api}/auth/activate-account?token=${token}`);
+  }
 
-/** Activar cuenta con token + contraseña */
-activateAccount(payload: {
-  token: string;
-  password: string;
-  confirm_password: string;
-}): Observable<any> {
-  return this.http.post(`${this.api}/auth/activate-account`, payload);
-}
+  activateAccount(payload: {
+    token: string;
+    password: string;
+    confirm_password: string;
+  }): Observable<any> {
+    return this.http.post(`${this.api}/auth/activate-account`, payload);
+  }
+
+  storeSession(payload: {
+    accessToken?: string;
+    token?: string;
+    refreshToken?: string;
+    user?: any;
+  }) {
+    const accessToken = payload.accessToken || payload.token;
+    if (!accessToken) return;
+
+    localStorage.setItem('accessToken', accessToken);
+
+    if (payload.refreshToken) {
+      localStorage.setItem('refreshToken', payload.refreshToken);
+    } else {
+      localStorage.removeItem('refreshToken');
+    }
+
+    const normalizedUser = this.normalizeUser(payload.user, accessToken);
+    if (normalizedUser) {
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
+    }
+  }
+
+  getStoredUser() {
+    try {
+      return JSON.parse(localStorage.getItem('user') || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  getSessionUserId(): number | string | null {
+    const user = this.getStoredUser();
+    if (user?.id) return user.id;
+    if (user?.id_usuario) return user.id_usuario;
+
+    const payload = this.decodeToken(localStorage.getItem('accessToken'));
+    return payload?.id || payload?.id_usuario || null;
+  }
+
+  isTokenExpired(token: string | null): boolean {
+    const payload = this.decodeToken(token);
+    if (!payload?.exp) return false;
+    return Date.now() >= payload.exp * 1000;
+  }
+
+  private normalizeUser(user: any, accessToken: string) {
+    const payload = this.decodeToken(accessToken) || {};
+    const baseUser = user || {};
+    const id = baseUser.id ?? baseUser.id_usuario ?? payload.id ?? payload.id_usuario;
+
+    if (!id && !baseUser.nombre && !payload.correo) {
+      return null;
+    }
+
+    return {
+      ...baseUser,
+      id,
+      id_usuario: baseUser.id_usuario ?? id,
+      rol: baseUser.rol ?? payload.rol ?? null,
+      correo: baseUser.correo ?? payload.correo ?? null,
+      nombre: baseUser.nombre ?? payload.nombre ?? null,
+      metodo_autenticacion:
+        baseUser.metodo_autenticacion ?? payload.metodo_autenticacion ?? null,
+    };
+  }
+
+  private decodeToken(token: string | null) {
+    if (!token) return null;
+
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+
+      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+      return JSON.parse(atob(padded));
+    } catch {
+      return null;
+    }
+  }
 }
