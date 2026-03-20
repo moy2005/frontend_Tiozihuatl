@@ -99,22 +99,21 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
         console.log('✅ OAuth exitoso, guardando datos...');
 
         // Guardar tokens
-        localStorage.setItem('accessToken', accessToken);
-        if (refreshToken) {
-          localStorage.setItem('refreshToken', refreshToken);
-        }
-
-        // Guardar datos del usuario para el dashboard
-        const userData = {
-          nombre: nombre,
-          correo: correo,
-          metodo_autenticacion: correo.includes('facebook_')
-            ? 'Facebook'
-            : correo.includes('@gmail.com')
-            ? 'Google'
-            : 'OAuth',
-        };
-        localStorage.setItem('userData', JSON.stringify(userData));
+        this.auth.storeSession({
+          accessToken,
+          refreshToken,
+          user: {
+            id: params['id'],
+            rol: params['rol'],
+            nombre,
+            correo,
+            metodo_autenticacion: correo?.includes('facebook_')
+              ? 'Facebook'
+              : correo?.includes('@gmail.com')
+              ? 'Google'
+              : 'OAuth',
+          },
+        });
 
         // Mostrar mensaje de bienvenida
         Swal.fire({
@@ -209,14 +208,9 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
 
     // === LOGIN EXITOSO ===
     const access = res?.accessToken || res?.token;
-    const refresh = res?.refreshToken;
 
     if (access) {
-      localStorage.setItem('accessToken', access);
-      if (refresh) localStorage.setItem('refreshToken', refresh);
-      if (res?.user) {
-        localStorage.setItem('user', JSON.stringify(res.user));
-      }
+      this.auth.storeSession(res);
 
        this.router.navigate(['/perfil']).then(() => {
           window.location.reload();
@@ -355,8 +349,11 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
       console.log('📦 Respuesta del backend:', res);
 
       if (res?.success && res?.token) {
-        localStorage.setItem('accessToken', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
+        this.auth.storeSession({
+          accessToken: res.token,
+          refreshToken: res.refreshToken,
+          user: res.user,
+        });
 
         Swal.fire({
           icon: 'success',
@@ -620,18 +617,13 @@ console.log('✅ Resultado de autenticación:', result);
 
 
   if (result?.token || result?.accessToken) {
-  const token = result.token || result.accessToken;
-  localStorage.setItem('accessToken', token);
+  this.auth.storeSession(result);
 
   // ✅ Guardar usuario si existe
-  if (result.user) {
-    localStorage.setItem('user', JSON.stringify(result.user));
-  }
+  if (result.user) { /* ya persistido en AuthService */ }
 
   // ✅ Guardar refreshToken vacío para evitar errores en guards
-  if (!localStorage.getItem('refreshToken')) {
-    localStorage.setItem('refreshToken', 'biometric-placeholder');
-  }
+  if (!localStorage.getItem('refreshToken')) { /* compatibilidad */ }
 
   Swal.fire({
     icon: 'success',
