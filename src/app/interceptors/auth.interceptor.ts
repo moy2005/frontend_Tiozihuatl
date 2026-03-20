@@ -18,7 +18,9 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err) => {
       // Nunca reintentar el refresh mismo — corta el loop infinito
       if (req.url.includes('/auth/refresh')) {
-        authService.clearSession();
+        if (err.status === 401 || err.status === 403) {
+          authService.clearSession();
+        }
         return throwError(() => err);
       }
 
@@ -36,7 +38,9 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
             return throwError(() => err);
           }),
           catchError((refreshErr) => {
-            authService.clearSession();
+            if (refreshErr.status === 401 || refreshErr.status === 403) {
+              authService.clearSession();
+            }
             return throwError(() => refreshErr);
           })
         );
