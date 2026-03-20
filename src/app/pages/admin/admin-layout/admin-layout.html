@@ -109,8 +109,8 @@
           <i class="ph ph-user"></i>
         </div>
         <div class="user-info">
-          <p class="user-name">{{ currentUser?.nombre || 'Admin' }}</p>
-          <p class="user-role">Administrador</p>
+          <p class="user-name">{{ currentUser?.nombre || 'Administrador' }}</p>
+         
         </div>
       </div>
       <div class="footer-actions">
@@ -121,29 +121,112 @@
     </div>
   </aside>
 
-  <!-- Main Content Area -->
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT AREA
+  ════════════════════════════════════════════ -->
   <div class="main-content" 
        [class.main-content-full]="sidebarState === 'hidden'"
        [class.main-content-collapsed]="sidebarState === 'collapsed'"
        [class.main-content-open]="sidebarState === 'open'">
     
+    <!-- ══════════ TOPBAR MEJORADO ══════════ -->
     <header class="topbar">
-      <button class="toggle-btn" (click)="toggleSidebar()" [title]="getToggleButtonTitle()">
-        <i [class]="'ph ' + getToggleButtonIcon()"></i>
-      </button>
-      <div class="topbar-actions">
-        <button class="topbar-btn" title="Notificaciones">
-          <i class="ph ph-bell"></i>
-          <span class="notification-dot"></span>
+
+      <!-- Lado izquierdo: toggle + breadcrumb / título de sección -->
+      <div class="topbar-left">
+        <button class="toggle-btn" (click)="toggleSidebar()" [title]="getToggleButtonTitle()">
+          <i [class]="'ph ' + getToggleButtonIcon()"></i>
         </button>
-        <button class="topbar-btn" (click)="showHiddenSidebar()" title="Mostrar menú" *ngIf="sidebarState === 'hidden'">
-          <i class="ph ph-list"></i>
+
+        <div class="topbar-divider"></div>
+
+        <div class="topbar-section-info">
+          <span class="topbar-section-label">Panel de administración</span>
+        </div>
+      </div>
+
+      <!-- Lado derecho: acciones -->
+      <div class="topbar-right">
+
+
+        <!-- Notificaciones con panel emergente -->
+        <div class="topbar-action-wrapper" (clickOutside)="closeNotifPanel()">
+          <button 
+            class="topbar-action-btn topbar-action-btn--notif" 
+            [class.active]="showNotifPanel"
+            title="Notificaciones"
+            (click)="toggleNotifPanel()">
+            <i class="ph ph-bell"></i>
+            <span class="topbar-badge">5</span>
+          </button>
+
+          <!-- Panel de notificaciones -->
+          <div class="notif-panel" [class.notif-panel--open]="showNotifPanel">
+            <div class="notif-panel__header">
+              <span class="notif-panel__title">Notificaciones</span>
+              <span class="notif-panel__count">5 nuevas</span>
+            </div>
+            <ul class="notif-list">
+              <li class="notif-item notif-item--unread">
+                <div class="notif-item__dot"></div>
+                <div class="notif-item__body">
+                  <p class="notif-item__text">Nuevo contacto recibido</p>
+                  <span class="notif-item__time">Hace 5 min</span>
+                </div>
+              </li>
+              <li class="notif-item notif-item--unread">
+                <div class="notif-item__dot"></div>
+                <div class="notif-item__body">
+                  <p class="notif-item__text">Préstamo vence hoy</p>
+                  <span class="notif-item__time">Hace 20 min</span>
+                </div>
+              </li>
+              <li class="notif-item notif-item--unread">
+                <div class="notif-item__dot"></div>
+                <div class="notif-item__body">
+                  <p class="notif-item__text">Respaldo completado</p>
+                  <span class="notif-item__time">Hace 1 h</span>
+                </div>
+              </li>
+              <li class="notif-item">
+                <div class="notif-item__dot notif-item__dot--read"></div>
+                <div class="notif-item__body">
+                  <p class="notif-item__text">Nuevo usuario registrado</p>
+                  <span class="notif-item__time">Hace 3 h</span>
+                </div>
+              </li>
+              <li class="notif-item">
+                <div class="notif-item__dot notif-item__dot--read"></div>
+                <div class="notif-item__body">
+                  <p class="notif-item__text">Revista actualizada</p>
+                  <span class="notif-item__time">Ayer</span>
+                </div>
+              </li>
+            </ul>
+            <div class="notif-panel__footer">
+              <button class="notif-panel__see-all">Ver todas</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Separador visual -->
+        <div class="topbar-divider topbar-divider--tall"></div>
+
+        <!-- Perfil de usuario -->
+        <button class="topbar-user-btn" (click)="goToProfile()" title="Mi perfil">
+          <div class="topbar-user-avatar">
+            <i class="ph ph-user"></i>
+          </div>
+          <div class="topbar-user-info">
+            <span class="topbar-user-name">{{ currentUser?.nombre || 'Perfil' }}</span>
+         
+          </div>
+         
         </button>
-        <button class="topbar-btn" (click)="goToProfile()" title="Perfil">
-          <i class="ph ph-user-circle"></i>
-        </button>
+
       </div>
     </header>
+    <!-- ══════════ FIN TOPBAR ══════════ -->
 
     <main class="content-area">
       <router-outlet></router-outlet>
