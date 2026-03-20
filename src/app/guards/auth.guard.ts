@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree, ActivatedRouteSnapshot } from '@angular/router';
-import { AuthService } from '../api/services/auth';
+import { ActivatedRouteSnapshot, CanActivate, Router, UrlTree } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
+import { AuthService } from '../api/services/auth';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
@@ -11,27 +12,38 @@ export class AuthGuard implements CanActivate {
     const accessToken = localStorage.getItem('accessToken');
     const refreshToken = localStorage.getItem('refreshToken');
 
-    // Sin tokens → redirigir a login
-    if (!accessToken || !refreshToken) {
-      return this.redirectToLogin('Inicia sesión para continuar.');
+    if (!accessToken) {
+      return this.redirectToLogin('Inicia sesiÃ³n para continuar.');
     }
 
-    // ✅ Solo verificar que el token sea decodificable
-    // El interceptor renueva automáticamente si expira — no hacerlo aquí
-    const decoded = this.decodeToken(accessToken);
+    if (this.auth.isTokenExpired(accessToken)) {
+      if (!refreshToken || refreshToken === 'biometric-placeholder') {
+        return this.redirectToLogin('Tu sesiÃ³n expirÃ³. Inicia sesiÃ³n nuevamente.');
+      }
+
+      try {
+        await firstValueFrom(this.auth.refreshToken());
+      } catch {
+        return this.redirectToLogin('Tu sesiÃ³n expirÃ³. Inicia sesiÃ³n nuevamente.');
+      }
+    }
+
+    const currentToken = localStorage.getItem('accessToken') || '';
+    const decoded = this.decodeToken(currentToken);
     if (!decoded) {
-      return this.redirectToLogin('Sesión inválida. Inicia sesión nuevamente.');
+      return this.redirectToLogin('SesiÃ³n invÃ¡lida. Inicia sesiÃ³n nuevamente.');
     }
 
-    // Verificar rol si la ruta lo requiere
     const allowedRoles: string[] = route.data?.['roles'] || [];
     if (allowedRoles.length > 0) {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (!user?.rol || !allowedRoles.includes(user.rol)) {
+      const user = this.auth.getStoredUser();
+      const userRole = user?.rol || decoded?.rol;
+
+      if (!userRole || !allowedRoles.includes(userRole)) {
         Swal.fire({
           icon: 'warning',
           title: 'Acceso denegado',
-          text: 'No tienes permisos para acceder a esta sección.',
+          text: 'No tienes permisos para acceder a esta secciÃ³n.',
           confirmButtonColor: '#E53E3E',
         });
         return this.router.createUrlTree(['/perfil']);
@@ -44,15 +56,19 @@ export class AuthGuard implements CanActivate {
   private decodeToken(token: string): any {
     try {
       const payload = token.split('.')[1];
-      return JSON.parse(atob(payload));
+      if (!payload) return null;
+
+      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+      return JSON.parse(atob(padded));
     } catch {
       return null;
     }
   }
 
   private redirectToLogin(msg: string): UrlTree {
-    Swal.fire('Autenticación requerida', msg, 'info');
-    localStorage.clear();
+    Swal.fire('AutenticaciÃ³n requerida', msg, 'info');
+    this.auth.clearSession();
     return this.router.createUrlTree(['/login']);
   }
 }
