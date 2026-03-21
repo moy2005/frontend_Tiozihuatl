@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -14,8 +14,7 @@ import { Router } from '@angular/router';
   imports: [CommonModule, FormsModule, SafeUrlPipe],
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  encapsulation: ViewEncapsulation.None 
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CatalogoComponent implements OnInit, OnDestroy {
 
@@ -26,8 +25,8 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   ordenAutor    = '';
   materias:     { nombre: string }[] = [];
   pdfSeleccionado: string | null = null;
-  cargando        = false; // overlay de carga por búsqueda/
-  cargandoInicial = true;  // solo para la primera carga
+  cargando        = false; 
+  cargandoInicial = true;  
 
   modalPrestamo     = false;
   libroSeleccionado: Libro | null = null;
@@ -37,6 +36,9 @@ export class CatalogoComponent implements OnInit, OnDestroy {
 
   paginaActual    = 1;
   librosPorPagina = 12;
+
+  filtroSemestre = '';
+  semestres: any[] = [];
 
   private searchSubject = new Subject<string>();
   private destroy$      = new Subject<void>();
@@ -50,6 +52,7 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.cargarMaterias();
     this._ejecutarCarga();
+    this.cargarSemestres();
 
     // Fix: pasar el valor directamente al Subject para que debounce funcione
     this.searchSubject.pipe(
@@ -66,7 +69,6 @@ export class CatalogoComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /** Llamado por (input) del buscador — dispara debounce */
   onSearchInput(event: Event): void {
     const valor = (event.target as HTMLInputElement).value;
     this.searchSubject.next(valor);
@@ -81,16 +83,26 @@ export class CatalogoComponent implements OnInit, OnDestroy {
     this._ejecutarCarga();
   }
 
-  /** Borrar solo los filtros de selects (NO el buscador) */
+  cargarSemestres(): void {
+    this.catalogService.obtenerSemestres().subscribe({
+      next: (res) => this.semestres = res,
+      error: (err) => console.error(err)
+    });
+  }
+
   borrarFiltros(): void {
     this.filtroMateria = '';
     this.filtroFormato = '';
     this.ordenAutor    = '';
+    this.filtroSemestre = '';
     this._ejecutarCarga();
   }
 
   get hayFiltrosActivos(): boolean {
-    return this.filtroMateria !== '' || this.filtroFormato !== '' || this.ordenAutor !== '';
+    return this.filtroMateria !== '' || 
+       this.filtroFormato !== '' || 
+       this.ordenAutor !== '' ||
+       this.filtroSemestre !== '';
   }
 
   private _ejecutarCarga(): void {
@@ -103,7 +115,8 @@ export class CatalogoComponent implements OnInit, OnDestroy {
       this.search,
       this.filtroMateria,
       this.filtroFormato,
-      this.ordenAutor
+      this.ordenAutor,
+      this.filtroSemestre
     ).subscribe({
       next: (res) => {
         this.libros          = res;
