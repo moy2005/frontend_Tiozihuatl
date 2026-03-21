@@ -19,15 +19,22 @@ export class GestionCatalogoComponent implements OnInit {
 
   nuevoLibro: any = {
     titulo: '',
-    autores: '',
+    autores: [''],
     editorial: '',
+    id_editorial: null,
     materia_id: null,
+    semestres: [],
     tiene_fisico: false,
     tiene_digital: false,
     total: 0
   };
 
   materias: any[] = [];
+  editoriales: any[] = [];
+  editorialesSugeridas: any[] = [];
+  indiceSeleccionado = -1;
+  mostrarCrearEditorial = false;
+  semestres: any[] = [];
   pdfSeleccionado: File | null = null;
   pdfActual: string | null = null;
 
@@ -44,13 +51,16 @@ export class GestionCatalogoComponent implements OnInit {
   mensajeErrorArchivo: string = '';
   archivoSeleccionado: File | null = null;
   totalResultados: number = 0;
+
   filtros = {
   search: '',
   materia: '',
   formato: '',
   activo: '',
-  ordenAutor: ''};
-
+  ordenAutor: '',
+  semestre: ''
+  };
+  
   sugerenciasPorCampo: any[][] = [];
   todosLosAutores: any[] = [];
 
@@ -63,7 +73,9 @@ export class GestionCatalogoComponent implements OnInit {
   ngOnInit(): void {
     this.cargarLibros();
     this.cargarMaterias();
+    this.cargarSemestres();
     this.cargarTodosLosAutores();
+    this.cargarEditoriales();
   }
 
   // ─────────────────────────────────────────
@@ -95,6 +107,105 @@ export class GestionCatalogoComponent implements OnInit {
       }
     });
   }
+   // ─────────────────────────────────────────
+  // EDITORIALES
+  // ─────────────────────────────────────────
+
+  onBuscarEditorial() {
+
+    const search = this.nuevoLibro.editorial?.trim();
+
+    this.nuevoLibro.id_editorial = null;
+
+    if (!search || search.length < 2) {
+      this.editorialesSugeridas = [];
+      this.mostrarCrearEditorial = false;
+      return;
+    }
+
+    this.catalogAdminService.buscarEditoriales(search)
+      .subscribe(res => {
+
+        this.editorialesSugeridas = res;
+
+        const existe = res.some(
+          (e:any) => e.nombre.toLowerCase() === search.toLowerCase()
+        );
+
+        this.mostrarCrearEditorial = !existe;
+
+      });
+
+  }
+  seleccionarEditorial(editorial: any) {
+
+    this.nuevoLibro.editorial = editorial.nombre;
+    this.nuevoLibro.id_editorial = editorial.id_editorial;
+    //  cerrar dropdown
+    this.editorialesSugeridas = [];
+    this.mostrarCrearEditorial = false;
+    this.indiceSeleccionado = -1;
+
+  }
+
+  crearNuevaEditorial() {
+
+    this.nuevoLibro.id_editorial = null;
+    //  cerrar dropdown
+    this.editorialesSugeridas = [];
+    this.mostrarCrearEditorial = false;
+    this.indiceSeleccionado = -1;
+
+  }
+
+  moverSeleccion(direccion: number) {
+
+    const total = this.editorialesSugeridas.length;
+
+    if (total === 0) return;
+
+    this.indiceSeleccionado += direccion;
+
+    if (this.indiceSeleccionado < 0)
+      this.indiceSeleccionado = total - 1;
+
+    if (this.indiceSeleccionado >= total)
+      this.indiceSeleccionado = 0;
+
+  }
+  seleccionarConEnter() {
+
+    if (this.indiceSeleccionado >= 0) {
+
+      const editorial = this.editorialesSugeridas[this.indiceSeleccionado];
+      this.seleccionarEditorial(editorial);
+
+    }
+
+  }
+  cargarEditoriales(): void {
+    this.catalogAdminService.buscarEditoriales().subscribe({
+      next: (res) => {
+        this.editoriales = res;
+      },
+      error: (err) => {
+        console.error('Error cargando editoriales', err);
+      }
+    });
+  }
+
+  ocultarEditoriales() {
+
+    setTimeout(() => {
+
+      this.editorialesSugeridas = [];
+      this.mostrarCrearEditorial = false;
+      this.indiceSeleccionado = -1;
+
+    }, 200);
+
+  }
+  
   // ─────────────────────────────────────────
   // AUTORES DINÁMICOS
   // ─────────────────────────────────────────
@@ -127,8 +238,7 @@ export class GestionCatalogoComponent implements OnInit {
       this.sugerenciasPorCampo[index] = [];
       return;
     }
-
-    // Filtra autores que coincidan y no estén ya seleccionados en otro campo
+    
     const yaSeleccionados = this.nuevoLibro.autores
       .filter((_: string, i: number) => i !== index)
       .map((a: string) => a.trim().toLowerCase());
@@ -149,7 +259,7 @@ export class GestionCatalogoComponent implements OnInit {
       if (this.sugerenciasPorCampo[index]) {
         this.sugerenciasPorCampo[index] = [];
       }
-    }, 150); // pequeño delay para que el mousedown del item se ejecute primero
+    }, 150); 
   }
 
 
@@ -163,7 +273,6 @@ export class GestionCatalogoComponent implements OnInit {
   // ─────────────────────────────────────────
   // BUSCAR
   // ─────────────────────────────────────────
-
   buscar(): void {
     this.cargarLibros();
   }
@@ -175,6 +284,20 @@ export class GestionCatalogoComponent implements OnInit {
     this.catalogAdminService.obtenerMaterias().subscribe({
       next: (res) => { this.materias = res; },
       error: (err) => { console.error('Error al cargar materias', err); }
+    });
+  }
+
+  // ─────────────────────────────────────────
+  // CARGAR SEMESTRE
+  // ─────────────────────────────────────────
+  cargarSemestres(): void {
+    this.catalogAdminService.obtenerSemestres().subscribe({
+      next: (res) => {
+        this.semestres = res;
+      },
+      error: (err) => {
+        console.error('Error cargando semestres', err);
+      }
     });
   }
 
@@ -210,120 +333,195 @@ export class GestionCatalogoComponent implements OnInit {
   // GUARDAR (crear o editar)
   // ─────────────────────────────────────────
   guardarLibro(): void {
+
     if (this.modoEdicion) {
       this.actualizarLibro();
       return;
     }
 
-    // Validaciones con Swal
+    // Validaciones
     if (!this.nuevoLibro.materia_id) {
-      Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'Debes seleccionar una materia.', confirmButtonColor: '#1976D2' });
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campo requerido',
+        text: 'Debes seleccionar una materia.',
+        confirmButtonColor: '#1976D2'
+      });
       return;
     }
 
     if (!this.nuevoLibro.tiene_fisico && !this.nuevoLibro.tiene_digital) {
-      Swal.fire({ icon: 'warning', title: 'Formato requerido', text: 'Debes seleccionar al menos un formato (Físico o Digital).', confirmButtonColor: '#1976D2' });
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formato requerido',
+        text: 'Debes seleccionar al menos un formato (Físico o Digital).',
+        confirmButtonColor: '#1976D2'
+      });
       return;
     }
 
     if (this.nuevoLibro.tiene_fisico && this.nuevoLibro.total <= 0) {
-      Swal.fire({ icon: 'warning', title: 'Stock inválido', text: 'El libro físico debe tener al menos 1 ejemplar.', confirmButtonColor: '#1976D2' });
+      Swal.fire({
+        icon: 'warning',
+        title: 'Stock inválido',
+        text: 'El libro físico debe tener al menos 1 ejemplar.',
+        confirmButtonColor: '#1976D2'
+      });
       return;
     }
 
     if (this.nuevoLibro.tiene_digital && !this.pdfSeleccionado) {
-      Swal.fire({ icon: 'warning', title: 'PDF requerido', text: 'Debes subir el archivo PDF para el formato digital.', confirmButtonColor: '#1976D2' });
+      Swal.fire({
+        icon: 'warning',
+        title: 'PDF requerido',
+        text: 'Debes subir el archivo PDF para el formato digital.',
+        confirmButtonColor: '#1976D2'
+      });
       return;
     }
 
+    if (!this.nuevoLibro.semestres || this.nuevoLibro.semestres.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campo requerido',
+        text: 'Debes seleccionar al menos un semestre.',
+        confirmButtonColor: '#1976D2'
+      });
+      return;
+    }
+    /*  Cerrar dropdown de editoriales */
+    this.editorialesSugeridas = [];
+    this.mostrarCrearEditorial = false;
+    this.indiceSeleccionado = -1;
     this.cargando = true;
     this.mensaje  = '';
+
     // Convertir autores a string
     this.nuevoLibro.autor = this.nuevoLibro.autores
       .map((a: string) => a.trim())
       .filter((a: string) => a)
       .join('; ');
+
     const formatos: any[] = [];
 
     if (this.nuevoLibro.tiene_fisico) {
       formatos.push({
-        tipo:       'FISICO',
-        total:      this.nuevoLibro.total,
+        tipo: 'FISICO',
+        total: this.nuevoLibro.total,
         disponibles: this.nuevoLibro.total
       });
     }
 
     // CASO: SOLO FÍSICO
     if (this.nuevoLibro.tiene_fisico && !this.nuevoLibro.tiene_digital) {
+
       this.catalogAdminService.crearLibro({
-        titulo:    this.nuevoLibro.titulo,
-        autor:     this.nuevoLibro.autor,
+        titulo: this.nuevoLibro.titulo,
+        autor: this.nuevoLibro.autor,
         editorial: this.nuevoLibro.editorial,
-        materias:  [this.nuevoLibro.materia_id],
+        id_editorial: this.nuevoLibro.id_editorial, // ⭐ NUEVO
+        materias: [this.nuevoLibro.materia_id],
+        semestres: this.nuevoLibro.semestres,
         formatos
       }).subscribe({
-        next:  () => this.finalizarGuardado(),
+        next: () => this.finalizarGuardado(),
         error: () => this.errorGuardado()
       });
+
       return;
     }
 
     // CASO: DIGITAL (o ambos)
     this.storageService.uploadPdf(this.pdfSeleccionado!).subscribe({
+
       next: (res: any) => {
-        formatos.push({ tipo: 'DIGITAL', pdf_url: res.public_id });
+
+        formatos.push({
+          tipo: 'DIGITAL',
+          pdf_url: res.public_id
+        });
 
         this.catalogAdminService.crearLibro({
-          titulo:    this.nuevoLibro.titulo,
-          autor:     this.nuevoLibro.autor,
+          titulo: this.nuevoLibro.titulo,
+          autor: this.nuevoLibro.autor,
           editorial: this.nuevoLibro.editorial,
-          materias:  [this.nuevoLibro.materia_id],
+          id_editorial: this.nuevoLibro.id_editorial, // ⭐ NUEVO
+          materias: [this.nuevoLibro.materia_id],
+          semestres: this.nuevoLibro.semestres,
           formatos
         }).subscribe({
-          next:  () => this.finalizarGuardado(),
+          next: () => this.finalizarGuardado(),
           error: () => this.errorGuardado()
         });
-      },
-      error: () => {
-        this.cargando = false;
-        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo subir el PDF. Intenta de nuevo.', confirmButtonColor: '#1976D2' });
-      }
-    });
-  }
 
+      },
+
+      error: () => {
+
+        this.cargando = false;
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo subir el PDF. Intenta de nuevo.',
+          confirmButtonColor: '#1976D2'
+        });
+
+      }
+
+    });
+
+  }
   // ─────────────────────────────────────────
   // EDITAR
   // ─────────────────────────────────────────
   editarLibro(libro: any): void {
-    
+
     this.mostrarModal    = true;
     this.modoEdicion     = true;
     this.libroEditandoId = libro.id;
 
+    // 🔹 FORMATOS
     const formatoFisico  = libro.formatos?.find((f: any) => f.tipo === 'FISICO');
     const formatoDigital = libro.formatos?.find((f: any) => f.tipo === 'DIGITAL');
 
+    // 🔹 MATERIA (más seguro)
     const materiaEncontrada = this.materias.find(
       (m: any) => m.nombre === libro.materias
     );
-    const primerMateriaId = materiaEncontrada ? Number(materiaEncontrada.id) : null;
+
+    const materiaId = materiaEncontrada ? Number(materiaEncontrada.id) : null;
+
+    // 🔹 SEMESTRES (🔥 IMPORTANTE)
+    const semestresIds = libro.semestres_ids
+      ? libro.semestres_ids.split(',').map((id: string) => Number(id))
+      : [];
+
+    //  SETEO PRINCIPAL
     this.nuevoLibro = {
-      titulo:        libro.titulo,
-      autor: libro.autor,
-      autores: libro.autores ? libro.autores.split(';').map((a: string) => a.trim()) : [''],
-      editorial:     libro.editorial,
-      materia_id:    null, 
-      tiene_fisico:  libro.tiene_fisico === 1,
+      titulo: libro.titulo,
+      autores: libro.autores
+        ? libro.autores.split(';').map((a: string) => a.trim())
+        : [''],
+
+      editorial: libro.editorial,
+      id_editorial: libro.id_editorial ?? null,
+
+      materia_id: materiaId, 
+
+      semestres: semestresIds, 
+
+      tiene_fisico: libro.tiene_fisico === 1,
       tiene_digital: libro.tiene_digital === 1,
-      total:         libro.total ?? 0
+
+      total: formatoFisico?.total ?? libro.disponibles ?? libro.total ?? 0
     };
 
-    setTimeout(() => {
-      this.nuevoLibro.materia_id = primerMateriaId;
-    }, 0);
-
+    //  PDF
     this.pdfActual       = libro.pdf_url ?? null;
     this.pdfSeleccionado = null;
+
+    //  CONTROL
     this.formatosEditados = false;
   }
 
@@ -348,8 +546,10 @@ export class GestionCatalogoComponent implements OnInit {
     const payload: any = {
       titulo:        this.nuevoLibro.titulo,
       autor:         this.nuevoLibro.autor,
-      editorial:     this.nuevoLibro.editorial,
+      editorial: this.nuevoLibro.editorial, 
+      id_editorial: this.nuevoLibro.id_editorial,
       materias:      [Number(this.nuevoLibro.materia_id)],
+      semestres: this.nuevoLibro.semestres,
       tiene_fisico:  this.nuevoLibro.tiene_fisico  ? 1 : 0,
       tiene_digital: this.nuevoLibro.tiene_digital ? 1 : 0,
       total:         this.nuevoLibro.total
@@ -397,6 +597,34 @@ export class GestionCatalogoComponent implements OnInit {
         Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el libro.', confirmButtonColor: '#1976D2' });
       }
     });
+  }
+  // ─────────────────────────────────────────
+  // SEMESTRES
+  // ─────────────────────────────────────────
+   onToggleSemestre(id: number, event: any) {
+
+    if (event.target.checked) {
+      this.nuevoLibro.semestres.push(id);
+    } else {
+      this.nuevoLibro.semestres = this.nuevoLibro.semestres.filter(
+        (s: number) => s !== id
+      );
+    }
+
+  }
+
+  toggleSemestre(id: number) {
+    if (!this.nuevoLibro.semestres) {
+      this.nuevoLibro.semestres = [];
+    }
+
+    const index = this.nuevoLibro.semestres.indexOf(id);
+
+    if (index > -1) {
+      this.nuevoLibro.semestres.splice(index, 1);
+    } else {
+      this.nuevoLibro.semestres.push(id);
+    }
   }
 
   // ─────────────────────────────────────────
@@ -475,7 +703,9 @@ export class GestionCatalogoComponent implements OnInit {
       autor:         '',
       autores: [''], 
       editorial:     '',
+      id_editorial: null, 
       materia_id:    null,
+      semestres: [],
       tiene_fisico:  false,
       tiene_digital: false,
       total:         0
@@ -488,6 +718,8 @@ export class GestionCatalogoComponent implements OnInit {
   }
 
   abrirModal(): void {
+    this.editorialesSugeridas = [];
+    this.mostrarCrearEditorial = false;
     this.mostrarModal = true;
     this.modoEdicion  = false;
     this.resetFormulario();
@@ -500,15 +732,16 @@ export class GestionCatalogoComponent implements OnInit {
   
   limpiarFiltros() {
 
-  this.filtros = {
-    search: '',
-    materia: '',
-    formato: '',
-    activo: '',
-    ordenAutor: ''
-  };
+    this.filtros = {
+      search: '',
+      materia: '',
+      formato: '',
+      activo: '',
+      ordenAutor: '',
+      semestre: ''
+    };
 
-  this.cargarLibros();
+    this.cargarLibros();
 
-}
+  }
 }
