@@ -65,6 +65,23 @@
       <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
     </div>
 
+    <!-- Semestre -->
+    <div class="chip-wrap">
+      <select class="chip-select"
+        [(ngModel)]="filtroSemestre"
+        (change)="cargarCatalogo()">
+
+        <option value="">Todos los semestres</option>
+
+        <option *ngFor="let s of semestres"
+                [value]="s.id_semestre">
+          {{ s.nombre_semestre }}
+        </option>
+
+      </select>
+      <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
+    </div>
+
     <!-- Formato -->
     <div class="chip-wrap">
       <select class="chip-select" [class.activo]="filtroFormato !== ''"
@@ -155,6 +172,20 @@
           </div>
           <p><strong>Editorial:</strong> {{ libro.editorial }}</p>
         </div>
+
+        <div class="semestres-wrap" *ngIf="libro.semestres">
+          <span class="semestres-titulo">
+            Semestre(s):
+          </span>
+          <div class="semestres-badges">
+            <span
+              *ngFor="let s of libro.semestres.split(',')"
+              class="badge-semestre">
+              {{ s.trim() }}
+            </span>
+          </div>
+        </div>
+
         <div class="badge-container">
           <span *ngIf="libro.tiene_fisico" class="badge fisico">
             <ion-icon name="cube-outline"></ion-icon>
