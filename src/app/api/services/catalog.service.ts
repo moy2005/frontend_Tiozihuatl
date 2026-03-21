@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../environments/environment.prod';
+import { environment } from '../environments/environment';
 import { API_URL } from '../api.config';
 
 export interface Libro {
@@ -10,6 +10,8 @@ export interface Libro {
   autores: string;
   editorial: string;
   materia: string;
+  semestres?: string;
+  semestres_ids?: string;
   total: number | null;
   disponibles: number | null;
   pdf_url: string | null;
@@ -32,14 +34,16 @@ export class CatalogService {
     search?: string,
     materia?: string,
     formato?: string,
-    ordenAutor?: string
+    ordenAutor?: string,
+    semestre?: string 
   ) {
     return this.http.get<any[]>(`${this.baseUrl}`, {
       params: {
         search: search || '',
         materia: materia || '',
         formato: formato || '',
-        ordenAutor: ordenAutor || ''
+        ordenAutor: ordenAutor || '',
+        semestre: semestre || ''
       }
     });
   }
@@ -59,5 +63,9 @@ export class CatalogService {
       `${this.baseUrl}/libros/${id}/preview`
     );
   }
+
+  obtenerSemestres() {
+  return this.http.get<any[]>(`${this.baseUrl}/semestres`);
+}
 
 }
