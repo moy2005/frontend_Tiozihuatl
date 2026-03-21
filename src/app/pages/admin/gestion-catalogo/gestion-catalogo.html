@@ -13,54 +13,34 @@
   </div>
 
   <!-- FILTROS -->
-<div class="filtros-container">
-
-  <!-- BUSCAR -->
-  <input
-    type="text"
-    class="filtro-input buscar-input"
-    placeholder="Buscar por título o autor..."
-    [(ngModel)]="filtros.search"
-    (input)="buscar()"
-  />
-
-  <!-- MATERIA -->
-  <select class="filtro-select" [(ngModel)]="filtros.materia" (change)="aplicarFiltros()">
-    <option value="">Todas las materias</option>
-    <option *ngFor="let m of materias" [value]="m.nombre">
-      {{ m.nombre }}
-    </option>
-  </select>
-
-  <!-- FORMATO -->
-  <select class="filtro-select" [(ngModel)]="filtros.formato" (change)="aplicarFiltros()">
-    <option value="">Todos los formatos</option>
-    <option value="FISICO">Físico</option>
-    <option value="DIGITAL">Digital</option>
-  </select>
-
-  <!-- ESTADO -->
-  <select class="filtro-select" [(ngModel)]="filtros.activo" (change)="aplicarFiltros()">
-    <option value="">Todos</option>
-    <option value="1">Activos</option>
-    <option value="0">Inactivos</option>
-  </select>
-
-  <!-- ORDEN -->
-  <select class="filtro-select" [(ngModel)]="filtros.ordenAutor" (change)="aplicarFiltros()">
-    <option value="">Orden autor</option>
-    <option value="ASC">Autor A-Z</option>
-    <option value="DESC">Autor Z-A</option>
-  </select>
-
-  <!-- LIMPIAR -->
-  <button
-    class="btn-limpiar"
-    (click)="limpiarFiltros()">
-    Limpiar
-</button>
-
-</div>
+  <div class="filtros-container">
+    <input type="text" class="filtro-input buscar-input" placeholder="Buscar por título o autor..."
+      [(ngModel)]="filtros.search" (input)="buscar()" />
+    <select class="filtro-select" [(ngModel)]="filtros.materia" (change)="aplicarFiltros()">
+      <option value="">Todas las materias</option>
+      <option *ngFor="let m of materias" [value]="m.nombre">{{ m.nombre }}</option>
+    </select>
+    <select class="filtro-select" [(ngModel)]="filtros.semestre" (change)="aplicarFiltros()">
+      <option value="">Todos los semestres</option>
+      <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
+    </select>
+    <select class="filtro-select" [(ngModel)]="filtros.formato" (change)="aplicarFiltros()">
+      <option value="">Todos los formatos</option>
+      <option value="FISICO">Físico</option>
+      <option value="DIGITAL">Digital</option>
+    </select>
+    <select class="filtro-select" [(ngModel)]="filtros.activo" (change)="aplicarFiltros()">
+      <option value="">Todos</option>
+      <option value="1">Activos</option>
+      <option value="0">Inactivos</option>
+    </select>
+    <select class="filtro-select" [(ngModel)]="filtros.ordenAutor" (change)="aplicarFiltros()">
+      <option value="">Orden autor</option>
+      <option value="ASC">Autor A-Z</option>
+      <option value="DESC">Autor Z-A</option>
+    </select>
+    <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar</button>
+  </div>
 
   <!-- MENSAJE -->
   <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
@@ -68,10 +48,10 @@
   <!-- LOADING -->
   <div *ngIf="cargandoTabla" class="loading-wrapper">
     <div class="loading-spinner"></div>
-    <p styl
-    e="margin-top:1rem; color:#64748B; font-weight:500; font-size:0.875rem;">Cargando libros...</p>
+    <p style="margin-top:1rem; color:#64748B; font-weight:500; font-size:0.875rem;">Cargando libros...</p>
   </div>
-  <!--CONTADOR -->
+
+  <!-- CONTADOR -->
   <div style="background:white;border:1px solid #B3E5FC;border-top:none;padding:0.75rem 1.5rem;font-size:0.85rem;color:#475569;font-weight:600">
     Mostrando {{ totalResultados }} libro{{ totalResultados === 1 ? '' : 's' }}
   </div>
@@ -86,6 +66,7 @@
             <th><ion-icon name="person-outline"></ion-icon> AUTOR</th>
             <th><ion-icon name="business-outline"></ion-icon> EDITORIAL</th>
             <th><ion-icon name="school-outline"></ion-icon> MATERIA</th>
+            <th><ion-icon name="calendar-outline"></ion-icon> SEMESTRE</th>
             <th><ion-icon name="albums-outline"></ion-icon> FORMATO</th>
             <th><ion-icon name="power-outline"></ion-icon> ESTADO</th>
             <th style="text-align:center;"><ion-icon name="settings-outline"></ion-icon> ACCIONES</th>
@@ -95,12 +76,22 @@
           <tr *ngFor="let libro of libros">
             <td>{{ libro.titulo }}</td>
             <td>
-            <div *ngFor="let autor of libro.autores?.split(';')">
-              {{ autor }}
-            </div>
-          </td>
+              <span *ngFor="let autor of libro.autores?.split(';'); let last = last">
+                {{ autor.trim() }}<span *ngIf="!last">·</span>
+              </span>
+            </td>
             <td>{{ libro.editorial || 'N/A' }}</td>
             <td>{{ libro.materias }}</td>
+            <td>
+              <div class="badges-container" *ngIf="libro.semestres; else noSem">
+                <span class="badge badge-semestre" *ngFor="let s of libro.semestres.split(',')">
+                  {{ s.trim() }}
+                </span>
+              </div>
+              <ng-template #noSem>
+                <span style="color:#94A3B8;">N/A</span>
+              </ng-template>
+            </td>
             <td>
               <div class="badges-container">
                 <span class="badge badge-fisico" *ngIf="libro.tiene_fisico">
@@ -111,7 +102,8 @@
                   <ion-icon name="laptop-outline"></ion-icon>
                   Digital
                 </span>
-                <span *ngIf="!libro.tiene_fisico && !libro.tiene_digital" style="color:#94A3B8; font-size:0.8125rem;">N/A</span>
+                <span *ngIf="!libro.tiene_fisico && !libro.tiene_digital"
+                  style="color:#94A3B8; font-size:0.8125rem;">N/A</span>
               </div>
             </td>
             <td>
@@ -124,8 +116,7 @@
                 <button class="btn-icon btn-icon-primary" (click)="editarLibro(libro)" title="Editar libro">
                   <ion-icon name="create-outline"></ion-icon>
                 </button>
-                <button
-                  class="btn-icon"
+                <button class="btn-icon"
                   [class.btn-icon-danger]="libro.activo === 1"
                   [class.btn-icon-success]="libro.activo !== 1"
                   [title]="libro.activo === 1 ? 'Desactivar libro' : 'Activar libro'"
@@ -139,10 +130,10 @@
       </table>
     </div>
   </div>
-  <!-- Vista Mobile / Tablet -->
+
+  <!-- CARDS MOBILE -->
   <div *ngIf="!cargandoTabla && libros.length > 0" class="lg:hidden cards-mobile-wrapper">
     <div *ngFor="let libro of libros" class="libro-card">
-
       <div class="libro-card-header">
         <div class="libro-card-info">
           <div class="libro-card-badges">
@@ -159,12 +150,13 @@
             </span>
           </div>
           <p class="libro-card-titulo">{{ libro.titulo }}</p>
-          <div *ngFor="let autor of libro.autores?.split(';')" class="libro-card-autor">
-            {{ autor }}
+          <div class="libro-card-autor">
+            <span *ngFor="let autor of libro.autores?.split(';'); let last = last">
+              {{ autor.trim() }}<span *ngIf="!last">·</span>
+            </span>
           </div>
         </div>
       </div>
-
       <div class="libro-card-body">
         <div class="libro-card-detalle" *ngIf="libro.editorial">
           <ion-icon name="business-outline"></ion-icon>
@@ -175,14 +167,16 @@
           <span>{{ libro.materias }}</span>
         </div>
       </div>
-
+      <div class="libro-card-detalle" *ngIf="libro.semestres">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>{{ libro.semestres }}</span>
+      </div>
       <div class="libro-card-acciones">
         <button class="libro-card-btn libro-card-btn-primary" (click)="editarLibro(libro)">
           <ion-icon name="create-outline"></ion-icon>
           Editar
         </button>
-        <button
-          class="libro-card-btn"
+        <button class="libro-card-btn"
           [class.libro-card-btn-danger]="libro.activo === 1"
           [class.libro-card-btn-success]="libro.activo !== 1"
           (click)="cambiarEstado(libro)">
@@ -190,7 +184,6 @@
           {{ libro.activo === 1 ? 'Desactivar' : 'Activar' }}
         </button>
       </div>
-
     </div>
   </div>
 
@@ -223,65 +216,76 @@
         <form (ngSubmit)="guardarLibro()" #form="ngForm">
 
           <div class="form-grid">
+
+            <!-- TÍTULO -->
             <div class="form-group full-width">
               <label><ion-icon name="book-outline"></ion-icon> Título *</label>
-              <input type="text" [(ngModel)]="nuevoLibro.titulo" name="titulo" placeholder="Título del libro" required />
+              <input type="text" [(ngModel)]="nuevoLibro.titulo" name="titulo"
+                placeholder="Título del libro" required />
             </div>
 
+            <!-- AUTORES -->
             <div class="form-group full-width">
               <label>
                 <ion-icon name="people-outline"></ion-icon>
                 Autor(es) *
               </label>
-
               <div class="autores-container">
                 <div class="autor-row" *ngFor="let autor of nuevoLibro.autores; let i = index; trackBy: trackAutor">
-
                   <div class="autor-input-wrap">
-                    <input
-                      type="text"
-                      [(ngModel)]="nuevoLibro.autores[i]"
-                      name="autor{{i}}"
-                      placeholder="Nombre del autor"
-                      autocomplete="off"
-                      (input)="buscarAutores($event, i)"
-                      (blur)="ocultarSugerencias(i)"
-                      required
-                    />
-                    <div class="autor-sugerencias" *ngIf="sugerenciasPorCampo[i] && sugerenciasPorCampo[i].length > 0">
-                      <div
-                        class="autor-sugerencia-item"
-                        *ngFor="let s of sugerenciasPorCampo[i]"
+                    <input type="text" [(ngModel)]="nuevoLibro.autores[i]" name="autor{{i}}"
+                      placeholder="Nombre del autor" autocomplete="off"
+                      (input)="buscarAutores($event, i)" (blur)="ocultarSugerencias(i)" required />
+                    <div class="autor-sugerencias"
+                      *ngIf="sugerenciasPorCampo[i] && sugerenciasPorCampo[i].length > 0">
+                      <div class="autor-sugerencia-item" *ngFor="let s of sugerenciasPorCampo[i]"
                         (mousedown)="seleccionarAutor(s, i)">
                         <ion-icon name="person-outline"></ion-icon>
                         {{ s.nombre }}
                       </div>
                     </div>
                   </div>
-
                   <button type="button" class="btn-autor-remove"
-                    *ngIf="nuevoLibro.autores.length > 1"
-                    (click)="eliminarAutor(i)">
+                    *ngIf="nuevoLibro.autores.length > 1" (click)="eliminarAutor(i)">
                     <ion-icon name="remove-circle-outline"></ion-icon>
                   </button>
-
                   <button type="button" class="btn-autor-add"
-                    *ngIf="i === nuevoLibro.autores.length - 1"
-                    (click)="agregarAutor()">
+                    *ngIf="i === nuevoLibro.autores.length - 1" (click)="agregarAutor()">
                     <ion-icon name="add-circle-outline"></ion-icon>
                   </button>
-
                 </div>
-              </div>  <!-- ← cierra autores-container -->
-
+              </div>
               <small class="autor-hint">Puede agregar múltiples autores del libro.</small>
-            </div>  <!-- ← cierra form-group full-width de autores -->
-
-            <div class="form-group">
-              <label><ion-icon name="business-outline"></ion-icon> Editorial</label>
-              <input type="text" [(ngModel)]="nuevoLibro.editorial" name="editorial" placeholder="Editorial" />
             </div>
 
+            <!-- EDITORIAL -->
+            <div class="form-group">
+              <label>Editorial </label>
+              <div class="autocomplete-wrapper">
+                <ion-icon class="input-icon" name="business-outline"></ion-icon>
+                <input type="text" [(ngModel)]="nuevoLibro.editorial" name="editorial"
+                  placeholder="Buscar o escribir editorial"
+                  (input)="onBuscarEditorial()" (focus)="onBuscarEditorial()"
+                  (keydown.arrowDown)="moverSeleccion(1)" (keydown.arrowUp)="moverSeleccion(-1)"
+                  (keydown.enter)="seleccionarConEnter()" autocomplete="off" />
+                <div class="autocomplete-dropdown"
+                  *ngIf="!cargando && (editorialesSugeridas.length > 0 || mostrarCrearEditorial)">
+                  <div *ngFor="let e of editorialesSugeridas; let i = index"
+                    class="autocomplete-item" [class.active]="i === indiceSeleccionado"
+                    (mousedown)="seleccionarEditorial(e)">
+                    <ion-icon name="business-outline"></ion-icon>
+                    {{ e.nombre }}
+                  </div>
+                  <div *ngIf="mostrarCrearEditorial" class="autocomplete-item create"
+                    (mousedown)="crearNuevaEditorial()">
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                    Crear "{{ nuevoLibro.editorial }}"
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MATERIA -->
             <div class="form-group">
               <label><ion-icon name="school-outline"></ion-icon> Materia *</label>
               <select [(ngModel)]="nuevoLibro.materia_id" name="materia_id" required>
@@ -290,35 +294,98 @@
               </select>
             </div>
 
-          </div>  <!-- ← cierra form-grid -->
+            <!-- SEMESTRES -->
+            <div class="form-group full-width semestres-section">
+              <div class="semestres-label">
+                <ion-icon name="calendar-outline"></ion-icon>
+                Semestres *
+              </div>
+              <div class="semestres-container">
+                <div class="semestre-chip"
+                  *ngFor="let s of semestres"
+                  [class.selected]="nuevoLibro.semestres?.includes(s.id_semestre)"
+                  (click)="toggleSemestre(s.id_semestre)">
+                  {{ s.nombre_semestre }}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- FORMATOS -->
           <div class="checkbox-group">
             <div class="checkbox-item">
-              <input type="checkbox" [(ngModel)]="nuevoLibro.tiene_fisico" (change)="formatosEditados=true" name="tiene_fisico" id="check-fisico" />
-              <label for="check-fisico"><ion-icon name="cube-outline"></ion-icon> Físico</label>
+              <input type="checkbox" [(ngModel)]="nuevoLibro.tiene_fisico"
+                (change)="formatosEditados=true" name="tiene_fisico" id="check-fisico" />
+              <label for="check-fisico">
+                <ion-icon name="cube-outline"></ion-icon> Físico
+              </label>
             </div>
             <div class="checkbox-item">
-              <input type="checkbox" [(ngModel)]="nuevoLibro.tiene_digital" (change)="formatosEditados=true" name="tiene_digital" id="check-digital" />
-              <label for="check-digital"><ion-icon name="cloud-download-outline"></ion-icon> Digital</label>
+              <input type="checkbox" [(ngModel)]="nuevoLibro.tiene_digital"
+                (change)="formatosEditados=true" name="tiene_digital" id="check-digital" />
+              <label for="check-digital">
+                <ion-icon name="cloud-download-outline"></ion-icon> Digital
+              </label>
             </div>
           </div>
 
+          <!-- TOTAL EJEMPLARES -->
           <div class="form-group" *ngIf="nuevoLibro.tiene_fisico">
             <label><ion-icon name="pricetags-outline"></ion-icon> Total de ejemplares</label>
-            <input type="number" min="1" [(ngModel)]="nuevoLibro.total" name="total" placeholder="Cantidad" />
+            <input type="number" min="1" [(ngModel)]="nuevoLibro.total"
+              name="total" placeholder="Cantidad" />
           </div>
 
+          <!-- PDF -->
           <div class="form-group" *ngIf="nuevoLibro.tiene_digital">
             <label><ion-icon name="document-attach-outline"></ion-icon> Archivo PDF</label>
-            <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" />
+
+            <!-- PDF ya cargado (modo edición) -->
+            <div class="pdf-actual-card" *ngIf="pdfActual && modoEdicion && !pdfSeleccionado">
+              <div class="pdf-actual-info">
+                <div class="pdf-actual-icon">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                </div>
+                <div class="pdf-actual-texto">
+                  <span class="pdf-actual-estado">PDF cargado actualmente</span>
+                </div>
+              </div>
+              <label class="btn-reemplazar" for="pdf-input">
+                <ion-icon name="refresh-outline"></ion-icon>
+                Reemplazar
+              </label>
+            </div>
+
+            <!-- Zona de subida — cuando no hay PDF o no es edición -->
+            <div class="pdf-upload-zone"
+              *ngIf="(!pdfActual || !modoEdicion) && !pdfSeleccionado"
+              (click)="pdfInput.click()">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+              <span class="pdf-upload-texto">Haz clic para seleccionar un PDF</span>
+              <span class="pdf-upload-limite">Límite: 100MB</span>
+            </div>
+
+            <!-- Input oculto -->
+            <input id="pdf-input" #pdfInput type="file" accept="application/pdf"
+              (change)="onPdfSelected($event)" style="display:none" />
+
+            <!-- Nuevo archivo seleccionado -->
+            <div class="pdf-nuevo-seleccionado" *ngIf="pdfSeleccionado">
+              <div class="pdf-seleccionado-info">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                <span>{{ pdfSeleccionado.name }}</span>
+              </div>
+              <label class="btn-reemplazar" for="pdf-input">
+                <ion-icon name="refresh-outline"></ion-icon>
+                Cambiar
+              </label>
+            </div>
+
             <div class="warning-archivo" *ngIf="mensajeErrorArchivo">
               <ion-icon name="warning-outline"></ion-icon>
               {{ mensajeErrorArchivo }}
             </div>
-            <small>Límite actual permitido: 100MB</small>
-            <small *ngIf="pdfActual && modoEdicion">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-              PDF actual: {{ pdfActual.split('/').pop() }}
-            </small>
           </div>
 
         </form>
@@ -330,7 +397,8 @@
           <ion-icon name="close-circle-outline"></ion-icon>
           Cancelar
         </button>
-        <button type="button" class="btn-primary-modal" [disabled]="cargando || mensajeErrorArchivo" (click)="guardarLibro()">
+        <button type="button" class="btn-primary-modal"
+          [disabled]="cargando || mensajeErrorArchivo" (click)="guardarLibro()">
           <ion-icon [name]="modoEdicion ? 'checkmark-circle-outline' : 'add-circle-outline'"></ion-icon>
           {{ modoEdicion ? 'Actualizar' : 'Crear' }}
         </button>
