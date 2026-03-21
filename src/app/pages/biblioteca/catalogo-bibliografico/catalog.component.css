@@ -1,4 +1,4 @@
-  /* =====================================================
+    /* =====================================================
    VARIABLES
    ===================================================== */
 :root {
@@ -437,6 +437,50 @@ body {
 }
 
 /* =====================================================
+   SEMESTRE
+   ===================================================== */
+.semestres-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.semestres-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.semestres-titulo ion-icon {
+  font-size: 0.9rem;
+  color: var(--primary);
+}
+
+.semestres-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.badge-semestre {
+  display: inline-flex;
+  align-items: center;
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+
+/* =====================================================
    MODAL PRÉSTAMO
    ===================================================== */
 .prestamo-overlay {
@@ -634,6 +678,9 @@ body {
   .libro-card.solo-fisico .acciones { padding-top: .3rem; flex-wrap: nowrap; }
   .libro-card.solo-fisico .btn { font-size: .66rem; padding: .35rem .45rem; }
 
+  .semestres-badges { gap: 0.25rem; }
+  .badge-semestre { font-size: 0.65rem; padding: 0.2rem 0.45rem; }
+  
   /* OLA EN MÓVIL */
   .header-wave svg {
     height: 50px;
@@ -646,6 +693,18 @@ body {
     bottom: -2px;
     overflow: visible;
   }
+  .badge-semestre {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin: 2px;
+}
 }
 
 @media (prefers-reduced-motion: reduce) {
