@@ -20,6 +20,8 @@ export interface LibroAdmin {
   categoria_id: number; 
   materias?: string;   
   materia_id?: number;
+  semestres?: string | null;     
+  semestres_ids?: string;   
   tiene_fisico?: number;
   total?: number;
   disponibles?: number;
@@ -55,6 +57,8 @@ export class CatalogAdminService {
 
     if (filtros.ordenAutor) params.ordenAutor = filtros.ordenAutor;
 
+    if (filtros.semestre) params.semestre = filtros.semestre;
+
     // SOLO enviar si tiene valor
     if (filtros.activo !== '' && filtros.activo !== null && filtros.activo !== undefined) {
       params.activo = filtros.activo;
@@ -89,7 +93,21 @@ export class CatalogAdminService {
   obtenerMaterias() {
     return this.http.get<any[]>(`${environment.apiUrl}/catalog/materias`);
   }
-  obtenerAutores(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.baseUrl}/autores`);
-}
+    obtenerAutores(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/autores`);
+  }
+
+  buscarEditoriales(search?: string) {
+
+    let params: any = {};
+
+    if (search) params.search = search;
+
+    return this.http.get<any[]>(`${this.baseUrl}/editoriales`, { params });
+
+  }
+
+ obtenerSemestres(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/semestres`);
+  }
 }
