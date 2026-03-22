@@ -198,7 +198,7 @@ export class MagazinesComponent implements OnInit {
   getPdfCover(publicId: string): string {
     if (!publicId) return 'assets/no-image.png';
     const cleanId = publicId.replace('.pdf', '');
-    return `https://res.cloudinary.com/dtfto3sgm/image/upload/pg_1,w_300,h_400,c_fill/${cleanId}.jpg`;
+    return `https://res.cloudinary.com/dtfto3sgm/image/upload/pg_1,w_300,h_400,c_fill,f_jpg/${cleanId}`;
   }
 
   private getAuthHeaders(): HttpHeaders {
