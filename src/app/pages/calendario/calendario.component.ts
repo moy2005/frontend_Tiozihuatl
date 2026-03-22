@@ -1,4 +1,4 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CalendarService } from '../../api/services/calendar.service';
@@ -13,7 +13,8 @@ import Swal from 'sweetalert2';
   imports: [CommonModule],
   templateUrl: './calendario.component.html',
   styleUrls: ['./calendario.component.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  encapsulation: ViewEncapsulation.None 
 })
 export class CalendarioComponent implements OnInit {
 
