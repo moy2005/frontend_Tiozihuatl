@@ -1,6 +1,5 @@
 /* ================================================================
    CALENDARIO ESCOLAR
-   #3FA6E8 azul · #1D3E8D oscuro · #2C3A6A texto · #EEF4FF fondo
 ================================================================ */
 :host { display: block; }
 
@@ -11,93 +10,110 @@
 }
 
 /* ================================================================
-   HEADER
-   Fondo blanco puro con borde inferior azul — limpio, profesional.
-   El azul vive en la tipografía y el botón, no en el fondo.
+   HERO HEADER 
 ================================================================ */
-.cal-header {
-  background: #ffffff;
-  border-bottom: 3px solid #3FA6E8;
-  box-shadow: 0 2px 16px rgba(63, 166, 232, 0.1);
-}
-
-.cal-header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: 1.5rem 2.5rem;
-  max-width: 1280px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-}
-
-/* ── Lado izquierdo ── */
-.cal-header-left {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  flex: 1;
-  min-width: 0;
-}
-
-/* Ícono cuadrado azul sólido */
-.cal-header-icon {
-  flex-shrink: 0;
-  width: 50px;
-  height: 50px;
-  border-radius: 13px;
+.cal-hero {
   background: #3FA6E8;
+  padding: 3.5rem 2rem 5.5rem;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  animation: fadeInDown 0.7s ease-out;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cal-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,0 C150,50 350,50 600,30 C850,10 1050,30 1200,0 L1200,100 L0,100 Z' fill='%23EEF4FF'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom;
+  z-index: 1;
+  animation: waveUp 1.1s ease-out;
+}
+
+@keyframes waveUp {
+  from { opacity: 0; transform: translateY(90px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cal-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.cal-hero-icon {
+  width: 72px;
+  height: 72px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 auto 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(63, 166, 232, 0.35);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: scaleIn 0.55s ease-out 0.15s both;
 }
 
-.cal-header-icon svg {
-  width: 22px;
-  height: 22px;
-  stroke: white;
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-/* Bloque de texto */
-.cal-header-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+.cal-hero-icon svg {
+  width: 30px;
+  height: 30px;
 }
 
-.cal-header-eyebrow {
-  font-size: 0.68rem;
+.cal-hero-eyebrow {
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #3FA6E8;
-  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0 0 0.4rem;
 }
 
-.cal-header-title {
+.cal-hero-title {
   font-family: "Montserrat", sans-serif;
-  font-size: 1.5rem;
+  font-size: 2.6rem;
   font-weight: 800;
-  color: #2C3A6A;
+  color: #ffffff;
   line-height: 1.15;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.5px;
 }
 
-.cal-header-sub {
-  font-size: 0.78rem;
-  color: #7B90BE;
+.cal-hero-sub {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.88);
   margin: 0;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 /* ================================================================
-   BOTÓN DESCARGAR 
+   BARRA DEL BOTÓN DESCARGA 
+================================================================ */
+.cal-download-bar {
+  background: #EEF4FF;
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 4.5rem;
+  border-bottom: 1px solid #dde9ff;
+}
+
+/* ================================================================
+   BOTÓN DESCARGAR
 ================================================================ */
 .btn-download {
   flex-shrink: 0;
@@ -119,7 +135,6 @@
   text-decoration: none;
 }
 
-/* Círculo del ícono — blanco semitransparente */
 .btn-dl-icon-wrap {
   width: 40px;
   height: 40px;
@@ -137,7 +152,6 @@
   height: 17px;
 }
 
-/* Bloque de texto */
 .btn-dl-content {
   display: flex;
   flex-direction: column;
@@ -162,7 +176,6 @@
   margin-top: 1px;
 }
 
-/* Hover */
 .btn-download:hover {
   background: #2b94d6;
   transform: translateY(-2px);
@@ -171,7 +184,6 @@
     0 2px 8px rgba(63, 166, 232, 0.25);
 }
 
-/* El ícono baja para simular la descarga */
 .btn-download:hover .btn-dl-icon-wrap {
   transform: translateY(3px);
 }
@@ -182,13 +194,13 @@
 }
 
 /* ================================================================
-   VISOR PDF — ocupa exactamente el espacio visible restante
+   VISOR PDF
 ================================================================ */
 .cal-pdf-wrap {
-  --nav-h: 128px;      /* altura navbar (ajusta si tu nav mide diferente) */
-  --header-h: 96px;    /* altura del cal-header */
+  --nav-h: 128px;
+  --header-h: 210px;
   height: calc(100vh - var(--nav-h) - var(--header-h));
-  min-height: 480px;
+  min-height: 420px;
   background: #404040;
 }
 
@@ -203,7 +215,7 @@
    VISOR IMAGEN
 ================================================================ */
 .cal-img-wrap {
-  padding: 2rem 2.5rem 3.5rem;
+  padding: 1rem 2.5rem 3.5rem;
   max-width: 1280px;
   margin: 0 auto;
 }
@@ -216,6 +228,94 @@
   box-shadow:
     0 12px 48px rgba(44, 58, 106, 0.14),
     0 2px 8px rgba(44, 58, 106, 0.07);
+}
+
+/* ================================================================
+   SKELETON LOADER
+================================================================ */
+.cal-skeleton-header {
+  background: #ffffff;
+  border-bottom: 3px solid #e2eaf6;
+  padding: 1.5rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  max-width: 100%;
+}
+
+.cal-skeleton-left {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  flex: 1;
+}
+
+.cal-skeleton-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  max-width: 360px;
+}
+
+.skel {
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e8eef8 25%, #d0daf0 50%, #e8eef8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite ease-in-out;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skel-icon    { width: 50px; height: 50px; border-radius: 13px; flex-shrink: 0; }
+.skel-eyebrow { height: 10px; width: 40%; }
+.skel-title   { height: 22px; width: 75%; }
+.skel-sub     { height: 10px; width: 55%; }
+.skel-btn     { width: 140px; height: 50px; border-radius: 50px; flex-shrink: 0; }
+
+.cal-skeleton-viewer {
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 128px - 96px);
+  min-height: 480px;
+}
+
+/* ================================================================
+   SPINNER
+================================================================ */
+.cal-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cal-spinner {
+  width: 52px;
+  height: 52px;
+  border: 5px solid rgba(63, 166, 232, 0.25);
+  border-top-color: #3FA6E8;
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.cal-spinner-label {
+  font-family: "Nunito", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1c96e7;
+  margin: 0;
+  opacity: 0.85;
 }
 
 /* ================================================================
@@ -260,21 +360,51 @@
    RESPONSIVE
 ================================================================ */
 @media (max-width: 768px) {
-  .cal-header-inner {
-    padding: 1.1rem 1.25rem;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  .cal-hero {
+    padding: 2.5rem 1.25rem 4.5rem;
   }
 
-  .cal-header-title { font-size: 1.2rem; white-space: normal; }
+  .cal-hero::after {
+    height: 60px;
+  }
 
-  .btn-download { width: 100%; border-radius: 14px; justify-content: center; }
-  .btn-dl-content { flex: 1; }
+  .cal-hero-title {
+    font-size: 1.75rem;
+  }
+
+  .cal-hero-sub {
+    font-size: 0.9rem;
+  }
+
+  .cal-download-bar {
+    justify-content: center;  
+    padding: 0.75rem 1.5rem;
+  }
+
+  .btn-download {
+    width: auto;       
+    border-radius: 50px;
+    justify-content: center;
+  }
+
+  .btn-dl-content { flex: unset; }
 
   .cal-pdf-wrap {
     --nav-h: 80px;
-    height: calc(100vh - var(--nav-h) - 130px);
+    --header-h: 300px;
+    min-height: 360px;
+  }
+
+  .cal-skeleton-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.1rem 1.25rem;
+  }
+
+  .skel-btn { width: 100%; border-radius: 14px; }
+
+  .cal-skeleton-viewer {
+    height: calc(100vh - 80px - 130px);
     min-height: 380px;
   }
 
@@ -282,6 +412,6 @@
 }
 
 @media (max-width: 420px) {
-  .cal-header-icon { display: none; }
-  .cal-header-title { font-size: 1.05rem; }
+  .cal-hero-title { font-size: 1.4rem; }
+  .cal-hero-icon  { width: 58px; height: 58px; }
 }
