@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CalendarService } from '../../api/services/calendar.service';
 import { UserProfileService } from '../../api/services/user-profile.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -18,6 +20,7 @@ export class CalendarioComponent implements OnInit {
   calendario: any = null;
   esDocente = false;
   safeUrl: SafeResourceUrl | null = null;
+  cargando = true; 
 
   constructor(
     private calendarService: CalendarService,
@@ -26,40 +29,60 @@ export class CalendarioComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.verificarRol();
+    this.inicializar();
   }
 
-  private verificarRol(): void {
+  private inicializar(): void {
     const token = localStorage.getItem('accessToken');
-    if (token) {
-      this.userService.getProfile().subscribe({
-        next: (user: any) => {
-          this.esDocente = user?.rol === 'Docente';
-          this.cargarCalendario();
-        },
-        error: () => this.cargarCalendario()
-      });
+
+    if (!token) {
+      // Sin sesión: carga directa, sin overhead de perfil
+      this.cargarCalendarioPorTipo(false);
+      return;
+    }
+
+    const rolLocal = this.getRolFromToken(token);
+
+    if (rolLocal !== null) {
+      this.esDocente = rolLocal === 'Docente';
+      this.cargarCalendarioPorTipo(this.esDocente);
     } else {
-      this.cargarCalendario();
+      forkJoin({
+        perfil: this.userService.getProfile().pipe(catchError(() => of(null))),
+      }).subscribe(({ perfil }) => {
+        this.esDocente = perfil?.rol === 'Docente';
+        this.cargarCalendarioPorTipo(this.esDocente);
+      });
     }
   }
 
-  private cargarCalendario(): void {
-    const handler = {
+  private getRolFromToken(token: string): string | null {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload?.rol ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  private cargarCalendarioPorTipo(esDocente: boolean): void {
+    const peticion$ = esDocente
+      ? this.calendarService.getCalendarDocente()
+      : this.calendarService.getCalendarPublic('ALUMNO');
+
+    peticion$.subscribe({
       next: (res: any) => {
         this.calendario = res;
         if (res?.archivo_url) {
           this.safeUrl = this.buildSafeUrl(res.archivo_url, res.tipo_archivo);
         }
+        this.cargando = false;
       },
-      error: (err: any) => console.error('Error cargando calendario', err)
-    };
-
-    if (this.esDocente) {
-      this.calendarService.getCalendarDocente().subscribe(handler);
-    } else {
-      this.calendarService.getCalendarPublic('ALUMNO').subscribe(handler);
-    }
+      error: (err: any) => {
+        console.error('Error cargando calendario', err);
+        this.cargando = false;
+      }
+    });
   }
 
   private buildSafeUrl(url: string, tipo: string): SafeResourceUrl {
