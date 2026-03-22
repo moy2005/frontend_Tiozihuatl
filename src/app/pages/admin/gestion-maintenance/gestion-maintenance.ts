@@ -258,12 +258,17 @@ export class GestionMantenimientoComponent implements OnInit {
   }
 
   describirCron(expr: string): string {
-    if (!expr) return '—';
-    const partes = expr.trim().split(/\s+/);
-    if (partes.length < 5) return expr;
-    const [min, hora, , , dias] = partes;
-    if (hora.startsWith('*/')) return `Cada ${hora.replace('*/', '')} horas`;
-    const horaFmt = `${String(Number(hora)).padStart(2,'0')}:${String(Number(min)).padStart(2,'0')}`;
+  if (!expr) return '—';
+  const partes = expr.trim().split(/\s+/);
+  if (partes.length < 5) return expr;
+  const [min, hora, , , dias] = partes;
+  if (hora.startsWith('*/')) return `Cada ${hora.replace('*/', '')} horas`;
+  
+  // Convertir UTC a hora México para mostrar
+  const fechaUTC = new Date();
+    fechaUTC.setUTCHours(Number(hora), Number(min), 0, 0);
+    const horaFmt = `${String(fechaUTC.getHours()).padStart(2,'0')}:${String(fechaUTC.getMinutes()).padStart(2,'0')}`;
+    
     if (dias !== '*') {
       const nombres: Record<string,string> = {
         '0':'Dom','1':'Lun','2':'Mar','3':'Mié','4':'Jue','5':'Vie','6':'Sáb'
@@ -275,12 +280,17 @@ export class GestionMantenimientoComponent implements OnInit {
  
   private generarCron(): string {
     const [h, m] = this.horaInicio.split(':').map(Number);
-    if (this.tipoFrecuencia === 'weekly')   return `${m} ${h} * * 0`;
-    if (this.tipoFrecuencia === 'daily')    return `${m} ${h} * * *`;
+    // Convertir hora México a UTC
+    const fecha = new Date();
+    fecha.setHours(h, m, 0, 0);
+    const hUTC = fecha.getUTCHours();
+    const mUTC = fecha.getUTCMinutes();
+  
+    if (this.tipoFrecuencia === 'weekly')   return `${mUTC} ${hUTC} * * 0`;
+    if (this.tipoFrecuencia === 'daily')    return `${mUTC} ${hUTC} * * *`;
     if (this.tipoFrecuencia === 'interval') return `0 */${this.intervaloHoras} * * *`;
-    if (this.tipoFrecuencia === 'days')     return `${m} ${h} * * ${this.diasSeleccionados.join(',')}`;
+    if (this.tipoFrecuencia === 'days')     return `${mUTC} ${hUTC} * * ${this.diasSeleccionados.join(',')}`;
     throw new Error('Frecuencia inválida');
   }
 
-  
 }
