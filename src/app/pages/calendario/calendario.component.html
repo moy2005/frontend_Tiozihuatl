@@ -2,64 +2,79 @@
      CALENDARIO ESCOLAR — Vista pública / docente
 ============================================================ -->
 <div class="cal-page">
-  <ng-container *ngIf="calendario; else sinCalendario">
-
-    <!-- ══════════════════════════════════════════════════════
-         HEADER — fondo blanco, texto azul, botón azul
-    ══════════════════════════════════════════════════════ -->
-    <div class="cal-header">
-      <div class="cal-header-inner">
-
-        <!-- Izquierda: ícono + textos -->
-        <div class="cal-header-left">
-          <div class="cal-header-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2.5"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8"  y1="2" x2="8"  y2="6"/>
-              <line x1="3"  y1="10" x2="21" y2="10"/>
-            </svg>
-          </div>
-
-          <div class="cal-header-text">
-            <p class="cal-header-eyebrow">Licenciatura en Enfermería</p>
-            <h1 class="cal-header-title">
-              {{
-                calendario.titulo_seccion ||
-                (esDocente ? 'Calendario de Actividades Docente' : 'Calendario de Actividades')
-              }}
-            </h1>
-            <p class="cal-header-sub">{{ calendario.titulo }}</p>
-          </div>
+    <!-- ── SKELETON / SPINNER ── -->
+  <ng-container *ngIf="cargando">
+    <div class="cal-skeleton-header">
+      <div class="cal-skeleton-left">
+        <div class="skel skel-icon"></div>
+        <div class="cal-skeleton-texts">
+          <div class="skel skel-eyebrow"></div>
+          <div class="skel skel-title"></div>
+          <div class="skel skel-sub"></div>
         </div>
-
-        <!-- Derecha: botón descarga elegante -->
-        <button class="btn-download" (click)="descargarArchivo()">
-          <span class="btn-dl-icon-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white"
-                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-          </span>
-          <span class="btn-dl-content">
-            <span class="btn-dl-main">Descargar</span>
-            <span class="btn-dl-sub">
-              {{ calendario.tipo_archivo === 'PDF' ? 'Archivo PDF' : 'Imagen JPG' }}
-            </span>
-          </span>
-        </button>
-
+      </div>
+      <div class="skel skel-btn"></div>
+    </div>
+    <div class="cal-skeleton-viewer">
+      <div class="cal-spinner-wrap">
+        <div class="cal-spinner"></div>
+        <p class="cal-spinner-label">Cargando calendario…</p>
       </div>
     </div>
+  </ng-container>
+
+  <ng-container *ngIf="calendario; else sinCalendario">
+
+   <!-- ══════════════════════════════════════════════════════
+     HERO HEADER 
+══════════════════════════════════════════════════════ -->
+<div class="cal-hero">
+  <div class="cal-hero-content">
+    <div class="cal-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2.5"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8"  y1="2" x2="8"  y2="6"/>
+        <line x1="3"  y1="10" x2="21" y2="10"/>
+      </svg>
+    </div>
+    <p class="cal-hero-eyebrow">Licenciatura en Enfermería</p>
+    <h1 class="cal-hero-title">
+      {{
+        calendario.titulo_seccion ||
+        (esDocente ? 'Calendario de Actividades Docente' : 'Calendario de Actividades')
+      }}
+    </h1>
+    <p class="cal-hero-sub">{{ calendario.titulo }}</p>
+  </div>
+</div>
+
+<!-- Botón descarga  -->
+<div class="cal-download-bar">
+  <button class="btn-download" (click)="descargarArchivo()">
+    <span class="btn-dl-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white"
+           stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </span>
+    <span class="btn-dl-content">
+      <span class="btn-dl-main">Descargar</span>
+      <span class="btn-dl-sub">
+        {{ calendario.tipo_archivo === 'PDF' ? 'Archivo PDF' : 'Imagen JPG' }}
+      </span>
+    </span>
+  </button>
+</div>
 
     <!-- ══════════════════════════════════════════════════════
          VISOR PDF
     ══════════════════════════════════════════════════════ -->
     <div class="cal-pdf-wrap" *ngIf="calendario.tipo_archivo === 'PDF'">
-      <iframe [src]="safeUrl" title="Calendario escolar"></iframe>
+      <iframe *ngIf="safeUrl" [src]="safeUrl" title="Calendario escolar"></iframe>
     </div>
 
     <!-- ══════════════════════════════════════════════════════
