@@ -20,6 +20,9 @@ export class Navbar implements OnInit, OnDestroy {
   userName = '';
   userRole = '';
 
+  /** Indica que los datos del usuario aún están cargando */
+  loadingUser = false;
+
   // ── Mega menú noticias ──────────────────────────────────────────────
   noticiasMenu: any[] = [];
   cargandoNoticiasMenu = false;
@@ -85,23 +88,40 @@ export class Navbar implements OnInit, OnDestroy {
     const token = localStorage.getItem('accessToken');
     if (token) {
       this.isAuthenticated = true;
-      this.obtenerDatosUsuario();
+      // Solo pedir datos si aún no se han cargado (evita recargar en cada navegación)
+      if (!this.userName) {
+        this.obtenerDatosUsuario();
+      }
     } else {
       this.isAuthenticated = false;
       this.userName = '';
       this.userRole = '';
+      this.loadingUser = false;
     }
   }
 
   async obtenerDatosUsuario() {
+    this.loadingUser = true;
     try {
       const res = await this.userService.getProfile().toPromise();
-      this.userName = res.nombre || 'Usuario';
+
+      // Construir "Nombre RM" a partir de nombre + a_paterno + a_materno
+      const nombre    = (res.nombre    || '').trim();
+      const paterno   = (res.a_paterno || '').trim();
+      const materno   = (res.a_materno || '').trim();
+
+      const inicialP  = paterno  ? paterno.charAt(0).toUpperCase()  : '';
+      const inicialM  = materno  ? materno.charAt(0).toUpperCase()  : '';
+      const apellidos = (inicialP + inicialM) || '';
+
+      this.userName = apellidos ? `${nombre} ${apellidos}` : nombre || 'Usuario';
       this.userRole = res.rol || '';
     } catch (err: any) {
       if (err.status === 401 || err.status === 403) {
         this.cerrarSesionSilencioso();
       }
+    } finally {
+      this.loadingUser = false;
     }
   }
 
@@ -127,6 +147,7 @@ export class Navbar implements OnInit, OnDestroy {
     this.isAuthenticated = false;
     this.userName = '';
     this.userRole = '';
+    this.loadingUser = false;
     this.router.navigate(['/login']);
   }
 
