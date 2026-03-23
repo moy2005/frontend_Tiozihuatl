@@ -179,7 +179,11 @@
             <button class="profile-dropdown-btn">
               <div class="profile-btn-left">
                 <i class="ph ph-user" style="font-size:1.5rem;"></i>
-                <span class="user-name">{{ userName }}</span>
+                <!-- NOMBRE: skeleton mientras carga, nombre real cuando llega -->
+                <span class="user-name">
+                  <span *ngIf="loadingUser" class="user-name-skeleton"></span>
+                  <span *ngIf="!loadingUser">{{ userName }}</span>
+                </span>
               </div>
               <i class="ph ph-caret-down profile-chevron"></i>
             </button>
@@ -190,8 +194,15 @@
                 <div class="profile-panel-header">
                   <i class="ph ph-user-circle" style="font-size:2rem; color:white; flex-shrink:0;"></i>
                   <div class="profile-panel-info">
-                    <div class="pname">{{ userName }}</div>
-                    <div class="prole">{{ userRole }}</div>
+                    <!-- NOMBRE en el panel: skeleton o texto -->
+                    <div class="pname">
+                      <span *ngIf="loadingUser" class="user-panel-name-skeleton"></span>
+                      <span *ngIf="!loadingUser">{{ userName }}</span>
+                    </div>
+                    <div class="prole">
+                      <span *ngIf="loadingUser" class="user-panel-role-skeleton"></span>
+                      <span *ngIf="!loadingUser">{{ userRole }}</span>
+                    </div>
                   </div>
                 </div>
                 <div class="profile-panel-items">
@@ -330,8 +341,15 @@
           <div class="flex items-center gap-3">
             <i class="ph ph-user-circle" style="font-size: 2rem; color: white; flex-shrink: 0;"></i>
             <div>
-              <div class="text-sm font-semibold text-white">{{ userName }}</div>
-              <div class="text-xs text-white/80">{{ userRole }}</div>
+              <!-- Nombre en móvil: skeleton o texto -->
+              <div class="text-sm font-semibold text-white">
+                <span *ngIf="loadingUser" class="user-mobile-name-skeleton"></span>
+                <span *ngIf="!loadingUser">{{ userName }}</span>
+              </div>
+              <div class="text-xs text-white/80">
+                <span *ngIf="loadingUser" class="user-mobile-role-skeleton"></span>
+                <span *ngIf="!loadingUser">{{ userRole }}</span>
+              </div>
             </div>
           </div>
         </div>
