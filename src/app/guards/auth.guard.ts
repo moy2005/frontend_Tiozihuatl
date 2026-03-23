@@ -13,25 +13,25 @@ export class AuthGuard implements CanActivate {
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (!accessToken) {
-      return this.redirectToLogin('Inicia sesiÃ³n para continuar.');
+      return this.redirectToLogin('Inicia sesión para continuar.');
     }
 
     if (this.auth.isTokenExpired(accessToken)) {
       if (!refreshToken || refreshToken === 'biometric-placeholder') {
-        return this.redirectToLogin('Tu sesiÃ³n expirÃ³. Inicia sesiÃ³n nuevamente.');
+        return this.redirectToLogin('Tu sesión expiró. Inicia sesión nuevamente.');
       }
 
       try {
         await firstValueFrom(this.auth.refreshToken());
       } catch {
-        return this.redirectToLogin('Tu sesiÃ³n expirÃ³. Inicia sesiÃ³n nuevamente.');
+        return this.redirectToLogin('Tu sesión expiró. Inicia sesión nuevamente.');
       }
     }
 
     const currentToken = localStorage.getItem('accessToken') || '';
     const decoded = this.decodeToken(currentToken);
     if (!decoded) {
-      return this.redirectToLogin('SesiÃ³n invÃ¡lida. Inicia sesiÃ³n nuevamente.');
+      return this.redirectToLogin('Sesión inválida. Inicia sesión nuevamente.');
     }
 
     const allowedRoles: string[] = route.data?.['roles'] || [];
@@ -43,7 +43,7 @@ export class AuthGuard implements CanActivate {
         Swal.fire({
           icon: 'warning',
           title: 'Acceso denegado',
-          text: 'No tienes permisos para acceder a esta secciÃ³n.',
+          text: 'No tienes permisos para acceder a esta sección.',
           confirmButtonColor: '#E53E3E',
         });
         return this.router.createUrlTree(['/perfil']);
@@ -67,7 +67,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private redirectToLogin(msg: string): UrlTree {
-    Swal.fire('AutenticaciÃ³n requerida', msg, 'info');
+    Swal.fire('Autenticación requerida', msg, 'info');
     this.auth.clearSession();
     return this.router.createUrlTree(['/login']);
   }
