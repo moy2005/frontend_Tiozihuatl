@@ -21,6 +21,19 @@ body { padding-top: 150px; }
 
 /* ========== NAVBAR DE DOS NIVELES ========== */
 
+/* Tapa el fondo blanco visible detrás del navbar al colapsar navbar-top en scroll */
+.navbar-desktop::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: #3FA6E8;
+  z-index: 49;
+  pointer-events: none;
+}
+
 .navbar-top {
   background: #3FA6E8;
   padding: 1rem 0;
@@ -725,4 +738,73 @@ body { padding-top: 150px; }
 
 @media (max-width: 640px) {
   .institution-name { font-size: 0.75rem; }
+}
+
+/* ========== USER NAME SKELETON ========== */
+/*
+  Skeleton de texto: barra redondeada semitransparente que pulsa.
+  Se usa en los 4 puntos donde aparece el nombre/rol del usuario:
+    1. Botón del navbar desktop (user-name-skeleton)
+    2. Cabecera del dropdown desktop — nombre (user-panel-name-skeleton)
+    3. Cabecera del dropdown desktop — rol  (user-panel-role-skeleton)
+    4. Bloque de usuario en menú móvil — nombre/rol (user-mobile-*)
+*/
+
+@keyframes user-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.65; }
+}
+
+/* Base compartida */
+.user-name-skeleton,
+.user-panel-name-skeleton,
+.user-panel-role-skeleton,
+.user-mobile-name-skeleton,
+.user-mobile-role-skeleton {
+  display: inline-block;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  animation: user-pulse 1.2s ease-in-out infinite;
+  vertical-align: middle;
+}
+
+/* 1. En el botón del navbar: mismo alto que el texto (0.875rem → ~14px) */
+.user-name-skeleton {
+  width: 88px;
+  height: 13px;
+  border-radius: 6px;
+}
+
+/* 2. Nombre en la cabecera del dropdown */
+.user-panel-name-skeleton {
+  width: 110px;
+  height: 13px;
+  border-radius: 5px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* 3. Rol en la cabecera del dropdown (texto más pequeño) */
+.user-panel-role-skeleton {
+  width: 70px;
+  height: 9px;
+  border-radius: 4px;
+  display: block;
+}
+
+/* 4. Nombre en el bloque de usuario móvil */
+.user-mobile-name-skeleton {
+  width: 100px;
+  height: 13px;
+  border-radius: 5px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* 5. Rol en el bloque de usuario móvil */
+.user-mobile-role-skeleton {
+  width: 60px;
+  height: 9px;
+  border-radius: 4px;
+  display: block;
 }
