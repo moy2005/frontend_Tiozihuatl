@@ -274,13 +274,34 @@ export class GestionMantenimientoComponent implements OnInit {
     }
     return `Todos los días a las ${horaFmt}`;
   }
- 
+  
   private generarCron(): string {
     const [h, m] = this.horaInicio.split(':').map(Number);
-    if (this.tipoFrecuencia === 'weekly')   return `${m} ${h} * * 0`;
-    if (this.tipoFrecuencia === 'daily')    return `${m} ${h} * * *`;
-    if (this.tipoFrecuencia === 'interval') return `0 */${this.intervaloHoras} * * *`;
-    if (this.tipoFrecuencia === 'days')     return `${m} ${h} * * ${this.diasSeleccionados.join(',')}`;
+  
+    // Crear fecha en hora local (México)
+    const fecha = new Date();
+    fecha.setHours(h, m, 0, 0);
+  
+    // Convertir a UTC
+    const utcHora = fecha.getUTCHours();
+    const utcMin  = fecha.getUTCMinutes();
+  
+    if (this.tipoFrecuencia === 'weekly') {
+      return `${utcMin} ${utcHora} * * 0`;
+    }
+  
+    if (this.tipoFrecuencia === 'daily') {
+      return `${utcMin} ${utcHora} * * *`;
+    }
+  
+    if (this.tipoFrecuencia === 'interval') {
+      return `0 */${this.intervaloHoras} * * *`;
+    }
+  
+    if (this.tipoFrecuencia === 'days') {
+      return `${utcMin} ${utcHora} * * ${this.diasSeleccionados.join(',')}`;
+    }
+  
     throw new Error('Frecuencia inválida');
   }
 
