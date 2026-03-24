@@ -261,19 +261,20 @@ export class GestionMantenimientoComponent implements OnInit {
   
  describirCron(expr: string): string {
     if (!expr) return '—';
+  
     const partes = expr.trim().split(/\s+/);
     if (partes.length < 5) return expr;
+  
     const [min, hora, , , dias] = partes;
   
-    // Primero verificar intervalo
-    if (hora.startsWith('*/')) return `Cada ${hora.replace('*/', '')} horas`;
+    if (hora.startsWith('*/')) {
+      return `Cada ${hora.replace('*/', '')} horas`;
+    }
   
-    // Luego convertir UTC a local
-    const now = new Date();
-    const offset = -now.getTimezoneOffset() / 60;
-    let horaLocal = Number(hora) + offset;
+    // 🔥 FIJO A MÉXICO
+    let horaLocal = Number(hora) - 6;
     if (horaLocal < 0) horaLocal += 24;
-    if (horaLocal >= 24) horaLocal -= 24;
+  
     const horaFmt = `${String(horaLocal).padStart(2,'0')}:${String(Number(min)).padStart(2,'0')}`;
   
     if (dias !== '*') {
@@ -282,6 +283,7 @@ export class GestionMantenimientoComponent implements OnInit {
       };
       return `${dias.split(',').map(d => nombres[d]).join(', ')} a las ${horaFmt}`;
     }
+  
     return `Todos los días a las ${horaFmt}`;
   }
 
