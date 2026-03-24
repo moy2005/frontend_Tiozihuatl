@@ -261,27 +261,20 @@ export class GestionMantenimientoComponent implements OnInit {
   
  describirCron(expr: string): string {
     if (!expr) return '—';
-  
     const partes = expr.trim().split(/\s+/);
     if (partes.length < 5) return expr;
-  
     const [min, hora, , , dias] = partes;
   
-    // offset dinámico del navegador
+    // Primero verificar intervalo
+    if (hora.startsWith('*/')) return `Cada ${hora.replace('*/', '')} horas`;
+  
+    // Luego convertir UTC a local
     const now = new Date();
     const offset = -now.getTimezoneOffset() / 60;
-  
     let horaLocal = Number(hora) + offset;
     if (horaLocal < 0) horaLocal += 24;
     if (horaLocal >= 24) horaLocal -= 24;
-  
-    const minLocal = Number(min);
-  
-    const horaFmt = `${String(horaLocal).padStart(2,'0')}:${String(minLocal).padStart(2,'0')}`;
-  
-    if (hora.startsWith('*/')) {
-      return `Cada ${hora.replace('*/', '')} horas`;
-    }
+    const horaFmt = `${String(horaLocal).padStart(2,'0')}:${String(Number(min)).padStart(2,'0')}`;
   
     if (dias !== '*') {
       const nombres: Record<string,string> = {
@@ -289,8 +282,21 @@ export class GestionMantenimientoComponent implements OnInit {
       };
       return `${dias.split(',').map(d => nombres[d]).join(', ')} a las ${horaFmt}`;
     }
-  
     return `Todos los días a las ${horaFmt}`;
+  }
+
+  private generarCron(): string {
+    const [h, m] = this.horaInicio.split(':').map(Number);
+    const fecha = new Date();
+    fecha.setHours(h, m, 0, 0);
+    const hUTC = fecha.getUTCHours();
+    const mUTC = fecha.getUTCMinutes();
+
+    if (this.tipoFrecuencia === 'weekly')   return `${mUTC} ${hUTC} * * 0`;
+    if (this.tipoFrecuencia === 'daily')    return `${mUTC} ${hUTC} * * *`;
+    if (this.tipoFrecuencia === 'interval') return `0 */${this.intervaloHoras} * * *`;
+    if (this.tipoFrecuencia === 'days')     return `${mUTC} ${hUTC} * * ${this.diasSeleccionados.join(',')}`;
+    throw new Error('Frecuencia inválida');
   }
 
   
