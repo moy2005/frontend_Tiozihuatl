@@ -46,4 +46,11 @@ export class MaintenanceService {
       { headers: this.getAuthHeaders() }
     );
   }
+
+  getTablasDetectadas() {
+    return this.http.get(
+      `${this.api}/tablas-detectadas`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 }
