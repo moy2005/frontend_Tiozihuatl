@@ -267,12 +267,16 @@ export class GestionMantenimientoComponent implements OnInit {
   
     const [min, hora, , , dias] = partes;
   
-    // convertir UTC → local
-    const fecha = new Date();
-    fecha.setUTCHours(Number(hora), Number(min), 0, 0);
+    // UTC → México (correcto)
+    const fechaUTC = new Date();
+    fechaUTC.setUTCHours(Number(hora), Number(min), 0, 0);
   
-    const horaLocal = fecha.getHours();
-    const minLocal  = fecha.getMinutes();
+    const fechaMX = new Date(
+      fechaUTC.toLocaleString("en-US", { timeZone: "America/Mexico_City" })
+    );
+  
+    const horaLocal = fechaMX.getHours();
+    const minLocal  = fechaMX.getMinutes();
   
     const horaFmt = `${String(horaLocal).padStart(2,'0')}:${String(minLocal).padStart(2,'0')}`;
   
