@@ -32,6 +32,12 @@ export class GestionMantenimientoComponent implements OnInit {
   horaInicio         = '02:00';
   intervaloHoras     = 6;
   diasSeleccionados: number[] = [];
+  tablasDetectadas: string[] = [];
+  cargandoTablas = false;
+
+   // ── Filtros historial ─────────────────────────────────────────
+  filtroBusqueda  = '';
+  filtroOrigen    = 'todos'; 
 
   opcionesFrecuencia = [
     { value: 'weekly',   label: 'Una vez a la semana', icon: 'calendar-outline'  },
@@ -50,21 +56,6 @@ export class GestionMantenimientoComponent implements OnInit {
     { label: 'Dom', value: 0 }
   ];
 
-  // ── Tablas que se optimizan ───────────────────────────────────
-  readonly tablasMantenimiento = [
-    { nombre: 'tokensrefresh',         etiqueta: 'Tokens de sesión'          },
-    { nombre: 'sesionesjwt',           etiqueta: 'Sesiones activas'          },
-    { nombre: 'auditoriaeventos',      etiqueta: 'Registro de eventos'       },
-    { nombre: 'usuarios',              etiqueta: 'Usuarios'                  },
-    { nombre: 'prestamos',             etiqueta: 'Préstamos'                 },
-    { nombre: 'libros',                etiqueta: 'Libros'                    },
-    { nombre: 'trayectoria_academica', etiqueta: 'Trayectoria académica'     }
-  ];
-
-    // ── Filtros historial ─────────────────────────────────────────
-  filtroBusqueda  = '';
-  filtroOrigen    = 'todos'; 
-
   constructor(
     private maintenanceService: MaintenanceService,
     private automationService: AutomationService
@@ -74,17 +65,17 @@ export class GestionMantenimientoComponent implements OnInit {
     await Promise.all([
       this.cargarStatus(),
       this.cargarLogs(),
-      this.cargarTareas()
+      this.cargarTareas(),
+      this.cargarTablasDetectadas()
     ]);
   }
 
   // ── Ejecutar mantenimiento manual ─────────────────────────────
   async ejecutarMantenimiento(): Promise<void> {
     const confirm = await Swal.fire({
-      title: '¿Ejecutar optimización?',
-      html: `Se actualizarán las estadísticas y se reorganizarán los índices
-             de <b>${this.tablasMantenimiento.length} tablas</b> principales.
-             <br><br>Este proceso puede tardar unos segundos.`,
+  title: '¿Ejecutar optimización?',
+  html: `El sistema detectó <b>${this.tablasDetectadas.length} tablas</b> 
+         que requieren mantenimiento.<br><br>Este proceso puede tardar unos segundos.`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, ejecutar',
@@ -115,6 +106,17 @@ export class GestionMantenimientoComponent implements OnInit {
     } finally {
       this.ejecutando = false;
     }
+  }
+
+  async cargarTablasDetectadas(): Promise<void> {
+    this.cargandoTablas = true;
+    try {
+      const res: any = await firstValueFrom(
+        this.maintenanceService.getTablasDetectadas()
+      );
+      this.tablasDetectadas = res.tablas ?? [];
+    } catch (e) { console.error(e); }
+    finally { this.cargandoTablas = false; }
   }
 
   // ── Cargar estado ────────────────────────────────────
@@ -258,17 +260,12 @@ export class GestionMantenimientoComponent implements OnInit {
   }
 
   describirCron(expr: string): string {
-  if (!expr) return '—';
-  const partes = expr.trim().split(/\s+/);
-  if (partes.length < 5) return expr;
-  const [min, hora, , , dias] = partes;
-  if (hora.startsWith('*/')) return `Cada ${hora.replace('*/', '')} horas`;
-  
-  // Convertir UTC a hora México para mostrar
-  const fechaUTC = new Date();
-    fechaUTC.setUTCHours(Number(hora), Number(min), 0, 0);
-    const horaFmt = `${String(fechaUTC.getHours()).padStart(2,'0')}:${String(fechaUTC.getMinutes()).padStart(2,'0')}`;
-    
+    if (!expr) return '—';
+    const partes = expr.trim().split(/\s+/);
+    if (partes.length < 5) return expr;
+    const [min, hora, , , dias] = partes;
+    if (hora.startsWith('*/')) return `Cada ${hora.replace('*/', '')} horas`;
+    const horaFmt = `${String(Number(hora)).padStart(2,'0')}:${String(Number(min)).padStart(2,'0')}`;
     if (dias !== '*') {
       const nombres: Record<string,string> = {
         '0':'Dom','1':'Lun','2':'Mar','3':'Mié','4':'Jue','5':'Vie','6':'Sáb'
@@ -280,17 +277,12 @@ export class GestionMantenimientoComponent implements OnInit {
  
   private generarCron(): string {
     const [h, m] = this.horaInicio.split(':').map(Number);
-    // Convertir hora México a UTC
-    const fecha = new Date();
-    fecha.setHours(h, m, 0, 0);
-    const hUTC = fecha.getUTCHours();
-    const mUTC = fecha.getUTCMinutes();
-  
-    if (this.tipoFrecuencia === 'weekly')   return `${mUTC} ${hUTC} * * 0`;
-    if (this.tipoFrecuencia === 'daily')    return `${mUTC} ${hUTC} * * *`;
+    if (this.tipoFrecuencia === 'weekly')   return `${m} ${h} * * 0`;
+    if (this.tipoFrecuencia === 'daily')    return `${m} ${h} * * *`;
     if (this.tipoFrecuencia === 'interval') return `0 */${this.intervaloHoras} * * *`;
-    if (this.tipoFrecuencia === 'days')     return `${mUTC} ${hUTC} * * ${this.diasSeleccionados.join(',')}`;
+    if (this.tipoFrecuencia === 'days')     return `${m} ${h} * * ${this.diasSeleccionados.join(',')}`;
     throw new Error('Frecuencia inválida');
   }
 
+  
 }
