@@ -258,22 +258,6 @@ export class GestionMantenimientoComponent implements OnInit {
     const [hora, min] = horaParte.split(':');
     return `${dia}/${mes}/${anio}, ${hora}:${min}`;
   }
-
-  describirCron(expr: string): string {
-    if (!expr) return '—';
-    const partes = expr.trim().split(/\s+/);
-    if (partes.length < 5) return expr;
-    const [min, hora, , , dias] = partes;
-    if (hora.startsWith('*/')) return `Cada ${hora.replace('*/', '')} horas`;
-    const horaFmt = `${String(Number(hora)).padStart(2,'0')}:${String(Number(min)).padStart(2,'0')}`;
-    if (dias !== '*') {
-      const nombres: Record<string,string> = {
-        '0':'Dom','1':'Lun','2':'Mar','3':'Mié','4':'Jue','5':'Vie','6':'Sáb'
-      };
-      return `${dias.split(',').map(d => nombres[d]).join(', ')} a las ${horaFmt}`;
-    }
-    return `Todos los días a las ${horaFmt}`;
-  }
   
   describirCron(expr: string): string {
     if (!expr) return '—';
