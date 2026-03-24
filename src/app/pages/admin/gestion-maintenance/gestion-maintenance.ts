@@ -275,34 +275,35 @@ export class GestionMantenimientoComponent implements OnInit {
     return `Todos los días a las ${horaFmt}`;
   }
   
-  private generarCron(): string {
-    const [h, m] = this.horaInicio.split(':').map(Number);
+  describirCron(expr: string): string {
+    if (!expr) return '—';
   
-    // Crear fecha en hora local (México)
+    const partes = expr.trim().split(/\s+/);
+    if (partes.length < 5) return expr;
+  
+    const [min, hora, , , dias] = partes;
+  
+    // convertir UTC → local
     const fecha = new Date();
-    fecha.setHours(h, m, 0, 0);
+    fecha.setUTCHours(Number(hora), Number(min), 0, 0);
   
-    // Convertir a UTC
-    const utcHora = fecha.getUTCHours();
-    const utcMin  = fecha.getUTCMinutes();
+    const horaLocal = fecha.getHours();
+    const minLocal  = fecha.getMinutes();
   
-    if (this.tipoFrecuencia === 'weekly') {
-      return `${utcMin} ${utcHora} * * 0`;
+    const horaFmt = `${String(horaLocal).padStart(2,'0')}:${String(minLocal).padStart(2,'0')}`;
+  
+    if (hora.startsWith('*/')) {
+      return `Cada ${hora.replace('*/', '')} horas`;
     }
   
-    if (this.tipoFrecuencia === 'daily') {
-      return `${utcMin} ${utcHora} * * *`;
+    if (dias !== '*') {
+      const nombres: Record<string,string> = {
+        '0':'Dom','1':'Lun','2':'Mar','3':'Mié','4':'Jue','5':'Vie','6':'Sáb'
+      };
+      return `${dias.split(',').map(d => nombres[d]).join(', ')} a las ${horaFmt}`;
     }
   
-    if (this.tipoFrecuencia === 'interval') {
-      return `0 */${this.intervaloHoras} * * *`;
-    }
-  
-    if (this.tipoFrecuencia === 'days') {
-      return `${utcMin} ${utcHora} * * ${this.diasSeleccionados.join(',')}`;
-    }
-  
-    throw new Error('Frecuencia inválida');
+    return `Todos los días a las ${horaFmt}`;
   }
 
   
