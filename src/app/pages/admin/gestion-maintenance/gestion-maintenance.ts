@@ -259,7 +259,7 @@ export class GestionMantenimientoComponent implements OnInit {
     return `${dia}/${mes}/${anio}, ${hora}:${min}`;
   }
   
-  describirCron(expr: string): string {
+ describirCron(expr: string): string {
     if (!expr) return '—';
   
     const partes = expr.trim().split(/\s+/);
@@ -267,10 +267,13 @@ export class GestionMantenimientoComponent implements OnInit {
   
     const [min, hora, , , dias] = partes;
   
-    // convertir UTC → México manual
-    const offset = -6;
+    // offset dinámico del navegador
+    const now = new Date();
+    const offset = -now.getTimezoneOffset() / 60;
+  
     let horaLocal = Number(hora) + offset;
     if (horaLocal < 0) horaLocal += 24;
+    if (horaLocal >= 24) horaLocal -= 24;
   
     const minLocal = Number(min);
   
