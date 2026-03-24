@@ -1287,3 +1287,29 @@
   0%   { transform: translateY(150%); opacity: 0; }
   100% { transform: translateY(0);    opacity: 1; }
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  gap: 8px;
+}
+
+.pagination button {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #e2e8f0;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pagination button.active {
+  background: #3FA6E8;
+  color: white;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
