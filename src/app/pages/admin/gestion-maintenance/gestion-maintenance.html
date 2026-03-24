@@ -56,23 +56,35 @@
           </div>
         </div>
 
-        <div class="accion-bloque">
-          <p class="accion-bloque-titulo">
-            <ion-icon name="server-outline"></ion-icon>
-            Tablas incluidas en el proceso
-          </p>
-          <p class="accion-bloque-desc">
-            Se seleccionaron las tablas con mayor actividad de índices en el sistema.
-          </p>
+      <div class="accion-bloque">
+        <p class="accion-bloque-titulo">
+          <ion-icon name="server-outline"></ion-icon>
+          Tablas detectadas para optimización
+        </p>
+        <p class="accion-bloque-desc">
+          El sistema analiza automáticamente qué tablas necesitan mantenimiento 
+          basándose en cardinalidad de índices y volumen de registros.
+        </p>
+        <div *ngIf="cargandoTablas" class="tablas-chips">
+          <span class="tabla-chip">Detectando...</span>
+        </div>
+        <ng-container *ngIf="!cargandoTablas">
           <div class="tablas-chips">
-            <span *ngFor="let t of tablasMantenimiento" class="tabla-chip">
+            <span *ngFor="let t of tablasDetectadas" class="tabla-chip">
               <ion-icon name="grid-outline"></ion-icon>
-              {{ t.etiqueta }}
+              {{ t }}
+            </span>
+            <span *ngIf="tablasDetectadas.length === 0" class="tabla-chip">
+              Sin tablas detectadas
             </span>
           </div>
-        </div>
+          <!-- Contador debajo del grid -->
+          <p *ngIf="tablasDetectadas.length > 0" class="tablas-contador">
+            {{ tablasDetectadas.length }} tabla{{ tablasDetectadas.length !== 1 ? 's' : '' }} detectada{{ tablasDetectadas.length !== 1 ? 's' : '' }}
+          </p>
+        </ng-container>
       </div>
-
+          
       <div class="proceso-pasos">
         <div class="paso">
           <div class="paso-numero">1</div>
