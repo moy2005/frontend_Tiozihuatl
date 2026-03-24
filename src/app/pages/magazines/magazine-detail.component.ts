@@ -52,7 +52,7 @@ export class MagazineDetailComponent implements OnInit {
   }
 
   getPdfCover(publicId: string) {
-  return `https://res.cloudinary.com/dtfto3sgm/image/upload/${publicId}.jpg`;
+  return `https://res.cloudinary.com/dazzy4wzq/image/upload/${publicId}.jpg`;
 }
 
   /* ==============================
