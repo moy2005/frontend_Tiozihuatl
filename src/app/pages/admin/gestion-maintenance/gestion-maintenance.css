@@ -1,4 +1,4 @@
-.admin-content {
+  .admin-content {
   --color-fondo:             #E3F2FD;
   --color-contenedor:        #FFFFFF;
   --color-borde:             #BBDEFB;
@@ -201,15 +201,45 @@
 .admin-content .accion-controles { display: flex; align-items: center; gap: 0.625rem; flex-wrap: wrap; }
 
 /* ── Chips de tablas ── */
-.admin-content .tablas-chips { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-.admin-content .tabla-chip {
-  display: inline-flex; align-items: center; gap: 0.25rem;
-  padding: 0.25rem 0.625rem; font-size: 0.6875rem; font-weight: 600;
-  color: var(--color-primario); background: var(--color-azul-suave);
-  border: 1px solid var(--color-azul-medio); border-radius: 3px;
-  text-transform: uppercase; letter-spacing: 0.03em;
+.admin-content .tablas-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
 }
-.admin-content .tabla-chip ion-icon { font-size: 0.6875rem; }
+.admin-content .tablas-chips::-webkit-scrollbar { width: 4px; }
+.admin-content .tablas-chips::-webkit-scrollbar-track { background: transparent; }
+.admin-content .tablas-chips::-webkit-scrollbar-thumb { background: var(--color-azul-medio); border-radius: 2px; }
+
+.admin-content .tabla-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-primario);
+  background: var(--color-azul-suave);
+  border: 1px solid var(--color-azul-medio);
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-content .tabla-chip ion-icon {
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.admin-content .tablas-contador {
+  font-size: 0.75rem;
+  color: var(--color-texto-secundario);
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
 
 /* ── Pasos del proceso ── */
 .admin-content .proceso-pasos {
