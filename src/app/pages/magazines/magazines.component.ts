@@ -51,7 +51,8 @@ export class MagazinesComponent implements OnInit {
   sortPrice                = '';
   cartAddedMagazine: any = null;  // revista recién agregada
   showCartModal = false;           // controla el modal
-
+  currentPage: number = 1;
+  itemsPerPage: number = 4;  
 
   filterOpen = { orden: true, precio: true, letra: true };
 
@@ -205,4 +206,25 @@ export class MagazinesComponent implements OnInit {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
+
+    get paginatedMagazines() {
+  const start = (this.currentPage - 1) * this.itemsPerPage;
+  return this.magazines.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.magazines.length / this.itemsPerPage);
+  }
+
+  changePage(page: number) {
+    this.currentPage = page;
+  }
+  get magazinesProduccion() {
+  return this.magazines.filter(m => m.pdf_public_id.includes('dazzy4wzq'));
+  }
+
+  get magazinesLocal() {
+    return this.magazines.filter(m => m.pdf_public_id.includes('dtfto3sgm'));
+  }
+  
 }
