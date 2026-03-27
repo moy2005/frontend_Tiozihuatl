@@ -1,34 +1,68 @@
-<!-- ═══════════════════════════════════════════════════
-     MONITOR PRO — Dashboard de Monitoreo
-     Phosphor Icons · Sin sombras · Azul dominante
-════════════════════════════════════════════════════ -->
-
 <div class="mon-admin">
-  <div style="max-width:95%;margin:0 auto;">
-
-    <!-- ── LOADING ──────────────────────────────────────────────── -->
+  <div style="max-width: 95%; margin: 0 auto;">
     <div class="mon-loading" *ngIf="loading">
-      <div class="mon-loading-rings">
-        <div class="mon-ring mon-ring-1"></div>
-        <div class="mon-ring mon-ring-2"></div>
-        <div class="mon-ring mon-ring-3"></div>
+      <div class="mon-loading-card">
+        <div class="mon-loading-eyebrow">Monitor en sincronizacion</div>
+
+        <div class="mon-loading-head">
+          <div>
+            <div class="mon-loading-title">Cargando monitoreo</div>
+            <div class="mon-loading-subtitle">{{ loadingStatusText }}</div>
+          </div>
+          <div class="mon-loading-percent">{{ loadingProgress }}%</div>
+        </div>
+
+        <div class="mon-loading-track">
+          <div class="mon-loading-fill" [style.width.%]="loadingProgress"></div>
+        </div>
+
+        <div class="mon-loading-caption">{{ loadingCurrentLabel }}</div>
+
+        <div class="mon-loading-steps">
+          <div
+            class="mon-loading-step"
+            *ngFor="let step of loadingSteps"
+            [ngClass]="getLoadStepClass(step.status)"
+          >
+            <i [class]="getLoadStepIcon(step.status)"></i>
+            <span>{{ getLoadErrorLabel(step.source) }}</span>
+          </div>
+        </div>
       </div>
-      <span class="mon-loading-text">Cargando sistemas...</span>
     </div>
 
     <ng-container *ngIf="!loading">
-
-      <!-- ══ HEADER ════════════════════════════════════════════════ -->
-      <div class="mon-header" style="margin-bottom:1.25rem;">
+      <div class="mon-header" style="margin-bottom: 1.25rem;">
         <div class="mon-header-brand">
           <div>
             <h2 class="mon-header-title">
               <i class="ph ph-pulse"></i>
               Monitoreo
             </h2>
+          
           </div>
         </div>
+
         <div class="mon-header-actions">
+          <div
+            class="mon-live-badge"
+            *ngIf="healthScoreData"
+            [style.background]="'rgba(255,255,255,0.14)'"
+            [style.borderColor]="getHealthStatusColor(healthScoreData.status)"
+          >
+            <i class="ph ph-heartbeat" [style.color]="getHealthStatusColor(healthScoreData.status)"></i>
+            <span>
+              {{ healthScoreData.score }}/100 - {{ getHealthStatusLabel(healthScoreData.status) }}
+            </span>
+          </div>
+
+       
+
+          <div class="mon-live-badge" *ngIf="!hasAlerts">
+            <div class="mon-pulse-dot"></div>
+            Sistema OK
+          </div>
+
           <button class="mon-btn-refresh" (click)="refresh()">
             <i class="ph ph-arrows-clockwise"></i>
             Actualizar
@@ -36,161 +70,194 @@
         </div>
       </div>
 
-      <!-- ══ TABS ═══════════════════════════════════════════════════ -->
+      <div class="mon-card" *ngIf="loadErrors.length > 0" style="margin-bottom: 1rem;">
+        <div class="mon-card-header">
+          <div class="mon-card-title" style="color: #f0932b;">
+            <i class="ph ph-warning-circle" style="color: #f0932b;"></i>
+            Carga parcial
+          </div>
+          <span class="mon-card-sub">El dashboard sigue disponible con fallbacks locales</span>
+        </div>
+        <div class="mon-card-body">
+          <div
+            class="mon-status-block"
+            *ngFor="let error of loadErrors"
+            style="border-left: 3px solid #f0932b; margin-bottom: 0.5rem;"
+          >
+            <div class="mon-status-block-label">{{ getLoadErrorLabel(error.source) }}</div>
+            <div class="mon-status-block-val">{{ error.message }}</div>
+            <div class="mon-kpi-sub" *ngIf="error.status">HTTP {{ error.status }}</div>
+          </div>
+        </div>
+      </div>
+
       <nav class="mon-tabs">
         <button
           *ngFor="let tab of tabs"
           class="mon-tab-btn"
           [class.active]="activeTab === tab.id"
-          (click)="setTab(tab.id)">
-          <i [class]="'ph ph-' + getPhosphorIcon(tab.id)"></i>
+          (click)="setTab(tab.id)"
+        >
+          <i [class]="'ph ph-' + tab.icon"></i>
           {{ tab.label }}
         </button>
       </nav>
 
-      <!-- ══ CONTENT ════════════════════════════════════════════════ -->
-
-      <!-- ════════════════════════════════════════════════
-           TAB: OVERVIEW
-      ═════════════════════════════════════════════════ -->
       <div class="mon-tab-section" *ngIf="activeTab === 'overview'">
-
-        <!-- KPIs del sistema -->
         <div class="mon-kpi-grid">
-          <div class="mon-kpi" style="--delay:0ms; --kpi-color:#1e6fcf">
-            <i class="ph ph-users mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Total Usuarios</div>
-            <div class="mon-kpi-value">{{ sysAct ? formatNumber(sysAct.total_usuarios) : '—' }}</div>
+          <div class="mon-kpi" style="--delay: 0ms; --kpi-color: #1e6fcf;">
+            <i class="ph ph-database mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Tablas en BD</div>
+            <div class="mon-kpi-value">{{ formatNumber(totalTables) }}</div>
+            <div class="mon-kpi-sub">{{ database?.status?.db_name ?? dashboard?.database?.db_name ?? 'Sin DB' }}</div>
           </div>
-          <div class="mon-kpi" style="--delay:80ms; --kpi-color:#f0932b">
-            <i class="ph ph-book-open mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Préstamos Activos</div>
-            <div class="mon-kpi-value">{{ sysAct ? formatNumber(sysAct.prestamos_activos) : '—' }}</div>
-            <div class="mon-kpi-sub" *ngIf="libStats">{{ libStats.prestamos_vencidos }} vencidos</div>
+
+          <div class="mon-kpi" style="--delay: 80ms; --kpi-color: #2a9d4e;">
+            <i class="ph ph-git-branch mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Conexiones activas</div>
+            <div class="mon-kpi-value">{{ formatNumber(connectionStats?.used_connections) }}</div>
+            <div class="mon-kpi-sub">
+              de {{ formatNumber(connectionStats?.max_connections) }} maximas
+            </div>
           </div>
-          <div class="mon-kpi" style="--delay:160ms; --kpi-color:#2a9d4e">
-            <i class="ph ph-shopping-cart mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Compras últimas 24 h</div>
-            <div class="mon-kpi-value">{{ sysAct ? formatNumber(sysAct.compras_24h) : '—' }}</div>
+
+          <div class="mon-kpi" style="--delay: 160ms; --kpi-color: #f0932b;">
+            <i class="ph ph-timer mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Consultas lentas</div>
+            <div class="mon-kpi-value">{{ formatNumber(slowQueries?.slow_queries) }}</div>
+            <div class="mon-kpi-sub">umbral {{ slowQueries?.long_query_time ?? '-' }}s</div>
           </div>
-          <div class="mon-kpi" style="--delay:240ms; --kpi-color:#8e44ad">
-            <i class="ph ph-broadcast mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Eventos de Auditoría 24 h</div>
-            <div class="mon-kpi-value">{{ sysAct ? formatNumber(sysAct.eventos_24h) : '—' }}</div>
+
+          <div class="mon-kpi" style="--delay: 240ms; --kpi-color: #8e44ad;">
+            <i class="ph ph-heartbeat mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Health score</div>
+            <div
+              class="mon-kpi-value"
+              [style.color]="getHealthStatusColor(healthScoreData?.status)"
+            >
+              {{ healthScoreData?.score ?? '-' }}
+            </div>
+            <div class="mon-kpi-sub">
+              {{ healthScoreData?.grade ? 'Grade ' + healthScoreData?.grade : 'Sin score' }}
+            </div>
           </div>
-          <div class="mon-kpi" style="--delay:320ms; --kpi-color:#2ab5d6">
-            <i class="ph ph-wifi-high mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Sesiones Activas</div>
-            <div class="mon-kpi-value">{{ sysAct ? formatNumber(sysAct.sesiones_activas) : '—' }}</div>
+
+          <div class="mon-kpi" style="--delay: 320ms; --kpi-color: #e74c3c;">
+            <i class="ph ph-warning-circle mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Alertas activas</div>
+            <div class="mon-kpi-value" [style.color]="hasAlerts ? '#e74c3c' : '#2a9d4e'">
+              {{ alerts.total }}
+            </div>
+            <div class="mon-kpi-sub">
+              {{ alerts.critical }} criticas / {{ alerts.warning }} warning
+            </div>
           </div>
         </div>
 
-        <!-- Fila estado: DB + Conexiones + Sistema -->
-        <div class="mon-row-3" style="margin-bottom:1rem;">
-
-          <!-- DB Status -->
+        <div class="mon-row-3" style="margin-bottom: 1rem;">
           <div class="mon-card">
             <div class="mon-card-header">
               <div class="mon-card-title">
                 <i class="ph ph-database"></i>
-                Estado de la Base de Datos
+                Base de datos
               </div>
-              <span class="mon-card-sub mon-mono">{{ dbStatus?.db_name ?? '—' }}</span>
+              <span class="mon-card-sub mon-mono">{{ database?.status?.db_name ?? 'Sin datos' }}</span>
             </div>
             <div class="mon-card-body">
-              <ng-container *ngIf="dbStatus; else noData">
+              <ng-container *ngIf="database?.status; else noData">
                 <div class="mon-info-rows">
                   <div class="mon-info-row">
                     <span class="mon-info-label">Tablas totales</span>
-                    <span class="mon-info-val">{{ formatNumber(dbStatus.total_tables) }}</span>
+                    <span class="mon-info-val">{{ formatNumber(database?.status?.total_tables) }}</span>
                   </div>
                   <div class="mon-info-row">
                     <span class="mon-info-label">Filas estimadas</span>
-                    <span class="mon-info-val">{{ formatNumber(dbStatus.total_rows) }}</span>
+                    <span class="mon-info-val">{{ formatNumber(database?.status?.total_rows) }}</span>
                   </div>
                   <div class="mon-info-row">
-                    <span class="mon-info-label">Tamaño total</span>
-                    <span class="mon-info-val">{{ formatMB(dbStatus.total_size_mb) }}</span>
+                    <span class="mon-info-label">Tamano total</span>
+                    <span class="mon-info-val">{{ formatMB(database?.status?.total_size_mb) }}</span>
+                  </div>
+                </div>
+
+                <div class="mon-session-list" style="margin-top: 0.875rem;" *ngIf="database?.engines?.length">
+                  <div class="mon-session-item" *ngFor="let engine of database?.engines">
+                    <div class="mon-session-avatar"><i class="ph ph-cpu"></i></div>
+                    <div class="mon-session-info">
+                      <div class="mon-session-name">{{ getEngineName(engine) }}</div>
+                      <div class="mon-session-email">{{ formatNumber(engine.total) }} tabla(s)</div>
+                    </div>
+                    <span class="mon-badge mon-badge-blue">Engine</span>
                   </div>
                 </div>
               </ng-container>
             </div>
           </div>
 
-          <!-- Conexiones -->
           <div class="mon-card">
             <div class="mon-card-header">
               <div class="mon-card-title">
                 <i class="ph ph-git-branch"></i>
-                Conexiones al Servidor
+                Replicacion y locks
               </div>
-              <span class="mon-card-sub">Threads MySQL activos</span>
+              <span class="mon-card-sub">Topologia, waits y deadlocks</span>
             </div>
             <div class="mon-card-body">
-              <ng-container *ngIf="connStats; else noData">
-                <div class="mon-conn-pct-row">
-                  <span class="mon-conn-label">Uso de conexiones</span>
-                  <span class="mon-conn-pct" [style.color]="connectionColor">{{ connectionPct }}%</span>
+              <div class="mon-info-rows">
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Topologia</span>
+                  <span class="mon-badge" [ngClass]="getTopologyBadgeClass(replication?.topology)">
+                    {{ getTopologyLabel(replication?.topology) }}
+                  </span>
                 </div>
-                <div class="mon-progress-track" style="margin-bottom:0.75rem;">
-                  <div class="mon-progress-bar" [style.width.%]="connectionPct" [style.background]="connectionColor"></div>
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Lock waits actuales</span>
+                  <span class="mon-info-val">{{ formatNumber(currentLockWaits) }}</span>
                 </div>
-                <div class="mon-conn-stats">
-                  <div class="mon-conn-stat">
-                    <span>Conectadas ahora</span>
-                    <span class="mon-conn-val" [style.color]="connectionColor">{{ connStats.threads_connected }}</span>
-                  </div>
-                  <div class="mon-conn-stat">
-                    <span>Ejecutando consultas</span>
-                    <span class="mon-conn-val mon-blue">{{ connStats.threads_running }}</span>
-                  </div>
-                  <div class="mon-conn-stat">
-                    <span>Máximo histórico</span>
-                    <span class="mon-conn-val mon-orange">{{ connStats.max_used_connections }}</span>
-                  </div>
-                  <div class="mon-conn-stat">
-                    <span>Límite configurado</span>
-                    <span class="mon-conn-val mon-dim">{{ connStats.max_connections }}</span>
-                  </div>
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Deadlocks</span>
+                  <span class="mon-info-val" [style.color]="deadlockCount > 0 ? '#e74c3c' : '#2a9d4e'">
+                    {{ formatNumber(deadlockCount) }}
+                  </span>
                 </div>
-              </ng-container>
+                <div class="mon-info-row" *ngIf="replication?.replica_status">
+                  <span class="mon-info-label">Lag de replica</span>
+                  <span class="mon-info-val" [style.color]="replicationLagSeconds > 60 ? '#e74c3c' : '#1e6fcf'">
+                    {{ formatNumber(replicationLagSeconds) }}s
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Sistema / Backup / Tokens -->
           <div class="mon-card">
             <div class="mon-card-header">
               <div class="mon-card-title">
-                <i class="ph ph-shield-check"></i>
-                Estado del Sistema
+                <i class="ph ph-lightning"></i>
+                Performance global
               </div>
-              <span class="mon-card-sub">Backup · Consultas lentas · Tokens</span>
+              <span class="mon-card-sub">Uptime, queries y buffer pool</span>
             </div>
             <div class="mon-card-body">
-              <ng-container *ngIf="dashboard; else noData">
-                <div class="mon-status-block" [style.border-left-color]="backupColor">
-                  <div class="mon-status-block-label">Último Backup registrado</div>
-                  <div class="mon-status-block-val">{{ dashboard.last_backup ? formatDate(dashboard.last_backup.fecha) : 'Sin registros aún' }}</div>
-                  <div class="mon-status-block-meta" *ngIf="dashboard.last_backup">
-                    <span class="mon-mono mon-fw6" [style.color]="backupColor">● {{ dashboard.last_backup.estado }}</span>
-                    <span class="mon-dim">{{ formatMB(dashboard.last_backup.tamanio_mb) }}</span>
+              <ng-container *ngIf="performanceStats; else noData">
+                <div class="mon-info-rows">
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Uptime</span>
+                    <span class="mon-info-val">{{ formatUptime(performanceStats.Uptime) }}</span>
                   </div>
-                </div>
-                <div class="mon-status-block" style="border-left-color:#f0932b">
-                  <div class="mon-status-block-label">Consultas lentas detectadas</div>
-                  <div class="mon-status-block-row">
-                    <span class="mon-status-big-num">{{ dashboard.slow_queries?.slow_queries ?? '—' }}</span>
-                    <span class="mon-dim" style="font-size:0.6875rem;">umbral: {{ dashboard.slow_queries?.long_query_time ?? '—' }}s · log: {{ dashboard.slow_queries?.slow_query_log ?? '—' }}</span>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Queries totales</span>
+                    <span class="mon-info-val">{{ formatNumber(performanceStats.Queries) }}</span>
                   </div>
-                </div>
-                <div class="mon-mini-grid-2">
-                  <div class="mon-mini-stat">
-                    <span class="mon-mini-num">{{ dashboard.active_sessions ?? '—' }}</span>
-                    <span class="mon-mini-label">Sesiones</span>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Buffer Pool Hit</span>
+                    <span class="mon-info-val" [style.color]="bufferHitColor">
+                      {{ formatPercent(performanceStats.buffer_pool_hit_ratio) }}
+                    </span>
                   </div>
-                  <div class="mon-mini-stat">
-                    <span class="mon-mini-num" style="color:#2a9d4e">{{ dashboard.active_tokens ?? '—' }}</span>
-                    <span class="mon-mini-label">Tokens JWT</span>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Threads conectados</span>
+                    <span class="mon-info-val">{{ formatNumber(performanceStats.Threads_connected) }}</span>
                   </div>
                 </div>
               </ng-container>
@@ -198,462 +265,209 @@
           </div>
         </div>
 
-        <!-- Crecimiento por tabla -->
-        <div class="mon-card">
-          <div class="mon-card-header">
-            <div class="mon-card-title">
-              <i class="ph ph-chart-bar"></i>
-              Crecimiento por Tabla
+        <div class="mon-row-2" *ngIf="healthScoreData" style="margin-bottom: 1rem;">
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-heartbeat"></i>
+                Detalle del health score
+              </div>
+              <span class="mon-card-sub">{{ formatDate(healthScoreData.calculated_at) }}</span>
             </div>
-            <span class="mon-card-sub mon-mono">Filas estimadas — ORDER BY table_rows DESC</span>
-          </div>
-          <div class="mon-card-body">
-            <ng-container *ngIf="growth.length; else noData">
-              <div class="mon-bar-chart">
-                <div class="mon-bar-group" *ngFor="let g of growth; let i = index">
-                  <div class="mon-bar-track">
-                    <div class="mon-bar-fill"
-                      [style.width.%]="barWidth(+(g.rows_estimate ?? 0), maxGrowthRows)"
-                      [style.background]="getChartColor(i)">
+            <div class="mon-card-body">
+              <div class="mon-chart-panel">
+                <div class="mon-chart-shell mon-chart-shell-sm">
+                  <canvas #healthScoreChart></canvas>
+                </div>
+
+                <div class="mon-chart-side">
+                  <div class="mon-status-block" [style.border-left]="'3px solid ' + getHealthStatusColor(healthScoreData.status)">
+                    <div class="mon-status-block-label">Estado actual</div>
+                    <div class="mon-status-block-row">
+                      <span class="mon-status-big-num" [style.color]="getHealthStatusColor(healthScoreData.status)">
+                        {{ healthScoreData.score }}
+                      </span>
+                      <span class="mon-badge" [style.borderColor]="getHealthStatusColor(healthScoreData.status)">
+                        {{ getHealthStatusLabel(healthScoreData.status) }} - Grade {{ healthScoreData.grade }}
+                      </span>
                     </div>
                   </div>
-                  <div class="mon-bar-meta">
-                    <span class="mon-bar-name">{{ g.nombre }}</span>
-                    <span class="mon-bar-val" [style.color]="getChartColor(i)">{{ formatNumber(g.rows_estimate) }} filas</span>
+
+                  <div class="mon-chart-note">
+                    La grafica resume el score global frente al maximo esperado de 100 puntos.
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-list-checks"></i>
+                Penalizaciones
+              </div>
+              <span class="mon-card-sub">Metricas que bajan el score</span>
+            </div>
+            <div class="mon-card-body">
+              <ng-container *ngIf="healthPenalties.length > 0; else noHealthPenalties">
+                <div
+                  class="mon-status-block"
+                  *ngFor="let penalty of healthPenalties"
+                  [style.border-left]="'3px solid ' + getSeverityColor(penalty.severity)"
+                >
+                  <div class="mon-status-block-label">{{ getMetricLabel(penalty.metric) }}</div>
+                  <div class="mon-status-block-val">
+                    Valor {{ formatMetricValue(penalty.value) }} - penalizacion {{ penalty.penalty }}
+                  </div>
+                  <div class="mon-kpi-sub">{{ getSeverityLabel(penalty.severity) }}</div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+        <div class="mon-card" *ngIf="hasAlerts; else noOverviewAlerts">
+          <div class="mon-card-header">
+            <div class="mon-card-title" style="color: #e74c3c;">
+              <i class="ph ph-warning" style="color: #e74c3c;"></i>
+              Alertas del sistema
+            </div>
+            <span class="mon-card-sub">{{ formatDate(alerts.evaluated_at) }}</span>
+          </div>
+          <div class="mon-card-body">
+            <div
+              class="mon-status-block"
+              *ngFor="let alert of alertItems"
+              [style.border-left]="'3px solid ' + getSeverityColor(alert.severity)"
+              style="margin-bottom: 0.75rem;"
+            >
+              <div class="mon-status-block-label">
+                <span class="mon-badge" [ngClass]="getSeverityBadgeClass(alert.severity)">
+                  {{ getSeverityLabel(alert.severity) }}
+                </span>
+                <span style="margin-left: 0.5rem;">{{ alert.category }}</span>
+              </div>
+              <div class="mon-status-block-val">{{ alert.message }}</div>
+              <div class="mon-kpi-sub" style="margin-top: 0.35rem;">
+                Valor {{ formatMetricValue(alert.value) }} / Umbral {{ formatMetricValue(alert.threshold) }}
+              </div>
+              <div class="mon-kpi-sub" *ngIf="alert.recommendation">
+                Recomendacion: {{ alert.recommendation }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noOverviewAlerts>
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title" style="color: #2a9d4e;">
+                <i class="ph ph-check-circle" style="color: #2a9d4e;"></i>
+                Estado del sistema
+              </div>
+            </div>
+            <div class="mon-card-body">
+              <div class="mon-empty" style="padding: 1.25rem 1rem;">
+                <i class="ph ph-check-circle" style="color: #2a9d4e; font-size: 2rem;"></i>
+                <span style="color: #2a9d4e; font-weight: 600;">
+                  Sin alertas activas. Todos los checks estan dentro del rango esperado.
+                </span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+
+      <div class="mon-tab-section" *ngIf="activeTab === 'database'">
+        <div class="mon-section-header">
+          <div class="mon-section-icon"><i class="ph ph-database"></i></div>
+          <div>
+            <div class="mon-section-title">Base de datos</div>
+            <div class="mon-section-sub">TABLAS - ALMACENAMIENTO - FRAGMENTACION - INDICES</div>
+          </div>
+        </div>
+
+        <div class="mon-kpi-grid-4">
+          <div class="mon-kpi" style="--delay: 0ms; --kpi-color: #1e6fcf;">
+            <i class="ph ph-table mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Tablas totales</div>
+            <div class="mon-kpi-value">{{ formatNumber(totalTables) }}</div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 80ms; --kpi-color: #2a9d4e;">
+            <i class="ph ph-hard-drive mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Tamano total</div>
+            <div class="mon-kpi-value" style="font-size: 1.5rem;">
+              {{ formatMB(database?.status?.total_size_mb) }}
+            </div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 160ms; --kpi-color: #f0932b;">
+            <i class="ph ph-warning mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Tablas fragmentadas</div>
+            <div class="mon-kpi-value">{{ fragmentedCount }}</div>
+            <div class="mon-kpi-sub">Mas de 30%</div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 240ms; --kpi-color: #8e44ad;">
+            <i class="ph ph-tree-structure mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Indices sin uso</div>
+            <div class="mon-kpi-value">{{ unusedIndexes.length }}</div>
+            <div class="mon-kpi-sub">{{ tablesWithoutPkCount }} tabla(s) sin PK</div>
+          </div>
+        </div>
+
+        <div class="mon-card" style="margin-bottom: 0.875rem;">
+          <div class="mon-card-header">
+            <div class="mon-card-title">
+              <i class="ph ph-chart-bar-horizontal"></i>
+              Distribucion de almacenamiento
+            </div>
+            <span class="mon-card-sub">Top tablas por tamano total</span>
+          </div>
+          <div class="mon-card-body">
+            <ng-container *ngIf="topStorageTables.length > 0; else noData">
+              <div class="mon-chart-shell mon-chart-shell-lg">
+                <canvas #tableSizesChart></canvas>
+              </div>
+              <div class="mon-chart-note">
+                Se muestran las 8 tablas con mayor peso en MB para detectar concentracion de almacenamiento.
               </div>
             </ng-container>
           </div>
         </div>
 
-      </div><!-- /overview -->
-
-
-      <!-- ════════════════════════════════════════════════
-           TAB: BIBLIOTECA
-      ═════════════════════════════════════════════════ -->
-      <div class="mon-tab-section" *ngIf="activeTab === 'library'">
-
-        <div class="mon-section-header">
-          <div class="mon-section-icon"><i class="ph ph-books"></i></div>
-          <div>
-            <div class="mon-section-title">Módulo Biblioteca</div>
-            <div class="mon-section-sub">PRÉSTAMOS · FORMATOS · TÍTULOS MÁS ACTIVOS</div>
-          </div>
-        </div>
-
-        <div class="mon-kpi-grid-5">
-          <div class="mon-kpi" style="--delay:0ms; --kpi-color:#1e6fcf">
-            <i class="ph ph-book-open mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Libros activos</div>
-            <div class="mon-kpi-value">{{ libStats ? formatNumber(libStats.libros_activos) : '—' }}</div>
-          </div>
-          <div class="mon-kpi" style="--delay:80ms; --kpi-color:#2a9d4e">
-            <i class="ph ph-swap mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Préstamos activos</div>
-            <div class="mon-kpi-value">{{ libStats ? formatNumber(libStats.prestamos_activos) : '—' }}</div>
-          </div>
-          <div class="mon-kpi" style="--delay:160ms; --kpi-color:#e74c3c">
-            <i class="ph ph-warning-circle mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Préstamos vencidos</div>
-            <div class="mon-kpi-value">{{ libStats ? formatNumber(libStats.prestamos_vencidos) : '—' }}</div>
-          </div>
-          <div class="mon-kpi" style="--delay:240ms; --kpi-color:#8e44ad">
-            <i class="ph ph-cloud mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Libros digitales</div>
-            <div class="mon-kpi-value">{{ libStats ? formatNumber(libStats.libros_digitales) : '—' }}</div>
-          </div>
-          <div class="mon-kpi" style="--delay:320ms; --kpi-color:#f0932b">
-            <i class="ph ph-cube mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Libros físicos</div>
-            <div class="mon-kpi-value">{{ libStats ? formatNumber(libStats.libros_fisicos) : '—' }}</div>
-          </div>
-        </div>
-
-        <div class="mon-row-2">
-
-          <!-- Libros más prestados -->
-          <div class="mon-card">
-            <div class="mon-card-header">
-              <div class="mon-card-title">
-                <i class="ph ph-trophy"></i>
-                Libros más prestados
-              </div>
-              <span class="mon-card-sub">TOP 10 — Conteo de préstamos por título</span>
-            </div>
-            <div class="mon-card-body">
-              <ng-container *ngIf="borrowedBooks.length; else noData">
-                <div class="mon-h-bar-list">
-                  <div class="mon-h-bar-item" *ngFor="let b of borrowedBooks; let i = index" [style.--i]="i">
-                    <div class="mon-h-bar-rank"
-                      [style.background]="getChartColor(i) + '18'"
-                      [style.color]="getChartColor(i)"
-                      [style.border-color]="getChartColor(i) + '40'">{{ i + 1 }}</div>
-                    <div class="mon-h-bar-body">
-                      <div class="mon-h-bar-top">
-                        <span class="mon-h-bar-name">{{ b.titulo }}</span>
-                        <span class="mon-h-bar-val" [style.color]="getChartColor(i)">{{ b.total_prestamos }}</span>
-                      </div>
-                      <div class="mon-h-bar-track">
-                        <div class="mon-h-bar-fill" [style.width.%]="barWidth(b.total_prestamos, maxBorrowedBooks)" [style.background]="getChartColor(i)"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-
-          <div class="mon-col-stack">
-
-            <!-- Donut Digital vs Físico -->
-            <div class="mon-card">
-              <div class="mon-card-header">
-                <div class="mon-card-title">
-                  <i class="ph ph-chart-pie-slice"></i>
-                  Distribución de formatos
-                </div>
-                <span class="mon-card-sub">Digital vs Físico del total activo</span>
-              </div>
-              <div class="mon-card-body">
-                <ng-container *ngIf="libStats; else noData">
-                  <div class="mon-pie-row">
-                    <svg viewBox="0 0 36 36" class="mon-donut" *ngIf="libStats.libros_activos > 0">
-                      <circle class="mon-donut-hole" cx="18" cy="18" r="15.9" fill="#fff"/>
-                      <circle class="mon-donut-track" cx="18" cy="18" r="15.9"/>
-                      <circle class="mon-donut-seg" cx="18" cy="18" r="15.9"
-                        [attr.stroke]="getChartColor(0)"
-                        [attr.stroke-dasharray]="pieSegment(libStats.libros_digitales, libStats.libros_activos)"
-                        [attr.stroke-dashoffset]="25"/>
-                      <circle class="mon-donut-seg" cx="18" cy="18" r="15.9"
-                        [attr.stroke]="getChartColor(1)"
-                        [attr.stroke-dasharray]="pieSegment(libStats.libros_fisicos, libStats.libros_activos)"
-                        [attr.stroke-dashoffset]="25 - ((libStats.libros_digitales / libStats.libros_activos) * 100)"/>
-                    </svg>
-                    <div class="mon-pie-legend">
-                      <div class="mon-pie-legend-item">
-                        <div class="mon-legend-dot" [style.background]="getChartColor(0)"></div>
-                        <span class="mon-legend-name">Digital</span>
-                        <span class="mon-legend-val">{{ formatNumber(libStats.libros_digitales) }}</span>
-                      </div>
-                      <div class="mon-pie-legend-item">
-                        <div class="mon-legend-dot" [style.background]="getChartColor(1)"></div>
-                        <span class="mon-legend-name">Físico</span>
-                        <span class="mon-legend-val">{{ formatNumber(libStats.libros_fisicos) }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </ng-container>
-              </div>
-            </div>
-
-            <!-- Estado préstamos -->
-            <div class="mon-card">
-              <div class="mon-card-header">
-                <div class="mon-card-title">
-                  <i class="ph ph-clock"></i>
-                  Estado de préstamos
-                </div>
-                <span class="mon-card-sub">Activos vs Vencidos en el sistema</span>
-              </div>
-              <div class="mon-card-body">
-                <ng-container *ngIf="libStats; else noData">
-                  <div class="mon-loan-bars">
-                    <div class="mon-loan-bar-item">
-                      <div class="mon-loan-bar-label">
-                        <span>Préstamos activos</span>
-                        <span class="mon-fw7 mon-green">{{ libStats.prestamos_activos }}</span>
-                      </div>
-                      <div class="mon-progress-track">
-                        <div class="mon-progress-bar" style="background:#2a9d4e" [style.width.%]="loanActiveWidth"></div>
-                      </div>
-                    </div>
-                    <div class="mon-loan-bar-item">
-                      <div class="mon-loan-bar-label">
-                        <span>Préstamos vencidos</span>
-                        <span class="mon-fw7 mon-red">{{ libStats.prestamos_vencidos }}</span>
-                      </div>
-                      <div class="mon-progress-track">
-                        <div class="mon-progress-bar" style="background:#e74c3c" [style.width.%]="loanExpiredWidth"></div>
-                      </div>
-                    </div>
-                  </div>
-                </ng-container>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div><!-- /library -->
-
-
-      <!-- ════════════════════════════════════════════════
-           TAB: VENTAS
-      ═════════════════════════════════════════════════ -->
-      <div class="mon-tab-section" *ngIf="activeTab === 'sales'">
-
-        <div class="mon-section-header">
-          <div class="mon-section-icon"><i class="ph ph-shopping-cart"></i></div>
-          <div>
-            <div class="mon-section-title">Ventas y Revistas</div>
-            <div class="mon-section-sub">COMPRAS · INGRESOS · PUBLICACIONES</div>
-          </div>
-        </div>
-
-        <div class="mon-kpi-grid-4">
-          <div class="mon-kpi" style="--delay:0ms; --kpi-color:#1e6fcf">
-            <i class="ph ph-newspaper mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Total revistas en catálogo</div>
-            <div class="mon-kpi-value">{{ salesStats ? formatNumber(salesStats.total_revistas) : '—' }}</div>
-          </div>
-          <div class="mon-kpi" style="--delay:80ms; --kpi-color:#2a9d4e">
-            <i class="ph ph-receipt mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Total compras realizadas</div>
-            <div class="mon-kpi-value">{{ salesStats ? formatNumber(salesStats.total_compras) : '—' }}</div>
-          </div>
-          <div class="mon-kpi" style="--delay:160ms; --kpi-color:#f5c542">
-            <i class="ph ph-currency-dollar mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Ingresos totales (pagadas)</div>
-            <div class="mon-kpi-value" style="font-size:1.375rem;">{{ salesStats ? formatCurrency(salesStats.ingresos_totales) : '—' }}</div>
-          </div>
-          <div class="mon-kpi" style="--delay:240ms; --kpi-color:#f0932b">
-            <i class="ph ph-hourglass mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Compras pendientes de pago</div>
-            <div class="mon-kpi-value">{{ salesStats ? formatNumber(salesStats.compras_pendientes) : '—' }}</div>
-          </div>
-        </div>
-
-        <div class="mon-row-2">
-
-          <!-- Revistas más vendidas -->
-          <div class="mon-card">
-            <div class="mon-card-header">
-              <div class="mon-card-title">
-                <i class="ph ph-trophy"></i>
-                Revistas más vendidas
-              </div>
-              <span class="mon-card-sub">TOP 10 — Conteo de unidades vendidas por título</span>
-            </div>
-            <div class="mon-card-body">
-              <ng-container *ngIf="topMagazines.length; else noData">
-                <div class="mon-h-bar-list">
-                  <div class="mon-h-bar-item" *ngFor="let m of topMagazines; let i = index" [style.--i]="i">
-                    <div class="mon-h-bar-rank"
-                      [style.background]="getChartColor(i) + '18'"
-                      [style.color]="getChartColor(i)"
-                      [style.border-color]="getChartColor(i) + '40'">{{ i + 1 }}</div>
-                    <div class="mon-h-bar-body">
-                      <div class="mon-h-bar-top">
-                        <span class="mon-h-bar-name">{{ m.titulo }}</span>
-                        <span class="mon-h-bar-val" [style.color]="getChartColor(i)">{{ m.ventas }} ventas</span>
-                      </div>
-                      <div class="mon-h-bar-track">
-                        <div class="mon-h-bar-fill" [style.width.%]="barWidth(m.ventas, maxMagazineSales)" [style.background]="getChartColor(i)"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-
-          <!-- Participación en ventas — Donut -->
-          <div class="mon-card">
-            <div class="mon-card-header">
-              <div class="mon-card-title">
-                <i class="ph ph-chart-pie-slice"></i>
-                Participación en ventas
-              </div>
-              <span class="mon-card-sub">Porcentaje del total por publicación</span>
-            </div>
-            <div class="mon-card-body">
-              <ng-container *ngIf="topMagazines.length; else noData">
-                <div class="mon-pie-row" style="gap:1.25rem;">
-                  <svg viewBox="0 0 36 36" class="mon-donut mon-donut-lg">
-                    <circle class="mon-donut-hole" cx="18" cy="18" r="15.9" fill="#fff"/>
-                    <circle class="mon-donut-track" cx="18" cy="18" r="15.9"/>
-                    <circle class="mon-donut-seg" cx="18" cy="18" r="15.9"
-                      *ngFor="let m of topMagazines; let i = index"
-                      [attr.stroke]="getChartColor(i)"
-                      [attr.stroke-dasharray]="pieSegment(m.ventas, totalMagazineSales)"
-                      [attr.stroke-dashoffset]="magazinePieOffset(i)"/>
-                  </svg>
-                  <div class="mon-pie-legend">
-                    <div class="mon-pie-legend-item" *ngFor="let m of topMagazines; let i = index">
-                      <div class="mon-legend-dot" [style.background]="getChartColor(i)"></div>
-                      <span class="mon-legend-name">{{ m.titulo }}</span>
-                      <span class="mon-legend-pct">{{ ((m.ventas / totalMagazineSales) * 100).toFixed(1) }}%</span>
-                      <span class="mon-legend-val" [style.color]="getChartColor(i)">{{ m.ventas }}</span>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-
-        </div>
-
-      </div><!-- /sales -->
-
-
-      <!-- ════════════════════════════════════════════════
-           TAB: USUARIOS
-      ═════════════════════════════════════════════════ -->
-      <div class="mon-tab-section" *ngIf="activeTab === 'users'">
-
-        <div class="mon-section-header">
-          <div class="mon-section-icon"><i class="ph ph-users-three"></i></div>
-          <div>
-            <div class="mon-section-title">Usuarios del Sistema</div>
-            <div class="mon-section-sub">ROLES · ACTIVIDAD · ESTADÍSTICAS ACADÉMICAS</div>
-          </div>
-        </div>
-
-        <div class="mon-kpi-grid-3">
-          <div class="mon-kpi" style="--delay:0ms; --kpi-color:#1e6fcf">
-            <i class="ph ph-graduation-cap mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Carreras activas registradas</div>
-            <div class="mon-kpi-value">{{ academicStats ? formatNumber(academicStats.carreras_activas) : '—' }}</div>
-          </div>
-          <div class="mon-kpi" style="--delay:80ms; --kpi-color:#8e44ad">
-            <i class="ph ph-calendar mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Semestres en el sistema</div>
-            <div class="mon-kpi-value">{{ academicStats ? formatNumber(academicStats.total_semestres) : '—' }}</div>
-          </div>
-          <div class="mon-kpi" style="--delay:160ms; --kpi-color:#2a9d4e">
-            <i class="ph ph-user-circle mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Alumnos activos matriculados</div>
-            <div class="mon-kpi-value">{{ academicStats ? formatNumber(academicStats.alumnos_activos) : '—' }}</div>
-          </div>
-        </div>
-
-        <div class="mon-row-2">
-
-          <!-- Usuarios por rol -->
-          <div class="mon-card">
-            <div class="mon-card-header">
-              <div class="mon-card-title">
-                <i class="ph ph-users"></i>
-                Distribución por rol
-              </div>
-              <span class="mon-card-sub">Conteo de usuarios agrupados por tipo de rol</span>
-            </div>
-            <div class="mon-card-body">
-              <ng-container *ngIf="usersByRole.length; else noData">
-                <div class="mon-pie-row">
-                  <svg viewBox="0 0 36 36" class="mon-donut">
-                    <circle class="mon-donut-hole" cx="18" cy="18" r="15.9" fill="#fff"/>
-                    <circle class="mon-donut-track" cx="18" cy="18" r="15.9"/>
-                    <circle class="mon-donut-seg" cx="18" cy="18" r="15.9"
-                      *ngFor="let r of usersByRole; let i = index"
-                      [attr.stroke]="getChartColor(i)"
-                      [attr.stroke-dasharray]="pieSegment(r.total, totalUsersByRole)"
-                      [attr.stroke-dashoffset]="pieOffset(i)"/>
-                  </svg>
-                  <div class="mon-pie-legend">
-                    <div class="mon-role-item" *ngFor="let r of usersByRole; let i = index">
-                      <div class="mon-role-header">
-                        <div class="mon-role-dot" [style.background]="getChartColor(i)"></div>
-                        <span class="mon-role-name">{{ r.nombre_rol }}</span>
-                        <span class="mon-role-val mon-fw7" [style.color]="getChartColor(i)">{{ r.total }}</span>
-                      </div>
-                      <div class="mon-progress-track thin">
-                        <div class="mon-progress-bar" [style.width.%]="barWidth(r.total, totalUsersByRole)" [style.background]="getChartColor(i)"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-
-          <!-- Usuarios más activos -->
-          <div class="mon-card">
-            <div class="mon-card-header">
-              <div class="mon-card-title">
-                <i class="ph ph-lightning"></i>
-                Usuarios más activos
-              </div>
-              <span class="mon-card-sub">TOP 10 — Eventos de auditoría generados por usuario</span>
-            </div>
-            <div class="mon-card-body">
-              <ng-container *ngIf="mostActiveUsers.length; else noData">
-                <div class="mon-h-bar-list">
-                  <div class="mon-h-bar-item" *ngFor="let u of mostActiveUsers; let i = index" [style.--i]="i">
-                    <div class="mon-h-bar-rank"
-                      [style.background]="getChartColor(i) + '18'"
-                      [style.color]="getChartColor(i)"
-                      [style.border-color]="getChartColor(i) + '40'">{{ i + 1 }}</div>
-                    <div class="mon-h-bar-body">
-                      <div class="mon-h-bar-top">
-                        <span class="mon-h-bar-name">{{ u.nombre }}</span>
-                        <span class="mon-h-bar-val" [style.color]="getChartColor(i)">{{ u.eventos }} eventos</span>
-                      </div>
-                      <div class="mon-h-bar-email">{{ u.correo }}</div>
-                      <div class="mon-h-bar-track">
-                        <div class="mon-h-bar-fill" [style.width.%]="barWidth(u.eventos, maxActiveEvents)" [style.background]="getChartColor(i)"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-
-        </div>
-
-      </div><!-- /users -->
-
-
-      <!-- ════════════════════════════════════════════════
-           TAB: BASE DE DATOS
-      ═════════════════════════════════════════════════ -->
-      <div class="mon-tab-section" *ngIf="activeTab === 'database'">
-
-        <div class="mon-section-header">
-          <div class="mon-section-icon"><i class="ph ph-database"></i></div>
-          <div>
-            <div class="mon-section-title">Base de Datos</div>
-            <div class="mon-section-sub">TABLAS · TAMAÑO EN DISCO · DATA vs INDEX</div>
-          </div>
-        </div>
-
-        <!-- Tabla detalle -->
-        <div class="mon-card" style="margin-bottom:0.875rem;">
+        <div class="mon-card" style="margin-bottom: 0.875rem;">
           <div class="mon-card-header">
             <div class="mon-card-title">
               <i class="ph ph-table"></i>
-              Detalle de tablas
+              Tamano por tabla
             </div>
-            <span class="mon-card-sub mon-mono">information_schema — ORDER BY total_size DESC</span>
+            <span class="mon-card-sub">information_schema.tables</span>
           </div>
-          <ng-container *ngIf="tables.length; else noData">
+          <ng-container *ngIf="storage?.tables?.length; else noData">
             <div class="mon-table-wrapper">
               <table class="mon-table">
                 <thead>
                   <tr>
-                    <th><i class="ph ph-file"></i> Tabla</th>
-                    <th><i class="ph ph-gear-six"></i> Motor</th>
-                    <th class="mon-text-right"><i class="ph ph-list-numbers"></i> Filas est.</th>
-                    <th class="mon-text-right"><i class="ph ph-hard-drive"></i> Data MB</th>
-                    <th class="mon-text-right"><i class="ph ph-chart-line-up"></i> Index MB</th>
-                    <th><i class="ph ph-stack"></i> Total MB</th>
+                    <th>Tabla</th>
+                    <th class="mon-text-right">Filas</th>
+                    <th>Total MB</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let t of tables; let i = index">
-                    <td class="mon-mono mon-fw6 mon-blue">{{ t.nombre }}</td>
-                    <td class="mon-dim">{{ t.motor }}</td>
-                    <td class="mon-mono mon-text-right">{{ formatNumber(t.rows_estimate) }}</td>
-                    <td class="mon-mono mon-text-right">{{ t.data_mb }}</td>
-                    <td class="mon-mono mon-text-right">{{ t.index_mb }}</td>
+                  <tr *ngFor="let table of storage?.tables">
+                    <td class="mon-mono mon-fw6 mon-blue">{{ getTableName(table) }}</td>
+                    <td class="mon-mono mon-text-right">{{ formatNumber(getTableRows(table)) }}</td>
                     <td>
                       <div class="mon-size-cell">
-                        <span class="mon-mono mon-fw7 mon-blue">{{ t.total_mb }}</span>
+                        <span class="mon-mono mon-fw7 mon-blue">{{ formatDecimal(table.total_mb, 2) }}</span>
                         <div class="mon-mini-bar-track">
-                          <div class="mon-mini-bar-fill" [style.width.%]="barWidth(+(t.total_mb ?? 0), maxTableSize)"></div>
+                          <div
+                            class="mon-mini-bar-fill"
+                            [style.width.%]="barWidth(table.total_mb, maxTableMB)"
+                          ></div>
                         </div>
                       </div>
                     </td>
@@ -664,184 +478,918 @@
           </ng-container>
         </div>
 
-        <!-- Stacked chart Data vs Index -->
-        <div class="mon-card">
-          <div class="mon-card-header">
-            <div class="mon-card-title">
-              <i class="ph ph-chart-bar"></i>
-              Data MB vs Index MB por tabla
-            </div>
-            <span class="mon-card-sub">Distribución del espacio en disco utilizado</span>
-          </div>
-          <div class="mon-card-body">
-            <ng-container *ngIf="tables.length; else noData">
-              <div class="mon-stacked-chart">
-                <div class="mon-stacked-col" *ngFor="let t of tables; let i = index">
-                  <div class="mon-stacked-tooltip">{{ t.nombre }}<br>Data: {{ t.data_mb }} MB · Index: {{ t.index_mb }} MB</div>
-                  <div class="mon-stacked-bars">
-                    <div class="mon-stack-seg mon-data-seg"
-                      [style.height.%]="barWidth(+(t.data_mb ?? 0), maxTableSize)">
-                    </div>
-                    <div class="mon-stack-seg mon-index-seg"
-                      [style.height.%]="barWidth(+(t.index_mb ?? 0), maxTableSize)">
-                    </div>
-                  </div>
-                  <span class="mon-stacked-label">{{ t.nombre | slice:0:8 }}</span>
-                </div>
-              </div>
-              <div class="mon-chart-legend">
-                <div class="mon-legend-pill">
-                  <span class="mon-legend-sq" style="background:#1e6fcf"></span>
-                  Data MB — espacio usado por los datos de la tabla
-                </div>
-                <div class="mon-legend-pill">
-                  <span class="mon-legend-sq" style="background:#2ab5d6"></span>
-                  Index MB — espacio usado por los índices de búsqueda
-                </div>
-              </div>
-            </ng-container>
-          </div>
-        </div>
-
-      </div><!-- /database -->
-
-
-      <!-- ════════════════════════════════════════════════
-           TAB: SEGURIDAD
-      ═════════════════════════════════════════════════ -->
-      <div class="mon-tab-section" *ngIf="activeTab === 'security'">
-
-        <div class="mon-section-header">
-          <div class="mon-section-icon"><i class="ph ph-shield-check"></i></div>
-          <div>
-            <div class="mon-section-title">Seguridad y Auditoría</div>
-            <div class="mon-section-sub">SESIONES ACTIVAS · TOKENS JWT · EVENTOS DE AUDITORÍA</div>
-          </div>
-        </div>
-
-        <div class="mon-kpi-grid-3">
-          <div class="mon-kpi" style="--delay:0ms; --kpi-color:#2a9d4e">
-            <i class="ph ph-circle mon-kpi-icon" style="color:#1f8a3e"></i>
-            <div class="mon-kpi-label">Sesiones abiertas ahora</div>
-            <div class="mon-kpi-value">{{ activeSessions?.total ?? '—' }}</div>
-            <div class="mon-kpi-sub">Sin fecha de cierre registrada</div>
-          </div>
-          <div class="mon-kpi" style="--delay:80ms; --kpi-color:#1e6fcf">
-            <i class="ph ph-key mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Tokens JWT vigentes</div>
-            <div class="mon-kpi-value">{{ activeTokens?.total ?? '—' }}</div>
-            <div class="mon-kpi-sub">Estado activo y no expirados</div>
-          </div>
-          <div class="mon-kpi" style="--delay:160ms; --kpi-color:#8e44ad">
-            <i class="ph ph-clipboard-text mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Eventos de auditoría 24 h</div>
-            <div class="mon-kpi-value">{{ sysAct ? formatNumber(sysAct.eventos_24h) : '—' }}</div>
-            <div class="mon-kpi-sub" *ngIf="auditEvents">{{ formatNumber(auditEvents.total) }} totales en la base de datos</div>
-          </div>
-        </div>
-
-        <div class="mon-row-2">
-
-          <!-- Sesiones activas -->
+        <div class="mon-row-2" style="margin-bottom: 1rem;">
           <div class="mon-card">
             <div class="mon-card-header">
               <div class="mon-card-title">
-                <i class="ph ph-users-three"></i>
-                Sesiones abiertas
+                <i class="ph ph-chart-bar"></i>
+                Fragmentacion por tabla
               </div>
-              <span class="mon-card-sub">sesionesjwt unidas con datos del usuario</span>
+              <span class="mon-card-sub">Mayor de 30% requiere revision</span>
             </div>
             <div class="mon-card-body">
-              <ng-container *ngIf="activeSessions?.data?.length; else noActiveSessions">
-                <div class="mon-session-list">
-                  <div class="mon-session-item" *ngFor="let s of activeSessions!.data">
-                    <div class="mon-session-avatar"><i class="ph ph-user"></i></div>
-                    <div class="mon-session-info">
-                      <div class="mon-session-name">{{ s.nombre }} {{ s.a_paterno }}</div>
-                      <div class="mon-session-email">{{ s.correo }}</div>
+              <ng-container *ngIf="storage?.fragmentation?.length; else noData">
+                <div class="mon-bar-chart">
+                  <div class="mon-bar-group" *ngFor="let item of storage?.fragmentation">
+                    <div class="mon-bar-track">
+                      <div
+                        class="mon-bar-fill"
+                        [style.width.%]="barWidth(item.fragmentation, 100)"
+                        [style.background]="
+                          toNumber(item.fragmentation) > 30 ? '#e74c3c' :
+                          toNumber(item.fragmentation) > 15 ? '#f0932b' :
+                          '#2a9d4e'
+                        "
+                      ></div>
                     </div>
-                    <div class="mon-session-meta">
-                      <div>{{ s.ip_origen }}</div>
-                      <div>{{ formatDate(s.fecha_inicio) }}</div>
+                    <div class="mon-bar-meta">
+                      <span class="mon-bar-name">{{ getTableName(item) }}</span>
+                      <span
+                        class="mon-bar-val"
+                        [style.color]="
+                          toNumber(item.fragmentation) > 30 ? '#e74c3c' :
+                          toNumber(item.fragmentation) > 15 ? '#f0932b' :
+                          '#2a9d4e'
+                        "
+                      >
+                        {{ formatPercent(item.fragmentation, 2) }}
+                      </span>
                     </div>
-                    <div class="mon-dot-live"></div>
                   </div>
                 </div>
-                <div class="mon-see-more" *ngIf="activeSessions!.total > activeSessions!.data.length">
-                  + {{ activeSessions!.total - activeSessions!.data.length }} sesiones más en el sistema
-                </div>
               </ng-container>
-              <ng-template #noActiveSessions>
-                <div class="mon-empty">
-                  <i class="ph ph-moon"></i>
-                  No hay sesiones activas en este momento
-                </div>
-              </ng-template>
             </div>
           </div>
 
-          <!-- Auditoría -->
-          <div class="mon-card" style="overflow:hidden;">
+          <div class="mon-card">
             <div class="mon-card-header">
               <div class="mon-card-title">
-                <i class="ph ph-file-text"></i>
-                Eventos de auditoría
+                <i class="ph ph-tree-structure"></i>
+                Esquema e indices
               </div>
-              <span class="mon-card-sub">auditoriaeventos ORDER BY fecha_evento DESC</span>
+              <span class="mon-card-sub">Motores, PK faltantes e indices inutilizados</span>
             </div>
+            <div class="mon-card-body">
+              <div class="mon-info-rows" style="margin-bottom: 0.875rem;">
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Tablas sin primary key</span>
+                  <span class="mon-info-val">{{ tablesWithoutPkCount }}</span>
+                </div>
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Indices sin uso</span>
+                  <span class="mon-info-val">{{ unusedIndexes.length }}</span>
+                </div>
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Indices totales</span>
+                  <span class="mon-info-val">{{ formatNumber(indexes?.indexes?.length) }}</span>
+                </div>
+              </div>
 
-            <!-- Filtros -->
-            <div class="mon-audit-filters">
-              <select class="mon-filter-select" [(ngModel)]="auditFilter.action" (change)="applyAuditFilter()">
-                <option [value]="null">Todos los tipos de evento</option>
-                <option *ngFor="let a of auditActions" [value]="a">{{ a }}</option>
-              </select>
-              <input class="mon-filter-input" type="number" placeholder="ID de usuario" [(ngModel)]="auditFilter.userId" (keyup.enter)="applyAuditFilter()" />
-              <button class="mon-btn-filter" (click)="applyAuditFilter()">Filtrar</button>
-              <button class="mon-btn-clear" (click)="clearAuditFilter()">✕ Limpiar</button>
+              <div class="mon-session-list" *ngIf="database?.engines?.length; else noEngineData">
+                <div class="mon-session-item" *ngFor="let engine of database?.engines">
+                  <div class="mon-session-avatar"><i class="ph ph-cpu"></i></div>
+                  <div class="mon-session-info">
+                    <div class="mon-session-name">{{ getEngineName(engine) }}</div>
+                    <div class="mon-session-email">{{ formatNumber(engine.total) }} tabla(s)</div>
+                  </div>
+                  <span class="mon-badge mon-badge-blue">Engine</span>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Total -->
-            <div class="mon-audit-total" *ngIf="auditEvents">
-              <span class="mon-audit-total-label">Total de registros:</span>
-              <span class="mon-audit-total-num">{{ formatNumber(auditEvents.total) }}</span>
-              <span class="mon-audit-total-label" style="margin-left:auto;">Página {{ auditCurrentPage }} de {{ auditTotalPages }}</span>
+        <div class="mon-card" style="margin-bottom: 1rem;">
+          <div class="mon-card-header">
+            <div class="mon-card-title">
+              <i class="ph ph-tree-structure"></i>
+              Indices sin uso
             </div>
+            <span class="mon-card-sub">Desde performance_schema</span>
+          </div>
+          <ng-container *ngIf="unusedIndexes.length > 0; else noUnusedIndexes">
+            <div class="mon-table-wrapper">
+              <table class="mon-table">
+                <thead>
+                  <tr>
+                    <th>Tabla</th>
+                    <th>Indice</th>
+                    <th>Columna</th>
+                    <th class="mon-text-right">Accesos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of unusedIndexes">
+                    <td class="mon-mono mon-blue">{{ getTableName(item) }}</td>
+                    <td class="mon-mono">{{ item.index_name }}</td>
+                    <td>{{ getColumnName(item) }}</td>
+                    <td class="mon-text-right mon-mono">{{ formatNumber(item.total_accesses) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </div>
 
-            <!-- Lista -->
-            <ng-container *ngIf="auditEvents?.data?.length; else noData">
-              <div class="mon-audit-list">
-                <div class="mon-audit-item" *ngFor="let e of auditEvents!.data">
-                  <div class="mon-audit-dot" [style.background]="getAuditEventColor(e.tipo_evento)"></div>
-                  <span class="mon-audit-type" [style.color]="getAuditEventColor(e.tipo_evento)">{{ e.tipo_evento }}</span>
-                  <span class="mon-audit-user">Usuario #{{ e.id_usuario }}</span>
-                  <span class="mon-audit-date">{{ formatDate(e.fecha_evento) }}</span>
+        <div class="mon-row-2">
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-broom"></i>
+                Candidatos a OPTIMIZE
+              </div>
+              <span class="mon-card-sub">{{ optimizeCandidates.length }} tabla(s)</span>
+            </div>
+            <ng-container *ngIf="optimizeCandidates.length > 0; else noOptimizeCandidates">
+              <div class="mon-table-wrapper">
+                <table class="mon-table">
+                  <thead>
+                    <tr>
+                      <th>Tabla</th>
+                      <th class="mon-text-right">Fragmentacion</th>
+                      <th class="mon-text-right">Desperdicio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of optimizeCandidates">
+                      <td class="mon-mono mon-blue">{{ getTableName(item) }}</td>
+                      <td class="mon-text-right mon-mono">{{ formatPercent(item.fragmentation_pct, 2) }}</td>
+                      <td class="mon-text-right mon-mono">{{ formatMB(item.wasted_mb) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+          </div>
+
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-magnifying-glass"></i>
+                Candidatos a ANALYZE
+              </div>
+              <span class="mon-card-sub">{{ analyzeCandidates.length }} tabla(s)</span>
+            </div>
+            <ng-container *ngIf="analyzeCandidates.length > 0; else noAnalyzeCandidates">
+              <div class="mon-table-wrapper">
+                <table class="mon-table">
+                  <thead>
+                    <tr>
+                      <th>Tabla</th>
+                      <th class="mon-text-right">Filas</th>
+                      
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of analyzeCandidates">
+                      <td class="mon-mono mon-blue">{{ getTableName(item) }}</td>
+                      <td class="mon-text-right mon-mono">{{ formatNumber(getTableRows(item)) }}</td>
+                     
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <div class="mon-tab-section" *ngIf="activeTab === 'connections'">
+        <div class="mon-section-header">
+          <div class="mon-section-icon"><i class="ph ph-git-branch"></i></div>
+          <div>
+            <div class="mon-section-title">Conexiones</div>
+            <div class="mon-section-sub">SESIONES - LOCKS - REPLICACION - QUERIES ACTIVAS</div>
+          </div>
+        </div>
+
+        <div class="mon-kpi-grid-4">
+          <div class="mon-kpi" style="--delay: 0ms; --kpi-color: #1e6fcf;">
+            <i class="ph ph-plugs-connected mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Conectadas ahora</div>
+            <div class="mon-kpi-value">{{ formatNumber(connectionStats?.used_connections) }}</div>
+            <div class="mon-kpi-sub">{{ formatPercent(connectionStats?.usage_percent, 1) }} del limite</div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 80ms; --kpi-color: #2a9d4e;">
+            <i class="ph ph-play-circle mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Threads running</div>
+            <div class="mon-kpi-value">{{ formatNumber(connectionStats?.threads_running) }}</div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 160ms; --kpi-color: #f0932b;">
+            <i class="ph ph-lock mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Transacciones activas</div>
+            <div class="mon-kpi-value">{{ activeTransactionsCount }}</div>
+            <div class="mon-kpi-sub">{{ blockedTransactionsCount }} bloqueada(s)</div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 240ms; --kpi-color: #e74c3c;">
+            <i class="ph ph-warning-diamond mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Deadlocks</div>
+            <div class="mon-kpi-value" [style.color]="deadlockCount > 0 ? '#e74c3c' : '#2a9d4e'">
+              {{ deadlockCount }}
+            </div>
+          </div>
+        </div>
+
+        <div class="mon-row-2" style="margin-bottom: 1rem;">
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-gauge"></i>
+                Estado de conexiones
+              </div>
+              <span class="mon-card-sub">Uso contra max_connections</span>
+            </div>
+            <div class="mon-card-body">
+              <ng-container *ngIf="connectionStats; else noData">
+                <div class="mon-chart-panel mon-chart-panel-stack">
+                  <div class="mon-chart-shell mon-chart-shell-sm">
+                    <canvas #connectionsUsageChart></canvas>
+                  </div>
+
+                  <div class="mon-chart-side">
+                    <div class="mon-conn-pct-row">
+                      <span class="mon-conn-label">Uso de conexiones</span>
+                      <span class="mon-conn-pct" [style.color]="connectionColor">{{ connectionPct }}%</span>
+                    </div>
+                    <div class="mon-chart-note">
+                      Relacion entre conexiones actualmente en uso y capacidad disponible del servidor.
+                    </div>
+                  </div>
+                </div>
+                <div class="mon-conn-stats">
+                  <div class="mon-conn-stat">
+                    <span>Maximas configuradas</span>
+                    <span class="mon-conn-val mon-dim">{{ formatNumber(connectionStats.max_connections) }}</span>
+                  </div>
+                  <div class="mon-conn-stat">
+                    <span>Disponibles</span>
+                    <span class="mon-conn-val mon-green">
+                      {{
+                        formatNumber(
+                          toNumber(connectionStats.max_connections) - toNumber(connectionStats.used_connections)
+                        )
+                      }}
+                    </span>
+                  </div>
+                  <div class="mon-conn-stat">
+                    <span>Threads running</span>
+                    <span class="mon-conn-val mon-blue">{{ formatNumber(connectionStats.threads_running) }}</span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-git-fork"></i>
+                Estado de replicacion
+              </div>
+              <span class="mon-card-sub">Replica, source o standalone</span>
+            </div>
+            <div class="mon-card-body">
+              <div class="mon-info-rows">
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Topologia</span>
+                  <span class="mon-badge" [ngClass]="getTopologyBadgeClass(replication?.topology)">
+                    {{ getTopologyLabel(replication?.topology) }}
+                  </span>
+                </div>
+                <div class="mon-info-row" *ngIf="replication?.replica_status">
+                  <span class="mon-info-label">Replica saludable</span>
+                  <span class="mon-badge" [ngClass]="replication?.replica_status?.is_healthy ? 'mon-badge-green' : 'mon-badge-red'">
+                    {{ replication?.replica_status?.is_healthy ? 'Si' : 'No' }}
+                  </span>
+                </div>
+                <div class="mon-info-row" *ngIf="replication?.replica_status">
+                  <span class="mon-info-label">Lag</span>
+                  <span class="mon-info-val">{{ formatNumber(replicationLagSeconds) }}s</span>
+                </div>
+                <div class="mon-info-row" *ngIf="replication?.replica_status?.source_host">
+                  <span class="mon-info-label">Source host</span>
+                  <span class="mon-info-val" style="font-size: 0.9375rem;">
+                    {{ replication?.replica_status?.source_host }}
+                  </span>
+                </div>
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Replicas conectadas</span>
+                  <span class="mon-info-val">{{ connectedReplicasCount }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mon-card" style="margin-bottom: 1rem;">
+          <div class="mon-card-header">
+            <div class="mon-card-title">
+              <i class="ph ph-lock-key"></i>
+              Transacciones bloqueadas
+            </div>
+            <span class="mon-card-sub">information_schema.innodb_lock_waits</span>
+          </div>
+          <ng-container *ngIf="locks?.blocked_transactions?.length; else noBlockedTransactions">
+            <div class="mon-table-wrapper">
+              <table class="mon-table">
+                <thead>
+                  <tr>
+                    <th>Waiting trx</th>
+                    <th class="mon-text-right">Segs</th>
+                    <th>Blocking trx</th>
+                    <th>Waiting query</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let trx of locks?.blocked_transactions">
+                    <td class="mon-mono mon-blue">{{ trx.waiting_trx_id }}</td>
+                    <td class="mon-text-right mon-mono">{{ formatNumber(trx.waiting_seconds) }}</td>
+                    <td class="mon-mono">{{ trx.blocking_trx_id }}</td>
+                    <td
+                      class="mon-mono"
+                      style="font-size: 0.7rem; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                    >
+                      {{ trx.waiting_query || '-' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="mon-card" style="margin-bottom: 1rem;">
+          <div class="mon-card-header">
+            <div class="mon-card-title">
+              <i class="ph ph-terminal-window"></i>
+              Process list
+            </div>
+            <span class="mon-card-sub">SHOW FULL PROCESSLIST del servidor</span>
+          </div>
+          <ng-container *ngIf="connections?.process_list?.length; else noProcesses">
+            <div class="mon-table-wrapper">
+              <table class="mon-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>BD</th>
+                    <th>Comando</th>
+                    <th class="mon-text-right">Tiempo</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of connections?.process_list">
+                    <td class="mon-mono mon-dim">{{ item.Id }}</td>
+                    <td class="mon-fw6">{{ item.User }}</td>
+                    <td class="mon-mono">{{ item.db || '-' }}</td>
+                    <td>
+                      <span
+                        class="mon-badge"
+                        [class.mon-badge-blue]="item.Command === 'Query'"
+                        [class.mon-badge-gray]="item.Command !== 'Query'"
+                      >
+                        {{ item.Command }}
+                      </span>
+                    </td>
+                    <td class="mon-text-right mon-mono" [style.color]="toNumber(item.Time) > 5 ? '#e74c3c' : 'inherit'">
+                      {{ formatNumber(item.Time) }}
+                    </td>
+                    <td
+                      class="mon-dim"
+                      style="font-size: 0.75rem; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                    >
+                      {{ item.State || '-' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="mon-row-2">
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-magnifying-glass"></i>
+                Queries activas
+              </div>
+              <span class="mon-card-sub">information_schema.processlist sin Sleep</span>
+            </div>
+            <ng-container *ngIf="queries?.active?.length; else noActiveQueries">
+              <div class="mon-table-wrapper">
+                <table class="mon-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Usuario</th>
+                      <th class="mon-text-right">Tiempo</th>
+                      <th>Query</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let query of queries?.active">
+                      <td class="mon-mono mon-dim">{{ query.id }}</td>
+                      <td class="mon-fw6">{{ query.user }}</td>
+                      <td class="mon-text-right mon-mono" [style.color]="toNumber(query.time) > 5 ? '#e74c3c' : 'inherit'">
+                        {{ formatNumber(query.time) }}
+                      </td>
+                      <td
+                        class="mon-mono"
+                        style="font-size: 0.7rem; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                      >
+                        {{ query.query || '-' }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+          </div>
+
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-warning-octagon"></i>
+                Ultimo deadlock
+              </div>
+              <span class="mon-card-sub">Parseado desde SHOW ENGINE INNODB STATUS</span>
+            </div>
+            <div class="mon-card-body">
+              <ng-container *ngIf="deadlockPreview; else noDeadlockInfo">
+                <pre
+                  class="mon-mono"
+                  style="font-size: 0.72rem; white-space: pre-wrap; line-height: 1.45; color: var(--text-secondary);"
+                >{{ deadlockPreview }}</pre>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mon-tab-section" *ngIf="activeTab === 'performance'">
+        <div class="mon-section-header">
+          <div class="mon-section-icon"><i class="ph ph-lightning"></i></div>
+          <div>
+            <div class="mon-section-title">Performance</div>
+            <div class="mon-section-sub">GLOBAL STATUS - PERFORMANCE SCHEMA - I/O - SLOW QUERIES</div>
+          </div>
+        </div>
+
+        <div class="mon-kpi-grid-4" *ngIf="performanceStats">
+          <div class="mon-kpi" style="--delay: 0ms; --kpi-color: #1e6fcf;">
+            <i class="ph ph-clock mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Uptime servidor</div>
+            <div class="mon-kpi-value" style="font-size: 1.5rem;">{{ formatUptime(performanceStats.Uptime) }}</div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 80ms; --kpi-color: #2a9d4e;">
+            <i class="ph ph-chart-line-up mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Buffer Pool Hit</div>
+            <div class="mon-kpi-value" [style.color]="bufferHitColor">
+              {{ formatPercent(performanceStats.buffer_pool_hit_ratio) }}
+            </div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 160ms; --kpi-color: #8e44ad;">
+            <i class="ph ph-list-numbers mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Queries totales</div>
+            <div class="mon-kpi-value" style="font-size: 1.5rem;">{{ formatNumber(performanceStats.Queries) }}</div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 240ms; --kpi-color: #2ab5d6;">
+            <i class="ph ph-floppy-disk-back mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Tmp en disco</div>
+            <div class="mon-kpi-value">
+              {{ formatPercent(tmpDiskRatio) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="mon-row-2" style="margin-bottom: 1rem;">
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-chart-bar"></i>
+                Operaciones SQL acumuladas
+              </div>
+              <span class="mon-card-sub">SELECT, INSERT, UPDATE y DELETE</span>
+            </div>
+            <div class="mon-card-body">
+              <ng-container *ngIf="sqlOps.length > 0; else noData">
+                <div class="mon-chart-shell mon-chart-shell-md">
+                  <canvas #sqlOpsChart></canvas>
+                </div>
+
+                <div class="mon-chart-note">
+                  {{ sqlOpsScaleLabel }}
+                  <span *ngIf="sqlOpsUseLogScale">
+                    para que INSERT, UPDATE y DELETE sigan siendo visibles frente al volumen de SELECT.
+                  </span>
+                </div>
+
+                <div class="mon-chart-stats-grid">
+                  <div
+                    class="mon-chart-stat-card"
+                    *ngFor="let op of sqlOps; let index = index"
+                    [style.borderColor]="getChartColor(index)"
+                  >
+                    <span class="mon-chart-stat-label">{{ op.label }}</span>
+                    <span class="mon-chart-stat-value" [style.color]="getChartColor(index)">
+                      {{ formatNumber(op.value) }}
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-gauge"></i>
+                Performance Schema
+              </div>
+              <span class="mon-card-sub">{{ performanceSchemaEnabled ? 'Activo' : 'Deshabilitado' }}</span>
+            </div>
+            <div class="mon-card-body">
+              <ng-container *ngIf="performanceSchemaEnabled; else performanceSchemaDisabled">
+                <div class="mon-info-rows">
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Slow digests</span>
+                    <span class="mon-info-val">{{ topSlowQueries.length }}</span>
+                  </div>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Tablas con mayor I/O</span>
+                    <span class="mon-info-val">{{ topTablesByIo.length }}</span>
+                  </div>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Table cache hit ratio</span>
+                    <span class="mon-info-val">{{ formatPercent(tableCacheHitRatio) }}</span>
+                  </div>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Aborted connects</span>
+                    <span class="mon-info-val">{{ formatNumber(extendedStats?.Aborted_connects) }}</span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+        <div class="mon-card" style="margin-bottom: 1rem;">
+          <div class="mon-card-header">
+            <div class="mon-card-title">
+              <i class="ph ph-stopwatch"></i>
+              Slow queries reales
+            </div>
+            <span class="mon-card-sub">events_statements_summary_by_digest</span>
+          </div>
+          <ng-container *ngIf="performanceSchemaEnabled && topSlowQueries.length > 0; else noSlowDigestData">
+            <div class="mon-table-wrapper">
+              <table class="mon-table">
+                <thead>
+                  <tr>
+                    <th>DB</th>
+                    <th>Avg ms</th>
+                    <th class="mon-text-right">Exec</th>
+                    <th>Query pattern</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let query of topSlowQueries">
+                    <td class="mon-mono mon-blue">{{ query.db_name || '-' }}</td>
+                    <td class="mon-mono">{{ formatDecimal(query.avg_ms, 2) }}</td>
+                    <td class="mon-text-right mon-mono">{{ formatNumber(query.executions) }}</td>
+                    <td
+                      class="mon-mono"
+                      style="font-size: 0.7rem; max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                    >
+                      {{ query.query_pattern }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="mon-row-2">
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-hard-drives"></i>
+                Top tablas por I/O
+              </div>
+              <span class="mon-card-sub">Lecturas y escrituras acumuladas</span>
+            </div>
+            <ng-container *ngIf="performanceSchemaEnabled && topTablesByIo.length > 0; else noTopIoTables">
+              <div class="mon-table-wrapper">
+                <table class="mon-table">
+                  <thead>
+                    <tr>
+                      <th>Tabla</th>
+                      <th class="mon-text-right">Reads</th>
+                      <th class="mon-text-right">Writes</th>
+                      <th class="mon-text-right">Ops</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let table of topTablesByIo">
+                      <td class="mon-mono mon-blue">{{ getTableName(table) }}</td>
+                      <td class="mon-text-right mon-mono">{{ formatNumber(table.total_reads) }}</td>
+                      <td class="mon-text-right mon-mono">{{ formatNumber(table.total_writes) }}</td>
+                      <td class="mon-text-right mon-mono">{{ formatNumber(table.total_ops) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+          </div>
+
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-waveform"></i>
+                Indicadores extendidos
+              </div>
+              <span class="mon-card-sub">Tmp, cache y full joins</span>
+            </div>
+            <div class="mon-card-body">
+              <ng-container *ngIf="extendedStats; else noData">
+                <div class="mon-info-rows">
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Tmp en disco</span>
+                    <span class="mon-info-val">{{ formatPercent(tmpDiskRatio) }}</span>
+                  </div>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Cache hit ratio</span>
+                    <span class="mon-info-val">{{ formatPercent(tableCacheHitRatio) }}</span>
+                  </div>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Select full join</span>
+                    <span class="mon-info-val">{{ formatNumber(extendedStats.Select_full_join) }}</span>
+                  </div>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Aborted clients</span>
+                    <span class="mon-info-val">{{ formatNumber(extendedStats.Aborted_clients) }}</span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mon-tab-section" *ngIf="activeTab === 'security'">
+        <div class="mon-section-header">
+          <div class="mon-section-icon"><i class="ph ph-shield-check"></i></div>
+          <div>
+            <div class="mon-section-title">Seguridad</div>
+            <div class="mon-section-sub">USUARIOS MYSQL - BACKUPS - ALERTAS EVALUADAS</div>
+          </div>
+        </div>
+
+        <div class="mon-kpi-grid-4">
+          <div class="mon-kpi" style="--delay: 0ms; --kpi-color: #1e6fcf;">
+            <i class="ph ph-user-gear mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Usuarios MySQL</div>
+            <div class="mon-kpi-value">{{ dbUsers.length }}</div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 80ms; --kpi-color: #2a9d4e;">
+            <i class="ph ph-archive mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Backups registrados</div>
+            <div class="mon-kpi-value">{{ backups.length }}</div>
+            <div class="mon-kpi-sub">{{ lastBackup ? formatDate(lastBackup.fecha) : 'Sin historial' }}</div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 160ms; --kpi-color: #e74c3c;">
+            <i class="ph ph-warning mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Alertas criticas</div>
+            <div class="mon-kpi-value" [style.color]="alerts.critical > 0 ? '#e74c3c' : '#2a9d4e'">
+              {{ alerts.critical }}
+            </div>
+          </div>
+
+          <div class="mon-kpi" style="--delay: 240ms; --kpi-color: #8e44ad;">
+            <i class="ph ph-list-checks mon-kpi-icon"></i>
+            <div class="mon-kpi-label">Alertas totales</div>
+            <div class="mon-kpi-value">{{ alerts.total }}</div>
+            <div class="mon-kpi-sub">{{ formatDate(alerts.evaluated_at) }}</div>
+          </div>
+        </div>
+
+        <div class="mon-row-2" style="margin-bottom: 1rem;">
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-users"></i>
+                Usuarios de la base de datos
+              </div>
+              <span class="mon-card-sub">mysql.user</span>
+            </div>
+            <div class="mon-card-body">
+              <ng-container *ngIf="dbUsers.length > 0; else noData">
+                <div class="mon-session-list">
+                  <div class="mon-session-item" *ngFor="let user of dbUsers">
+                    <div class="mon-session-avatar"><i class="ph ph-user-gear"></i></div>
+                    <div class="mon-session-info">
+                      <div class="mon-session-name mon-mono">{{ user.user }}</div>
+                      <div class="mon-session-email">Host: {{ user.host }}</div>
+                    </div>
+                    <span class="mon-badge mon-badge-blue">MySQL</span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <div class="mon-card">
+            <div class="mon-card-header">
+              <div class="mon-card-title">
+                <i class="ph ph-archive"></i>
+                Historial de backups
+              </div>
+              <span class="mon-card-sub">backups_log</span>
+            </div>
+            <ng-container *ngIf="backups.length > 0; else noBackups">
+              <div class="mon-table-wrapper">
+                <table class="mon-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Estado</th>
+                      <th class="mon-text-right">Tamano</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let backup of backups">
+                      <td class="mon-mono" style="font-size: 0.75rem;">{{ formatDate(backup.fecha) }}</td>
+                      <td>
+                        <span
+                          class="mon-badge"
+                          [class.mon-badge-green]="backup.estado === 'exitoso'"
+                          [class.mon-badge-red]="backup.estado !== 'exitoso'"
+                        >
+                          {{ backup.estado || 'N/A' }}
+                        </span>
+                      </td>
+                      <td class="mon-text-right mon-mono">{{ formatMB(backup.tamanio_mb) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="mon-card">
+          <div class="mon-card-header">
+            <div class="mon-card-title" [style.color]="hasAlerts ? '#e74c3c' : '#2a9d4e'">
+              <i
+                [class]="hasAlerts ? 'ph ph-warning' : 'ph ph-check-circle'"
+                [style.color]="hasAlerts ? '#e74c3c' : '#2a9d4e'"
+              ></i>
+              Alertas estructuradas
+            </div>
+            <span class="mon-card-sub">Severidad, categoria y recomendacion</span>
+          </div>
+          <div class="mon-card-body">
+            <ng-container *ngIf="hasAlerts; else noSecurityAlerts">
+              <div
+                class="mon-status-block"
+                *ngFor="let alert of alertItems"
+                [style.border-left]="'3px solid ' + getSeverityColor(alert.severity)"
+                style="margin-bottom: 0.75rem;"
+              >
+                <div class="mon-status-block-label">
+                  <span class="mon-badge" [ngClass]="getSeverityBadgeClass(alert.severity)">
+                    {{ getSeverityLabel(alert.severity) }}
+                  </span>
+                  <span style="margin-left: 0.5rem;">{{ alert.category }}</span>
+                  <span class="mon-badge mon-badge-gray" style="margin-left: 0.5rem;" *ngIf="alert.is_new">
+                    Nuevo
+                  </span>
+                </div>
+                <div class="mon-status-block-val">{{ alert.message }}</div>
+                <div class="mon-kpi-sub">Detectada {{ formatDate(alert.timestamp) }}</div>
+                <div class="mon-kpi-sub" *ngIf="alert.recommendation">
+                  {{ alert.recommendation }}
                 </div>
               </div>
             </ng-container>
-
-            <!-- Paginación -->
-            <div class="mon-audit-pagination" *ngIf="auditEvents && auditTotalPages > 1">
-              <button class="mon-btn-page" (click)="prevAuditPage()" [disabled]="auditFilter.offset === 0">← Anterior</button>
-              <span class="mon-audit-page-info">{{ auditCurrentPage }} / {{ auditTotalPages }}</span>
-              <button class="mon-btn-page" (click)="nextAuditPage()" [disabled]="auditCurrentPage >= auditTotalPages">Siguiente →</button>
-            </div>
-
           </div>
-
         </div>
-
-      </div><!-- /security -->
-
+      </div>
     </ng-container>
-
   </div>
 </div>
 
-<!-- Template: sin datos -->
 <ng-template #noData>
   <div class="mon-empty">
     <i class="ph ph-chart-bar"></i>
     Sin datos disponibles
+  </div>
+</ng-template>
+
+<ng-template #noHealthPenalties>
+  <div class="mon-empty">
+    <i class="ph ph-check-circle" style="color: #2a9d4e;"></i>
+    Sin penalizaciones activas
+  </div>
+</ng-template>
+
+<ng-template #performanceSchemaDisabled>
+  <div class="mon-empty">
+    <i class="ph ph-database"></i>
+    {{ performanceSchema?.message || 'Performance Schema no esta habilitado.' }}
+  </div>
+</ng-template>
+
+<ng-template #noSlowDigestData>
+  <div class="mon-empty">
+    <i class="ph ph-stopwatch"></i>
+    Sin digests de slow queries disponibles
+  </div>
+</ng-template>
+
+<ng-template #noTopIoTables>
+  <div class="mon-empty">
+    <i class="ph ph-hard-drives"></i>
+    Sin tablas con I/O relevante
+  </div>
+</ng-template>
+
+<ng-template #noUnusedIndexes>
+  <div class="mon-empty">
+    <i class="ph ph-check-circle" style="color: #2a9d4e;"></i>
+    No se detectaron indices sin uso
+  </div>
+</ng-template>
+
+<ng-template #noOptimizeCandidates>
+  <div class="mon-empty">
+    <i class="ph ph-check-circle" style="color: #2a9d4e;"></i>
+    Sin candidatos a OPTIMIZE
+  </div>
+</ng-template>
+
+<ng-template #noAnalyzeCandidates>
+  <div class="mon-empty">
+    <i class="ph ph-check-circle" style="color: #2a9d4e;"></i>
+    Sin candidatos a ANALYZE
+  </div>
+</ng-template>
+
+<ng-template #noBlockedTransactions>
+  <div class="mon-empty">
+    <i class="ph ph-check-circle" style="color: #2a9d4e;"></i>
+    No hay transacciones bloqueadas
+  </div>
+</ng-template>
+
+<ng-template #noProcesses>
+  <div class="mon-empty">
+    <i class="ph ph-check-circle" style="color: #2a9d4e;"></i>
+    No hay procesos activos en este momento
+  </div>
+</ng-template>
+
+<ng-template #noActiveQueries>
+  <div class="mon-empty">
+    <i class="ph ph-check-circle" style="color: #2a9d4e;"></i>
+    Sin queries activas en este momento
+  </div>
+</ng-template>
+
+<ng-template #noDeadlockInfo>
+  <div class="mon-empty">
+    <i class="ph ph-check-circle" style="color: #2a9d4e;"></i>
+    No se encontro un deadlock reciente
+  </div>
+</ng-template>
+
+<ng-template #noBackups>
+  <div class="mon-empty">
+    <i class="ph ph-archive"></i>
+    Sin historial de backups
+  </div>
+</ng-template>
+
+<ng-template #noSecurityAlerts>
+  <div class="mon-empty" style="padding: 1.25rem;">
+    <i class="ph ph-check-circle" style="color: #2a9d4e; font-size: 2rem;"></i>
+    <span style="color: #2a9d4e; font-weight: 600;">Sin alertas activas</span>
+  </div>
+</ng-template>
+
+<ng-template #noEngineData>
+  <div class="mon-empty">
+    <i class="ph ph-cpu"></i>
+    Sin detalle de motores
   </div>
 </ng-template>
