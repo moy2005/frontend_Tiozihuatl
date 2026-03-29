@@ -1,433 +1,657 @@
-<div class="admin-content">
-  <div class="max-w-[95%] mx-auto">
-
-    <!-- ============================================================
-         HEADER
-    ============================================================ -->
-    <div class="header-section mb-6">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 class="page-title">
-          <ion-icon name="server-outline"></ion-icon>
-          Gestión de Respaldos
-        </h2>
-      </div>
-    </div>
-
-    <!-- ============================================================
-         BANNER CLOUDINARY
-    ============================================================ -->
-    <div class="cloudinary-banner mb-6">
-      <ion-icon name="cloud-outline"></ion-icon>
-      <div>
-        <p class="cloudinary-banner-titulo">Almacenamiento en la nube</p>
-        <p class="cloudinary-banner-desc">
-          Todos los respaldos (manuales y automáticos) se guardan automáticamente en
-          <strong>Cloudinary</strong> dentro de la carpeta
-          <span class="cloudinary-path">Respaldos de Base de Datos</span>
-          divididos en subcarpetas
-          <span class="cloudinary-path">Manuales</span> y
-          <span class="cloudinary-path">Automaticos</span>.
-          Los archivos se almacenan en formato <strong>.zip</strong>.
-        </p>
-      </div>
-    </div>
-
-    <!-- ============================================================
-         ACCIONES RÁPIDAS — Respaldo completo + por tabla
-    ============================================================ -->
-    <div class="content-card overflow-hidden mb-6">
-
-      <div class="seccion-titulo">
-        <h3>
-          <ion-icon name="cloud-upload-outline"></ion-icon>
-          Generar Respaldo Ahora
-        </h3>
-      </div>
-
-      <div class="acciones-panel">
-
-        <!-- Respaldo completo -->
-        <div class="accion-bloque">
-          <p class="accion-bloque-titulo">
-            <ion-icon name="albums-outline"></ion-icon>
-            Respaldo Completo
-          </p>
-          <p class="accion-bloque-desc">
-            Genera una copia completa de la base de datos y la guarda en Cloudinary.
-          </p>
-          <div class="accion-controles">
-            <button
-              class="btn-primary"
-              (click)="backupCompleto()"
-              [disabled]="cargandoCompleto">
-              <span *ngIf="cargandoCompleto" class="loading-spinner-btn"></span>
-              <ion-icon *ngIf="!cargandoCompleto" name="cloud-upload-outline"></ion-icon>
-              {{ cargandoCompleto ? 'Generando...' : 'Guardar Respaldo Completo' }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Respaldo por tabla -->
-        <div class="accion-bloque">
-          <p class="accion-bloque-titulo">
-            <ion-icon name="grid-outline"></ion-icon>
-            Respaldo de una Sección
-          </p>
-          <p class="accion-bloque-desc">
-            Selecciona una sección específica del sistema para respaldar y guardar en Cloudinary.
-          </p>
-          <div class="accion-controles">
-            <select class="form-select" [(ngModel)]="tablaSeleccionada">
-              <option value="">Seleccionar sección...</option>
-              <option *ngFor="let t of tablas" [value]="t">{{ etiquetaTabla(t) }}</option>
-            </select>
-            <button
-              class="btn-primary"
-              (click)="backupTabla()"
-              [disabled]="cargandoTabla || !tablaSeleccionada">
-              <span *ngIf="cargandoTabla" class="loading-spinner-btn"></span>
-              <ion-icon *ngIf="!cargandoTabla" name="cloud-upload-outline"></ion-icon>
-              {{ cargandoTabla ? 'Generando...' : 'Guardar Respaldo' }}
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ============================================================
-         RESPALDO AUTOMÁTICO — Programar
-    ============================================================ -->
-    <div class="content-card overflow-hidden mb-6">
-
-      <div class="seccion-titulo">
-        <h3>
-          <ion-icon name="alarm-outline"></ion-icon>
-          Programar Respaldo Automático
-        </h3>
-      </div>
-
-      <div class="seccion-cuerpo">
-
-        <!-- Frecuencia -->
-        <div class="form-group mb-4">
-          <label class="form-label">¿Con qué frecuencia se genera el respaldo?</label>
-          <div class="frecuencia-grupo">
-            <button
-              *ngFor="let opt of opcionesFrecuencia"
-              class="frecuencia-btn"
-              [class.frecuencia-btn-activo]="tipoFrecuencia === opt.value"
-              (click)="tipoFrecuencia = opt.value">
-              <ion-icon [name]="opt.icon"></ion-icon>
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
-
-        <div class="form-grid">
-
-          <!-- Hora (para diario y días específicos) -->
-          <div class="form-group" *ngIf="tipoFrecuencia !== 'interval'">
-            <label class="form-label">¿A qué hora?</label>
-            <input
-              type="time"
-              [(ngModel)]="horaInicio"
-              class="form-input">
-          </div>
-
-          <!-- Intervalo de horas -->
-          <div class="form-group" *ngIf="tipoFrecuencia === 'interval'">
-            <label class="form-label">¿Cada cuántas horas?</label>
-            <div class="horas-control">
-              <button class="horas-btn" (click)="intervaloHoras = intervaloHoras > 2 ? intervaloHoras - 1 : 2">−</button>
-              <span class="horas-valor">{{ intervaloHoras }} h</span>
-              <button class="horas-btn" (click)="intervaloHoras = intervaloHoras < 24 ? intervaloHoras + 1 : 24">+</button>
+<div class="admin-content gestion-backups">
+  <div class="backups-container">
+    <section class="backups-shell">
+      <header class="calendar-toolbar header-section">
+        <div class="toolbar-main">
+          <div class="toolbar-title">
+            <div class="toolbar-title-icon">
+              <ion-icon name="server-outline"></ion-icon>
             </div>
-            <small class="form-hint">Mínimo 2 horas · Máximo 24 horas</small>
+            <div>
+              <p class="eyebrow">Programacion de respaldos</p>
+              <h1 class="page-title">Gestion de backups</h1>
+              <p class="toolbar-copy">
+                Organiza las automatizaciones como eventos recurrentes y manten a la vista
+                el historial real de ejecuciones.
+              </p>
+            </div>
           </div>
 
-          <!-- Días específicos -->
-          <div class="form-group" *ngIf="tipoFrecuencia === 'days'">
-            <label class="form-label">¿Qué días?</label>
-            <div class="dias-grupo">
-              <button
-                *ngFor="let d of dias"
-                class="dia-circulo"
-                [class.dia-circulo-activo]="diasSeleccionados.includes(d.value)"
-                (click)="toggleDia(d.value)">
-                {{ d.label }}
+          <div class="toolbar-nav">
+            <button class="toolbar-btn toolbar-btn-primary" (click)="irHoy()">
+              Hoy
+            </button>
+
+            <div class="nav-group">
+              <button class="toolbar-icon-btn" (click)="moverCalendario(-1)" aria-label="Anterior">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </button>
+              <button class="toolbar-icon-btn" (click)="moverCalendario(1)" aria-label="Siguiente">
+                <ion-icon name="chevron-forward-outline"></ion-icon>
               </button>
             </div>
-          </div>
 
+            <div class="range-label">{{ tituloRango }}</div>
+          </div>
         </div>
 
-        <button
-          (click)="programarBackup()"
-          class="btn-primary mt-2"
-          [disabled]="cargandoProgramar">
-          <span *ngIf="cargandoProgramar" class="loading-spinner-btn"></span>
-          <ion-icon *ngIf="!cargandoProgramar" name="checkmark-circle-outline"></ion-icon>
-          {{ cargandoProgramar ? 'Guardando...' : 'Guardar Programación' }}
-        </button>
+        <div class="toolbar-actions">
+          <div class="view-switch">
+            <button
+              *ngFor="let vista of vistas"
+              class="view-switch-btn"
+              [class.is-active]="vistaActual === vista.value"
+              (click)="setVista(vista.value)">
+              {{ vista.label }}
+            </button>
+          </div>
 
-      </div>
-    </div>
+          <button class="toolbar-btn" (click)="recargarModulo()">
+            <ion-icon name="refresh-outline"></ion-icon>
+            Actualizar
+          </button>
+        </div>
+      </header>
 
-    <!-- ============================================================
-         TAREAS PROGRAMADAS
-    ============================================================ -->
-    <div class="content-card overflow-hidden mb-6">
+      <div class="workspace-grid">
+        <aside class="left-rail">
+          <section class="surface-card content-card composer-card">
+            <div *ngIf="cargandoProgramar" class="card-loading-overlay">
+              <div class="card-loading-content">
+                <div class="loading-spinner"></div>
+                <strong>Guardando programacion</strong>
+                <p>Creando la automatizacion y actualizando el calendario...</p>
+              </div>
+            </div>
 
-      <div class="seccion-titulo">
-        <h3>
-          <ion-icon name="list-outline"></ion-icon>
-          Programaciones Activas
-        </h3>
-        <button class="btn-refresh" (click)="cargarTareas()">
-          <ion-icon name="refresh-outline"></ion-icon>
-          Actualizar
-        </button>
-      </div>
+            <div class="card-kicker">
+              <ion-icon name="add-circle-outline"></ion-icon>
+              Nuevo respaldo
+            </div>
 
-      <!-- Loading -->
-      <div *ngIf="cargandoTareas" class="content-card text-center py-12">
-        <div class="loading-spinner inline-block"></div>
-        <p class="mt-4 text-gray-600 font-medium">Cargando programaciones...</p>
-      </div>
+            <h2>Crear automatizacion</h2>
+            <p class="card-copy">
+              Configura la recurrencia con una experiencia similar a crear un evento:
+              eliges frecuencia, horario y el calendario lo refleja enseguida.
+            </p>
 
-      <!-- Sin tareas -->
-      <div *ngIf="!cargandoTareas && tareas.length === 0" class="sin-resultados">
-        <ion-icon name="calendar-outline"></ion-icon>
-        No hay respaldos programados aún
-      </div>
+            <div class="form-block">
+              <label class="field-label">Frecuencia</label>
+              <div class="frequency-grid">
+                <button
+                  *ngFor="let opcion of opcionesFrecuencia"
+                  class="frequency-option"
+                  [class.is-active]="tipoFrecuencia === opcion.value"
+                  (click)="tipoFrecuencia = opcion.value">
+                  <ion-icon [name]="opcion.icon"></ion-icon>
+                  <span>{{ opcion.label }}</span>
+                  <small>{{ opcion.hint }}</small>
+                </button>
+              </div>
+            </div>
 
-      <!-- Desktop -->
-      <div *ngIf="!cargandoTareas && tareas.length > 0" class="hidden lg:block overflow-x-auto">
-        <table class="min-w-full">
-          <thead class="table-header">
-            <tr>
-              <th class="th-cell"><ion-icon name="bookmark-outline"></ion-icon> Nombre</th>
-              <th class="th-cell"><ion-icon name="repeat-outline"></ion-icon> Frecuencia</th>
-              <th class="th-cell"><ion-icon name="time-outline"></ion-icon> Última ejecución</th>
-              <th class="th-cell"><ion-icon name="ellipse-outline"></ion-icon> Estado</th>
-              <th class="th-cell text-center"><ion-icon name="settings-outline"></ion-icon> Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let t of tareas" class="table-row">
-              <td class="td-cell font-medium text-gray-900">{{ t.nombre_tarea }}</td>
-              <td class="td-cell text-gray-600">{{ describirCron(t.cron_expression) }}</td>
-              <td class="td-cell text-gray-600">
-                <span *ngIf="t.ultima_ejecucion">{{ formatearFechaHora(t.ultima_ejecucion) }}</span>
-                <span *ngIf="!t.ultima_ejecucion" class="sin-devolucion">Aún no ejecutado</span>
-              </td>
-              <td class="td-cell">
-                <span class="badge-estado" [ngClass]="t.activo ? 'badge-activo' : 'badge-cancelado'">
-                  {{ t.activo ? 'Activa' : 'Inactiva' }}
-                </span>
-              </td>
-              <td class="td-cell">
-                <div class="flex justify-center gap-2">
+            <div class="form-block" *ngIf="tipoFrecuencia !== 'interval'">
+              <label class="field-label" for="backup-time">Hora de ejecucion</label>
+              <input
+                id="backup-time"
+                type="time"
+                class="field-input"
+                [(ngModel)]="horaInicio">
+            </div>
+
+            <div class="form-block" *ngIf="tipoFrecuencia === 'interval'">
+              <label class="field-label">Intervalo</label>
+              <div class="interval-control">
+                <button class="step-btn" (click)="ajustarIntervalo(-1)">
+                  <ion-icon name="remove-outline"></ion-icon>
+                </button>
+                <div class="interval-value">
+                  <strong>{{ intervaloHoras }} h</strong>
+                  <span>Entre cada respaldo</span>
+                </div>
+                <button class="step-btn" (click)="ajustarIntervalo(1)">
+                  <ion-icon name="add-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-block" *ngIf="tipoFrecuencia === 'days'">
+              <label class="field-label">Dias de la semana</label>
+              <div class="day-chips">
+                <button
+                  *ngFor="let dia of dias"
+                  class="day-chip"
+                  [class.is-active]="diasSeleccionados.includes(dia.value)"
+                  (click)="toggleDia(dia.value)">
+                  {{ dia.label }}
+                </button>
+              </div>
+            </div>
+
+            <div class="schedule-preview">
+              <ion-icon name="sparkles-outline"></ion-icon>
+              <div>
+                <span>Vista previa</span>
+                <strong>{{ resumenProgramacionActual }}</strong>
+              </div>
+            </div>
+
+            <button
+              class="primary-action"
+              (click)="programarBackup()"
+              [disabled]="cargandoProgramar">
+              <span *ngIf="cargandoProgramar" class="loading-spinner-btn"></span>
+              <ion-icon *ngIf="!cargandoProgramar" name="checkmark-circle-outline"></ion-icon>
+              {{ cargandoProgramar ? 'Guardando...' : 'Guardar programacion' }}
+            </button>
+          </section>
+
+          <section class="surface-card content-card mini-calendar-card">
+            <div class="mini-calendar-header">
+              <button class="toolbar-icon-btn mini-nav-btn" (click)="moverMiniCalendario(-1)">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </button>
+              <strong>{{ tituloMiniCalendario }}</strong>
+              <button class="toolbar-icon-btn mini-nav-btn" (click)="moverMiniCalendario(1)">
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </button>
+            </div>
+
+            <div class="mini-weekdays">
+              <span *ngFor="let label of cabeceraSemana">{{ label }}</span>
+            </div>
+
+            <div class="mini-grid">
+              <button
+                *ngFor="let dia of miniCalendario"
+                class="mini-day"
+                [class.is-muted]="!dia.inCurrentMonth"
+                [class.is-selected]="dia.isSelected"
+                [class.is-today]="dia.isToday"
+                (click)="seleccionarDia(dia.date)">
+                {{ dia.date.getDate() }}
+              </button>
+            </div>
+          </section>
+
+          <section class="surface-card content-card manual-card">
+            <div *ngIf="cargandoRespaldoManual" class="card-loading-overlay">
+              <div class="card-loading-content">
+                <div class="loading-spinner"></div>
+                <strong>Generando respaldo</strong>
+                <p>{{ mensajeCargaManual }}</p>
+              </div>
+            </div>
+
+            <div class="card-kicker">
+              <ion-icon name="flash-outline"></ion-icon>
+              Respaldo inmediato
+            </div>
+
+            <div class="manual-actions">
+              <button
+                class="manual-action"
+                (click)="backupCompleto()"
+                [disabled]="cargandoCompleto">
+                <div>
+                  <strong>Base completa</strong>
+                  <span>Genera una copia total y la envia a Cloudinary.</span>
+                </div>
+                <span *ngIf="cargandoCompleto" class="loading-spinner-btn"></span>
+                <ion-icon *ngIf="!cargandoCompleto" name="cloud-upload-outline"></ion-icon>
+              </button>
+
+              <div class="table-backup">
+                <label class="field-label" for="backup-table">Seccion especifica</label>
+                <div class="table-backup-row">
+                  <select
+                    id="backup-table"
+                    class="field-input field-select"
+                    [(ngModel)]="tablaSeleccionada">
+                    <option value="">Selecciona una seccion</option>
+                    <option *ngFor="let tabla of tablas" [value]="tabla">
+                      {{ etiquetaTabla(tabla) }}
+                    </option>
+                  </select>
+
                   <button
-                    (click)="toggleTask(t.id_tarea)"
-                    class="btn-icon"
-                    [ngClass]="t.activo ? 'btn-icon-warning' : 'btn-icon-success'"
-                    [title]="t.activo ? 'Pausar' : 'Activar'">
-                    <ion-icon [name]="t.activo ? 'pause-outline' : 'play-outline'"></ion-icon>
-                  </button>
-                  <button
-                    (click)="eliminarTarea(t.id_tarea)"
-                    class="btn-icon btn-icon-danger"
-                    title="Eliminar">
-                    <ion-icon name="trash-outline"></ion-icon>
+                    class="secondary-action"
+                    (click)="backupTabla()"
+                    [disabled]="cargandoTabla || !tablaSeleccionada">
+                    <span *ngIf="cargandoTabla" class="loading-spinner-btn"></span>
+                    <ion-icon *ngIf="!cargandoTabla" name="layers-outline"></ion-icon>
+                    {{ cargandoTabla ? 'Guardando...' : 'Respaldar' }}
                   </button>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Mobile -->
-      <div *ngIf="!cargandoTareas && tareas.length > 0" class="lg:hidden p-4 space-y-4">
-        <div *ngFor="let t of tareas" class="prestamo-card">
-          <div class="card-header">
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="badge-estado" [ngClass]="t.activo ? 'badge-activo' : 'badge-cancelado'">
-                  {{ t.activo ? 'Activa' : 'Inactiva' }}
-                </span>
               </div>
-              <p class="card-nombre">{{ t.nombre_tarea }}</p>
-              <p class="card-titulo">{{ describirCron(t.cron_expression) }}</p>
             </div>
+          </section>
+
+          <section class="surface-card content-card info-card">
+            <div class="card-kicker">
+              <ion-icon name="cloud-outline"></ion-icon>
+              Nube activa
+            </div>
+            <p>
+              Todos los respaldos (manuales y automáticos) se guardan automáticamente en Cloudinary dentro de la carpeta Respaldos de Base de Datos divididos en subcarpetas Manuales y Automaticos. Los archivos se almacenan en formato .zip.
+            </p>
+          </section>
+        </aside>
+
+        <main class="calendar-stage">
+          <section class="surface-card content-card calendar-surface">
+            <div class="surface-head">
+              <div>
+                <p class="eyebrow">Calendario</p>
+                <h2>Visualizacion de automatizaciones</h2>
+                <p class="surface-copy">
+                  Cada tarea se dibuja como un evento recurrente dentro del rango que estas viendo.
+                </p>
+              </div>
+
+              <div class="stats-row">
+                <div class="stat-pill">
+                  <span>{{ tareas.length }}</span>
+                  <small>Programadas</small>
+                </div>
+                <div class="stat-pill">
+                  <span>{{ totalActivas }}</span>
+                  <small>Activas</small>
+                </div>
+                <div class="stat-pill">
+                  <span>{{ totalPausadas }}</span>
+                  <small>Pausadas</small>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="cargandoTareas" class="state-card">
+              <div class="loading-spinner"></div>
+              <p>Cargando programaciones...</p>
+            </div>
+
+            <ng-container *ngIf="!cargandoTareas">
+              <div *ngIf="tareas.length === 0" class="empty-state">
+                <ion-icon name="calendar-clear-outline"></ion-icon>
+                <strong>No hay respaldos programados todavia</strong>
+                <p>Crea una automatizacion en el panel izquierdo para verla aqui.</p>
+              </div>
+
+              <ng-container *ngIf="tareas.length > 0">
+                <div *ngIf="vistaActual === 'month'" class="month-view">
+                  <div class="month-weekdays">
+                    <span *ngFor="let dia of cabeceraSemana">{{ dia }}</span>
+                  </div>
+
+                  <div class="month-grid">
+                    <button
+                      *ngFor="let celda of celdasMes"
+                      class="month-cell"
+                      [class.is-muted]="!celda.inCurrentMonth"
+                      [class.is-selected]="celda.isSelected"
+                      [class.is-today]="celda.isToday"
+                      (click)="seleccionarDia(celda.date)">
+                      <div class="month-cell-header">
+                        <span>{{ celda.date.getDate() }}</span>
+                      </div>
+
+                      <div class="month-cell-events">
+                        <button
+                          *ngFor="let evento of getMonthCellEvents(celda.date)"
+                          class="month-event"
+                          [class.is-inactive]="!evento.task.activo"
+                          (click)="seleccionarOcurrencia(evento); $event.stopPropagation()">
+                          <span class="month-event-time">{{ evento.displayTime }}</span>
+                          <span class="month-event-title">{{ evento.task.nombre_tarea }}</span>
+                        </button>
+
+                        <button
+                          *ngIf="getMonthOverflowCount(celda.date) > 0"
+                          class="month-more"
+                          (click)="abrirDia(celda.date); $event.stopPropagation()">
+                          +{{ getMonthOverflowCount(celda.date) }} mas
+                        </button>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <div *ngIf="vistaActual === 'week' || vistaActual === 'day'" class="time-view">
+                  <div class="time-view-header">
+                    <div class="time-axis-spacer"></div>
+
+                    <div class="time-day-heads" [class.is-single-day]="vistaActual === 'day'">
+                      <button
+                        *ngFor="let dia of diasVisibles"
+                        class="time-day-head"
+                        [class.is-today]="esHoy(dia)"
+                        (click)="seleccionarDia(dia)">
+                        <span>{{ formatearDiaCabecera(dia) }}</span>
+                        <strong>{{ formatearDiaNumero(dia) }}</strong>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="time-view-body">
+                    <div class="time-axis">
+                      <div *ngFor="let hour of horasVista" class="time-axis-label">
+                        {{ formatearHoraEje(hour) }}
+                      </div>
+                    </div>
+
+                    <div class="time-columns" [class.is-single-day]="vistaActual === 'day'">
+                      <div
+                        *ngFor="let dia of diasVisibles"
+                        class="time-column"
+                        [class.is-today]="esHoy(dia)">
+                        <div *ngFor="let hour of horasVista" class="time-slot"></div>
+
+                        <button
+                          *ngFor="let evento of getOcurrenciasDia(dia)"
+                          class="time-event"
+                          [class.is-inactive]="!evento.task.activo"
+                          [ngStyle]="getEventStyle(evento)"
+                          (click)="seleccionarOcurrencia(evento)">
+                          <span class="time-event-title">{{ evento.task.nombre_tarea }}</span>
+                          <span class="time-event-meta">
+                            {{ evento.displayTime }} - {{ evento.summary }}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="vistaActual === 'agenda'" class="agenda-view">
+                  <div *ngIf="agendaGrupos.length === 0" class="empty-state compact">
+                    <ion-icon name="list-outline"></ion-icon>
+                    <strong>No hay ejecuciones en este rango</strong>
+                    <p>Cambia la fecha o la vista para explorar otras ocurrencias.</p>
+                  </div>
+
+                  <div *ngIf="agendaGrupos.length > 0" class="agenda-groups">
+                    <section *ngFor="let grupo of agendaGrupos" class="agenda-group">
+                      <header class="agenda-group-header">
+                        <strong>{{ grupo.label }}</strong>
+                        <span>{{ grupo.items.length }} ejecuciones</span>
+                      </header>
+
+                      <button
+                        *ngFor="let evento of grupo.items"
+                        class="agenda-item"
+                        [class.is-inactive]="!evento.task.activo"
+                        (click)="seleccionarOcurrencia(evento)">
+                        <div class="agenda-item-time">{{ evento.displayTime }}</div>
+                        <div class="agenda-item-body">
+                          <strong>{{ evento.task.nombre_tarea }}</strong>
+                          <span>{{ evento.task.descriptor.summary }}</span>
+                        </div>
+                        <span class="agenda-item-state">
+                          {{ evento.task.activo ? 'Activa' : 'Pausada' }}
+                        </span>
+                      </button>
+                    </section>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+          </section>
+        </main>
+
+        <aside class="detail-rail">
+          <section class="surface-card content-card detail-card" *ngIf="detalleActual as detalle; else detailPlaceholder">
+            <div class="detail-header">
+              <div class="detail-accent" [class.is-inactive]="!detalle.activo"></div>
+              <div>
+                <p class="eyebrow">Detalle</p>
+                <h2>{{ detalle.nombre_tarea }}</h2>
+                <p class="detail-copy">{{ detalle.descriptor.summary }}</p>
+              </div>
+            </div>
+
+            <div class="detail-meta-grid">
+              <div class="detail-meta-item">
+                <span>Estado</span>
+                <strong>{{ detalle.activo ? 'Activa' : 'Pausada' }}</strong>
+              </div>
+              <div class="detail-meta-item">
+                <span>Siguiente ejecucion</span>
+                <strong>
+                  {{ siguientesDetalle.length > 0 ? formatearFechaHora(siguientesDetalle[0].start) : 'Sin calculo' }}
+                </strong>
+              </div>
+              <div class="detail-meta-item">
+                <span>Ultima ejecucion real</span>
+                <strong>{{ formatearFechaHora(detalle.ultima_ejecucion) }}</strong>
+              </div>
+              <div class="detail-meta-item">
+                <span>Expresion cron</span>
+                <strong>{{ detalle.cron_expression }}</strong>
+              </div>
+            </div>
+
+            <div class="detail-actions">
+              <button class="toolbar-btn" (click)="toggleTask(detalle.id_tarea)">
+                <ion-icon [name]="detalle.activo ? 'pause-outline' : 'play-outline'"></ion-icon>
+                {{ detalle.activo ? 'Pausar' : 'Activar' }}
+              </button>
+
+              <button class="toolbar-btn toolbar-btn-danger" (click)="eliminarTarea(detalle.id_tarea)">
+                <ion-icon name="trash-outline"></ion-icon>
+                Eliminar
+              </button>
+            </div>
+
+            <div class="timeline-block" *ngIf="siguientesDetalle.length > 0">
+              <p class="timeline-title">Proximas ejecuciones</p>
+
+              <div *ngFor="let evento of siguientesDetalle" class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div>
+                  <strong>{{ formatearFechaHora(evento.start) }}</strong>
+                  <span>{{ evento.summary }}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <ng-template #detailPlaceholder>
+            <section class="surface-card content-card detail-card detail-card-empty">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <strong>Selecciona una programacion</strong>
+              <p>
+                Haz clic en cualquier evento del calendario o en la lista lateral para ver
+                su detalle, pausar la automatizacion o eliminarla.
+              </p>
+            </section>
+          </ng-template>
+
+          <section class="surface-card content-card queue-card">
+            <div class="card-kicker">
+              <ion-icon name="list-outline"></ion-icon>
+              Programaciones
+            </div>
+
+            <div *ngIf="tareas.length === 0" class="queue-empty">
+              Aun no hay automatizaciones guardadas.
+            </div>
+
+            <div *ngIf="tareas.length > 0" class="queue-list">
+              <button
+                *ngFor="let tarea of tareas"
+                class="queue-item"
+                [class.is-selected]="isSelectedTask(tarea)"
+                (click)="seleccionarTarea(tarea)">
+                <div class="queue-item-main">
+                  <div class="queue-dot" [class.is-inactive]="!tarea.activo"></div>
+                  <div>
+                    <strong>{{ tarea.nombre_tarea }}</strong>
+                    <span>{{ tarea.descriptor.shortSummary }}</span>
+                  </div>
+                </div>
+
+                <span class="queue-state">
+                  {{ tarea.activo ? 'Activa' : 'Pausada' }}
+                </span>
+              </button>
+            </div>
+          </section>
+
+          <section class="surface-card content-card highlight-card">
+            <div class="card-kicker">
+              <ion-icon name="time-outline"></ion-icon>
+              Proxima ejecucion global
+            </div>
+
+          <div *ngIf="siguienteRespaldo; else noNext" class="highlight-next">
+            <strong>{{ formatearFechaHora(siguienteRespaldo.start) }}</strong>
+            <span>{{ siguienteRespaldo.task.nombre_tarea }}</span>
           </div>
-          <div class="card-fechas">
-            <span>
-              <ion-icon name="time-outline" class="text-blue-500"></ion-icon>
-              Última ejecución: {{ t.ultima_ejecucion ? formatearFechaHora(t.ultima_ejecucion) : 'Aún no ejecutado' }}
-            </span>
-          </div>
-          <div class="card-acciones">
-            <button
-              (click)="toggleTask(t.id_tarea)"
-              class="btn-icon-mobile flex-1"
-              [ngClass]="t.activo ? 'btn-icon-warning' : 'btn-icon-success'">
-              <ion-icon [name]="t.activo ? 'pause-outline' : 'play-outline'"></ion-icon>
-              <span>{{ t.activo ? 'Pausar' : 'Activar' }}</span>
-            </button>
-            <button
-              (click)="eliminarTarea(t.id_tarea)"
-              class="btn-icon-mobile btn-icon-danger flex-1">
-              <ion-icon name="trash-outline"></ion-icon>
-              <span>Eliminar</span>
-            </button>
-          </div>
-        </div>
+
+            <ng-template #noNext>
+              <p>No hay una ejecucion futura visible todavia.</p>
+            </ng-template>
+          </section>
+        </aside>
       </div>
 
-    </div>
+      <section class="surface-card content-card history-surface">
+        <div class="surface-head compact">
+          <div>
+            <p class="eyebrow">Actividad</p>
+            <h2>Historial de respaldos</h2>
+          </div>
 
-    <!-- ============================================================
-         HISTORIAL DE RESPALDOS
-    ============================================================ -->
-    <div class="content-card overflow-hidden">
-
-      <div class="seccion-titulo">
-        <h3>
-          <ion-icon name="archive-outline"></ion-icon>
-          Historial de Respaldos
-        </h3>
-        <button class="btn-refresh" (click)="cargarHistorial()">
-          <ion-icon name="refresh-outline"></ion-icon>
-          Actualizar
-        </button>
-      </div>
-
-      <!-- Filtros del historial -->
-      <div class="filtros-bar">
-
-        <div class="filtro-busqueda">
-          <ion-icon name="search-outline"></ion-icon>
-          <input
-            type="text"
-            placeholder="Buscar por nombre de archivo..."
-            [(ngModel)]="filtroHistorial"
-            (input)="aplicarFiltroHistorial()">
-        </div>
-
-        <div class="filtro-segmento">
-          <button
-            *ngFor="let opt of opcionesFiltroTipo"
-            class="filtro-seg-btn"
-            [class.filtro-seg-activo]="filtroTipo === opt.value"
-            (click)="filtroTipo = opt.value; aplicarFiltroHistorial()">
-            <ion-icon [name]="opt.icon"></ion-icon>
-            {{ opt.label }}
+          <button class="toolbar-btn" (click)="cargarHistorial()">
+            <ion-icon name="refresh-outline"></ion-icon>
+            Actualizar
           </button>
         </div>
 
-        <button class="btn-refresh" (click)="cargarHistorial()">
-          <ion-icon name="refresh-outline"></ion-icon>
-          Actualizar
-        </button>
-
-      </div>
-
-      <!-- Loading historial -->
-      <div *ngIf="cargandoHistorial" class="content-card text-center py-12">
-        <div class="loading-spinner inline-block"></div>
-        <p class="mt-4 text-gray-600 font-medium">Cargando historial...</p>
-      </div>
-
-      <!-- Sin resultados -->
-      <div *ngIf="!cargandoHistorial && historialFiltrado.length === 0" class="sin-resultados">
-        <ion-icon name="archive-outline"></ion-icon>
-        No hay respaldos registrados
-      </div>
-
-      <!-- Desktop tabla historial -->
-      <div *ngIf="!cargandoHistorial && historialFiltrado.length > 0" class="hidden lg:block overflow-x-auto">
-        <table class="min-w-full">
-          <thead class="table-header">
-            <tr>
-              <th class="th-cell"><ion-icon name="document-outline"></ion-icon> Archivo</th>
-              <th class="th-cell"><ion-icon name="layers-outline"></ion-icon> Contenido</th>
-              <th class="th-cell"><ion-icon name="flash-outline"></ion-icon> Tipo</th>
-              <th class="th-cell"><ion-icon name="calendar-outline"></ion-icon> Fecha</th>
-              <th class="th-cell text-center"><ion-icon name="cloud-outline"></ion-icon> Ubicación</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let b of historialFiltrado" class="table-row">
-              <td class="td-cell">
-                <span class="archivo-texto">{{ b.nombre_archivo }}</span>
-              </td>
-              <td class="td-cell">
-                <span
-                  class="badge-estado"
-                  [ngClass]="b.alcance === 'database' ? 'badge-completo' : 'badge-tabla'">
-                  {{ b.alcance === 'database' ? 'Completo' : 'Sección: ' + etiquetaTabla(b.tabla_afectada) }}
-                </span>
-              </td>
-              <td class="td-cell">
-                <span
-                  class="badge-estado"
-                  [ngClass]="b.tipo === 'automatico' ? 'badge-automatico' : 'badge-manual'">
-                  <ion-icon [name]="b.tipo === 'automatico' ? 'flash-outline' : 'hand-left-outline'"></ion-icon>
-                  {{ b.tipo === 'automatico' ? 'Automático' : 'Manual' }}
-                </span>
-              </td>
-              <td class="td-cell text-gray-600">
-               {{formatearFechaHora(b.fecha) }}
-              </td>
-              <td class="td-cell text-center">
-                <span class="cloudinary-tag">
-                  <ion-icon name="cloud-done-outline"></ion-icon>
-                  Cloudinary
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Mobile cards historial -->
-      <div *ngIf="!cargandoHistorial && historialFiltrado.length > 0" class="lg:hidden p-4 space-y-4">
-        <div *ngFor="let b of historialFiltrado" class="prestamo-card">
-          <div class="card-header">
-            <div class="flex-1">
-              <div class="flex flex-wrap items-center gap-2 mb-2">
-                <span class="badge-estado" [ngClass]="b.tipo === 'automatico' ? 'badge-automatico' : 'badge-manual'">
-                  <ion-icon [name]="b.tipo === 'automatico' ? 'flash-outline' : 'hand-left-outline'"></ion-icon>
-                  {{ b.tipo === 'automatico' ? 'Automático' : 'Manual' }}
-                </span>
-                <span class="badge-estado" [ngClass]="b.alcance === 'database' ? 'badge-completo' : 'badge-tabla'">
-                  {{ b.alcance === 'database' ? 'Completo' : 'Sección' }}
-                </span>
-              </div>
-              <p class="card-nombre archivo-texto">{{ b.nombre_archivo }}</p>
-            </div>
+        <div class="history-filters">
+          <div class="search-box">
+            <ion-icon name="search-outline"></ion-icon>
+            <input
+              type="text"
+              placeholder="Buscar por archivo..."
+              [(ngModel)]="filtroHistorial"
+              (input)="aplicarFiltroHistorial(true)">
           </div>
-          <div class="card-fechas">
-            <span>
-              <ion-icon name="calendar-outline" class="text-blue-500"></ion-icon>
-          {{ b.fecha }}
-            </span>
-            <span *ngIf="b.tabla_afectada">
-              <ion-icon name="grid-outline" class="text-blue-500"></ion-icon>
-              Sección: {{ etiquetaTabla(b.tabla_afectada) }}
-            </span>
-            <span>
-              <ion-icon name="cloud-done-outline" class="text-blue-500"></ion-icon>
-              Guardado en Cloudinary
-            </span>
+
+          <div class="filter-pills">
+            <button
+              *ngFor="let opcion of opcionesFiltroTipo"
+              class="filter-pill"
+              [class.is-active]="filtroTipo === opcion.value"
+              (click)="filtroTipo = opcion.value; aplicarFiltroHistorial(true)">
+              <ion-icon [name]="opcion.icon"></ion-icon>
+              {{ opcion.label }}
+            </button>
           </div>
         </div>
-      </div>
 
-    </div>
+        <div *ngIf="cargandoHistorial" class="state-card compact">
+          <div class="loading-spinner"></div>
+          <p>Cargando historial...</p>
+        </div>
 
+        <div *ngIf="!cargandoHistorial && historialFiltrado.length === 0" class="empty-state compact">
+          <ion-icon name="archive-outline"></ion-icon>
+          <strong>No hay respaldos registrados</strong>
+          <p>Los respaldos manuales y automaticos apareceran aqui en orden cronologico.</p>
+        </div>
+
+        <div *ngIf="!cargandoHistorial && historialFiltrado.length > 0" class="overflow-x-auto history-table-wrap">
+          <table class="min-w-full">
+            <thead class="table-header">
+              <tr>
+                <th class="th-cell">Archivo</th>
+                <th class="th-cell">Contenido</th>
+                <th class="th-cell">Tipo</th>
+                <th class="th-cell">Fecha</th>
+                <th class="th-cell">Ubicacion</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of historialPaginado" class="table-row">
+                <td class="td-cell">
+                  <span class="archivo-texto">{{ item.nombre_archivo }}</span>
+                </td>
+                <td class="td-cell">
+                  <span class="history-badge is-scope">
+                    {{ item.alcance === 'database' ? 'Base completa' : etiquetaTabla(item.tabla_afectada) }}
+                  </span>
+                </td>
+                <td class="td-cell">
+                  <span class="history-badge" [class.is-automatico]="item.tipo === 'automatico'">
+                    {{ item.tipo === 'automatico' ? 'Automatico' : 'Manual' }}
+                  </span>
+                </td>
+                <td class="td-cell">
+                  {{ formatearFechaHora(item.fecha) }}
+                </td>
+                <td class="td-cell">
+                  <span class="cloudinary-tag">
+                    <ion-icon name="cloud-done-outline"></ion-icon>
+                    Cloudinary
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="!cargandoHistorial && historialFiltrado.length > 0" class="pagination-section">
+          <div class="pagination-info">
+            <ion-icon name="archive-outline"></ion-icon>
+            <span>
+              Mostrando <strong>{{ historialInicioActual }}</strong>
+              a <strong>{{ historialFinActual }}</strong>
+              de <strong>{{ historialFiltrado.length }}</strong> respaldos
+            </span>
+          </div>
+
+          <div class="pagination-toolbar">
+            <div class="pagination-page-size">
+              <select
+                [(ngModel)]="historialItemsPorPagina"
+                (change)="cambiarItemsPorPaginaHistorial()"
+                class="field-input pagination-select">
+                <option [value]="6">6 por pagina</option>
+                <option [value]="10">10 por pagina</option>
+                <option [value]="15">15 por pagina</option>
+              </select>
+            </div>
+
+            <div class="pagination-controls">
+              <button
+                class="pagination-btn"
+                (click)="historialPaginaAnterior()"
+                [disabled]="historialPaginaActual === 1">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </button>
+
+              <ng-container *ngFor="let page of historialPaginas">
+                <button
+                  *ngIf="page !== '...'"
+                  class="pagination-btn"
+                  [class.active]="historialPaginaActual === page"
+                  (click)="irAHistorialPagina(page)">
+                  {{ page }}
+                </button>
+                <span *ngIf="page === '...'" class="pagination-dots">...</span>
+              </ng-container>
+
+              <button
+                class="pagination-btn"
+                (click)="historialPaginaSiguiente()"
+                [disabled]="historialPaginaActual === historialTotalPaginas || historialTotalPaginas === 0">
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
   </div>
 </div>

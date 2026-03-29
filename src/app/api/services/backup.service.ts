@@ -34,4 +34,10 @@ export class BackupService {
     });
   }
 
+  getTables() {
+    return this.http.get<{ tables: string[] }>(`${this.api}/tables`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
 }

@@ -1,9 +1,4 @@
-/* ============================================
-   GESTIÓN DE RESPALDOS
-   Diseño idéntico a Gestión de Préstamos
-   ============================================ */
-
-.admin-content {
+.gestion-backups {
   --color-fondo: #E3F2FD;
   --color-contenedor: #FFFFFF;
   --color-borde: #BBDEFB;
@@ -18,9 +13,21 @@
   --color-gris-claro: #F0F8FF;
   --color-azul-suave: #E3F2FD;
   --color-azul-medio: #90CAF9;
-  --color-amarillo: #FFC107;
-  --color-naranja: #FF9800;
-  --color-purpura: #9C27B0;
+  --gb-surface: var(--color-contenedor);
+  --gb-border: var(--color-borde);
+  --gb-text: var(--color-texto);
+  --gb-text-soft: var(--color-texto-secundario);
+  --gb-primary: var(--color-primario);
+  --gb-primary-strong: var(--color-primario-hover);
+  --gb-danger: var(--color-peligro);
+  --gb-success: var(--color-exito);
+  --gb-surface-soft: #F8FAFC;
+  --gb-border-strong: #CBD5E1;
+  --gb-primary-soft: rgba(33, 150, 243, 0.12);
+  --gb-danger-soft: rgba(244, 67, 54, 0.1);
+  --gb-success-soft: rgba(76, 175, 80, 0.1);
+  --gb-muted: #94A3B8;
+  --gb-hour-height: 70px;
 
   min-height: 100vh;
   padding: 2rem;
@@ -29,144 +36,1125 @@
   color: var(--color-texto);
 }
 
-/* ============================================
-   HEADER — igual que préstamos
-   ============================================ */
-.admin-content .header-section {
-  background: linear-gradient(var(--color-info));
-  border: 1px solid var(--color-borde);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+.gestion-backups .backups-container {
+  width: min(100%, 95%);
+  margin: 0 auto;
 }
 
-.admin-content .page-title {
-  font-size: 1.75rem;
+.gestion-backups * {
+  box-sizing: border-box;
+}
+
+.gestion-backups ion-icon {
+  pointer-events: none;
+}
+
+.gestion-backups .backups-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.gestion-backups .calendar-toolbar,
+.gestion-backups .surface-card {
+  background: var(--color-contenedor);
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.gestion-backups .calendar-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(var(--color-info));
+}
+
+.gestion-backups .toolbar-main {
+  display: flex;
+  flex: 1 1 42rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+}
+
+.gestion-backups .toolbar-title {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.gestion-backups .toolbar-title-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.gestion-backups .toolbar-title-icon ion-icon {
+  font-size: 1.5rem;
+}
+
+.gestion-backups .eyebrow,
+.gestion-backups .card-kicker,
+.gestion-backups .detail-copy,
+.gestion-backups .surface-copy,
+.gestion-backups .toolbar-copy {
+  margin: 0;
+}
+
+.gestion-backups .eyebrow,
+.gestion-backups .card-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-primario);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gestion-backups .toolbar-title h1,
+.gestion-backups .surface-head h2,
+.gestion-backups .composer-card h2,
+.gestion-backups .detail-card h2 {
+  margin: 0.1rem 0 0.4rem;
+  color: var(--color-texto);
+}
+
+.gestion-backups .toolbar-title .page-title {
+  font-size: 1.9rem;
   font-weight: 700;
   color: white;
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
-/* ============================================
-   FILTROS — igual que préstamos
-   ============================================ */
-.admin-content .filtros-bar {
+.gestion-backups .toolbar-copy,
+.gestion-backups .surface-copy,
+.gestion-backups .card-copy,
+.gestion-backups .detail-copy,
+.gestion-backups .info-card p,
+.gestion-backups .empty-state p {
+  color: var(--color-texto-secundario);
+  line-height: 1.55;
+}
+
+.gestion-backups .calendar-toolbar .eyebrow,
+.gestion-backups .calendar-toolbar .toolbar-copy {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.gestion-backups .toolbar-nav,
+.gestion-backups .toolbar-actions,
+.gestion-backups .nav-group,
+.gestion-backups .view-switch,
+.gestion-backups .stats-row,
+.gestion-backups .detail-actions,
+.gestion-backups .filter-pills,
+.gestion-backups .history-badges,
+.gestion-backups .history-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.gestion-backups .toolbar-nav {
+  flex-wrap: wrap;
+}
+
+.gestion-backups .toolbar-actions {
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.gestion-backups .range-label {
+  padding: 0.85rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: white;
+  font-weight: 600;
+}
+
+.gestion-backups .toolbar-btn,
+.gestion-backups .toolbar-icon-btn,
+.gestion-backups .primary-action,
+.gestion-backups .secondary-action,
+.gestion-backups .frequency-option,
+.gestion-backups .manual-action,
+.gestion-backups .month-cell,
+.gestion-backups .month-event,
+.gestion-backups .month-more,
+.gestion-backups .time-day-head,
+.gestion-backups .time-event,
+.gestion-backups .agenda-item,
+.gestion-backups .queue-item,
+.gestion-backups .mini-day,
+.gestion-backups .filter-pill,
+.gestion-backups .view-switch-btn,
+.gestion-backups .day-chip,
+.gestion-backups .step-btn {
+  font: inherit;
+}
+
+.gestion-backups .toolbar-btn,
+.gestion-backups .toolbar-icon-btn,
+.gestion-backups .primary-action,
+.gestion-backups .secondary-action,
+.gestion-backups .view-switch-btn,
+.gestion-backups .filter-pill,
+.gestion-backups .step-btn {
+  border: 1px solid var(--gb-border);
+  background: white;
+  color: var(--color-texto);
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.gestion-backups .calendar-toolbar .toolbar-btn,
+.gestion-backups .calendar-toolbar .toolbar-icon-btn {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: white;
+}
+
+.gestion-backups .calendar-toolbar .toolbar-btn:hover,
+.gestion-backups .calendar-toolbar .toolbar-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.gestion-backups .toolbar-btn {
+  height: 2.9rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 600;
+}
+
+.gestion-backups .toolbar-btn:hover,
+.gestion-backups .toolbar-icon-btn:hover,
+.gestion-backups .secondary-action:hover,
+.gestion-backups .view-switch-btn:hover,
+.gestion-backups .filter-pill:hover,
+.gestion-backups .step-btn:hover {
+  border-color: var(--gb-border-strong);
+  background: var(--gb-surface-soft);
+}
+
+.gestion-backups .toolbar-btn-primary,
+.gestion-backups .primary-action {
+  background: var(--color-info);
+  border-color: var(--color-info);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.gestion-backups .calendar-toolbar .toolbar-btn-primary {
+  background: white;
+  border-color: white;
+  color: var(--color-info);
+}
+
+.gestion-backups .calendar-toolbar .toolbar-btn-primary:hover {
+  background: #F8FAFC;
+  border-color: white;
+  color: var(--color-primario-hover);
+}
+
+.gestion-backups .toolbar-btn-primary:hover,
+.gestion-backups .primary-action:hover {
+  background: var(--color-primario-hover);
+  border-color: var(--color-primario-hover);
+}
+
+.gestion-backups .toolbar-btn-danger {
+  color: var(--color-peligro);
+  border-color: rgba(244, 67, 54, 0.28);
+  background: rgba(244, 67, 54, 0.12);
+}
+
+.gestion-backups .toolbar-icon-btn {
+  width: 2.7rem;
+  height: 2.7rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+}
+
+.gestion-backups .toolbar-icon-btn ion-icon {
+  font-size: 1.1rem;
+}
+
+.gestion-backups .view-switch {
+  flex-wrap: wrap;
+  padding: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.gestion-backups .view-switch-btn {
+  min-width: 5rem;
+  height: 2.5rem;
+  padding: 0 0.9rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 600;
+}
+
+.gestion-backups .view-switch-btn.is-active {
+  background: #ffffff;
+  color: var(--color-info);
+  box-shadow: none;
+}
+
+.gestion-backups .calendar-toolbar .view-switch-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+}
+
+.gestion-backups .calendar-toolbar .view-switch-btn.is-active:hover {
+  background: white;
+  color: var(--color-info);
+}
+
+.gestion-backups .workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(18rem, 20rem) minmax(0, 1fr) minmax(18rem, 20rem);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.gestion-backups .left-rail,
+.gestion-backups .calendar-stage,
+.gestion-backups .detail-rail {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.gestion-backups .calendar-stage,
+.gestion-backups .detail-rail {
+  min-width: 0;
+  align-self: start;
+}
+
+.gestion-backups .detail-rail {
+  align-items: start;
+  align-content: start;
+  grid-auto-rows: max-content;
+}
+
+.gestion-backups .detail-rail > .surface-card {
+  width: 100%;
+  align-self: start;
+}
+
+.gestion-backups .surface-card {
+  padding: 1.2rem;
+}
+
+.gestion-backups .composer-card,
+.gestion-backups .manual-card {
+  position: relative;
+}
+
+.gestion-backups .card-kicker {
+  margin-bottom: 0.7rem;
+}
+
+.gestion-backups .composer-card h2,
+.gestion-backups .surface-head h2,
+.gestion-backups .detail-card h2 {
+  font-size: 1.3rem;
+}
+
+.gestion-backups .form-block {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.gestion-backups .field-label {
+  color: var(--gb-text-soft);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.gestion-backups .field-input {
+  width: 100%;
+  height: 3rem;
+  border: 1px solid var(--gb-border);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0 1rem;
+  color: var(--gb-text);
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.gestion-backups .field-input:focus {
+  border-color: rgba(26, 115, 232, 0.5);
+  box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+}
+
+.gestion-backups .field-select {
+  appearance: none;
+}
+
+.gestion-backups .frequency-grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.gestion-backups .frequency-option {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.95rem 1rem;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.gestion-backups .frequency-option ion-icon {
+  font-size: 1.1rem;
+  color: var(--gb-primary);
+}
+
+.gestion-backups .frequency-option span {
+  font-weight: 700;
+}
+
+.gestion-backups .frequency-option small {
+  color: var(--gb-text-soft);
+  line-height: 1.4;
+}
+
+.gestion-backups .frequency-option.is-active {
+  border-color: rgba(26, 115, 232, 0.26);
+  background: var(--gb-primary-soft);
+  box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.08);
+}
+
+.gestion-backups .interval-control {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr 2.75rem;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.gestion-backups .step-btn {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+}
+
+.gestion-backups .step-btn ion-icon {
+  font-size: 1rem;
+}
+
+.gestion-backups .interval-value {
+  min-height: 4.2rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--gb-border);
+  border-radius: 10px;
+  background: var(--gb-surface-soft);
+  text-align: center;
+}
+
+.gestion-backups .interval-value strong {
+  font-size: 1.25rem;
+}
+
+.gestion-backups .interval-value span {
+  color: var(--gb-text-soft);
+  font-size: 0.78rem;
+}
+
+.gestion-backups .day-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-  background: var(--color-contenedor);
-  border: 1px solid var(--color-borde);
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+  gap: 0.55rem;
 }
 
-.admin-content .filtro-busqueda {
+.gestion-backups .day-chip {
+  min-width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--gb-border);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--gb-text-soft);
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.gestion-backups .day-chip:hover {
+  border-color: rgba(26, 115, 232, 0.4);
+  color: var(--gb-primary);
+}
+
+.gestion-backups .day-chip.is-active {
+  border-color: var(--gb-primary);
+  background: var(--gb-primary);
+  color: #ffffff;
+}
+
+.gestion-backups .schedule-preview {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  padding: 0.95rem 1rem;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--gb-primary-soft) 0%, #f0f5ff 100%);
+}
+
+.gestion-backups .schedule-preview ion-icon {
+  font-size: 1.2rem;
+  color: var(--gb-primary);
+}
+
+.gestion-backups .schedule-preview span {
+  display: block;
+  color: var(--gb-text-soft);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gestion-backups .schedule-preview strong {
+  display: block;
+  margin-top: 0.2rem;
+  line-height: 1.45;
+}
+
+.gestion-backups .primary-action,
+.gestion-backups .secondary-action {
+  min-height: 3rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  font-weight: 700;
+}
+
+.gestion-backups .primary-action {
+  width: 100%;
+  margin-top: 1rem;
+  border: none;
+}
+
+.gestion-backups .primary-action:disabled,
+.gestion-backups .secondary-action:disabled,
+.gestion-backups .manual-action:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.gestion-backups .mini-calendar-card {
+  gap: 0.85rem;
+}
+
+.gestion-backups .mini-calendar-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  min-width: 200px;
-  background: white;
-  border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  padding: 0.625rem 0.75rem;
-  transition: all 0.2s ease;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.85rem;
 }
 
-.admin-content .filtro-busqueda:focus-within {
-  border-color: #2196F3;
-  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
+.gestion-backups .mini-calendar-header strong {
+  text-transform: capitalize;
+  color: var(--gb-text);
 }
 
-.admin-content .filtro-busqueda ion-icon {
+.gestion-backups .mini-nav-btn {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.gestion-backups .mini-weekdays,
+.gestion-backups .mini-grid,
+.gestion-backups .month-weekdays,
+.gestion-backups .month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.gestion-backups .mini-weekdays {
+  margin-bottom: 0.3rem;
+}
+
+.gestion-backups .mini-weekdays span,
+.gestion-backups .month-weekdays span {
+  padding: 0.4rem 0;
+  text-align: center;
+  color: var(--gb-text-soft);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gestion-backups .mini-day {
+  aspect-ratio: 1 / 1;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--gb-text);
+  cursor: pointer;
+}
+
+.gestion-backups .mini-day.is-muted {
+  color: var(--gb-muted);
+}
+
+.gestion-backups .mini-day.is-selected {
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary);
+  font-weight: 700;
+}
+
+.gestion-backups .mini-day.is-today {
+  box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.35);
+}
+
+.gestion-backups .manual-actions {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.gestion-backups .manual-action {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid var(--gb-border);
+  border-radius: 10px;
+  background: var(--gb-surface-soft);
+  cursor: pointer;
+}
+
+.gestion-backups .manual-action strong {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.gestion-backups .manual-action span {
+  color: var(--gb-text-soft);
+  line-height: 1.45;
+}
+
+.gestion-backups .manual-action ion-icon {
+  font-size: 1.2rem;
+  color: var(--gb-primary);
+}
+
+.gestion-backups .table-backup {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.gestion-backups .table-backup-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+}
+
+.gestion-backups .info-card p {
+  margin: 0;
+}
+
+.gestion-backups .calendar-stage {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.gestion-backups .surface-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.gestion-backups .surface-head.compact {
+  align-items: center;
+}
+
+.gestion-backups .stats-row {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.gestion-backups .stat-pill {
+  min-width: 6.4rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  background: var(--gb-surface-soft);
+  text-align: center;
+}
+
+.gestion-backups .stat-pill span {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.gestion-backups .stat-pill small {
+  color: var(--gb-text-soft);
+}
+
+.gestion-backups .state-card,
+.gestion-backups .empty-state {
+  min-height: 13rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 1px dashed var(--gb-border);
+  border-radius: 10px;
+  background: var(--gb-surface-soft);
+  text-align: center;
+  color: var(--gb-text-soft);
+}
+
+.gestion-backups .state-card.compact,
+.gestion-backups .empty-state.compact {
+  min-height: 10rem;
+}
+
+.gestion-backups .empty-state ion-icon,
+.gestion-backups .detail-card-empty ion-icon {
+  font-size: 2rem;
+  color: var(--gb-primary);
+}
+
+.gestion-backups .loading-spinner {
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 4px solid rgba(26, 115, 232, 0.14);
+  border-top-color: var(--gb-primary);
+  border-radius: 50%;
+  animation: gb-spin 0.8s linear infinite;
+}
+
+.gestion-backups .loading-spinner-btn {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: gb-spin 0.8s linear infinite;
+}
+
+@keyframes gb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gestion-backups .month-view {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.gestion-backups .month-grid {
+  gap: 0.45rem;
+}
+
+.gestion-backups .month-cell {
+  min-height: 8.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid var(--gb-border);
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gestion-backups .month-cell.is-muted {
+  background: #f8fafc;
+}
+
+.gestion-backups .month-cell.is-selected {
+  border-color: rgba(26, 115, 232, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.14);
+}
+
+.gestion-backups .month-cell.is-today .month-cell-header span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.95rem;
+  min-height: 1.95rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--gb-primary);
+  color: #ffffff;
+}
+
+.gestion-backups .month-cell-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.gestion-backups .month-cell-events {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+}
+
+.gestion-backups .month-event,
+.gestion-backups .month-more {
+  width: 100%;
+  min-height: 1.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary-strong);
+  padding: 0 0.55rem;
+  cursor: pointer;
+}
+
+.gestion-backups .month-event.is-inactive {
+  background: #f1f5f9;
+  color: var(--gb-text-soft);
+}
+
+.gestion-backups .month-event-time {
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.gestion-backups .month-event-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.77rem;
+  font-weight: 600;
+}
+
+.gestion-backups .month-more {
+  justify-content: center;
+  background: transparent;
+  color: var(--gb-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.gestion-backups .time-view {
+  border: 1px solid var(--gb-border);
+  border-radius: 10px;
+  overflow: auto;
+  background: #ffffff;
+}
+
+.gestion-backups .time-view-header,
+.gestion-backups .time-view-body {
+  min-width: 42rem;
+}
+
+.gestion-backups .time-view-header {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr);
+  border-bottom: 1px solid var(--gb-border);
+}
+
+.gestion-backups .time-day-heads {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.gestion-backups .time-day-heads.is-single-day {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.gestion-backups .time-day-head {
+  min-height: 4rem;
+  display: grid;
+  place-items: center;
+  gap: 0.12rem;
+  border: none;
+  border-left: 1px solid var(--gb-border);
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.gestion-backups .time-day-head span {
+  color: var(--gb-text-soft);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gestion-backups .time-day-head strong {
   font-size: 1rem;
-  color: #94A3B8;
-  flex-shrink: 0;
 }
 
-.admin-content .filtro-busqueda input {
+.gestion-backups .time-day-head.is-today {
+  background: var(--gb-primary-soft);
+}
+
+.gestion-backups .time-view-body {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr);
+}
+
+.gestion-backups .time-axis {
+  background: var(--gb-surface-soft);
+}
+
+.gestion-backups .time-axis-label {
+  height: var(--gb-hour-height);
+  padding: 0.5rem 0.75rem 0 0;
+  text-align: right;
+  color: var(--gb-text-soft);
+  font-size: 0.77rem;
+  border-top: 1px solid var(--gb-border);
+}
+
+.gestion-backups .time-axis-label:first-child {
+  border-top: none;
+}
+
+.gestion-backups .time-columns {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.gestion-backups .time-columns.is-single-day {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.gestion-backups .time-column {
+  position: relative;
+  min-height: calc(24 * var(--gb-hour-height));
+  border-left: 1px solid var(--gb-border);
+  background:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.86), rgba(255, 255, 255, 0.96));
+}
+
+.gestion-backups .time-column.is-today {
+  background:
+    linear-gradient(180deg, rgba(232, 240, 254, 0.65), rgba(255, 255, 255, 0.96));
+}
+
+.gestion-backups .time-slot {
+  height: var(--gb-hour-height);
+  border-top: 1px solid rgba(219, 227, 238, 0.92);
+}
+
+.gestion-backups .time-slot:first-child {
+  border-top: none;
+}
+
+.gestion-backups .time-event {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  display: grid;
+  gap: 0.2rem;
+  align-content: start;
+  border: none;
+  border-left: 4px solid var(--gb-primary);
+  border-radius: 8px;
+  background: rgba(232, 240, 254, 0.96);
+  color: var(--gb-primary-strong);
+  padding: 0.6rem 0.7rem;
+  cursor: pointer;
+  box-shadow: 0 10px 18px rgba(26, 115, 232, 0.08);
+}
+
+.gestion-backups .time-event.is-inactive {
+  border-left-color: var(--gb-muted);
+  background: rgba(241, 245, 249, 0.96);
+  color: var(--gb-text-soft);
+}
+
+.gestion-backups .time-event-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.gestion-backups .time-event-meta {
+  font-size: 0.74rem;
+  text-align: left;
+}
+
+.gestion-backups .agenda-groups {
+  display: grid;
+  gap: 1rem;
+}
+
+.gestion-backups .agenda-group {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.gestion-backups .agenda-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.gestion-backups .agenda-group-header strong {
+  text-transform: capitalize;
+}
+
+.gestion-backups .agenda-group-header span {
+  color: var(--gb-text-soft);
+  font-size: 0.84rem;
+}
+
+.gestion-backups .agenda-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--gb-border);
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.gestion-backups .agenda-item.is-inactive {
+  background: var(--gb-surface-soft);
+}
+
+.gestion-backups .agenda-item-time {
+  color: var(--gb-primary);
+  font-weight: 700;
+}
+
+.gestion-backups .agenda-item-body {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.gestion-backups .agenda-item-body span,
+.gestion-backups .agenda-item-state,
+.gestion-backups .queue-item span,
+.gestion-backups .history-meta,
+.gestion-backups .detail-card-empty p,
+.gestion-backups .queue-empty,
+.gestion-backups .highlight-next span {
+  color: var(--gb-text-soft);
+}
+
+.gestion-backups .agenda-item-state {
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.gestion-backups .history-filters {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.gestion-backups .search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid var(--gb-border);
+  border-radius: 1rem;
+  background: #ffffff;
+}
+
+.gestion-backups .search-box ion-icon {
+  color: var(--gb-text-soft);
+}
+
+.gestion-backups .search-box input {
+  width: 100%;
   border: none;
   outline: none;
   background: transparent;
-  font-size: 0.875rem;
-  color: #1E293B;
-  width: 100%;
-  font-family: inherit;
+  color: var(--gb-text);
+  font: inherit;
 }
 
-.admin-content .filtro-busqueda input::placeholder {
-  color: #94A3B8;
+.gestion-backups .filter-pills {
+  flex-wrap: wrap;
 }
 
-.admin-content .filtros-bar select {
-  padding: 0.625rem 0.75rem;
-  font-size: 0.875rem;
-  color: #1E293B;
-  background: white;
-  border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.admin-content .filtros-bar select:focus {
-  outline: none;
-  border-color: #2196F3;
-  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
-}
-
-.admin-content .btn-refresh {
-  background: var(--color-info);
-  color: white;
-  padding: 0.625rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.gestion-backups .filter-pill {
+  min-height: 2.6rem;
+  padding: 0 0.95rem;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: inherit;
+  gap: 0.45rem;
+  font-weight: 600;
 }
 
-.admin-content .btn-refresh:hover {
-  background: var(--color-primario-hover);
-  transform: translateY(-1px);
+.gestion-backups .filter-pill.is-active {
+  border-color: rgba(26, 115, 232, 0.24);
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary);
 }
 
-.admin-content .btn-refresh:active {
-  transform: translateY(0);
+.gestion-backups .history-list {
+  display: grid;
+  gap: 0.8rem;
 }
 
-/* ============================================
-   CONTENEDORES — igual que préstamos
-   ============================================ */
-.admin-content .content-card {
-  background: var(--color-contenedor);
+.gestion-backups .history-table-wrap {
   border: 1px solid var(--color-borde);
+  border-radius: 10px;
   overflow: hidden;
 }
 
-/* ============================================
-   TABLA — igual que préstamos
-   ============================================ */
-.admin-content table {
+.gestion-backups table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.admin-content .table-header {
+.gestion-backups .table-header {
   background: linear-gradient(var(--color-info));
   border-bottom: 2px solid var(--color-primario);
 }
 
-.admin-content .th-cell {
+.gestion-backups .th-cell {
   padding: 1rem;
   text-align: left;
   font-size: 0.875rem;
@@ -177,851 +1165,543 @@
   white-space: nowrap;
 }
 
-.admin-content .th-cell ion-icon {
-  vertical-align: middle;
-  margin-right: 0.25rem;
-}
-
-.admin-content .td-cell {
+.gestion-backups .td-cell {
   padding: 1rem;
   font-size: 0.875rem;
   border-bottom: 1px solid var(--color-borde);
+  color: var(--color-texto);
   vertical-align: middle;
 }
 
-.admin-content .table-row:hover {
+.gestion-backups .table-row:hover {
   background: var(--color-azul-suave);
 }
 
-.admin-content .table-row:last-child .td-cell {
+.gestion-backups .table-row:last-child .td-cell {
   border-bottom: none;
 }
 
-/* ============================================
-   BADGES — igual que préstamos + nuevos
-   ============================================ */
-.admin-content .badge-estado {
+.gestion-backups .archivo-texto {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.gestion-backups .cloudinary-tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.375rem 0.875rem;
+  gap: 0.35rem;
+  padding: 0.32rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 600;
-  white-space: nowrap;
-}
-
-.admin-content .badge-activo {
-  color: var(--color-exito);
-  background: rgba(76, 175, 80, 0.1);
-  border: 1px solid var(--color-exito);
-}
-
-.admin-content .badge-devuelto {
   color: var(--color-primario);
   background: rgba(33, 150, 243, 0.1);
-  border: 1px solid var(--color-primario);
+  border: 1px solid rgba(33, 150, 243, 0.28);
+  border-radius: 999px;
 }
 
-.admin-content .badge-cancelado {
-  color: var(--color-texto-secundario);
-  background: rgba(100, 116, 139, 0.1);
-  border: 1px solid var(--color-texto-secundario);
-}
-
-.admin-content .badge-automatico {
-  color: var(--color-purpura);
-  background: rgba(156, 39, 176, 0.1);
-  border: 1px solid var(--color-purpura);
-}
-
-.admin-content .badge-manual {
-  color: var(--color-naranja);
-  background: rgba(255, 152, 0, 0.1);
-  border: 1px solid var(--color-naranja);
-}
-
-.admin-content .badge-completo {
-  color: var(--color-info);
-  background: rgba(3, 169, 244, 0.1);
-  border: 1px solid var(--color-info);
-}
-
-.admin-content .badge-tabla {
-  color: var(--color-exito);
-  background: rgba(76, 175, 80, 0.1);
-  border: 1px solid var(--color-exito);
-}
-
-/* ============================================
-   BOTONES PRINCIPALES — igual que préstamos
-   ============================================ */
-.admin-content .btn-primary {
-  background: var(--color-info);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: inherit;
-}
-
-.admin-content .btn-primary:hover:not(:disabled) {
-  background: var(--color-primario-hover);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
-}
-
-.admin-content .btn-primary:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.admin-content .btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.admin-content .btn-secondary {
-  background: white;
-  color: #475569;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.admin-content .btn-secondary:hover:not(:disabled) {
-  background: #F8FAFC;
-  border-color: #94A3B8;
-}
-
-.admin-content .btn-secondary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ============================================
-   BOTONES DE ICONOS — igual que préstamos
-   ============================================ */
-.admin-content .btn-icon {
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.admin-content .btn-icon ion-icon {
-  font-size: 1.125rem;
-}
-
-.admin-content .btn-icon::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-0.5rem);
-  background: var(--color-texto);
-  color: white;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 10;
-}
-
-.admin-content .btn-icon:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(-0.25rem);
-}
-
-.admin-content .btn-icon-success { color: var(--color-exito); border-color: var(--color-exito); }
-.admin-content .btn-icon-success:hover { background: var(--color-exito); color: white; }
-
-.admin-content .btn-icon-danger { color: var(--color-peligro); border-color: var(--color-peligro); }
-.admin-content .btn-icon-danger:hover { background: var(--color-peligro); color: white; }
-
-.admin-content .btn-icon-warning { color: var(--color-amarillo); border-color: var(--color-amarillo); }
-.admin-content .btn-icon-warning:hover { background: var(--color-amarillo); color: white; }
-
-.admin-content .btn-icon-primary { color: var(--color-primario); border-color: var(--color-primario); }
-.admin-content .btn-icon-primary:hover { background: var(--color-primario); color: white; }
-
-.admin-content .btn-icon-mobile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: 1px solid;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.admin-content .btn-icon-mobile ion-icon { font-size: 1rem; }
-
-/* ============================================
-   LOADING — circular, igual que préstamos
-   ============================================ */
-.admin-content .loading-spinner {
-  border: 4px solid var(--color-borde);
-  border-top-color: var(--color-primario);
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Spinner pequeño inline para botones */
-.admin-content .loading-spinner-btn {
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: white;
-  border-radius: 50%;
-  width: 1rem;
-  height: 1rem;
-  animation: spin 0.7s linear infinite;
-  flex-shrink: 0;
-  display: inline-block;
-}
-
-/* ============================================
-   UPLOAD LOADING OVERLAY — igual que préstamos
-   ============================================ */
-.admin-content .upload-loading-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(33, 150, 243, 0.95);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  border-radius: 12px;
-}
-
-.admin-content .upload-loading-content {
-  text-align: center;
-  padding: 2rem;
-}
-
-.admin-content .upload-loading-overlay .loading-spinner {
-  border-color: rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  width: 4rem;
-  height: 4rem;
-  margin: 0 auto;
-}
-
-/* ============================================
-   MODALES — igual que préstamos
-   ============================================ */
-.admin-content .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(30, 41, 59, 0.75);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  z-index: 50;
+.gestion-backups .history-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.9rem;
   padding: 1rem;
-  padding-top: 5rem;
-  overflow-y: auto;
+  border: 1px solid var(--gb-border);
+  border-radius: 10px;
+  background: #ffffff;
 }
 
-.admin-content .modal-container {
-  background: #FFFFFF;
-  width: 100%;
-  max-width: 40rem;
-  max-height: calc(100vh - 6rem);
-  overflow-y: auto;
-  border: none;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  position: relative;
+.gestion-backups .history-icon {
+  width: 2.9rem;
+  height: 2.9rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #fff3e0;
+  color: #ef6c00;
 }
 
-.admin-content .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #E5E7EB;
-  background: #FFFFFF;
+.gestion-backups .history-icon.is-automatico {
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary);
 }
 
-.admin-content .modal-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1E293B;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.admin-content .modal-title ion-icon {
-  font-size: 1.5rem;
-  color: var(--color-primario);
-}
-
-.admin-content .btn-close {
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #F1F5F9;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.admin-content .btn-close:hover { background: #E2E8F0; }
-.admin-content .btn-close:disabled { opacity: 0.6; cursor: not-allowed; }
-.admin-content .btn-close ion-icon { font-size: 1.5rem; color: #64748B; }
-
-.admin-content .modal-body {
-  padding: 2rem;
-  background: #F8FAFC;
-}
-
-.admin-content .modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1.5rem 2rem;
-  border-top: 1px solid #E5E7EB;
-  background: #FFFFFF;
-}
-
-/* ============================================
-   CARDS MÓVILES — igual que préstamos
-   ============================================ */
-.admin-content .prestamo-card {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F0F8FF 100%);
-  border: 1px solid var(--color-borde);
-  padding: 1rem;
-  transition: all 0.2s ease;
-}
-
-.admin-content .prestamo-card:hover {
-  border-color: var(--color-primario);
-}
-
-.admin-content .card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #E5E7EB;
-  gap: 0.75rem;
-}
-
-.admin-content .card-nombre {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1E293B;
-  margin: 0 0 0.25rem 0;
-}
-
-.admin-content .card-titulo {
-  font-size: 0.875rem;
-  color: #475569;
-  margin: 0;
-}
-
-.admin-content .card-fechas {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  margin-bottom: 0.75rem;
-  font-size: 0.875rem;
-  color: #64748B;
-}
-
-.admin-content .card-fechas span {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.admin-content .card-fechas ion-icon { font-size: 1rem; flex-shrink: 0; }
-
-.admin-content .card-acciones {
+.gestion-backups .history-topline {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #E5E7EB;
-}
-
-/* ============================================
-   SIN RESULTADOS — igual que préstamos
-   ============================================ */
-.admin-content .sin-resultados {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 3rem 1rem;
-  color: #94A3B8;
-  font-size: 0.9375rem;
-}
-
-.admin-content .sin-resultados ion-icon { font-size: 2.5rem; color: #CBD5E1; }
-
-.admin-content .sin-devolucion { color: #94A3B8; font-style: italic; }
-
-/* ============================================
-   SECCIONES DEL FORMULARIO — nuevas, sin bordes laterales
-   ============================================ */
-
-/* Título interno de sección dentro de un card */
-.admin-content .seccion-titulo {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--color-borde);
-  background: var(--color-gris-claro);
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
 }
 
-.admin-content .seccion-titulo h3 {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--color-texto);
-  margin: 0;
-  display: flex;
+.gestion-backups .history-topline strong {
+  word-break: break-word;
+}
+
+.gestion-backups .history-badges {
+  flex-wrap: wrap;
+}
+
+.gestion-backups .history-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  min-height: 1.9rem;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  background: #fff3e0;
+  color: #ef6c00;
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
-.admin-content .seccion-titulo h3 ion-icon {
-  font-size: 1.125rem;
-  color: var(--color-primario);
+.gestion-backups .history-badge.is-automatico {
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary);
 }
 
-.admin-content .seccion-cuerpo {
-  padding: 1.5rem 1.25rem;
+.gestion-backups .history-badge.is-scope {
+  background: var(--gb-success-soft);
+  color: var(--gb-success);
 }
 
-/* Grid para formulario de programación */
-.admin-content .form-grid {
+.gestion-backups .history-meta {
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  font-size: 0.84rem;
+}
+
+.gestion-backups .history-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.gestion-backups .detail-card {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 280px));
-  gap: 1.25rem;
+  gap: 1rem;
+  max-height: 34rem;
+  overflow: auto;
+}
+
+.gestion-backups .detail-header {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.gestion-backups .detail-accent {
+  width: 0.45rem;
+  min-height: 100%;
+  border-radius: 999px;
+  background: var(--gb-primary);
+}
+
+.gestion-backups .detail-accent.is-inactive,
+.gestion-backups .queue-dot.is-inactive {
+  background: var(--gb-muted);
+}
+
+.gestion-backups .detail-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.gestion-backups .detail-meta-item {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.9rem;
+  border-radius: 10px;
+  background: var(--gb-surface-soft);
+}
+
+.gestion-backups .detail-meta-item span {
+  color: var(--gb-text-soft);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gestion-backups .detail-meta-item strong {
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+.gestion-backups .timeline-block {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.gestion-backups .timeline-title {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--gb-text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gestion-backups .timeline-item {
+  display: grid;
+  grid-template-columns: 0.75rem minmax(0, 1fr);
+  gap: 0.75rem;
   align-items: start;
 }
 
-.admin-content .form-group {
+.gestion-backups .timeline-marker {
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-top: 0.3rem;
+  border-radius: 999px;
+  background: var(--gb-primary);
+}
+
+.gestion-backups .timeline-item span {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--gb-text-soft);
+}
+
+.gestion-backups .detail-card-empty {
+  min-height: 14rem;
+  max-height: none;
+  align-items: center;
+  text-align: center;
+}
+
+.gestion-backups .queue-card,
+.gestion-backups .highlight-card {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.gestion-backups .queue-card {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.gestion-backups .queue-list {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 21rem;
+  overflow: auto;
+  padding-right: 0.1rem;
+}
+
+.gestion-backups .queue-item {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--gb-border);
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.gestion-backups .queue-item.is-selected {
+  border-color: rgba(26, 115, 232, 0.28);
+  background: var(--gb-primary-soft);
+}
+
+.gestion-backups .queue-item-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   min-width: 0;
 }
 
-.admin-content .form-label {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--color-texto-secundario);
+.gestion-backups .queue-item-main strong,
+.gestion-backups .queue-item-main span {
+  display: block;
 }
 
-.admin-content .form-input,
-.admin-content .form-select {
-  padding: 0.625rem 0.75rem;
-  font-size: 0.875rem;
-  color: var(--color-texto);
-  background: white;
-  border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  font-family: inherit;
-  cursor: pointer;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+.gestion-backups .queue-item-main strong {
+  margin-bottom: 0.2rem;
 }
 
-.admin-content .form-input:focus,
-.admin-content .form-select:focus {
-  outline: none;
-  border-color: var(--color-primario);
-  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
+.gestion-backups .queue-item-main span {
+  font-size: 0.84rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-/* Opciones de frecuencia como botones */
-.admin-content .frecuencia-grupo {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.admin-content .frecuencia-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  background: white;
-  color: var(--color-texto-secundario);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.admin-content .frecuencia-btn:hover {
-  border-color: var(--color-primario);
-  color: var(--color-primario);
-}
-
-.admin-content .frecuencia-btn-activo {
-  background: var(--color-primario);
-  border-color: var(--color-primario);
-  color: white;
-}
-
-/* Control de número de horas */
-.admin-content .horas-control {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.admin-content .horas-btn {
-  width: 2.25rem;
-  height: 2.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-gris-claro);
-  border: none;
-  cursor: pointer;
-  color: var(--color-primario);
-  font-size: 1.25rem;
-  font-weight: 700;
-  transition: background 0.15s;
-  font-family: inherit;
-}
-
-.admin-content .horas-btn:hover {
-  background: var(--color-azul-medio);
-  color: white;
-}
-
-.admin-content .horas-valor {
-  padding: 0 1rem;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-texto);
-  min-width: 4.5rem;
-  text-align: center;
-  background: white;
-  border-left: 1px solid #CBD5E1;
-  border-right: 1px solid #CBD5E1;
-  line-height: 2.25rem;
-}
-
-/* Círculos de días */
-.admin-content .dias-grupo {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.admin-content .dia-circulo {
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border: 1px solid #CBD5E1;
-  border-radius: 50%;
-  background: white;
-  color: var(--color-texto-secundario);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-  user-select: none;
-}
-
-.admin-content .dia-circulo:hover {
-  border-color: var(--color-primario);
-  color: var(--color-primario);
-}
-
-.admin-content .dia-circulo-activo {
-  background: var(--color-primario);
-  border-color: var(--color-primario);
-  color: white;
-}
-
-/* Segmento de filtro tipo (Todos / Automáticos / Manuales) */
-.admin-content .filtro-segmento {
-  display: inline-flex;
-  border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.admin-content .filtro-seg-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.5rem 0.875rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  border: none;
-  background: white;
-  color: var(--color-texto-secundario);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-  border-right: 1px solid #CBD5E1;
-}
-
-.admin-content .filtro-seg-btn:last-child { border-right: none; }
-
-.admin-content .filtro-seg-btn:hover {
-  background: var(--color-azul-suave);
-  color: var(--color-primario);
-}
-
-.admin-content .filtro-seg-activo {
-  background: var(--color-primario);
-  color: white;
-}
-
-.admin-content .filtro-seg-activo:hover {
-  background: var(--color-primario-hover);
-  color: white;
-}
-
-/* Nombre de archivo en monospace */
-.admin-content .archivo-texto {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: 0.75rem;
-  color: var(--color-texto);
-  word-break: break-all;
-  line-height: 1.5;
-}
-
-/* Hint de texto pequeño */
-.admin-content .form-hint {
-  font-size: 0.75rem;
-  color: #94A3B8;
-  margin-top: 0.25rem;
-}
-
-/* Respaldo completo + por tabla — panel de acciones */
-.admin-content .acciones-panel {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 0;
-  border-bottom: 1px solid var(--color-borde);
-}
-
-.admin-content .accion-bloque {
-  padding: 1.5rem 1.25rem;
-}
-
-.admin-content .accion-bloque + .accion-bloque {
-  border-left: 1px solid var(--color-borde);
-}
-
-.admin-content .accion-bloque-titulo {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--color-texto);
-  margin: 0 0 0.25rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.admin-content .accion-bloque-titulo ion-icon {
-  font-size: 1.125rem;
-  color: var(--color-primario);
-}
-
-.admin-content .accion-bloque-desc {
-  font-size: 0.8125rem;
-  color: var(--color-texto-secundario);
-  margin: 0 0 1rem 0;
-}
-
-.admin-content .accion-controles {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  flex-wrap: wrap;
-}
-
-/* ============================================
-   RESPONSIVE — igual que préstamos
-   ============================================ */
-@media (max-width: 640px) {
-  .admin-content { padding: 1rem; }
-  .admin-content .header-section { padding: 1rem; }
-  .admin-content .page-title { font-size: 1.5rem; }
-
-  .admin-content .filtros-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .admin-content .filtros-bar select,
-  .admin-content .btn-refresh {
-    width: 100%;
-  }
-
-  .admin-content .acciones-panel {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-content .accion-bloque + .accion-bloque {
-    border-left: none;
-    border-top: 1px solid var(--color-borde);
-  }
-
-  .admin-content .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-content .modal-overlay { padding-top: 3rem; }
-  .admin-content .modal-container { max-height: calc(100vh - 4rem); }
-  .admin-content .modal-header,
-  .admin-content .modal-body,
-  .admin-content .modal-footer { padding: 1.25rem; }
-  .admin-content .modal-footer { flex-direction: column; }
-  .admin-content .btn-primary,
-  .admin-content .btn-secondary { width: 100%; }
-}
-
-/* ============================================
-   SCROLL PERSONALIZADO
-   ============================================ */
-.admin-content .modal-container::-webkit-scrollbar,
-.admin-content .overflow-x-auto::-webkit-scrollbar { width: 8px; height: 8px; }
-
-.admin-content .modal-container::-webkit-scrollbar-track,
-.admin-content .overflow-x-auto::-webkit-scrollbar-track { background: var(--color-gris-claro); }
-
-.admin-content .modal-container::-webkit-scrollbar-thumb,
-.admin-content .overflow-x-auto::-webkit-scrollbar-thumb { background: var(--color-borde); border-radius: 4px; }
-
-.admin-content .modal-container::-webkit-scrollbar-thumb:hover,
-.admin-content .overflow-x-auto::-webkit-scrollbar-thumb:hover { background: var(--color-primario); }
-
-/* ============================================
-   UTILIDADES
-   ============================================ */
-.admin-content ion-icon { pointer-events: none; }
-.admin-content * { box-sizing: border-box; }
-
-
-
-/* ============================================
-   BANNER CLOUDINARY
-   Agregar al final de gestion-backups.css
-   ============================================ */
-
-.admin-content .cloudinary-banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
-  background: linear-gradient(135deg, #E3F2FD 0%, #EDE7F6 100%);
-  border: 1px solid #B39DDB;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-}
-
-.admin-content .cloudinary-banner > ion-icon {
-  font-size: 1.75rem;
-  color: #7E57C2;
+.gestion-backups .queue-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: var(--gb-success);
   flex-shrink: 0;
-  margin-top: 0.1rem;
 }
 
-.admin-content .cloudinary-banner-titulo {
-  font-size: 0.875rem;
+.gestion-backups .queue-state {
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #4527A0;
-  margin: 0 0 0.25rem 0;
-}
-
-.admin-content .cloudinary-banner-desc {
-  font-size: 0.8125rem;
-  color: #37474F;
-  margin: 0;
-  line-height: 1.6;
-}
-
-.admin-content .cloudinary-path {
-  display: inline-block;
-  background: rgba(126, 87, 194, 0.12);
-  color: #512DA8;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: 0.75rem;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  border: 1px solid rgba(126, 87, 194, 0.25);
-}
-
-/* Tag "Cloudinary" en la columna de ubicación */
-.admin-content .cloudinary-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.3rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #7E57C2;
-  background: rgba(126, 87, 194, 0.1);
-  border: 1px solid #B39DDB;
-  border-radius: 4px;
   white-space: nowrap;
 }
 
-.admin-content .cloudinary-tag ion-icon {
+.gestion-backups .highlight-next {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--gb-primary-soft) 0%, #f5f8ff 100%);
+}
+
+.gestion-backups .card-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(227, 242, 253, 0.94);
+  backdrop-filter: blur(3px);
+  border-radius: 12px;
+}
+
+.gestion-backups .card-loading-content {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  text-align: center;
+  color: var(--color-texto);
+}
+
+.gestion-backups .card-loading-content strong {
+  font-size: 1rem;
+}
+
+.gestion-backups .card-loading-content p {
+  margin: 0;
+  color: var(--color-texto-secundario);
+  line-height: 1.5;
+}
+
+.gestion-backups .highlight-next strong {
+  font-size: 1.05rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.gestion-backups .queue-empty,
+.gestion-backups .highlight-card p {
+  margin: 0;
+}
+
+.gestion-backups .pagination-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-borde);
+}
+
+@media (min-width: 720px) {
+  .gestion-backups .pagination-section {
+    flex-direction: row;
+  }
+}
+
+.gestion-backups .pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--color-texto-secundario);
   font-size: 0.875rem;
+  text-align: center;
+}
+
+.gestion-backups .pagination-info strong {
+  color: var(--color-primario);
+  font-weight: 600;
+}
+
+.gestion-backups .pagination-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gestion-backups .pagination-page-size {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gestion-backups .pagination-select {
+  min-width: 9rem;
+  height: 2.4rem;
+  padding: 0 0.85rem;
+}
+
+.gestion-backups .pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gestion-backups .pagination-btn {
+  min-width: 2.375rem;
+  height: 2.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-texto-secundario);
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gestion-backups .pagination-btn:hover:not(:disabled) {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+  color: var(--color-texto);
+}
+
+.gestion-backups .pagination-btn.active {
+  background: var(--color-primario);
+  border-color: var(--color-primario);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.gestion-backups .pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #F8FAFC;
+}
+
+.gestion-backups .pagination-btn ion-icon {
+  font-size: 1.125rem;
+}
+
+.gestion-backups .pagination-dots {
+  color: var(--color-texto-secundario);
+  font-size: 0.875rem;
+  padding: 0 0.25rem;
+}
+
+@media (max-width: 1600px) {
+  .gestion-backups .workspace-grid {
+    grid-template-columns: minmax(17rem, 19rem) minmax(0, 1fr);
+  }
+
+  .gestion-backups .detail-rail {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1280px) {
+  .gestion-backups .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-backups .detail-rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .gestion-backups {
+    padding: 1rem;
+  }
+
+  .gestion-backups .detail-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-backups .detail-card,
+  .gestion-backups .queue-list {
+    max-height: none;
+  }
+
+  .gestion-backups .surface-head,
+  .gestion-backups .toolbar-main,
+  .gestion-backups .toolbar-actions {
+    align-items: flex-start;
+  }
+
+  .gestion-backups .surface-head,
+  .gestion-backups .toolbar-actions,
+  .gestion-backups .toolbar-nav {
+    flex-direction: column;
+  }
+
+  .gestion-backups .toolbar-btn,
+  .gestion-backups .primary-action,
+  .gestion-backups .secondary-action {
+    width: 100%;
+  }
+
+  .gestion-backups .table-backup-row,
+  .gestion-backups .agenda-item,
+  .gestion-backups .detail-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-backups .pagination-toolbar,
+  .gestion-backups .pagination-page-size {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .gestion-backups .calendar-toolbar,
+  .gestion-backups .surface-card {
+    border-radius: 20px;
+    padding: 1rem;
+  }
+
+  .gestion-backups .toolbar-title {
+    flex-direction: column;
+  }
+
+  .gestion-backups .toolbar-title h1 {
+    font-size: 1.55rem;
+  }
+
+  .gestion-backups .stats-row {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .gestion-backups .stat-pill {
+    flex: 1 1 0;
+  }
+
+  .gestion-backups .month-cell {
+    min-height: 7rem;
+    padding: 0.55rem;
+  }
+
+  .gestion-backups .month-event {
+    min-height: 1.75rem;
+  }
+
+  .gestion-backups .month-event-title {
+    display: none;
+  }
+
+  .gestion-backups .history-item {
+    grid-template-columns: 1fr;
+  }
 }
