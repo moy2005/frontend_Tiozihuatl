@@ -39,7 +39,7 @@ export class GestionUsuariosComponent implements OnInit {
   archivoSeleccionado: File | null = null;
   resultadoImportacion: any = null;
   importData: any = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
-  esAlumnoImport = false;
+  esEstudianteImport = false;
 
   // ── Preview Excel ──────────────────────────────────────────
   previewImport: any[] = [];
@@ -63,7 +63,7 @@ export class GestionUsuariosComponent implements OnInit {
   pasoAvanzar = 1;
   cargandoAvanzar = false;
   cargandoPreview = false;
-  alumnosParaAvance: any[] = [];
+  estudiantesParaAvance: any[] = [];
   avanzarData: any = {
     id_periodo_origen: '',
     id_periodo_destino: ''
@@ -317,7 +317,7 @@ export class GestionUsuariosComponent implements OnInit {
 
   abrirModalAvanzar() {
     this.avanzarData = { id_periodo_origen: '', id_periodo_destino: '' };
-    this.alumnosParaAvance = [];
+    this.estudiantesParaAvance = [];
     this.pasoAvanzar = 1;
     this.mostrarModalAvanzar = true;
   }
@@ -325,7 +325,7 @@ export class GestionUsuariosComponent implements OnInit {
   cerrarModalAvanzar() {
     this.mostrarModalAvanzar = false;
     this.pasoAvanzar = 1;
-    this.alumnosParaAvance = [];
+    this.estudiantesParaAvance = [];
   }
 
   cargarPreviewAvance() {
@@ -334,23 +334,23 @@ export class GestionUsuariosComponent implements OnInit {
 
     this.adminService.getPreviewAvance(this.avanzarData.id_periodo_origen).subscribe({
       next: (res) => {
-        this.alumnosParaAvance = res.map(a => ({ ...a, accion: 'AVANZAR' }));
+        this.estudiantesParaAvance = res.map(a => ({ ...a, accion: 'AVANZAR' }));
         this.cargandoPreview = false;
         this.pasoAvanzar = 2;
       },
       error: () => {
         this.cargandoPreview = false;
-        Swal.fire('Error', 'No se pudieron cargar los alumnos del periodo.', 'error');
+        Swal.fire('Error', 'No se pudieron cargar los estudiantes del periodo.', 'error');
       }
     });
   }
 
   countAccion(accion: string): number {
-    return this.alumnosParaAvance.filter(a => a.accion === accion).length;
+    return this.estudiantesParaAvance.filter(a => a.accion === accion).length;
   }
 
   toggleTodosAvanzar(accion: string) {
-    this.alumnosParaAvance.forEach(a => a.accion = accion);
+    this.estudiantesParaAvance.forEach(a => a.accion = accion);
   }
 
   ejecutarAvanzarSemestre() {
@@ -370,15 +370,15 @@ export class GestionUsuariosComponent implements OnInit {
           <hr style="margin: 0.75rem 0;">
           <p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
             <ion-icon name="arrow-up-circle-outline" style="font-size:1.1rem; color:#16A34A;"></ion-icon>
-            <strong>${avanzar}</strong> alumnos avanzan de semestre
+            <strong>${avanzar}</strong> estudiantes avanzan de semestre
           </p>
           <p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
             <ion-icon name="refresh-circle-outline" style="font-size:1.1rem; color:#D97706;"></ion-icon>
-            <strong>${repetir}</strong> alumnos repiten
+            <strong>${repetir}</strong> estudiantes repiten
           </p>
           <p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
             <ion-icon name="remove-circle-outline" style="font-size:1.1rem; color:#DC2626;"></ion-icon>
-            <strong>${baja}</strong> alumnos de baja
+            <strong>${baja}</strong> estudiantes de baja
           </p>
           <hr style="margin: 0.75rem 0;">
           <p style="color:#DC2626; font-size:0.8rem;">Esta acción no se puede deshacer.</p>
@@ -397,7 +397,7 @@ export class GestionUsuariosComponent implements OnInit {
         const payload = {
           id_periodo_origen : this.avanzarData.id_periodo_origen,
           id_periodo_destino: this.avanzarData.id_periodo_destino,
-          alumnos: this.alumnosParaAvance.map(a => ({
+          estudiantes: this.estudiantesParaAvance.map(a => ({
             id_usuario: a.id_usuario,
             accion    : a.accion
           }))
@@ -409,7 +409,7 @@ export class GestionUsuariosComponent implements OnInit {
             this.cerrarModalAvanzar();
             Swal.fire({
               title: '¡Proceso completado!',
-              html : `<strong>${res.alumnosProcesados}</strong> alumno(s) procesado(s) correctamente.`,
+              html : `<strong>${res.estudiantesProcesados}</strong> estudiante(s) procesado(s) correctamente.`,
               icon : 'success'
             });
             this.filtrosActivos ? this.aplicarFiltros() : this.cargarUsuarios();
@@ -476,7 +476,7 @@ export class GestionUsuariosComponent implements OnInit {
     switch (rol) {
       case 'Administrador':
         return true;
-      case 'Alumno':
+      case 'Estudiante':
         return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','id_carrera','id_semestre','id_periodo','grupo','estado'].includes(campo);
       case 'Docente':
         return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','id_carrera','estado'].includes(campo);
@@ -506,17 +506,17 @@ export class GestionUsuariosComponent implements OnInit {
       return;
     }
 
-    if (rol === 'Alumno') {
+    if (rol === 'Estudiante') {
       if (!user.id_carrera || !user.id_semestre || !user.matricula || !user.telefono) {
-        Swal.fire('Campos requeridos', 'Alumno debe tener carrera, semestre, matrícula y teléfono.', 'info');
+        Swal.fire('Campos requeridos', 'Estudiante debe tener carrera, semestre, matrícula y teléfono.', 'info');
         return;
       }
       if (!user.grupo || !['A', 'B'].includes(user.grupo)) {
-        Swal.fire('Grupo requerido', 'Alumno debe tener un grupo válido (A o B).', 'info');
+        Swal.fire('Grupo requerido', 'Estudiante debe tener un grupo válido (A o B).', 'info');
         return;
       }
       if (!isEdit && !user.id_periodo) {
-        Swal.fire('Periodo requerido', 'Alumno debe tener un periodo asignado.', 'info');
+        Swal.fire('Periodo requerido', 'Estudiante debe tener un periodo asignado.', 'info');
         return;
       }
     } else if (rol === 'Docente') {
@@ -600,7 +600,7 @@ export class GestionUsuariosComponent implements OnInit {
     this.archivoSeleccionado     = null;
     this.previewImport           = [];
     this.mostrarPreview          = false;
-    this.esAlumnoImport          = false;
+    this.esEstudianteImport      = false;
   }
 
   cerrarImportacion() {
@@ -609,8 +609,8 @@ export class GestionUsuariosComponent implements OnInit {
 
   onRolImportChange() {
     const rol = this.getRolNombre(this.importData.id_rol);
-    this.esAlumnoImport = rol === 'Alumno';
-    if (!this.esAlumnoImport) {
+    this.esEstudianteImport = rol === 'Estudiante';
+    if (!this.esEstudianteImport) {
       this.importData.id_carrera  = '';
       this.importData.id_semestre = '';
       this.importData.grupo       = '';
@@ -706,16 +706,16 @@ export class GestionUsuariosComponent implements OnInit {
       Swal.fire('Error', 'Debe seleccionar un rol.', 'warning');
       return;
     }
-    if (this.esAlumnoImport && (!this.importData.id_carrera || !this.importData.id_semestre)) {
-      Swal.fire('Error', 'Alumno requiere carrera y semestre.', 'warning');
+    if (this.esEstudianteImport && (!this.importData.id_carrera || !this.importData.id_semestre)) {
+      Swal.fire('Error', 'Estudiante requiere carrera y semestre.', 'warning');
       return;
     }
-    if (this.esAlumnoImport && !this.importData.grupo) {
-      Swal.fire('Error', 'Alumno requiere grupo (A o B).', 'warning');
+    if (this.esEstudianteImport && !this.importData.grupo) {
+      Swal.fire('Error', 'Estudiante requiere grupo (A o B).', 'warning');
       return;
     }
-    if (this.esAlumnoImport && !this.importData.id_periodo) {
-      Swal.fire('Error', 'Alumno requiere un periodo.', 'warning');
+    if (this.esEstudianteImport && !this.importData.id_periodo) {
+      Swal.fire('Error', 'Estudiante requiere un periodo.', 'warning');
       return;
     }
     if (!this.archivoSeleccionado) {

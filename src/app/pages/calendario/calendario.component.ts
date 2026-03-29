@@ -69,7 +69,7 @@ export class CalendarioComponent implements OnInit {
   private cargarCalendarioPorTipo(esDocente: boolean): void {
     const peticion$ = esDocente
       ? this.calendarService.getCalendarDocente()
-      : this.calendarService.getCalendarPublic('ALUMNO');
+      : this.calendarService.getCalendarPublic('ESTUDIANTE');
 
     peticion$.subscribe({
       next: (res: any) => {

@@ -44,7 +44,7 @@
           (change)="buscarCalendarios()"
           class="modal-input">
           <option value="">Todos</option>
-          <option value="ALUMNO">Alumno</option>
+          <option value="ESTUDIANTE">Estudiante</option>
           <option value="DOCENTE">Docente</option>
         </select>
 
@@ -99,9 +99,9 @@
               <!-- Destinado a -->
               <td class="td-cell">
                 <span class="badge-estado"
-                  [ngClass]="c.tipo_calendario === 'ALUMNO' ? 'badge-alumno' : 'badge-docente'">
-                  <ion-icon [name]="c.tipo_calendario === 'ALUMNO' ? 'school-outline' : 'person-outline'"></ion-icon>
-                  {{ c.tipo_calendario === 'ALUMNO' ? 'Alumno' : 'Docente' }}
+                  [ngClass]="c.tipo_calendario === 'ESTUDIANTE' ? 'badge-estudiante' : 'badge-docente'">
+                  <ion-icon [name]="c.tipo_calendario === 'ESTUDIANTE' ? 'school-outline' : 'person-outline'"></ion-icon>
+                  {{ c.tipo_calendario === 'ESTUDIANTE' ? 'Estudiante' : 'Docente' }}
                 </span>
               </td>
 
@@ -186,9 +186,9 @@
                 </span>
                 <!-- Destinado a -->
                 <span class="badge-estado"
-                  [ngClass]="c.tipo_calendario === 'ALUMNO' ? 'badge-alumno' : 'badge-docente'">
-                  <ion-icon [name]="c.tipo_calendario === 'ALUMNO' ? 'school-outline' : 'person-outline'"></ion-icon>
-                  {{ c.tipo_calendario === 'ALUMNO' ? 'Alumno' : 'Docente' }}
+                  [ngClass]="c.tipo_calendario === 'ESTUDIANTE' ? 'badge-estudiante' : 'badge-docente'">
+                  <ion-icon [name]="c.tipo_calendario === 'ESTUDIANTE' ? 'school-outline' : 'person-outline'"></ion-icon>
+                  {{ c.tipo_calendario === 'ESTUDIANTE' ? 'Estudiante' : 'Docente' }}
                 </span>
               </div>
               <p class="card-nombre">{{ c.titulo }}</p>
@@ -310,7 +310,7 @@
           <div class="select-wrap">
             <ion-icon name="chevron-down-outline" class="select-chevron"></ion-icon>
             <select [(ngModel)]="tipo_calendario" class="modal-input select-input">
-              <option value="ALUMNO">Alumno</option>
+              <option value="ESTUDIANTE">Estudiante</option>
               <option value="DOCENTE">Docente</option>
             </select>
           </div>

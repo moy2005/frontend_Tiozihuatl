@@ -59,7 +59,7 @@ export class GestionPrestamosComponent implements OnInit {
       resultado = resultado.filter(p => p.estado === this.filtroEstado);
     }
 
-    // Búsqueda por alumno o libro
+    // Búsqueda por estudiante o libro
     if (this.filtroBusqueda.trim()) {
       const busq = this.filtroBusqueda.toLowerCase();
       resultado = resultado.filter(p =>

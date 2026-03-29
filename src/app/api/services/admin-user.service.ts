@@ -95,7 +95,7 @@ export class AdminUserService {
 avanzarSemestre(payload: {
   id_periodo_origen: number | string;
   id_periodo_destino: number | string;
-  alumnos: { id_usuario: number; accion: string }[];
+  estudiantes: { id_usuario: number; accion: string }[];
 }): Observable<any> {
   return this.http.post<any>(
     `${this.api}/avanzar-semestre`,
@@ -104,7 +104,7 @@ avanzarSemestre(payload: {
   );
 }
 
-/** 👁 Preview de alumnos para avanzar semestre */
+/** 👁 Preview de estudiantes para avanzar semestre */
 getPreviewAvance(id_periodo: number | string): Observable<any[]> {
   return this.http.get<any[]>(`${this.api}/avanzar-preview`, {
     headers: this.getAuthHeaders(),

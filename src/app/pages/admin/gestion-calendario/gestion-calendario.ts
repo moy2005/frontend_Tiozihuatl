@@ -28,7 +28,7 @@ export class GestionCalendarioComponent {
   guardando = false;   // modal (crear / actualizar)
 
   titulo = '';
-  tipo_calendario: 'ALUMNO' | 'DOCENTE' = 'ALUMNO';
+  tipo_calendario: 'ESTUDIANTE' | 'DOCENTE' = 'ESTUDIANTE';
   tipo_archivo: 'PDF' | 'IMAGEN' = 'PDF';
   archivo: File | null = null;
   archivoNombre = '';
@@ -327,7 +327,7 @@ limpiarFiltros() {
     this.modoEdicion = false;
     this.idEdicion = null;
     this.titulo = '';
-    this.tipo_calendario = 'ALUMNO';
+    this.tipo_calendario = 'ESTUDIANTE';
     this.tipo_archivo = 'PDF';
     this.archivo = null;
     this.titulo_seccion = '';

@@ -32,7 +32,7 @@ export class PerfilUsuarioComponent implements OnInit {
     case 'Administrador':  return 'ph ph-user';
     case 'Docente':        return 'ph ph-chalkboard-teacher';
     case 'Bibliotecario':  return 'ph ph-books';
-    case 'Alumno':         return 'ph ph-student';
+    case 'Estudiante':     return 'ph ph-student';
     case 'Visitante':      return 'ph ph-user';
     default:               return 'ph ph-user';
   }
@@ -109,7 +109,7 @@ export class PerfilUsuarioComponent implements OnInit {
       case 'Visitante': return !['matricula', 'carrera', 'semestre'].includes(campo);
       case 'Bibliotecario': return !['carrera', 'semestre'].includes(campo);
       case 'Docente': return campo !== 'semestre';
-      case 'Alumno': return true;
+      case 'Estudiante': return true;
       default: return false;
     }
   }

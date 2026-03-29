@@ -156,38 +156,38 @@
         <table class="min-w-full">
           <thead class="table-header">
             <tr>
-              <ng-container *ngIf="filtros.rol === 'Alumno'">
+              <ng-container *ngIf="filtros.rol === 'Estudiante'">
                 <th class="th-cell">Matrícula</th>
               </ng-container>
               <th class="th-cell">Nombre Completo</th>
-              <ng-container *ngIf="filtros.rol !== 'Alumno'">
+              <ng-container *ngIf="filtros.rol !== 'Estudiante'">
                 <th class="th-cell">Correo Electrónico</th>
                 <th class="th-cell">Rol</th>
               </ng-container>
-              <ng-container *ngIf="filtros.rol === 'Alumno'">
+              <ng-container *ngIf="filtros.rol === 'Estudiante'">
                 <th class="th-cell">Semestre</th>
                 <th class="th-cell">Grupo</th>
               </ng-container>
-              <th *ngIf="filtros.rol !== 'Alumno'" class="th-cell">Semestre / Grupo</th>
+              <th *ngIf="filtros.rol !== 'Estudiante'" class="th-cell">Semestre / Grupo</th>
               <th class="th-cell">Estado</th>
               <th class="th-cell text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let u of usuariosPaginados" class="table-row">
-              <ng-container *ngIf="filtros.rol === 'Alumno'">
+              <ng-container *ngIf="filtros.rol === 'Estudiante'">
                 <td class="td-cell font-mono text-sm font-medium">{{ u.matricula || '—' }}</td>
               </ng-container>
               <td class="td-cell font-medium text-gray-900">{{ u.a_paterno }} {{ u.a_materno }} {{ u.nombre }}</td>
-              <ng-container *ngIf="filtros.rol !== 'Alumno'">
+              <ng-container *ngIf="filtros.rol !== 'Estudiante'">
                 <td class="td-cell text-gray-600">{{ u.correo }}</td>
                 <td class="td-cell"><span class="badge-rol">{{ u.rol }}</span></td>
               </ng-container>
-              <ng-container *ngIf="filtros.rol === 'Alumno'">
+              <ng-container *ngIf="filtros.rol === 'Estudiante'">
                 <td class="td-cell">{{ u.semestre || '—' }}</td>
                 <td class="td-cell">{{ u.grupo || '—' }}</td>
               </ng-container>
-              <td *ngIf="filtros.rol !== 'Alumno'" class="td-cell text-gray-500 text-sm">
+              <td *ngIf="filtros.rol !== 'Estudiante'" class="td-cell text-gray-500 text-sm">
                 <span *ngIf="u.semestre">{{ u.semestre }}<span *ngIf="u.grupo"> / Grupo {{ u.grupo }}</span></span>
                 <span *ngIf="!u.semestre && !u.grupo" style="color:#CBD5E1;">—</span>
               </td>
@@ -245,7 +245,7 @@
                 </span>
               </div>
               <h4 class="text-lg font-bold text-gray-900">{{ u.nombre }} {{ u.a_paterno }} {{ u.a_materno }}</h4>
-              <ng-container *ngIf="filtros.rol === 'Alumno'">
+              <ng-container *ngIf="filtros.rol === 'Estudiante'">
                 <div class="grid grid-cols-2 gap-2 mt-2 text-sm">
                   <div class="col-span-2 bg-blue-50 border border-blue-200 p-2 rounded">
                     <span class="text-xs text-blue-600 block">Matrícula</span>
@@ -265,7 +265,7 @@
                   </div>
                 </div>
               </ng-container>
-              <ng-container *ngIf="filtros.rol !== 'Alumno'">
+              <ng-container *ngIf="filtros.rol !== 'Estudiante'">
                 <p class="text-sm text-gray-600 mt-1">{{ u.correo }}</p>
                 <div class="flex items-center gap-2 mt-1">
                   <span class="badge-rol text-xs">{{ u.rol }}</span>
@@ -323,7 +323,7 @@
               <div class="stepper-line" [ngClass]="pasoAvanzar >= 2 ? 'stepper-line-active' : ''"></div>
               <div class="stepper-step" [ngClass]="pasoAvanzar >= 2 ? 'stepper-active' : ''">
                 <span class="stepper-num">2</span>
-                <span class="stepper-label hidden sm:inline">Alumnos</span>
+                <span class="stepper-label hidden sm:inline">Estudiantes</span>
               </div>
             </div>
             <button (click)="cerrarModalAvanzar()" class="btn-close">
@@ -340,8 +340,8 @@
                   <p class="avanzar-info-titulo">¿Cómo funciona?</p>
                   <p class="avanzar-info-texto">
                     Selecciona el periodo que vas a <strong>cerrar</strong> (origen) y el periodo al que
-                    pasarán los alumnos (destino). En el siguiente paso podrás elegir qué acción aplicar
-                    a cada alumno individualmente.
+                    pasarán los estudiantes (destino). En el siguiente paso podrás elegir qué acción aplicar
+                    a cada estudiante individualmente.
                   </p>
                 </div>
               </div>
@@ -363,7 +363,7 @@
                   </select>
                   <p class="avanzar-periodo-hint">
                     <ion-icon name="information-circle-outline"></ion-icon>
-                    Periodo del que provienen los alumnos actualmente.
+                    Periodo del que provienen los estudiantes actualmente.
                   </p>
                 </div>
 
@@ -386,7 +386,7 @@
                   </select>
                   <p class="avanzar-periodo-hint">
                     <ion-icon name="information-circle-outline"></ion-icon>
-                    Periodo al que pasarán los alumnos.
+                    Periodo al que pasarán los estudiantes.
                   </p>
                 </div>
               </div>
@@ -405,7 +405,7 @@
                 </div>
                 <div class="avanzar-resumen-total">
                   <ion-icon name="people-outline"></ion-icon>
-                  <strong>{{ alumnosParaAvance.length }}</strong> alumnos
+                  <strong>{{ estudiantesParaAvance.length }}</strong> estudiantes
                 </div>
               </div>
 
@@ -431,7 +431,7 @@
                 <table class="avanzar-tabla">
                   <thead>
                     <tr>
-                      <th>Alumno</th>
+                      <th>Estudiante</th>
                       <th>Matrícula</th>
                       <th>Semestre</th>
                       <th>Grupo</th>
@@ -439,7 +439,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let a of alumnosParaAvance"
+                    <tr *ngFor="let a of estudiantesParaAvance"
                       [ngClass]="{
                         'fila-baja': a.accion === 'BAJA',
                         'fila-repetir': a.accion === 'REPETIR',
@@ -493,7 +493,7 @@
                 class="btn-primary flex items-center gap-2">
                 <div *ngIf="cargandoPreview" class="loading-spinner-sm"></div>
                 <ion-icon *ngIf="!cargandoPreview" name="people-outline"></ion-icon>
-                {{ cargandoPreview ? 'Cargando...' : 'Ver alumnos' }}
+                {{ cargandoPreview ? 'Cargando...' : 'Ver estudiantes' }}
                 <ion-icon *ngIf="!cargandoPreview" name="arrow-forward-outline"></ion-icon>
               </button>
             </ng-container>
@@ -502,7 +502,7 @@
                 <ion-icon name="arrow-back-outline"></ion-icon> Atrás
               </button>
               <button (click)="ejecutarAvanzarSemestre()"
-                [disabled]="cargandoAvanzar || alumnosParaAvance.length === 0"
+                [disabled]="cargandoAvanzar || estudiantesParaAvance.length === 0"
                 class="btn-danger flex items-center gap-2">
                 <div *ngIf="cargandoAvanzar" class="loading-spinner-sm"></div>
                 <ion-icon *ngIf="!cargandoAvanzar" name="checkmark-circle-outline"></ion-icon>
@@ -623,7 +623,7 @@
                   <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
                 </select>
                 <p class="text-xs text-gray-500 mt-1" *ngIf="editando">
-                  Cambiar el periodo actualizará la trayectoria académica del alumno.
+                  Cambiar el periodo actualizará la trayectoria académica del estudiante.
                 </p>
               </div>
 
@@ -748,29 +748,29 @@
                 </select>
               </div>
 
-              <!-- Campos de alumno -->
-              <div class="form-group" *ngIf="esAlumnoImport">
+              <!-- Campos de estudiante -->
+              <div class="form-group" *ngIf="esEstudianteImport">
                 <label class="form-label">Periodo *</label>
                 <select [(ngModel)]="importData.id_periodo" class="form-input">
                   <option value="">Seleccionar Periodo</option>
                   <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
                 </select>
               </div>
-              <div class="form-group" *ngIf="esAlumnoImport">
+              <div class="form-group" *ngIf="esEstudianteImport">
                 <label class="form-label">Carrera *</label>
                 <select [(ngModel)]="importData.id_carrera" class="form-input">
                   <option value="">Seleccionar Carrera</option>
                   <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
                 </select>
               </div>
-              <div class="form-group" *ngIf="esAlumnoImport">
+              <div class="form-group" *ngIf="esEstudianteImport">
                 <label class="form-label">Semestre *</label>
                 <select [(ngModel)]="importData.id_semestre" class="form-input">
                   <option value="">Seleccionar Semestre</option>
                   <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
                 </select>
               </div>
-              <div class="form-group" *ngIf="esAlumnoImport">
+              <div class="form-group" *ngIf="esEstudianteImport">
                 <label class="form-label">Grupo *</label>
                 <select [(ngModel)]="importData.grupo" class="form-input">
                   <option value="">Seleccionar Grupo</option>

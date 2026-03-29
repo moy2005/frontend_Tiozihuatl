@@ -11,7 +11,7 @@ export class CalendarService {
 
   constructor(private readonly http: HttpClient) {}
 
-  // Público (Alumno)
+  // Público (Estudiante)
   getCalendarPublic(tipo: string) {
     return this.http.get(`${this.apiUrl}/public/${tipo}`);
   }
