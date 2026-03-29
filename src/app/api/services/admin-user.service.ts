@@ -10,7 +10,7 @@ export class AdminUserService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
     return new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
@@ -54,19 +54,22 @@ export class AdminUserService {
 
   /** 📤 Importar usuarios desde Excel */
   importExcel(formData: FormData): Observable<any> {
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
     return this.http.post<any>(`${this.api}/import`, formData, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        Authorization: `Bearer ${token}`,
       },
     });
   }
 
   /** 📥 Descargar plantilla Excel */
-  downloadTemplate(): Observable<Blob> {
+  downloadTemplate(idRol: number | string): Observable<Blob> {
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
     return this.http.get(`${this.api}/template`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        Authorization: `Bearer ${token}`,
       },
+      params: new HttpParams().set('id_rol', String(idRol)),
       responseType: 'blob',
     });
   }

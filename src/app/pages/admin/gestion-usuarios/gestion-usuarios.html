@@ -1,4 +1,4 @@
-<div class="admin-content">
+﻿<div class="admin-content">
   <div class="max-w-[95%] mx-auto">
 
     <!-- ══════════════════════════════════════════════════════
@@ -549,9 +549,14 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('correo')}">Correo Electrónico</label>
+                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('correo')}">
+                  Correo Electrónico{{ rolFormularioActual === 'Estudiante' ? ' (opcional)' : ' *' }}
+                </label>
                 <input [(ngModel)]="nuevoUsuario.correo" placeholder="correo@ejemplo.com" type="email"
                   [disabled]="!campoActivo('correo')" class="form-input" />
+                <p class="text-xs text-gray-500 mt-1" *ngIf="rolFormularioActual === 'Estudiante'">
+                  El estudiante puede registrar su correo más adelante desde su perfil.
+                </p>
               </div>
 
               <div class="form-group">
@@ -594,36 +599,36 @@
                 </select>
               </div>
 
-              <div class="form-group">
-                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('matricula')}">Matrícula</label>
+              <div class="form-group" *ngIf="campoActivo('matricula')">
+                <label class="form-label">Matrícula *</label>
                 <input [(ngModel)]="nuevoUsuario.matricula" placeholder="Ingrese la matrícula"
-                  [disabled]="!campoActivo('matricula')" class="form-input" />
+                  class="form-input" />
               </div>
 
-              <div class="form-group">
-                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('id_carrera')}">Carrera</label>
-                <select [(ngModel)]="nuevoUsuario.id_carrera" [disabled]="!campoActivo('id_carrera')" class="form-input">
+              <div class="form-group" *ngIf="campoActivo('id_carrera')">
+                <label class="form-label">Carrera *</label>
+                <select [(ngModel)]="nuevoUsuario.id_carrera" class="form-input">
                   <option value="">Seleccionar Carrera</option>
                   <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
                 </select>
               </div>
 
-              <div class="form-group">
-                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('id_semestre')}">Semestre</label>
-                <select [(ngModel)]="nuevoUsuario.id_semestre" [disabled]="!campoActivo('id_semestre')" class="form-input">
+              <div class="form-group" *ngIf="campoActivo('id_semestre')">
+                <label class="form-label">Semestre *</label>
+                <select [(ngModel)]="nuevoUsuario.id_semestre" class="form-input">
                   <option value="">Seleccionar Semestre</option>
                   <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
                 </select>
               </div>
 
               <div class="form-group" *ngIf="campoActivo('id_periodo')">
-                <label class="form-label">Periodo {{ !editando ? '*' : '(opcional)' }}</label>
+                <label class="form-label">Periodo *</label>
                 <select [(ngModel)]="nuevoUsuario.id_periodo" class="form-input">
                   <option value="">Seleccionar Periodo</option>
                   <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1" *ngIf="editando">
-                  Cambiar el periodo actualizará la trayectoria académica del estudiante.
+                <p class="text-xs text-gray-500 mt-1">
+                  {{ editando ? 'Puedes conservar el periodo actual o cambiarlo para actualizar la trayectoria académica.' : 'Se usará para crear la trayectoria académica inicial del estudiante.' }}
                 </p>
               </div>
 
@@ -680,7 +685,7 @@
                 <span class="detail-label">Teléfono</span>
                 <span class="detail-value">{{ usuarioSeleccionado.telefono || 'N/A' }}</span>
               </div>
-              <div class="detail-item">
+              <div class="detail-item" *ngIf="usuarioSeleccionado.rol === 'Estudiante'">
                 <span class="detail-label">Matrícula</span>
                 <span class="detail-value">{{ usuarioSeleccionado.matricula || 'N/A' }}</span>
               </div>
@@ -699,15 +704,15 @@
                   {{ usuarioSeleccionado.estado === 'pending_activation' ? 'Pendiente' : usuarioSeleccionado.estado }}
                 </span>
               </div>
-              <div class="detail-item detail-item-full">
+              <div class="detail-item detail-item-full" *ngIf="usuarioSeleccionado.rol === 'Estudiante'">
                 <span class="detail-label">Carrera</span>
                 <span class="detail-value">{{ usuarioSeleccionado.carrera || 'N/A' }}</span>
               </div>
-              <div class="detail-item">
+              <div class="detail-item" *ngIf="usuarioSeleccionado.rol === 'Estudiante'">
                 <span class="detail-label">Semestre</span>
                 <span class="detail-value">{{ usuarioSeleccionado.semestre || 'N/A' }}</span>
               </div>
-              <div class="detail-item">
+              <div class="detail-item" *ngIf="usuarioSeleccionado.rol === 'Estudiante'">
                 <span class="detail-label">Grupo</span>
                 <span class="detail-value">{{ usuarioSeleccionado.grupo || 'N/A' }}</span>
               </div>
@@ -739,58 +744,60 @@
           <div class="modal-body">
             <div class="import-section">
 
-              <!-- Rol -->
-              <div class="form-group">
-                <label class="form-label">Rol *</label>
-                <select [(ngModel)]="importData.id_rol" (change)="onRolImportChange()" class="form-input">
-                  <option value="">Seleccionar Rol</option>
-                  <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
-                </select>
+              <div class="import-config-shell" [ngClass]="{ 'import-config-shell-student': esEstudianteImport }">
+                <div class="form-group import-role-field">
+                  <label class="form-label">Rol *</label>
+                  <select [(ngModel)]="importData.id_rol" (change)="onRolImportChange()" class="form-input">
+                    <option value="">Seleccionar Rol</option>
+                    <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
+                  </select>
+                </div>
+
+                <div class="import-student-grid" *ngIf="esEstudianteImport">
+                  <div class="form-group">
+                    <label class="form-label">Periodo *</label>
+                    <select [(ngModel)]="importData.id_periodo" class="form-input">
+                      <option value="">Seleccionar Periodo</option>
+                      <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Carrera *</label>
+                    <select [(ngModel)]="importData.id_carrera" class="form-input">
+                      <option value="">Seleccionar Carrera</option>
+                      <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Semestre *</label>
+                    <select [(ngModel)]="importData.id_semestre" class="form-input">
+                      <option value="">Seleccionar Semestre</option>
+                      <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Grupo *</label>
+                    <select [(ngModel)]="importData.grupo" class="form-input">
+                      <option value="">Seleccionar Grupo</option>
+                      <option value="A">A</option>
+                      <option value="B">B</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
-              <!-- Campos de estudiante -->
-              <div class="form-group" *ngIf="esEstudianteImport">
-                <label class="form-label">Periodo *</label>
-                <select [(ngModel)]="importData.id_periodo" class="form-input">
-                  <option value="">Seleccionar Periodo</option>
-                  <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
-                </select>
-              </div>
-              <div class="form-group" *ngIf="esEstudianteImport">
-                <label class="form-label">Carrera *</label>
-                <select [(ngModel)]="importData.id_carrera" class="form-input">
-                  <option value="">Seleccionar Carrera</option>
-                  <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
-                </select>
-              </div>
-              <div class="form-group" *ngIf="esEstudianteImport">
-                <label class="form-label">Semestre *</label>
-                <select [(ngModel)]="importData.id_semestre" class="form-input">
-                  <option value="">Seleccionar Semestre</option>
-                  <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
-                </select>
-              </div>
-              <div class="form-group" *ngIf="esEstudianteImport">
-                <label class="form-label">Grupo *</label>
-                <select [(ngModel)]="importData.grupo" class="form-input">
-                  <option value="">Seleccionar Grupo</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                </select>
-              </div>
+              <div class="import-assets-grid">
+                <div class="form-group import-file-field">
+                  <label class="form-label">Archivo Excel (.xlsx) *</label>
+                  <input type="file" accept=".xlsx" (change)="onFileSelected($event)" class="form-input" />
+                </div>
 
-              <!-- Archivo -->
-              <div class="form-group">
-                <label class="form-label">Archivo Excel (.xlsx) *</label>
-                <input type="file" accept=".xlsx" (change)="onFileSelected($event)" class="form-input" />
-              </div>
-
-              <!-- Descargar plantilla -->
-              <div class="form-group">
-                <button class="btn-secondary w-full flex items-center justify-center gap-2" (click)="descargarPlantilla()">
-                  <ion-icon name="download-outline"></ion-icon>
-                  Descargar Plantilla Modelo
-                </button>
+                <div class="form-group import-template-field">
+                  <button class="btn-secondary w-full flex items-center justify-center gap-2" (click)="descargarPlantilla()">
+                    <ion-icon name="download-outline"></ion-icon>
+                    Descargar plantilla de importacion
+                  </button>
+                </div>
               </div>
 
               <!-- ── PREVIEW EXCEL ── -->
@@ -812,7 +819,7 @@
                     <thead>
                       <tr>
                         <th>#</th>
-                        <th>Matrícula</th>
+                        <th>{{ importIdentifierLabel }}</th>
                         <th>Apellido Paterno</th>
                         <th>Apellido Materno</th>
                         <th>Nombre</th>
@@ -822,23 +829,23 @@
                     <tbody>
                       <tr *ngFor="let row of previewImport; let i = index"
                         [ngClass]="{
-                          'preview-fila-ok'   :  row.matricula && row.a_paterno && row.a_materno && row.nombre,
-                          'preview-fila-error': !row.matricula || !row.a_paterno || !row.a_materno || !row.nombre
+                          'preview-fila-ok'   :  esFilaImportValida(row),
+                          'preview-fila-error': !esFilaImportValida(row)
                         }">
                         <td class="preview-td-num">{{ i + 1 }}</td>
                         <td class="preview-td">
-                          <span *ngIf="row.matricula" class="preview-chip-ok">{{ row.matricula }}</span>
-                          <span *ngIf="!row.matricula" class="preview-chip-error">Sin matrícula</span>
+                          <span *ngIf="row[importIdentifierKey]" class="preview-chip-ok">{{ row[importIdentifierKey] }}</span>
+                          <span *ngIf="!row[importIdentifierKey]" class="preview-chip-error">Sin {{ importIdentifierLabel.toLowerCase() }}</span>
                         </td>
                         <td class="preview-td">{{ row.a_paterno || '—' }}</td>
                         <td class="preview-td">{{ row.a_materno || '—' }}</td>
                         <td class="preview-td">{{ row.nombre    || '—' }}</td>
                         <td class="preview-td">
-                          <span *ngIf="row.matricula && row.a_paterno && row.a_materno && row.nombre"
+                          <span *ngIf="esFilaImportValida(row)"
                             class="preview-badge-ok">
                             <ion-icon name="checkmark-outline"></ion-icon>Listo
                           </span>
-                          <span *ngIf="!row.matricula || !row.a_paterno || !row.a_materno || !row.nombre"
+                          <span *ngIf="!esFilaImportValida(row)"
                             class="preview-badge-error">
                             <ion-icon name="warning-outline"></ion-icon>Incompleto
                           </span>
@@ -934,3 +941,4 @@
     </div>
   </div>
 </div>
+

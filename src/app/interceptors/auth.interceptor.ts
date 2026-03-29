@@ -74,9 +74,8 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
 
   if (
     !isBootstrapRequest &&
-    authService.getAccessToken() &&
     authService.hasUsableRefreshToken() &&
-    authService.shouldRefreshAccessToken()
+    (!authService.getAccessToken() || authService.shouldRefreshAccessToken())
   ) {
     return authService.ensureValidSession().pipe(
       switchMap(() => sendRequest()),

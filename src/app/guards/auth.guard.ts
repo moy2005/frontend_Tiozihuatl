@@ -12,9 +12,10 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
-    const accessToken = this.auth.getAccessToken();
+    const hasSession =
+      !!this.auth.getAccessToken() || this.auth.hasUsableRefreshToken();
 
-    if (!accessToken) {
+    if (!hasSession) {
       return this.redirectToLogin('Inicia sesión para continuar.');
     }
 

@@ -16,22 +16,19 @@ type Step = 'verifying' | 'form' | 'success' | 'error';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ActivateAccountComponent implements OnInit {
-
   step: Step = 'verifying';
 
-  // Datos del usuario (devueltos por verifyToken)
-  token        = '';
+  token = '';
   nombreUsuario = '';
-  matricula    = '';
+  identificador = '';
+  etiquetaIdentificador = 'Identificador';
 
-  // Formulario
-  password         = '';
+  password = '';
   confirm_password = '';
-  cargando         = false;
-  mostrarPassword  = false;
-  mostrarConfirm   = false;
+  cargando = false;
+  mostrarPassword = false;
+  mostrarConfirm = false;
 
-  // Validaciones en tiempo real
   get passwordsCoinciden(): boolean {
     return this.password === this.confirm_password;
   }
@@ -63,13 +60,14 @@ export class ActivateAccountComponent implements OnInit {
     this.auth.verifyActivationToken(this.token).subscribe({
       next: (res) => {
         this.nombreUsuario = `${res.a_paterno} ${res.nombre}`;
-        this.matricula     = res.matricula;
-        this.step          = 'form';
+        this.identificador = res.identificador || '';
+        this.etiquetaIdentificador =
+          res.etiquetaIdentificador ||
+          (this.identificador.includes('@') ? 'Correo' : 'Matrícula');
+        this.step = 'form';
       },
       error: (err) => {
         this.step = 'error';
-        // El mensaje de error se muestra en el template
-        // según si expiró o es inválido
         console.error('Token inválido:', err?.error?.error);
       },
     });
@@ -89,8 +87,8 @@ export class ActivateAccountComponent implements OnInit {
     this.cargando = true;
 
     this.auth.activateAccount({
-      token           : this.token,
-      password        : this.password,
+      token: this.token,
+      password: this.password,
       confirm_password: this.confirm_password,
     }).subscribe({
       next: () => {

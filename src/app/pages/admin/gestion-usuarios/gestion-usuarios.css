@@ -1255,9 +1255,43 @@
    IMPORTACIÓN EXCEL
    ============================================ */
 .admin-content .import-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-content .import-config-shell {
+  display: grid;
+  grid-template-columns: minmax(15rem, 18rem);
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-content .import-config-shell-student {
+  grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+}
+
+.admin-content .import-role-field,
+.admin-content .import-file-field,
+.admin-content .import-template-field {
+  margin: 0;
+}
+
+.admin-content .import-student-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.admin-content .import-assets-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(14rem, 0.85fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.admin-content .import-template-field .btn-secondary {
+  min-height: 3rem;
 }
 
 .admin-content input[type="file"].form-input {
@@ -1722,6 +1756,10 @@
   .admin-content .form-grid           { grid-template-columns: repeat(2, 1fr); }
   .admin-content .avanzar-periodos-grid { grid-template-columns: 1fr; gap: 0.75rem; }
   .admin-content .avanzar-flecha      { display: none; }
+  .admin-content .import-config-shell,
+  .admin-content .import-config-shell-student,
+  .admin-content .import-assets-grid  { grid-template-columns: 1fr; }
+  .admin-content .import-student-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -1750,8 +1788,10 @@
   .admin-content .avanzar-resumen-total    { margin-left: 0; }
   .admin-content .avanzar-contadores       { flex-direction: column; }
   .admin-content .contador-chip            { width: 100%; }
+  .admin-content .import-student-grid      { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 480px) {
   .admin-content .filtros-grid { grid-template-columns: 1fr; }
+  .admin-content .import-student-grid { grid-template-columns: 1fr; }
 }

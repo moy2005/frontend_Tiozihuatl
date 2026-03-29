@@ -7,7 +7,7 @@ import { API_URL } from '../api.config';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly api = `${API_URL}`;
-  private readonly refreshSkewMs = 60_000;
+  private readonly refreshSkewMs = 5 * 60_000;
   private refreshRequest$: Observable<any> | null = null;
 
   constructor(private readonly http: HttpClient) {}
@@ -114,8 +114,14 @@ export class AuthService {
     const accessToken = this.getAccessToken();
 
     if (!accessToken) {
-      this.clearSession();
-      return throwError(() => new Error('No hay sesión activa.'));
+      if (!this.hasUsableRefreshToken()) {
+        this.clearSession();
+        return throwError(() => new Error('No hay sesión activa.'));
+      }
+
+      return this.refreshToken().pipe(
+        map((res: any) => res?.accessToken || this.getAccessToken()),
+      );
     }
 
     if (!this.shouldRefreshAccessToken(accessToken)) {

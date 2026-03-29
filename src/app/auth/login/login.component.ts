@@ -125,10 +125,7 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
         });
 
         setTimeout(() => {
-          // ✅ Navegar con skipLocationChange para forzar recarga del navbar
-          this.router.navigate(['/perfil']).then(() => {
-            window.location.reload();
-          });
+          this.router.navigate(['/perfil']);
         }, 2000);
       }
 
@@ -190,7 +187,7 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
     Swal.fire({
       icon: 'warning',
       title: 'Campos incompletos',
-      text: 'Ingresa tu correo, contraseña y selecciona tu rol.',
+      text: 'Ingresa tu matrícula o correo, tu contraseña y selecciona tu rol.',
       confirmButtonColor: '#3B82F6',
     });
     return;
@@ -212,9 +209,7 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
     if (access) {
       this.auth.storeSession(res);
 
-       this.router.navigate(['/perfil']).then(() => {
-          window.location.reload();
-        });
+      this.router.navigate(['/perfil']);
       return;
     }
 
@@ -363,9 +358,7 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
           showConfirmButton: false,
         });
 
-        this.router.navigate(['/perfil']).then(() => {
-          window.location.reload();
-        });
+        this.router.navigate(['/perfil']);
       } else {
         this.otp = '';
         this.otpInputFocused = false;
@@ -443,21 +436,21 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
     this.cargando = true;
     try {
       console.log('🔐 Iniciando login biométrico...');
-      const correo = this.sanitizeInput(this.correo.trim());
+      const credential = this.sanitizeInput(this.correo.trim());
 
-      if (!correo) {
-        console.log('❌ Error: Correo no proporcionado');
+      if (!credential) {
+        console.log('❌ Error: Credencial no proporcionada');
         Swal.fire({
           icon: 'info',
-          title: 'Correo requerido',
-          text: 'Introduce tu correo para continuar.',
+          title: 'Credencial requerida',
+          text: 'Introduce tu matrícula o correo para continuar.',
           confirmButtonColor: '#3B82F6',
         });
         this.cargando = false;
         return;
       }
 
-      console.log('📧 Correo:', correo);
+      console.log('🪪 Credencial:', credential);
 
       // Verificar soporte de WebAuthn
       if (!window.PublicKeyCredential) {
@@ -474,7 +467,7 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
 
       // Obtener tipo de biometría configurada
       console.log('🔍 Obteniendo tipo de biometría configurada...');
-      const tipoRes = await this.bio.obtenerTipoBiometria(correo).toPromise();
+      const tipoRes = await this.bio.obtenerTipoBiometria(credential).toPromise();
       console.log('✅ Tipo de biometría recibido:', tipoRes);
 
       if (!tipoRes || !tipoRes.metodo) {
@@ -494,7 +487,7 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
 
       // Obtener opciones de autenticación del servidor
       console.log('📋 Solicitando opciones de autenticación al servidor...');
-      const options = await this.bio.authOptions({ correo, tipo }).toPromise();
+      const options = await this.bio.authOptions({ credential, tipo }).toPromise();
       console.log('✅ Opciones de autenticación recibidas:', {
         challengeLength: options.challenge?.length,
         hasAllowCredentials: !!options.allowCredentials,
@@ -564,7 +557,7 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
 
       // Preparar datos para enviar al servidor
       const assertionPayload = {
-        correo,
+        credential,
         tipo,
         assertionResponse: {
           id: cred.id,
@@ -582,7 +575,7 @@ bloquearCaracteresPeligrosos(event: KeyboardEvent) {
       };
 
       console.log('📤 Enviando datos de autenticación al servidor:', {
-        correo: assertionPayload.correo,
+        credential: assertionPayload.credential,
         tipo: assertionPayload.tipo,
         credentialIdLength: assertionPayload.assertionResponse.id.length,
         rawIdLength: assertionPayload.assertionResponse.rawId.length,
@@ -606,7 +599,7 @@ if (!this.rolSeleccionado) {
 }
 
 const payloadCompleto = {
-  credential: correo,            
+  credential,
   rolSeleccionado: this.rolSeleccionado, 
   assertionResponse: assertionPayload.assertionResponse,
 };
@@ -636,9 +629,7 @@ console.log('✅ Resultado de autenticación:', result);
     showConfirmButton: false,
   });
 
-  this.router.navigate(['/perfil']).then(() => {
-          window.location.reload();
-        });
+  this.router.navigate(['/perfil']);
 
 
       } else {

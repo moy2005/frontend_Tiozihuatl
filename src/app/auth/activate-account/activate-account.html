@@ -41,7 +41,7 @@
           <ion-icon name="person-circle-outline"></ion-icon>
           <div>
             <p class="activate-bienvenida-nombre">{{ nombreUsuario }}</p>
-            <p class="activate-bienvenida-matricula">Matrícula: {{ matricula }}</p>
+            <p class="activate-bienvenida-matricula">{{ etiquetaIdentificador }}: {{ identificador }}</p>
           </div>
         </div>
 
@@ -128,7 +128,7 @@
         <h2 class="activate-card-title">¡Cuenta activada!</h2>
         <p class="activate-card-desc">
           Tu cuenta ha sido activada correctamente.<br />
-          Ya puedes iniciar sesión con tu matrícula y contraseña.
+          Ya puedes iniciar sesión con tu matrícula o correo y tu contraseña.
         </p>
         <button (click)="irAlLogin()" class="activate-btn-primary mt-4">
           <ion-icon name="log-in-outline"></ion-icon>

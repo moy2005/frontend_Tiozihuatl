@@ -20,7 +20,7 @@ registerBiometric(data: any) {
     return this.http.post<any>(`${this.api}/register/verify`, data);
   }
 
-  authOptions(data: { correo: string; tipo: string }) {
+  authOptions(data: { credential: string; tipo?: string }) {
     return this.http.post<any>(`${this.api}/auth/options`, data);
   }
 
@@ -28,8 +28,8 @@ registerBiometric(data: any) {
     return this.http.post<any>(`${this.api}/auth/verify`, data);
   }
 
-  obtenerTipoBiometria(correo: string) {
-    return this.http.get<any>(`${this.api}/tipo/${correo}`);
+  obtenerTipoBiometria(credential: string) {
+    return this.http.get<any>(`${this.api}/tipo/${encodeURIComponent(credential)}`);
   }
 
   

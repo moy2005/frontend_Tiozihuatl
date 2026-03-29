@@ -8,28 +8,29 @@ export class UserProfileService {
 
   constructor(private http: HttpClient) {}
 
-  /** 🧠 Obtener el perfil del usuario autenticado */
   getProfile() {
     const headers = this.getAuthHeaders();
     return this.http.get<any>(`${this.api}`, { headers });
   }
 
-  /** 🛠️ Actualizar los datos del perfil */
   updateProfile(data: any) {
     const headers = this.getAuthHeaders();
     return this.http.put<any>(`${this.api}`, data, { headers });
   }
 
-  /** 🔒 Cambiar contraseña del usuario */
   changePassword(actual: string, nueva: string) {
     const headers = this.getAuthHeaders();
     const body = { contrasenaActual: actual, nuevaContrasena: nueva };
     return this.http.put<any>(`${this.api}/change-password`, body, { headers });
   }
 
-  /** 🔐 Helper para agregar token automáticamente */
+  deleteAccount() {
+    const headers = this.getAuthHeaders();
+    return this.http.delete<any>(`${this.api}`, { headers });
+  }
+
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
     return new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,

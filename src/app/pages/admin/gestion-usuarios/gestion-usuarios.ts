@@ -15,8 +15,6 @@ import { AdminUserService } from '../../../api/services/admin-user.service';
   encapsulation: ViewEncapsulation.None
 })
 export class GestionUsuariosComponent implements OnInit {
-
-  // ── Datos ──────────────────────────────────────────────────
   usuarios: any[] = [];
   roles: any[] = [];
   carreras: any[] = [];
@@ -24,7 +22,6 @@ export class GestionUsuariosComponent implements OnInit {
   periodos: any[] = [];
   periodosActivos: any[] = [];
 
-  // ── Estado UI ──────────────────────────────────────────────
   cargando = false;
   editando = false;
   nuevoUsuario: any = this.resetForm();
@@ -33,7 +30,6 @@ export class GestionUsuariosComponent implements OnInit {
   mostrarDetalles = false;
   usuarioSeleccionado: any = null;
 
-  // ── Importación ────────────────────────────────────────────
   mostrarModalImportacion = false;
   cargandoImport = false;
   archivoSeleccionado: File | null = null;
@@ -41,11 +37,9 @@ export class GestionUsuariosComponent implements OnInit {
   importData: any = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
   esEstudianteImport = false;
 
-  // ── Preview Excel ──────────────────────────────────────────
   previewImport: any[] = [];
   mostrarPreview = false;
 
-  // ── Filtros avanzados ──────────────────────────────────────
   mostrarFiltros = false;
   filtros: any = {
     rol: '',
@@ -58,7 +52,6 @@ export class GestionUsuariosComponent implements OnInit {
   semestresFiltro: any[] = [];
   gruposFiltro: string[] = [];
 
-  // ── Avanzar semestre ───────────────────────────────────────
   mostrarModalAvanzar = false;
   pasoAvanzar = 1;
   cargandoAvanzar = false;
@@ -69,7 +62,6 @@ export class GestionUsuariosComponent implements OnInit {
     id_periodo_destino: ''
   };
 
-  // ── Paginación ─────────────────────────────────────────────
   paginaActual = 1;
   itemsPorPagina = 15;
   totalPaginas = 0;
@@ -91,6 +83,10 @@ export class GestionUsuariosComponent implements OnInit {
   resetForm() {
     return {
       id_usuario: null,
+      id_rol: '',
+      id_carrera: '',
+      id_semestre: '',
+      id_periodo: '',
       nombre: '',
       a_paterno: '',
       a_materno: '',
@@ -99,29 +95,51 @@ export class GestionUsuariosComponent implements OnInit {
       contrasena: '',
       matricula: '',
       grupo: '',
-      id_rol: '',
-      id_carrera: '',
-      id_semestre: '',
-      id_periodo: '',
       estado: 'Activo',
     };
   }
 
-  // ── Getters preview ────────────────────────────────────────
+  get rolFormularioActual(): string {
+    return this.getRolNombre(this.nuevoUsuario.id_rol);
+  }
+
+  get importIdentifierKey(): string {
+    return this.esEstudianteImport ? 'matricula' : 'correo';
+  }
+
+  get importIdentifierLabel(): string {
+    return this.esEstudianteImport ? 'Matrícula' : 'Correo';
+  }
+
+  get importTemplateFileName(): string {
+    if (this.esEstudianteImport) {
+      return 'plantilla_importacion_estudiantes.xlsx';
+    }
+
+    const rol = this.getRolNombre(this.importData.id_rol) || 'usuarios';
+    return `plantilla_importacion_${rol.toLowerCase()}.xlsx`;
+  }
 
   get filasValidas(): number {
-    return this.previewImport.filter(
-      r => r.matricula && r.a_paterno && r.a_materno && r.nombre
-    ).length;
+    return this.previewImport.filter((r) => this.esFilaImportValida(r)).length;
   }
 
   get filasInvalidas(): number {
-    return this.previewImport.filter(
-      r => !r.matricula || !r.a_paterno || !r.a_materno || !r.nombre
-    ).length;
+    return this.previewImport.filter((r) => !this.esFilaImportValida(r)).length;
   }
 
-  // ── Periodo filtro ─────────────────────────────────────────
+  private tieneValor(value: any): boolean {
+    return value !== null && value !== undefined && String(value).trim() !== '';
+  }
+
+  esFilaImportValida(row: any): boolean {
+    return (
+      this.tieneValor(row?.[this.importIdentifierKey]) &&
+      this.tieneValor(row?.a_paterno) &&
+      this.tieneValor(row?.a_materno) &&
+      this.tieneValor(row?.nombre)
+    );
+  }
 
   onPeriodoFiltroChange() {
     this.filtros.id_semestre = '';
@@ -142,16 +160,13 @@ export class GestionUsuariosComponent implements OnInit {
         this.gruposFiltro = res.grupos;
         this.aplicarFiltros();
       },
-      error: (err) => console.error('❌ Error al cargar opciones del periodo:', err)
+      error: (err) => console.error('Error al cargar opciones del periodo:', err)
     });
   }
 
-  // ── Paginación ─────────────────────────────────────────────
-
   get usuariosPaginados() {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-    const fin = inicio + this.itemsPorPagina;
-    return this.usuarios.slice(inicio, fin);
+    return this.usuarios.slice(inicio, inicio + this.itemsPorPagina);
   }
 
   calcularTotalPaginas() {
@@ -210,8 +225,6 @@ export class GestionUsuariosComponent implements OnInit {
     this.filtrosExpandidos = !this.filtrosExpandidos;
   }
 
-  // ── Carga de datos ─────────────────────────────────────────
-
   cargarUsuarios() {
     this.cargando = true;
     this.adminService.getAll().subscribe({
@@ -234,7 +247,7 @@ export class GestionUsuariosComponent implements OnInit {
   cargarCatalogos() {
     this.adminService.getCarreras().subscribe({
       next: (res) => (this.carreras = res),
-      error: (err) => console.error('❌ Error al obtener carreras:', err),
+      error: (err) => console.error('Error al obtener carreras:', err),
     });
 
     this.adminService.getSemestres().subscribe({
@@ -242,7 +255,7 @@ export class GestionUsuariosComponent implements OnInit {
         this.semestres = res;
         this.semestresFiltro = res;
       },
-      error: (err) => console.error('❌ Error al obtener semestres:', err),
+      error: (err) => console.error('Error al obtener semestres:', err),
     });
 
     this.gruposFiltro = ['A', 'B'];
@@ -251,20 +264,18 @@ export class GestionUsuariosComponent implements OnInit {
   cargarPeriodosActivos() {
     this.adminService.getPeriodosTodos().subscribe({
       next: (res) => {
-        this.periodos = Array.isArray(res) ? res : (res ? [res] : []);
+        this.periodos = Array.isArray(res) ? res : res ? [res] : [];
       },
-      error: (err) => console.error('❌ Error al obtener periodos:', err),
+      error: (err) => console.error('Error al obtener periodos:', err),
     });
 
     this.adminService.getPeriodosActivos().subscribe({
       next: (res) => {
-        this.periodosActivos = Array.isArray(res) ? res : (res ? [res] : []);
+        this.periodosActivos = Array.isArray(res) ? res : res ? [res] : [];
       },
-      error: (err) => console.error('❌ Error al obtener periodos activos:', err),
+      error: (err) => console.error('Error al obtener periodos activos:', err),
     });
   }
-
-  // ── Filtros avanzados ──────────────────────────────────────
 
   abrirFiltros() {
     this.mostrarFiltros = true;
@@ -275,7 +286,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   aplicarFiltros() {
-    const hayFiltro = Object.values(this.filtros).some(v => v !== '');
+    const hayFiltro = Object.values(this.filtros).some((v) => v !== '');
     if (!hayFiltro) {
       this.limpiarFiltros();
       return;
@@ -313,8 +324,6 @@ export class GestionUsuariosComponent implements OnInit {
     return !!this.filtros.id_periodo;
   }
 
-  // ── Avanzar semestre ───────────────────────────────────────
-
   abrirModalAvanzar() {
     this.avanzarData = { id_periodo_origen: '', id_periodo_destino: '' };
     this.estudiantesParaAvance = [];
@@ -334,7 +343,7 @@ export class GestionUsuariosComponent implements OnInit {
 
     this.adminService.getPreviewAvance(this.avanzarData.id_periodo_origen).subscribe({
       next: (res) => {
-        this.estudiantesParaAvance = res.map(a => ({ ...a, accion: 'AVANZAR' }));
+        this.estudiantesParaAvance = res.map((a) => ({ ...a, accion: 'AVANZAR' }));
         this.cargandoPreview = false;
         this.pasoAvanzar = 2;
       },
@@ -346,20 +355,24 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   countAccion(accion: string): number {
-    return this.estudiantesParaAvance.filter(a => a.accion === accion).length;
+    return this.estudiantesParaAvance.filter((a) => a.accion === accion).length;
   }
 
   toggleTodosAvanzar(accion: string) {
-    this.estudiantesParaAvance.forEach(a => a.accion = accion);
+    this.estudiantesParaAvance.forEach((a) => (a.accion = accion));
   }
 
   ejecutarAvanzarSemestre() {
     const avanzar = this.countAccion('AVANZAR');
     const repetir = this.countAccion('REPETIR');
-    const baja    = this.countAccion('BAJA');
+    const baja = this.countAccion('BAJA');
 
-    const periodoOrigenNombre  = this.periodos.find(p => p.id_periodo == this.avanzarData.id_periodo_origen)?.nombre  || `#${this.avanzarData.id_periodo_origen}`;
-    const periodoDestinoNombre = this.periodos.find(p => p.id_periodo == this.avanzarData.id_periodo_destino)?.nombre || `#${this.avanzarData.id_periodo_destino}`;
+    const periodoOrigenNombre =
+      this.periodos.find((p) => p.id_periodo == this.avanzarData.id_periodo_origen)?.nombre ||
+      `#${this.avanzarData.id_periodo_origen}`;
+    const periodoDestinoNombre =
+      this.periodos.find((p) => p.id_periodo == this.avanzarData.id_periodo_destino)?.nombre ||
+      `#${this.avanzarData.id_periodo_destino}`;
 
     Swal.fire({
       title: '¿Confirmar proceso?',
@@ -395,11 +408,11 @@ export class GestionUsuariosComponent implements OnInit {
         this.cargandoAvanzar = true;
 
         const payload = {
-          id_periodo_origen : this.avanzarData.id_periodo_origen,
+          id_periodo_origen: this.avanzarData.id_periodo_origen,
           id_periodo_destino: this.avanzarData.id_periodo_destino,
-          estudiantes: this.estudiantesParaAvance.map(a => ({
+          estudiantes: this.estudiantesParaAvance.map((a) => ({
             id_usuario: a.id_usuario,
-            accion    : a.accion
+            accion: a.accion
           }))
         };
 
@@ -409,8 +422,8 @@ export class GestionUsuariosComponent implements OnInit {
             this.cerrarModalAvanzar();
             Swal.fire({
               title: '¡Proceso completado!',
-              html : `<strong>${res.estudiantesProcesados}</strong> estudiante(s) procesado(s) correctamente.`,
-              icon : 'success'
+              html: `<strong>${res.estudiantesProcesados}</strong> estudiante(s) procesado(s) correctamente.`,
+              icon: 'success'
             });
             this.filtrosActivos ? this.aplicarFiltros() : this.cargarUsuarios();
           },
@@ -424,10 +437,8 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   getNombrePeriodo(id: any): string {
-    return this.periodos.find(p => p.id_periodo == id)?.nombre || `#${id}`;
+    return this.periodos.find((p) => p.id_periodo == id)?.nombre || `#${id}`;
   }
-
-  // ── Ver detalles ───────────────────────────────────────────
 
   verDetalles(usuario: any) {
     this.usuarioSeleccionado = { ...usuario };
@@ -439,25 +450,26 @@ export class GestionUsuariosComponent implements OnInit {
     this.usuarioSeleccionado = null;
   }
 
-  // ── Cambiar estado ─────────────────────────────────────────
-
   cambiarEstado(usuario: any, nuevoEstado: 'Activo' | 'Inactivo') {
     const accion = nuevoEstado === 'Activo' ? 'activar' : 'desactivar';
 
     Swal.fire({
       title: `¿Deseas ${accion} a este usuario?`,
-      text : `El usuario pasará a estado ${nuevoEstado}.`,
-      icon : 'warning',
-      showCancelButton   : true,
-      confirmButtonColor : nuevoEstado === 'Activo' ? '#16A34A' : '#E53E3E',
-      cancelButtonColor  : '#6B7280',
-      confirmButtonText  : `Sí, ${accion}`,
+      text: `El usuario pasará a estado ${nuevoEstado}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: nuevoEstado === 'Activo' ? '#16A34A' : '#E53E3E',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: `Sí, ${accion}`,
     }).then((r) => {
       if (r.isConfirmed) {
-        const payload = { estado: nuevoEstado };
-        this.adminService.update(usuario.id_usuario, payload).subscribe({
+        this.adminService.update(usuario.id_usuario, { estado: nuevoEstado }).subscribe({
           next: () => {
-            Swal.fire('Hecho', `Usuario ${nuevoEstado === 'Activo' ? 'activado' : 'desactivado'} correctamente.`, 'success');
+            Swal.fire(
+              'Hecho',
+              `Usuario ${nuevoEstado === 'Activo' ? 'activado' : 'desactivado'} correctamente.`,
+              'success'
+            );
             this.filtrosActivos ? this.aplicarFiltros() : this.cargarUsuarios();
           },
           error: (err) =>
@@ -467,26 +479,28 @@ export class GestionUsuariosComponent implements OnInit {
     });
   }
 
-  // ── Control dinámico de campos ─────────────────────────────
-
   campoActivo(campo: string): boolean {
     const rol = this.getRolNombre(this.nuevoUsuario.id_rol);
     if (!rol) return true;
 
-    switch (rol) {
-      case 'Administrador':
-        return true;
-      case 'Estudiante':
-        return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','id_carrera','id_semestre','id_periodo','grupo','estado'].includes(campo);
-      case 'Docente':
-        return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','id_carrera','estado'].includes(campo);
-      case 'Bibliotecario':
-        return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','matricula','estado'].includes(campo);
-      case 'Visitante':
-        return ['nombre','a_paterno','a_materno','correo','telefono','contrasena','estado'].includes(campo);
-      default:
-        return true;
+    if (rol === 'Estudiante') {
+      return [
+        'nombre',
+        'a_paterno',
+        'a_materno',
+        'correo',
+        'telefono',
+        'contrasena',
+        'matricula',
+        'id_carrera',
+        'id_semestre',
+        'id_periodo',
+        'grupo',
+        'estado',
+      ].includes(campo);
     }
+
+    return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'estado'].includes(campo);
   }
 
   getRolNombre(id_rol: number): string {
@@ -494,54 +508,39 @@ export class GestionUsuariosComponent implements OnInit {
     return rol ? rol.nombre_rol : '';
   }
 
-  // ── Guardar usuario ────────────────────────────────────────
-
   guardarUsuario() {
-    const user   = this.nuevoUsuario;
+    const user = this.nuevoUsuario;
     const isEdit = !!user.id_usuario;
-    const rol    = this.getRolNombre(user.id_rol);
+    const rol = this.getRolNombre(user.id_rol);
 
-    if (!user.nombre || !user.correo || !user.id_rol) {
-      Swal.fire('Campos incompletos', 'Nombre, correo y rol son obligatorios.', 'info');
+    if (!user.nombre || !user.a_paterno || !user.id_rol) {
+      Swal.fire('Campos incompletos', 'Nombre, apellido paterno y rol son obligatorios.', 'info');
       return;
     }
 
     if (rol === 'Estudiante') {
-      if (!user.id_carrera || !user.id_semestre || !user.matricula || !user.telefono) {
-        Swal.fire('Campos requeridos', 'Estudiante debe tener carrera, semestre, matrícula y teléfono.', 'info');
+      if (!user.id_carrera || !user.id_semestre || !user.matricula) {
+        Swal.fire('Campos requeridos', 'Estudiante debe tener carrera, semestre y matrícula.', 'info');
         return;
       }
       if (!user.grupo || !['A', 'B'].includes(user.grupo)) {
         Swal.fire('Grupo requerido', 'Estudiante debe tener un grupo válido (A o B).', 'info');
         return;
       }
-      if (!isEdit && !user.id_periodo) {
+      if (!user.id_periodo) {
         Swal.fire('Periodo requerido', 'Estudiante debe tener un periodo asignado.', 'info');
         return;
       }
-    } else if (rol === 'Docente') {
-      if (!user.id_carrera || !user.matricula || !user.telefono) {
-        Swal.fire('Campos requeridos', 'Docente debe tener carrera, matrícula y teléfono.', 'info');
+    } else {
+      if (!user.correo || String(user.correo).trim() === '') {
+        Swal.fire('Campos requeridos', `${rol || 'El usuario'} debe tener correo electrónico.`, 'info');
         return;
       }
+      user.id_carrera = null;
       user.id_semestre = null;
-      user.grupo       = null;
-      user.id_periodo  = null;
-    } else if (rol === 'Bibliotecario') {
-      if (!user.matricula || !user.telefono) {
-        Swal.fire('Campos requeridos', 'Bibliotecario debe tener matrícula y teléfono.', 'info');
-        return;
-      }
-      user.id_carrera  = null;
-      user.id_semestre = null;
-      user.grupo       = null;
-      user.id_periodo  = null;
-    } else if (rol === 'Visitante') {
-      user.id_carrera  = null;
-      user.id_semestre = null;
-      user.matricula   = null;
-      user.grupo       = null;
-      user.id_periodo  = null;
+      user.matricula = null;
+      user.grupo = null;
+      user.id_periodo = null;
     }
 
     const payload = { ...user };
@@ -552,14 +551,13 @@ export class GestionUsuariosComponent implements OnInit {
       } else {
         delete payload.contrasena;
       }
+
       if (!payload.id_periodo) {
         delete payload.id_periodo;
       }
-    } else {
-      if (!user.contrasena || user.contrasena.trim() === '') {
-        Swal.fire('Contraseña requerida', 'Debes ingresar una contraseña para el nuevo usuario.', 'info');
-        return;
-      }
+    } else if (!user.contrasena || user.contrasena.trim() === '') {
+      Swal.fire('Contraseña requerida', 'Debes ingresar una contraseña para el nuevo usuario.', 'info');
+      return;
     }
 
     const request = isEdit
@@ -569,10 +567,10 @@ export class GestionUsuariosComponent implements OnInit {
     request.subscribe({
       next: (res) => {
         Swal.fire('Éxito', res.message || 'Operación exitosa.', 'success');
-        this.nuevoUsuario  = this.resetForm();
+        this.nuevoUsuario = this.resetForm();
         this.nuevaContrasena = '';
-        this.editando      = false;
-        this.mostrarModal  = false;
+        this.editando = false;
+        this.mostrarModal = false;
         this.filtrosActivos ? this.aplicarFiltros() : this.cargarUsuarios();
       },
       error: (err) =>
@@ -581,26 +579,34 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   editarUsuario(u: any) {
-    this.nuevoUsuario    = { ...u, id_periodo: '' };
+    this.nuevoUsuario = {
+      ...this.resetForm(),
+      ...u,
+      correo: u.correo || '',
+      telefono: u.telefono || '',
+      matricula: u.matricula || '',
+      grupo: u.grupo || '',
+      id_carrera: u.id_carrera || '',
+      id_semestre: u.id_semestre || '',
+      id_periodo: u.id_periodo || '',
+    };
     this.nuevaContrasena = '';
-    this.editando        = true;
-    this.mostrarModal    = true;
+    this.editando = true;
+    this.mostrarModal = true;
   }
 
   volverAlPerfil() {
     this.router.navigate(['/perfil']);
   }
 
-  // ── Importación ────────────────────────────────────────────
-
   abrirModalImportacion() {
     this.mostrarModalImportacion = true;
-    this.resultadoImportacion    = null;
-    this.importData              = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
-    this.archivoSeleccionado     = null;
-    this.previewImport           = [];
-    this.mostrarPreview          = false;
-    this.esEstudianteImport      = false;
+    this.resultadoImportacion = null;
+    this.importData = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
+    this.archivoSeleccionado = null;
+    this.previewImport = [];
+    this.mostrarPreview = false;
+    this.esEstudianteImport = false;
   }
 
   cerrarImportacion() {
@@ -610,11 +616,12 @@ export class GestionUsuariosComponent implements OnInit {
   onRolImportChange() {
     const rol = this.getRolNombre(this.importData.id_rol);
     this.esEstudianteImport = rol === 'Estudiante';
+
     if (!this.esEstudianteImport) {
-      this.importData.id_carrera  = '';
+      this.importData.id_carrera = '';
       this.importData.id_semestre = '';
-      this.importData.grupo       = '';
-      this.importData.id_periodo  = '';
+      this.importData.grupo = '';
+      this.importData.id_periodo = '';
     }
   }
 
@@ -623,19 +630,19 @@ export class GestionUsuariosComponent implements OnInit {
     if (!file) return;
 
     this.archivoSeleccionado = file;
-    this.previewImport       = [];
-    this.mostrarPreview      = false;
+    this.previewImport = [];
+    this.mostrarPreview = false;
 
     const reader = new FileReader();
     reader.onload = (e: any) => {
       try {
-        import('xlsx').then(XLSX => {
-          const data     = new Uint8Array(e.target.result);
+        import('xlsx').then((XLSX) => {
+          const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
-          const sheet    = workbook.Sheets[workbook.SheetNames[0]];
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
           const rows: any[] = XLSX.utils.sheet_to_json(sheet);
 
-          this.previewImport  = rows.slice(0, 50);
+          this.previewImport = rows.slice(0, 50);
           this.mostrarPreview = rows.length > 0;
 
           if (!rows.length) {
@@ -650,12 +657,17 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   descargarPlantilla() {
-    this.adminService.downloadTemplate().subscribe({
+    if (!this.importData.id_rol) {
+      Swal.fire('Rol requerido', 'Selecciona primero el rol para descargar la plantilla correcta.', 'info');
+      return;
+    }
+
+    this.adminService.downloadTemplate(this.importData.id_rol).subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
-        const a   = document.createElement('a');
-        a.href     = url;
-        a.download = 'plantilla_importacion_usuarios.xlsx';
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = this.importTemplateFileName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -668,16 +680,16 @@ export class GestionUsuariosComponent implements OnInit {
   regenerarToken(usuario: any) {
     Swal.fire({
       title: '¿Regenerar token de activación?',
-      html : `
+      html: `
         <p>Se generará un nuevo enlace para <strong>${usuario.a_paterno} ${usuario.nombre}</strong>.</p>
         <p class="text-sm text-gray-500 mt-1">El token anterior quedará inválido.</p>
       `,
-      icon            : 'question',
+      icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#2196F3',
-      cancelButtonColor : '#6B7280',
-      confirmButtonText : 'Sí, regenerar',
-      cancelButtonText  : 'Cancelar',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: 'Sí, regenerar',
+      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
         this.adminService.regenerarToken(usuario.id_usuario).subscribe({
@@ -685,13 +697,13 @@ export class GestionUsuariosComponent implements OnInit {
             if (res.tokens_excel_b64) {
               this.descargarExcelTokens(
                 res.tokens_excel_b64,
-                `token_${usuario.matricula || usuario.id_usuario}.xlsx`
+                `token_${usuario.matricula || usuario.correo || usuario.id_usuario}.xlsx`
               );
             }
             Swal.fire({
-              icon : 'success',
+              icon: 'success',
               title: 'Token regenerado',
-              text : 'Se descargó el nuevo token de activación.',
+              text: 'Se descargó el nuevo token de activación.',
             });
           },
           error: (err) =>
@@ -724,19 +736,19 @@ export class GestionUsuariosComponent implements OnInit {
     }
 
     const formData = new FormData();
-    formData.append('file',        this.archivoSeleccionado);
-    formData.append('id_rol',      this.importData.id_rol);
-    formData.append('id_carrera',  this.importData.id_carrera  || '');
+    formData.append('file', this.archivoSeleccionado);
+    formData.append('id_rol', this.importData.id_rol);
+    formData.append('id_carrera', this.importData.id_carrera || '');
     formData.append('id_semestre', this.importData.id_semestre || '');
-    formData.append('grupo',       this.importData.grupo       || '');
-    formData.append('id_periodo',  this.importData.id_periodo  || '');
+    formData.append('grupo', this.importData.grupo || '');
+    formData.append('id_periodo', this.importData.id_periodo || '');
 
     this.cargandoImport = true;
 
     this.adminService.importExcel(formData).subscribe({
       next: (res) => {
         this.resultadoImportacion = res;
-        this.cargandoImport       = false;
+        this.cargandoImport = false;
         this.cargarUsuarios();
 
         if (res.tokens_excel_b64 && res.insertados > 0) {
@@ -744,9 +756,9 @@ export class GestionUsuariosComponent implements OnInit {
         }
 
         Swal.fire({
-          icon : 'success',
+          icon: 'success',
           title: 'Importación completada',
-          html : `
+          html: `
             <p><strong>${res.insertados}</strong> usuario(s) creados correctamente.</p>
             ${res.omitidos > 0 ? `<p class="text-sm text-gray-500 mt-1">${res.omitidos} fila(s) omitidas.</p>` : ''}
             ${res.insertados > 0 ? '<p class="text-sm text-blue-600 mt-2">Se descargó el archivo con los tokens de activación.</p>' : ''}
@@ -762,15 +774,15 @@ export class GestionUsuariosComponent implements OnInit {
 
   private descargarExcelTokens(base64: string, nombreArchivo: string) {
     const byteCharacters = atob(base64);
-    const byteNumbers    = Array.from(byteCharacters, c => c.charCodeAt(0));
-    const byteArray      = new Uint8Array(byteNumbers);
-    const blob           = new Blob([byteArray], {
+    const byteNumbers = Array.from(byteCharacters, (c) => c.charCodeAt(0));
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
 
-    const url  = window.URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
     a.download = nombreArchivo;
     document.body.appendChild(a);
     a.click();

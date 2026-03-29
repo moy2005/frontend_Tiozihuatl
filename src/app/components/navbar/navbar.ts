@@ -85,8 +85,12 @@ export class Navbar implements OnInit, OnDestroy {
   // ── Auth ────────────────────────────────────────────────────────────
 
   verificarAutenticacion() {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
+    const hasSession =
+      !!localStorage.getItem('accessToken') ||
+      !!localStorage.getItem('token') ||
+      !!localStorage.getItem('refreshToken');
+
+    if (hasSession) {
       this.isAuthenticated = true;
       // Solo pedir datos si aún no se han cargado (evita recargar en cada navegación)
       if (!this.userName) {
