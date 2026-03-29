@@ -12,8 +12,24 @@
           <div class="mon-loading-percent">{{ loadingProgress }}%</div>
         </div>
 
-        <div class="mon-loading-track">
-          <div class="mon-loading-fill" [style.width.%]="loadingProgress"></div>
+        <div class="mon-loading-runway-shell" [style.--mon-load-progress]="loadingProgress + '%'">
+          <div class="mon-loading-runway-intro">
+            <span class="mon-loading-progress-label">Sincronizando snapshot del monitor</span>
+            <span class="mon-loading-progress-meta">{{ loadingCompleted }}/{{ loadingTotal }} bloque(s)</span>
+          </div>
+
+          <div class="mon-loading-runway">
+            <div class="mon-loading-runway-fill" [style.width.%]="loadingProgress"></div>
+            <div class="mon-loading-runway-stage">
+              <div class="mon-loading-loader"></div>
+            </div>
+          </div>
+
+          <div class="mon-loading-scale">
+            <span>0%</span>
+            <span>50%</span>
+            <span>100%</span>
+          </div>
         </div>
 
         <div class="mon-loading-caption">{{ loadingCurrentLabel }}</div>
@@ -51,17 +67,12 @@
             [style.borderColor]="getHealthStatusColor(healthScoreData.status)"
           >
             <i class="ph ph-heartbeat" [style.color]="getHealthStatusColor(healthScoreData.status)"></i>
-            <span>
-              {{ healthScoreData.score }}/100 - {{ getHealthStatusLabel(healthScoreData.status) }}
-            </span>
+
           </div>
 
        
 
-          <div class="mon-live-badge" *ngIf="!hasAlerts">
-            <div class="mon-pulse-dot"></div>
-            Sistema OK
-          </div>
+       
 
           <button class="mon-btn-refresh" (click)="refresh()">
             <i class="ph ph-arrows-clockwise"></i>
@@ -197,33 +208,35 @@
           <div class="mon-card">
             <div class="mon-card-header">
               <div class="mon-card-title">
-                <i class="ph ph-git-branch"></i>
-                Replicacion y locks
+                <i class="ph ph-wrench"></i>
+                Mantenimiento sugerido
               </div>
-              <span class="mon-card-sub">Topologia, waits y deadlocks</span>
+              <span class="mon-card-sub">Fragmentacion, optimize y analyze</span>
             </div>
             <div class="mon-card-body">
               <div class="mon-info-rows">
                 <div class="mon-info-row">
-                  <span class="mon-info-label">Topologia</span>
-                  <span class="mon-badge" [ngClass]="getTopologyBadgeClass(replication?.topology)">
-                    {{ getTopologyLabel(replication?.topology) }}
+                  <span class="mon-info-label">Tablas fragmentadas</span>
+                  <span class="mon-info-val" [style.color]="fragmentedCount > 0 ? '#f0932b' : '#2a9d4e'">
+                    {{ formatNumber(fragmentedCount) }}
                   </span>
                 </div>
                 <div class="mon-info-row">
-                  <span class="mon-info-label">Lock waits actuales</span>
-                  <span class="mon-info-val">{{ formatNumber(currentLockWaits) }}</span>
-                </div>
-                <div class="mon-info-row">
-                  <span class="mon-info-label">Deadlocks</span>
-                  <span class="mon-info-val" [style.color]="deadlockCount > 0 ? '#e74c3c' : '#2a9d4e'">
-                    {{ formatNumber(deadlockCount) }}
+                  <span class="mon-info-label">Candidatos a OPTIMIZE</span>
+                  <span class="mon-info-val" [style.color]="optimizeCandidates.length > 0 ? '#f0932b' : '#2a9d4e'">
+                    {{ formatNumber(optimizeCandidates.length) }}
                   </span>
                 </div>
-                <div class="mon-info-row" *ngIf="replication?.replica_status">
-                  <span class="mon-info-label">Lag de replica</span>
-                  <span class="mon-info-val" [style.color]="replicationLagSeconds > 60 ? '#e74c3c' : '#1e6fcf'">
-                    {{ formatNumber(replicationLagSeconds) }}s
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Candidatos a ANALYZE</span>
+                  <span class="mon-info-val" [style.color]="analyzeCandidates.length > 0 ? '#1e6fcf' : '#2a9d4e'">
+                    {{ formatNumber(analyzeCandidates.length) }}
+                  </span>
+                </div>
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Indices sin uso</span>
+                  <span class="mon-info-val" [style.color]="unusedIndexes.length > 0 ? '#8e44ad' : '#2a9d4e'">
+                    {{ formatNumber(unusedIndexes.length) }}
                   </span>
                 </div>
               </div>
@@ -659,7 +672,7 @@
           <div class="mon-section-icon"><i class="ph ph-git-branch"></i></div>
           <div>
             <div class="mon-section-title">Conexiones</div>
-            <div class="mon-section-sub">SESIONES - LOCKS - REPLICACION - QUERIES ACTIVAS</div>
+            <div class="mon-section-sub">SESIONES - LOCKS - TRANSACCIONES - QUERIES ACTIVAS</div>
           </div>
         </div>
 
@@ -746,38 +759,30 @@
           <div class="mon-card">
             <div class="mon-card-header">
               <div class="mon-card-title">
-                <i class="ph ph-git-fork"></i>
-                Estado de replicacion
+                <i class="ph ph-lock-key"></i>
+                Salud de locks
               </div>
-              <span class="mon-card-sub">Replica, source o standalone</span>
+              <span class="mon-card-sub">Metricas de espera y ultimo evento relevante</span>
             </div>
             <div class="mon-card-body">
               <div class="mon-info-rows">
                 <div class="mon-info-row">
-                  <span class="mon-info-label">Topologia</span>
-                  <span class="mon-badge" [ngClass]="getTopologyBadgeClass(replication?.topology)">
-                    {{ getTopologyLabel(replication?.topology) }}
-                  </span>
-                </div>
-                <div class="mon-info-row" *ngIf="replication?.replica_status">
-                  <span class="mon-info-label">Replica saludable</span>
-                  <span class="mon-badge" [ngClass]="replication?.replica_status?.is_healthy ? 'mon-badge-green' : 'mon-badge-red'">
-                    {{ replication?.replica_status?.is_healthy ? 'Si' : 'No' }}
-                  </span>
-                </div>
-                <div class="mon-info-row" *ngIf="replication?.replica_status">
-                  <span class="mon-info-label">Lag</span>
-                  <span class="mon-info-val">{{ formatNumber(replicationLagSeconds) }}s</span>
-                </div>
-                <div class="mon-info-row" *ngIf="replication?.replica_status?.source_host">
-                  <span class="mon-info-label">Source host</span>
-                  <span class="mon-info-val" style="font-size: 0.9375rem;">
-                    {{ replication?.replica_status?.source_host }}
-                  </span>
+                  <span class="mon-info-label">Lock waits</span>
+                  <span class="mon-info-val">{{ formatNumber(currentLockWaits) }}</span>
                 </div>
                 <div class="mon-info-row">
-                  <span class="mon-info-label">Replicas conectadas</span>
-                  <span class="mon-info-val">{{ connectedReplicasCount }}</span>
+                  <span class="mon-info-label">Tiempo promedio de lock</span>
+                  <span class="mon-info-val">{{ formatNumber(locks?.lock_stats?.Innodb_row_lock_time_avg) }} ms</span>
+                </div>
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Tiempo maximo de lock</span>
+                  <span class="mon-info-val">{{ formatNumber(locks?.lock_stats?.Innodb_row_lock_time_max) }} ms</span>
+                </div>
+                <div class="mon-info-row">
+                  <span class="mon-info-label">Ultimo deadlock</span>
+                  <span class="mon-badge" [ngClass]="deadlockPreview ? 'mon-badge-orange' : 'mon-badge-green'">
+                    {{ deadlockPreview ? 'Registrado' : 'Sin evento' }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -1028,12 +1033,12 @@
                     <span class="mon-info-val">{{ topTablesByIo.length }}</span>
                   </div>
                   <div class="mon-info-row">
-                    <span class="mon-info-label">Table cache hit ratio</span>
-                    <span class="mon-info-val">{{ formatPercent(tableCacheHitRatio) }}</span>
-                  </div>
-                  <div class="mon-info-row">
                     <span class="mon-info-label">Aborted connects</span>
                     <span class="mon-info-val">{{ formatNumber(extendedStats?.Aborted_connects) }}</span>
+                  </div>
+                  <div class="mon-info-row">
+                    <span class="mon-info-label">Indices sin uso</span>
+                    <span class="mon-info-val">{{ formatNumber(unusedIndexes.length) }}</span>
                   </div>
                 </div>
               </ng-container>
@@ -1114,29 +1119,42 @@
           <div class="mon-card">
             <div class="mon-card-header">
               <div class="mon-card-title">
-                <i class="ph ph-waveform"></i>
-                Indicadores extendidos
+                <i class="ph ph-chart-donut"></i>
+                Ratios clave
               </div>
-              <span class="mon-card-sub">Tmp, cache y full joins</span>
+              <span class="mon-card-sub">Porcentajes operativos normalizados en escala 0-100</span>
             </div>
             <div class="mon-card-body">
-              <ng-container *ngIf="extendedStats; else noData">
-                <div class="mon-info-rows">
-                  <div class="mon-info-row">
-                    <span class="mon-info-label">Tmp en disco</span>
-                    <span class="mon-info-val">{{ formatPercent(tmpDiskRatio) }}</span>
+              <ng-container *ngIf="performanceRatioItems.length > 0; else noData">
+                <div class="mon-chart-shell mon-chart-shell-md">
+                  <canvas #performanceRatiosChart></canvas>
+                </div>
+                <div class="mon-chart-note" style="margin-top: 0.85rem;">
+                  La grafica facilita comparar de un vistazo los porcentajes mas importantes de cache y uso temporal.
+                </div>
+
+                <div class="mon-chart-stats-grid" style="margin-top: 0.875rem;">
+                  <div
+                    class="mon-chart-stat-card"
+                    *ngFor="let ratio of performanceRatioItems"
+                    [style.borderColor]="ratio.color"
+                  >
+                    <span class="mon-chart-stat-label">{{ ratio.label }}</span>
+                    <span class="mon-chart-stat-value" [style.color]="ratio.color">
+                      {{ formatPercent(ratio.value) }}
+                    </span>
+                    <span class="mon-kpi-sub" style="margin-top: 0;">{{ ratio.helper }}</span>
                   </div>
-                  <div class="mon-info-row">
-                    <span class="mon-info-label">Cache hit ratio</span>
-                    <span class="mon-info-val">{{ formatPercent(tableCacheHitRatio) }}</span>
-                  </div>
+                </div>
+
+                <div class="mon-info-rows" style="margin-top: 0.875rem;">
                   <div class="mon-info-row">
                     <span class="mon-info-label">Select full join</span>
-                    <span class="mon-info-val">{{ formatNumber(extendedStats.Select_full_join) }}</span>
+                    <span class="mon-info-val">{{ formatNumber(extendedStats?.Select_full_join) }}</span>
                   </div>
                   <div class="mon-info-row">
                     <span class="mon-info-label">Aborted clients</span>
-                    <span class="mon-info-val">{{ formatNumber(extendedStats.Aborted_clients) }}</span>
+                    <span class="mon-info-val">{{ formatNumber(extendedStats?.Aborted_clients) }}</span>
                   </div>
                 </div>
               </ng-container>

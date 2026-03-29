@@ -2,9 +2,9 @@ export type NumberLike = number | string;
 
 export type MonitoringAlertSeverity = 'info' | 'warning' | 'critical';
 export type MonitoringHealthStatus = 'healthy' | 'good' | 'warning' | 'critical';
-export type MonitoringTopology = 'replica' | 'source' | 'standalone';
 
 export type MonitoringSnapshotSource =
+  | 'snapshot'
   | 'dashboard'
   | 'database'
   | 'storage'
@@ -14,7 +14,6 @@ export type MonitoringSnapshotSource =
   | 'performance'
   | 'performanceSchema'
   | 'locks'
-  | 'replication'
   | 'maintenance'
   | 'healthScore'
   | 'security'
@@ -259,41 +258,6 @@ export interface MonitoringLocksResponse {
   deadlock_count: number | null;
 }
 
-export interface MonitoringReplicaStatus {
-  is_replica: boolean;
-  source_host: string | null;
-  source_port: NumberLike | null;
-  replica_io_running: string | null;
-  replica_sql_running: string | null;
-  seconds_behind_source: NumberLike | null;
-  last_io_error: string | null;
-  last_sql_error: string | null;
-  last_io_errno: NumberLike | null;
-  last_sql_errno: NumberLike | null;
-  relay_log_pos: NumberLike | null;
-  exec_source_log_pos: NumberLike | null;
-  retrieved_gtid_set: string | null;
-  executed_gtid_set: string | null;
-  auto_position: NumberLike | null;
-  is_healthy: boolean;
-}
-
-export interface MonitoringSourceStatus {
-  is_source: boolean;
-  file: string;
-  position: NumberLike;
-  binlog_do_db: string | null;
-  binlog_ignore_db: string | null;
-  executed_gtid_set: string | null;
-}
-
-export interface MonitoringReplicationResponse {
-  replica_status: MonitoringReplicaStatus | null;
-  source_status: MonitoringSourceStatus | null;
-  connected_replicas: Array<Record<string, unknown>>;
-  topology: MonitoringTopology;
-}
-
 export interface MonitoringSlowQueryDigest {
   digest: string;
   query_pattern: string;
@@ -404,7 +368,6 @@ export interface MonitoringSnapshot {
   performance: MonitoringPerformanceStats | null;
   performanceSchema: MonitoringPerformanceSchemaResponse | null;
   locks: MonitoringLocksResponse | null;
-  replication: MonitoringReplicationResponse | null;
   maintenance: MonitoringMaintenanceResponse | null;
   healthScore: MonitoringHealthScore | null;
   security: MonitoringDbUser[];

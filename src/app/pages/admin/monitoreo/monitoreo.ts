@@ -38,11 +38,9 @@ import {
   MonitoringPerformanceSchemaResponse,
   MonitoringPerformanceStats,
   MonitoringQueriesResponse,
-  MonitoringReplicationResponse,
   MonitoringSnapshot,
   MonitoringSnapshotSource,
   MonitoringStorageResponse,
-  MonitoringTopology,
   MonitoringUnusedIndex,
   NumberLike,
   MonitoringSlowQueriesSummary,
@@ -59,6 +57,7 @@ type MonitoringChartKey =
   | 'healthScore'
   | 'tableSizes'
   | 'connectionsUsage'
+  | 'performanceRatios'
   | 'sqlOps';
 
 @Component({
@@ -80,29 +79,15 @@ export class MonitoreoComponent implements OnInit {
     maximumFractionDigits: 2,
   });
   private loadSubscription: Subscription | null = null;
+  private loadingProgressTimer: ReturnType<typeof setInterval> | null = null;
   private chartRenderTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly charts: Partial<Record<MonitoringChartKey, Chart>> = {};
   private healthScoreCanvas?: HTMLCanvasElement;
   private tableSizesCanvas?: HTMLCanvasElement;
   private connectionsUsageCanvas?: HTMLCanvasElement;
+  private performanceRatiosCanvas?: HTMLCanvasElement;
   private sqlOpsCanvas?: HTMLCanvasElement;
-  private readonly loadSources: ReadonlyArray<MonitoringSnapshotSource> = [
-    'dashboard',
-    'database',
-    'storage',
-    'indexes',
-    'connections',
-    'queries',
-    'performance',
-    'performanceSchema',
-    'locks',
-    'replication',
-    'maintenance',
-    'healthScore',
-    'security',
-    'backups',
-    'alerts',
-  ];
+  private readonly loadSources: ReadonlyArray<MonitoringSnapshotSource> = ['snapshot'];
 
   activeTab: MonitoringTab = 'overview';
   loading = true;
@@ -132,7 +117,6 @@ export class MonitoreoComponent implements OnInit {
   performance: MonitoringPerformanceStats | null = null;
   performanceSchema: MonitoringPerformanceSchemaResponse | null = null;
   locks: MonitoringLocksResponse | null = null;
-  replication: MonitoringReplicationResponse | null = null;
   maintenance: MonitoringMaintenanceResponse | null = null;
   healthScore: MonitoringHealthScore | null = null;
   dbUsers: MonitoringDbUser[] = [];
@@ -157,6 +141,12 @@ export class MonitoreoComponent implements OnInit {
     this.renderConnectionsUsageChart();
   }
 
+  @ViewChild('performanceRatiosChart')
+  set performanceRatiosChartRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    this.performanceRatiosCanvas = ref?.nativeElement;
+    this.renderPerformanceRatiosChart();
+  }
+
   @ViewChild('sqlOpsChart')
   set sqlOpsChartRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
     this.sqlOpsCanvas = ref?.nativeElement;
@@ -166,6 +156,7 @@ export class MonitoreoComponent implements OnInit {
   ngOnInit(): void {
     this.destroyRef.onDestroy(() => {
       this.loadSubscription?.unsubscribe();
+      this.stopLoadingProgressAnimation();
       this.destroyAllCharts();
 
       if (this.chartRenderTimer) {
@@ -308,14 +299,6 @@ export class MonitoreoComponent implements OnInit {
     return section.length > 1200 ? `${section.slice(0, 1200)}...` : section;
   }
 
-  get replicationLagSeconds(): number {
-    return this.toNumber(this.replication?.replica_status?.seconds_behind_source);
-  }
-
-  get connectedReplicasCount(): number {
-    return this.replication?.connected_replicas.length ?? 0;
-  }
-
   get performanceSchemaEnabled(): boolean {
     return this.performanceSchema?.enabled ?? false;
   }
@@ -399,6 +382,49 @@ export class MonitoreoComponent implements OnInit {
     ];
   }
 
+  get performanceRatioItems(): Array<{
+    label: string;
+    value: number;
+    color: string;
+    helper: string;
+  }> {
+    const items: Array<{
+      label: string;
+      value: number;
+      color: string;
+      helper: string;
+    }> = [];
+
+    if (this.bufferHitRatio > 0) {
+      items.push({
+        label: 'Buffer Pool Hit',
+        value: Math.min(100, this.bufferHitRatio),
+        color: this.bufferHitColor,
+        helper: 'Ideal >= 95%',
+      });
+    }
+
+    if (this.tmpDiskRatio !== null) {
+      items.push({
+        label: 'Tmp en Disco',
+        value: Math.min(100, Math.max(0, this.tmpDiskRatio)),
+        color: this.getTmpDiskRatioColor(this.tmpDiskRatio),
+        helper: 'Ideal <= 20%',
+      });
+    }
+
+    if (this.tableCacheHitRatio !== null) {
+      items.push({
+        label: 'Table Cache Hit',
+        value: Math.min(100, Math.max(0, this.tableCacheHitRatio)),
+        color: this.getTableCacheColor(this.tableCacheHitRatio),
+        helper: 'Ideal >= 90%',
+      });
+    }
+
+    return items;
+  }
+
   get maxSqlOp(): number {
     return Math.max(...this.sqlOps.map((item) => item.value), 1);
   }
@@ -447,10 +473,34 @@ export class MonitoreoComponent implements OnInit {
       return 'Preparando solicitudes del dashboard';
     }
 
-    return `${this.loadingCompleted} de ${this.loadingTotal} bloques sincronizados`;
+    if (!this.loading) {
+      return `${this.loadingCompleted} de ${this.loadingTotal} bloques sincronizados`;
+    }
+
+    if (this.loadingProgress >= 85) {
+      return 'Preparando visualizacion del monitor';
+    }
+
+    if (this.loadingProgress >= 55) {
+      return 'Procesando metricas clave del snapshot';
+    }
+
+    if (this.loadingProgress >= 25) {
+      return 'Consultando estado general de MySQL';
+    }
+
+    return 'Inicializando snapshot de monitoreo';
   }
 
   get loadingCurrentLabel(): string {
+    if (this.loading && this.loadingProgress >= 85) {
+      return 'Ultimo tramo: renderizando el dashboard';
+    }
+
+    if (this.loading && this.loadingProgress >= 55) {
+      return 'Ultimo tramo: consolidando indicadores y alertas';
+    }
+
     if (!this.loadingActiveSource) {
       return 'Conectando con los servicios de monitoreo';
     }
@@ -470,7 +520,7 @@ export class MonitoreoComponent implements OnInit {
   }
 
   refresh(): void {
-    this.loadAll();
+    this.loadAll(true);
   }
 
   getChartColor(index: number): string {
@@ -616,26 +666,32 @@ export class MonitoreoComponent implements OnInit {
     }
   }
 
-  getTopologyLabel(topology: MonitoringTopology | null | undefined): string {
-    switch (topology) {
-      case 'replica':
-        return 'Replica';
-      case 'source':
-        return 'Source';
-      default:
-        return 'Standalone';
+  getTmpDiskRatioColor(value: number | null | undefined): string {
+    const ratio = value ?? 0;
+
+    if (ratio <= 10) {
+      return '#2a9d4e';
     }
+
+    if (ratio <= 25) {
+      return '#f0932b';
+    }
+
+    return '#e74c3c';
   }
 
-  getTopologyBadgeClass(topology: MonitoringTopology | null | undefined): string {
-    switch (topology) {
-      case 'replica':
-        return 'mon-badge-orange';
-      case 'source':
-        return 'mon-badge-blue';
-      default:
-        return 'mon-badge-gray';
+  getTableCacheColor(value: number | null | undefined): string {
+    const ratio = value ?? 0;
+
+    if (ratio >= 95) {
+      return '#2a9d4e';
     }
+
+    if (ratio >= 85) {
+      return '#f0932b';
+    }
+
+    return '#e74c3c';
   }
 
   getMetricLabel(metric: string): string {
@@ -652,7 +708,8 @@ export class MonitoreoComponent implements OnInit {
   }
 
   getLoadErrorLabel(source: MonitoringLoadError['source']): string {
-    const labels: Record<MonitoringLoadError['source'], string> = {
+      const labels: Record<MonitoringLoadError['source'], string> = {
+      snapshot: 'Snapshot',
       dashboard: 'Dashboard',
       database: 'Base de datos',
       storage: 'Almacenamiento',
@@ -662,7 +719,6 @@ export class MonitoreoComponent implements OnInit {
       performance: 'Performance',
       performanceSchema: 'Performance Schema',
       locks: 'Locks',
-      replication: 'Replicacion',
       maintenance: 'Mantenimiento',
       healthScore: 'Health score',
       security: 'Seguridad',
@@ -728,13 +784,13 @@ export class MonitoreoComponent implements OnInit {
     ]);
   }
 
-  private loadAll(): void {
+  private loadAll(forceRefresh = false): void {
     const initialSteps = this.createPendingLoadSteps();
 
     this.loadSubscription?.unsubscribe();
+    this.startLoadingProgressAnimation();
     this.destroyAllCharts();
     this.loading = true;
-    this.loadingProgress = 0;
     this.loadingCompleted = 0;
     this.loadingTotal = initialSteps.length;
     this.loadingActiveSource = null;
@@ -743,17 +799,17 @@ export class MonitoreoComponent implements OnInit {
     this.cdr.markForCheck();
 
     this.loadSubscription = this.monitoringService
-      .loadSnapshotProgress()
+      .loadSnapshotProgress({ limit: 10, minAvgMs: 5 }, forceRefresh)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (state) => {
-          this.loadingProgress = state.progress;
           this.loadingCompleted = state.completed;
           this.loadingTotal = state.total;
           this.loadingActiveSource = state.activeSource;
           this.loadingSteps = state.steps;
 
           if (!state.loading) {
+            this.finishLoadingProgressAnimation();
             if (state.snapshot) {
               this.applySnapshot(state.snapshot);
             }
@@ -765,11 +821,12 @@ export class MonitoreoComponent implements OnInit {
         },
         error: (error) => {
           console.error('[Monitoring] Error loading snapshot', error);
+          this.finishLoadingProgressAnimation();
           this.resetState();
           this.loading = false;
           this.loadErrors = [
             {
-              source: 'dashboard',
+              source: 'snapshot',
               status: (error as { status?: number })?.status,
               message: 'No se pudo cargar el panel de monitoreo.',
             },
@@ -790,7 +847,6 @@ export class MonitoreoComponent implements OnInit {
     this.performance = snapshot.performance ?? snapshot.dashboard?.performance ?? null;
     this.performanceSchema = snapshot.performanceSchema;
     this.locks = snapshot.locks;
-    this.replication = snapshot.replication;
     this.maintenance = snapshot.maintenance;
     this.healthScore = snapshot.healthScore ?? snapshot.maintenance?.health_score ?? null;
     this.dbUsers = snapshot.security;
@@ -809,7 +865,6 @@ export class MonitoreoComponent implements OnInit {
     this.performance = null;
     this.performanceSchema = null;
     this.locks = null;
-    this.replication = null;
     this.maintenance = null;
     this.healthScore = null;
     this.dbUsers = [];
@@ -889,6 +944,38 @@ export class MonitoreoComponent implements OnInit {
     }));
   }
 
+  private startLoadingProgressAnimation(): void {
+    this.stopLoadingProgressAnimation();
+    this.loadingProgress = 4;
+
+    this.loadingProgressTimer = setInterval(() => {
+      const cap = 92;
+      const step =
+        this.loadingProgress < 30
+          ? 7
+          : this.loadingProgress < 55
+            ? 4
+            : this.loadingProgress < 78
+              ? 2
+              : 1;
+
+      this.loadingProgress = Math.min(cap, this.loadingProgress + step);
+      this.cdr.markForCheck();
+    }, 180);
+  }
+
+  private finishLoadingProgressAnimation(): void {
+    this.stopLoadingProgressAnimation();
+    this.loadingProgress = 100;
+  }
+
+  private stopLoadingProgressAnimation(): void {
+    if (this.loadingProgressTimer) {
+      clearInterval(this.loadingProgressTimer);
+      this.loadingProgressTimer = null;
+    }
+  }
+
   private queueChartRender(): void {
     if (typeof window === 'undefined') {
       return;
@@ -912,6 +999,7 @@ export class MonitoreoComponent implements OnInit {
     this.renderHealthScoreChart();
     this.renderTableSizesChart();
     this.renderConnectionsUsageChart();
+    this.renderPerformanceRatiosChart();
     this.renderSqlOpsChart();
   }
 
@@ -1001,6 +1089,35 @@ export class MonitoreoComponent implements OnInit {
       options: this.buildDoughnutOptions(
         (label, value) => `${label}: ${this.numberFormatter.format(value)}`,
       ),
+    });
+  }
+
+  private renderPerformanceRatiosChart(): void {
+    if (
+      this.activeTab !== 'performance' ||
+      !this.performanceRatiosCanvas ||
+      this.performanceRatioItems.length === 0
+    ) {
+      this.destroyChart('performanceRatios');
+      return;
+    }
+
+    this.upsertChart('performanceRatios', this.performanceRatiosCanvas, {
+      type: 'bar',
+      data: {
+        labels: this.performanceRatioItems.map((item) => item.label),
+        datasets: [
+          {
+            label: 'Porcentaje',
+            data: this.performanceRatioItems.map((item) => item.value),
+            backgroundColor: this.performanceRatioItems.map((item) => item.color),
+            borderRadius: 10,
+            borderSkipped: false,
+            maxBarThickness: 24,
+          },
+        ],
+      },
+      options: this.buildPercentageHorizontalBarOptions(),
     });
   }
 
@@ -1174,6 +1291,58 @@ export class MonitoreoComponent implements OnInit {
           },
           grid: {
             color: 'rgba(30,111,207,0.08)',
+          },
+          border: {
+            display: false,
+          },
+        },
+      },
+    };
+  }
+
+  private buildPercentageHorizontalBarOptions(): ChartConfiguration<'bar'>['options'] {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      animation: {
+        duration: 500,
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${this.decimalFormatter.format(Number(context.parsed.x) || 0)}%`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 100,
+          ticks: {
+            color: '#6b7b8d',
+            callback: (value) => `${value}%`,
+          },
+          grid: {
+            color: 'rgba(30,111,207,0.08)',
+          },
+          border: {
+            display: false,
+          },
+        },
+        y: {
+          ticks: {
+            color: '#334155',
+            font: {
+              family: 'JetBrains Mono',
+              size: 11,
+            },
+          },
+          grid: {
+            display: false,
           },
           border: {
             display: false,

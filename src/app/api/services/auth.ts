@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, finalize, shareReplay, tap } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { API_URL } from '../api.config';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private api = `${API_URL}`;
+  private readonly api = `${API_URL}`;
+  private readonly refreshSkewMs = 60_000;
   private refreshRequest$: Observable<any> | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   register(data: {
     nombre: string;
@@ -43,16 +44,18 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
-    const token = localStorage.getItem('accessToken');
+    const token = this.getAccessToken();
+    const userId = this.getSessionUserId();
+
     if (!token) {
       this.clearSession();
-      return throwError(() => new Error('No hay sesiÃ³n activa.'));
+      return throwError(() => new Error('No hay sesión activa.'));
     }
 
     return this.http
       .post(
         `${this.api}/auth/logout`,
-        {},
+        { id_usuario: userId },
         { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) },
       )
       .pipe(
@@ -68,9 +71,9 @@ export class AuthService {
     const refresh = localStorage.getItem('refreshToken');
     const userId = this.getSessionUserId();
 
-    if (!refresh || refresh === 'biometric-placeholder' || !userId) {
+    if (!refresh || !userId) {
       this.clearSession();
-      return throwError(() => new Error('SesiÃ³n expirada.'));
+      return throwError(() => new Error('Sesión expirada.'));
     }
 
     if (this.refreshRequest$) {
@@ -83,13 +86,13 @@ export class AuthService {
       tap((res: any) => {
         if (!res?.accessToken) {
           this.clearSession();
-          throw new Error('No se recibiÃ³ un access token nuevo.');
+          throw new Error('No se recibió un access token nuevo.');
         }
 
         this.storeSession({
           accessToken: res.accessToken,
           refreshToken: res.refreshToken || refresh,
-          user: this.getStoredUser(),
+          user: res.user || this.getStoredUser(),
         });
       }),
       catchError((err) => {
@@ -105,6 +108,37 @@ export class AuthService {
     );
 
     return this.refreshRequest$;
+  }
+
+  ensureValidSession(): Observable<string | null> {
+    const accessToken = this.getAccessToken();
+
+    if (!accessToken) {
+      this.clearSession();
+      return throwError(() => new Error('No hay sesión activa.'));
+    }
+
+    if (!this.shouldRefreshAccessToken(accessToken)) {
+      return of(accessToken);
+    }
+
+    if (!this.hasUsableRefreshToken()) {
+      this.clearSession();
+      return throwError(() => new Error('Sesión expirada.'));
+    }
+
+    return this.refreshToken().pipe(
+      map((res: any) => res?.accessToken || this.getAccessToken()),
+    );
+  }
+
+  hasUsableRefreshToken(): boolean {
+    const refresh = localStorage.getItem('refreshToken');
+    return !!refresh;
+  }
+
+  getAccessToken(): string | null {
+    return localStorage.getItem('accessToken') || localStorage.getItem('token');
   }
 
   clearSession() {
@@ -163,25 +197,40 @@ export class AuthService {
     if (!accessToken) return;
 
     localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('token', accessToken);
 
-    if (payload.refreshToken) {
-      localStorage.setItem('refreshToken', payload.refreshToken);
-    } else {
+    if (payload.refreshToken !== undefined) {
+      if (payload.refreshToken) {
+        localStorage.setItem('refreshToken', payload.refreshToken);
+      } else {
+        localStorage.removeItem('refreshToken');
+      }
+    } else if (!localStorage.getItem('refreshToken')) {
       localStorage.removeItem('refreshToken');
     }
 
     const normalizedUser = this.normalizeUser(payload.user, accessToken);
     if (normalizedUser) {
-      localStorage.setItem('user', JSON.stringify(normalizedUser));
+      const serializedUser = JSON.stringify(normalizedUser);
+      localStorage.setItem('user', serializedUser);
+      localStorage.setItem('userData', serializedUser);
+      localStorage.setItem('usuario', serializedUser);
     }
   }
 
   getStoredUser() {
-    try {
-      return JSON.parse(localStorage.getItem('user') || '{}');
-    } catch {
-      return {};
+    const candidates = ['user', 'userData', 'usuario'];
+
+    for (const key of candidates) {
+      try {
+        const value = localStorage.getItem(key);
+        if (value) return JSON.parse(value);
+      } catch {
+        continue;
+      }
     }
+
+    return {};
   }
 
   getSessionUserId(): number | string | null {
@@ -189,7 +238,7 @@ export class AuthService {
     if (user?.id) return user.id;
     if (user?.id_usuario) return user.id_usuario;
 
-    const payload = this.decodeToken(localStorage.getItem('accessToken'));
+    const payload = this.decodeToken(this.getAccessToken());
     return payload?.id || payload?.id_usuario || null;
   }
 
@@ -197,6 +246,15 @@ export class AuthService {
     const payload = this.decodeToken(token);
     if (!payload?.exp) return false;
     return Date.now() >= payload.exp * 1000;
+  }
+
+  shouldRefreshAccessToken(
+    token: string | null = this.getAccessToken(),
+    skewMs = this.refreshSkewMs,
+  ): boolean {
+    const payload = this.decodeToken(token);
+    if (!payload?.exp) return false;
+    return Date.now() >= payload.exp * 1000 - skewMs;
   }
 
   private normalizeUser(user: any, accessToken: string) {

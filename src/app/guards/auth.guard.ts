@@ -6,29 +6,25 @@ import { AuthService } from '../api/services/auth';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly router: Router,
+  ) {}
 
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
+    const accessToken = this.auth.getAccessToken();
 
     if (!accessToken) {
       return this.redirectToLogin('Inicia sesión para continuar.');
     }
 
-    if (this.auth.isTokenExpired(accessToken)) {
-      if (!refreshToken || refreshToken === 'biometric-placeholder') {
-        return this.redirectToLogin('Tu sesión expiró. Inicia sesión nuevamente.');
-      }
-
-      try {
-        await firstValueFrom(this.auth.refreshToken());
-      } catch {
-        return this.redirectToLogin('Tu sesión expiró. Inicia sesión nuevamente.');
-      }
+    try {
+      await firstValueFrom(this.auth.ensureValidSession());
+    } catch {
+      return this.redirectToLogin('Tu sesión expiró. Inicia sesión nuevamente.');
     }
 
-    const currentToken = localStorage.getItem('accessToken') || '';
+    const currentToken = this.auth.getAccessToken() || '';
     const decoded = this.decodeToken(currentToken);
     if (!decoded) {
       return this.redirectToLogin('Sesión inválida. Inicia sesión nuevamente.');
@@ -66,8 +62,8 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private redirectToLogin(msg: string): UrlTree {
-    Swal.fire('Autenticación requerida', msg, 'info');
+  private redirectToLogin(message: string): UrlTree {
+    Swal.fire('Autenticación requerida', message, 'info');
     this.auth.clearSession();
     return this.router.createUrlTree(['/login']);
   }

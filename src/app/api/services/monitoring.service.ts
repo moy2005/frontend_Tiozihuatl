@@ -1,16 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {
-  Observable,
-  filter,
-  map,
-  merge,
-  of,
-  scan,
-  startWith,
-  take,
-  timeout,
-} from 'rxjs';
+import { Observable, filter, map, of, startWith, take, timeout } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { API_URL } from '../api.config';
 import {
@@ -32,7 +22,6 @@ import {
   MonitoringPerformanceSchemaResponse,
   MonitoringPerformanceStats,
   MonitoringQueriesResponse,
-  MonitoringReplicationResponse,
   MonitoringSnapshot,
   MonitoringSnapshotProgress,
   MonitoringSnapshotSource,
@@ -44,25 +33,23 @@ interface MonitoringRequestResult<T> {
   error: MonitoringLoadError | null;
 }
 
-interface MonitoringRequestDefinition<T> {
-  source: MonitoringSnapshotSource;
-  request$: Observable<MonitoringRequestResult<T>>;
-}
-
-type MonitoringRequestMap = Partial<
-  Record<MonitoringSnapshotSource, MonitoringRequestResult<unknown>>
->;
-
-interface MonitoringProgressAccumulator extends MonitoringSnapshotProgress {
-  rawResults: MonitoringRequestMap;
-}
-
 @Injectable({ providedIn: 'root' })
 export class MonitoringService {
   private readonly api = `${API_URL}/monitoring`;
   private readonly requestTimeoutMs = 15000;
 
   constructor(private readonly http: HttpClient) {}
+
+  getSnapshot(
+    options: MonitoringPerformanceSchemaOptions = {},
+    forceRefresh = false,
+  ): Observable<MonitoringSnapshot> {
+    return this.get<MonitoringSnapshot>('/snapshot', {
+      limit: options.limit,
+      min_avg_ms: options.minAvgMs,
+      force: forceRefresh || undefined,
+    });
+  }
 
   getDashboard(): Observable<MonitoringDashboard> {
     return this.get<MonitoringDashboard>('/dashboard');
@@ -109,10 +96,6 @@ export class MonitoringService {
     return this.get<MonitoringDeadlockInfo>('/locks/deadlock');
   }
 
-  getReplication(): Observable<MonitoringReplicationResponse> {
-    return this.get<MonitoringReplicationResponse>('/replication');
-  }
-
   getMaintenance(): Observable<MonitoringMaintenanceResponse> {
     return this.get<MonitoringMaintenanceResponse>('/maintenance');
   }
@@ -135,8 +118,9 @@ export class MonitoringService {
 
   loadSnapshot(
     options: MonitoringPerformanceSchemaOptions = { limit: 10, minAvgMs: 5 },
+    forceRefresh = false,
   ): Observable<MonitoringSnapshot> {
-    return this.loadSnapshotProgress(options).pipe(
+    return this.loadSnapshotProgress(options, forceRefresh).pipe(
       filter(
         (state): state is MonitoringSnapshotProgress & { snapshot: MonitoringSnapshot } =>
           !state.loading && state.snapshot !== null,
@@ -148,213 +132,45 @@ export class MonitoringService {
 
   loadSnapshotProgress(
     options: MonitoringPerformanceSchemaOptions = { limit: 10, minAvgMs: 5 },
+    forceRefresh = false,
   ): Observable<MonitoringSnapshotProgress> {
-    const requests = this.buildSnapshotRequests(options);
-    const total = requests.length;
-    const initialState: MonitoringProgressAccumulator = {
-      rawResults: {},
+    const source: MonitoringSnapshotSource = 'snapshot';
+    const initialState: MonitoringSnapshotProgress = {
       snapshot: null,
       completed: 0,
-      total,
+      total: 1,
       progress: 0,
       activeSource: null,
       loading: true,
-      steps: requests.map(
-        ({ source }): MonitoringLoadStep => ({
+      steps: [
+        {
           source,
           status: 'pending',
-        }),
-      ),
+        },
+      ],
     };
 
-    return merge(
-      ...requests.map(({ source, request$ }) =>
-        request$.pipe(map((result) => ({ source, result }))),
-      ),
+    return this.capture(
+      source,
+      this.getSnapshot(options, forceRefresh),
+      null,
     ).pipe(
-      scan<{
-        source: MonitoringSnapshotSource;
-        result: MonitoringRequestResult<unknown>;
-      }, MonitoringProgressAccumulator>((state, entry) => {
-        const rawResults: MonitoringRequestMap = {
-          ...state.rawResults,
-          [entry.source]: entry.result,
-        };
-
-        const completed = state.completed + 1;
-
-        return {
-          rawResults,
-          snapshot:
-            completed === total ? this.buildSnapshotFromResults(rawResults) : null,
-          completed,
-          total,
-          progress: Math.round((completed / total) * 100),
-          activeSource: entry.source,
-          loading: completed < total,
-          steps: state.steps.map((step) =>
-            step.source === entry.source
-              ? {
-                  ...step,
-                  status: entry.result.error ? 'error' : 'success',
-                }
-              : step,
-          ),
-        };
-      }, initialState),
+      map((result) => ({
+        snapshot: result.data ?? this.buildEmptySnapshot(result.error),
+        completed: 1,
+        total: 1,
+        progress: 100,
+        activeSource: source,
+        loading: false,
+        steps: [
+          {
+            source,
+            status: result.error ? 'error' : 'success',
+          } as MonitoringLoadStep,
+        ],
+      })),
       startWith(initialState),
-      map(({ rawResults: _rawResults, ...state }) => state),
     );
-  }
-
-  private buildSnapshotRequests(
-    options: MonitoringPerformanceSchemaOptions,
-  ): MonitoringRequestDefinition<unknown>[] {
-    return [
-      {
-        source: 'dashboard',
-        request$: this.capture('dashboard', this.getDashboard(), null),
-      },
-      {
-        source: 'database',
-        request$: this.capture('database', this.getDatabaseStatus(), null),
-      },
-      {
-        source: 'storage',
-        request$: this.capture('storage', this.getStorage(), null),
-      },
-      {
-        source: 'indexes',
-        request$: this.capture('indexes', this.getIndexes(), null),
-      },
-      {
-        source: 'connections',
-        request$: this.capture('connections', this.getConnections(), null),
-      },
-      {
-        source: 'queries',
-        request$: this.capture('queries', this.getQueries(), null),
-      },
-      {
-        source: 'performance',
-        request$: this.capture('performance', this.getPerformance(), null),
-      },
-      {
-        source: 'performanceSchema',
-        request$: this.capture(
-          'performanceSchema',
-          this.getPerformanceSchema(options),
-          null,
-        ),
-      },
-      {
-        source: 'locks',
-        request$: this.capture('locks', this.getLocks(), null),
-      },
-      {
-        source: 'replication',
-        request$: this.capture('replication', this.getReplication(), null),
-      },
-      {
-        source: 'maintenance',
-        request$: this.capture('maintenance', this.getMaintenance(), null),
-      },
-      {
-        source: 'healthScore',
-        request$: this.capture('healthScore', this.getHealthScore(), null),
-      },
-      {
-        source: 'security',
-        request$: this.capture('security', this.getSecurity(), []),
-      },
-      {
-        source: 'backups',
-        request$: this.capture('backups', this.getBackups(), []),
-      },
-      {
-        source: 'alerts',
-        request$: this.capture(
-          'alerts',
-          this.getAlerts(),
-          EMPTY_MONITORING_ALERTS_RESPONSE,
-        ),
-      },
-    ];
-  }
-
-  private buildSnapshotFromResults(
-    rawResults: MonitoringRequestMap,
-  ): MonitoringSnapshot {
-    const read = <T>(source: MonitoringSnapshotSource, fallback: T): T => {
-      const result = rawResults[source] as MonitoringRequestResult<T> | undefined;
-      return result ? result.data : fallback;
-    };
-
-    const dashboard = read<MonitoringDashboard | null>('dashboard', null);
-    const database = read<MonitoringDatabaseResponse | null>('database', null);
-    const storage = read<MonitoringStorageResponse | null>('storage', null);
-    const indexes = read<MonitoringIndexesResponse | null>('indexes', null);
-    const connections = read<MonitoringConnectionsResponse | null>(
-      'connections',
-      null,
-    );
-    const queries = read<MonitoringQueriesResponse | null>('queries', null);
-    const performance = read<MonitoringPerformanceStats | null>('performance', null);
-    const performanceSchema = read<MonitoringPerformanceSchemaResponse | null>(
-      'performanceSchema',
-      null,
-    );
-    const locks = read<MonitoringLocksResponse | null>('locks', null);
-    const replication = read<MonitoringReplicationResponse | null>(
-      'replication',
-      null,
-    );
-    const maintenance = read<MonitoringMaintenanceResponse | null>(
-      'maintenance',
-      null,
-    );
-    const healthScore = read<MonitoringHealthScore | null>('healthScore', null);
-    const security = read<MonitoringDbUser[]>('security', []);
-    const backups = read<MonitoringBackup[]>('backups', []);
-    const directAlerts = read<MonitoringAlertsResponse>(
-      'alerts',
-      EMPTY_MONITORING_ALERTS_RESPONSE,
-    );
-
-    const alerts = rawResults.alerts?.error
-      ? dashboard?.alerts ?? directAlerts
-      : directAlerts;
-
-    const resolvedPerformance = rawResults.performance?.error
-      ? dashboard?.performance ?? null
-      : performance;
-
-    const resolvedHealthScore = rawResults.healthScore?.error
-      ? maintenance?.health_score ?? null
-      : healthScore;
-
-    const errors = Object.values(rawResults)
-      .map((entry) => entry?.error ?? null)
-      .filter((entry): entry is MonitoringLoadError => entry !== null);
-
-    return {
-      dashboard,
-      database,
-      storage,
-      indexes,
-      connections,
-      queries,
-      performance: resolvedPerformance,
-      performanceSchema,
-      locks,
-      replication,
-      maintenance,
-      healthScore: resolvedHealthScore,
-      security,
-      backups,
-      alerts,
-      errors,
-    };
   }
 
   private get<T>(
@@ -405,4 +221,43 @@ export class MonitoringService {
       }),
     );
   }
+
+  private buildEmptySnapshot(error: MonitoringLoadError | null): MonitoringSnapshot {
+    return {
+      dashboard: null,
+      database: null,
+      storage: null,
+      indexes: null,
+      connections: null,
+      queries: null,
+      performance: null,
+      performanceSchema: null,
+      locks: null,
+      maintenance: null,
+      healthScore: null,
+      security: [],
+      backups: [],
+      alerts: EMPTY_MONITORING_ALERTS_RESPONSE,
+      errors: error ? [error] : [],
+    };
+  }
 }
+
+export {
+  EMPTY_MONITORING_ALERTS_RESPONSE,
+  type MonitoringAlertsResponse,
+  type MonitoringBackup,
+  type MonitoringConnectionsResponse,
+  type MonitoringDashboard,
+  type MonitoringDatabaseResponse,
+  type MonitoringDbUser,
+  type MonitoringDeadlockInfo,
+  type MonitoringHealthScore,
+  type MonitoringIndexesResponse,
+  type MonitoringLocksResponse,
+  type MonitoringMaintenanceResponse,
+  type MonitoringPerformanceSchemaResponse,
+  type MonitoringPerformanceStats,
+  type MonitoringQueriesResponse,
+  type MonitoringStorageResponse,
+};

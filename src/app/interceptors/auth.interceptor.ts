@@ -1,52 +1,88 @@
 import { inject } from '@angular/core';
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { AuthService } from '../api/services/auth';
 import { catchError, switchMap, throwError } from 'rxjs';
 
-export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  const accessToken = localStorage.getItem('accessToken');
+const isRefreshRequest = (url: string) => url.includes('/auth/refresh');
 
-  let cloned = req;
-  if (accessToken) {
-    cloned = req.clone({
-      setHeaders: { Authorization: `Bearer ${accessToken}` }
-    });
+const isSessionBootstrapRequest = (url: string) =>
+  url.includes('/auth/login') ||
+  url.includes('/auth/register') ||
+  url.includes('/auth/pre-registro') ||
+  url.includes('/auth/verify-email') ||
+  url.includes('/auth/finalizar-registro') ||
+  url.includes('/auth/activate-account') ||
+  url.includes('/password/') ||
+  url.includes('/sms/') ||
+  url.includes('/oauth/') ||
+  url.includes('/webauthn/');
+
+const attachAccessToken = (req: HttpRequest<unknown>, token: string | null) =>
+  token
+    ? req.clone({
+        setHeaders: { Authorization: `Bearer ${token}` },
+      })
+    : req;
+
+const shouldRetryWithRefresh = (err: any) => {
+  if (err?.status === 401) return true;
+
+  if (err?.status === 403) {
+    const message = String(err?.error?.error || err?.error?.message || '').toLowerCase();
+    return message.includes('token') || message.includes('no autorizado');
   }
 
-  return next(cloned).pipe(
-    catchError((err) => {
-      // Nunca reintentar el refresh mismo — corta el loop infinito
-      if (req.url.includes('/auth/refresh')) {
+  return false;
+};
+
+export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  const isBootstrapRequest = isSessionBootstrapRequest(req.url);
+
+  const sendRequest = () => next(attachAccessToken(req, authService.getAccessToken()));
+
+  if (isRefreshRequest(req.url)) {
+    return next(req).pipe(
+      catchError((err) => {
         if (err.status === 401 || err.status === 403) {
           authService.clearSession();
         }
         return throwError(() => err);
-      }
+      }),
+    );
+  }
 
-      if (err.status === 401 && localStorage.getItem('refreshToken')) {
-        return authService.refreshToken().pipe(
-          switchMap(() => {
-            // Siempre leer el token fresco DESPUÉS de que el service lo guardó
-            const freshToken = localStorage.getItem('accessToken');
-            if (freshToken) {
-              const retryReq = req.clone({
-                setHeaders: { Authorization: `Bearer ${freshToken}` },
-              });
-              return next(retryReq);
-            }
-            return throwError(() => err);
-          }),
-          catchError((refreshErr) => {
-            if (refreshErr.status === 401 || refreshErr.status === 403) {
-              authService.clearSession();
-            }
-            return throwError(() => refreshErr);
-          })
-        );
-      }
+  const handleRequestError = (err: any) => {
+    if (
+      !isBootstrapRequest &&
+      authService.hasUsableRefreshToken() &&
+      shouldRetryWithRefresh(err)
+    ) {
+      return authService.refreshToken().pipe(
+        switchMap(() => sendRequest()),
+        catchError((refreshErr) => {
+          if (refreshErr.status === 401 || refreshErr.status === 403) {
+            authService.clearSession();
+          }
+          return throwError(() => refreshErr);
+        }),
+      );
+    }
 
-      return throwError(() => err);
-    })
-  );
+    return throwError(() => err);
+  };
+
+  if (
+    !isBootstrapRequest &&
+    authService.getAccessToken() &&
+    authService.hasUsableRefreshToken() &&
+    authService.shouldRefreshAccessToken()
+  ) {
+    return authService.ensureValidSession().pipe(
+      switchMap(() => sendRequest()),
+      catchError(handleRequestError),
+    );
+  }
+
+  return sendRequest().pipe(catchError(handleRequestError));
 };
