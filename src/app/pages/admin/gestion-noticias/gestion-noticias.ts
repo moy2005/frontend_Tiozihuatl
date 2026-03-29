@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { NewsService } from '../../../api/services/news.service';
@@ -32,22 +33,38 @@ export class GestionNoticiasComponent implements OnInit {
   imagenPreview: string | null = null;
   videoPreview: string | null = null;
 
-  noticiaForm: any = {
-    id_noticia: null,
-    titulo: '',
-    contenido: '',
-    categoria: '',
-    fecha_publicacion: '',
-    fecha_caducidad: '',
-    estado: 'Borrador',
-    imagen_url: '',
-    video_url: ''
-  };
+  noticiaForm: any = this.crearFormularioVacio();
 
   constructor(private newsService: NewsService) {}
 
   ngOnInit() {
     this.cargarNoticias();
+  }
+
+  private crearFormularioVacio() {
+    return {
+      id_noticia: null,
+      titulo: '',
+      contenido: '',
+      categoria: '',
+      modo_publicacion: 'ahora',
+      fecha_publicacion: '',
+      fecha_caducidad: '',
+      estado: 'Borrador',
+      imagen_url: '',
+      video_url: ''
+    };
+  }
+
+  parseFechaUTC(fecha: string | null): Date | null {
+    if (!fecha) return null;
+    try {
+      const str = fecha.toString().replace(' ', 'T').replace(/Z+$/, '') + 'Z';
+      const d = new Date(str);
+      return isNaN(d.getTime()) ? null : d;
+    } catch {
+      return null;
+    }
   }
 
   async cargarNoticias() {
@@ -72,21 +89,59 @@ export class GestionNoticiasComponent implements OnInit {
     this.limpiarFormulario();
   }
 
+  private obtenerModoPublicacionInicial(noticia: any): 'ahora' | 'programada' {
+    const fechaPublicacion = noticia?.fecha_publicacion ? new Date(noticia.fecha_publicacion) : null;
+    const esFechaValida = fechaPublicacion && !isNaN(fechaPublicacion.getTime());
+
+    if (noticia?.estado === 'Borrador' && esFechaValida && fechaPublicacion > new Date()) {
+      return 'programada';
+    }
+
+    return 'ahora';
+  }
+
+  onModoPublicacionChange() {
+    if (this.noticiaForm.modo_publicacion !== 'programada') {
+      return;
+    }
+
+    const fechaProgramada = this.noticiaForm.fecha_publicacion
+      ? new Date(this.noticiaForm.fecha_publicacion)
+      : null;
+
+    if (!fechaProgramada || isNaN(fechaProgramada.getTime()) || fechaProgramada < new Date()) {
+      const siguienteMinuto = new Date();
+      siguienteMinuto.setMinutes(siguienteMinuto.getMinutes() + 1);
+      this.noticiaForm.fecha_publicacion = this.convertirFechaADatetimeLocal(siguienteMinuto);
+    }
+  }
+
   editarNoticia(noticia: any) {
+    if (noticia.estado === 'Inactiva') {
+      Swal.fire({
+        icon: 'info',
+        title: 'Noticia inactiva',
+        text: 'Esta noticia está inactiva. Para reactivarla, actualiza las fechas de publicación y caducidad.',
+        confirmButtonColor: '#2196F3'
+      });
+    }
+
+    const modoPublicacion = this.obtenerModoPublicacionInicial(noticia);
+
     this.editando = true;
     this.limpiarPreviews();
-    
-    // Copiar los datos de la noticia
-    this.noticiaForm = { ...noticia };
-    
-    // Convertir las fechas al formato datetime-local si existen
-    if (this.noticiaForm.fecha_publicacion) {
-      this.noticiaForm.fecha_publicacion = this.convertirFechaADatetimeLocal(this.noticiaForm.fecha_publicacion);
-    }
-    
-    if (this.noticiaForm.fecha_caducidad) {
-      this.noticiaForm.fecha_caducidad = this.convertirFechaADatetimeLocal(this.noticiaForm.fecha_caducidad);
-    }
+    this.noticiaForm = {
+      ...this.crearFormularioVacio(),
+      ...noticia,
+      modo_publicacion: modoPublicacion,
+      fecha_publicacion:
+        modoPublicacion === 'programada' && noticia.fecha_publicacion
+          ? this.convertirFechaADatetimeLocal(noticia.fecha_publicacion)
+          : '',
+      fecha_caducidad: noticia.fecha_caducidad
+        ? this.convertirFechaADatetimeLocal(noticia.fecha_caducidad)
+        : ''
+    };
   }
 
   verDetalles(noticia: any) {
@@ -101,9 +156,8 @@ export class GestionNoticiasComponent implements OnInit {
 
   onImagenChange(event: any) {
     const file = event.target.files[0];
-    
+
     if (file) {
-      // Validar que sea una imagen
       if (!file.type.startsWith('image/')) {
         Swal.fire({
           icon: 'error',
@@ -115,7 +169,6 @@ export class GestionNoticiasComponent implements OnInit {
         return;
       }
 
-      // Validar tamaño (máximo 5MB)
       if (file.size > 5 * 1024 * 1024) {
         Swal.fire({
           icon: 'error',
@@ -128,8 +181,7 @@ export class GestionNoticiasComponent implements OnInit {
       }
 
       this.imagenFile = file;
-      
-      // Crear vista previa
+
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imagenPreview = e.target.result;
@@ -140,9 +192,8 @@ export class GestionNoticiasComponent implements OnInit {
 
   onVideoChange(event: any) {
     const file = event.target.files[0];
-    
+
     if (file) {
-      // Validar que sea un video
       if (!file.type.startsWith('video/')) {
         Swal.fire({
           icon: 'error',
@@ -154,7 +205,6 @@ export class GestionNoticiasComponent implements OnInit {
         return;
       }
 
-      // Validar tamaño (máximo 50MB)
       if (file.size > 50 * 1024 * 1024) {
         Swal.fire({
           icon: 'error',
@@ -167,8 +217,7 @@ export class GestionNoticiasComponent implements OnInit {
       }
 
       this.videoFile = file;
-      
-      // Crear vista previa
+
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.videoPreview = e.target.result;
@@ -199,72 +248,60 @@ export class GestionNoticiasComponent implements OnInit {
   }
 
   limpiarFormulario() {
-    this.noticiaForm = {
-      id_noticia: null,
-      titulo: '',
-      contenido: '',
-      categoria: '',
-      fecha_publicacion: '',
-      fecha_caducidad: '',
-      estado: 'Borrador',
-      imagen_url: '',
-      video_url: ''
-    };
+    this.noticiaForm = this.crearFormularioVacio();
     this.limpiarPreviews();
   }
 
   validarFormulario(): boolean {
     if (!this.noticiaForm.titulo?.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campo requerido',
-        text: 'Por favor ingrese el título de la noticia.',
-        confirmButtonColor: '#2196F3'
-      });
+      Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'Por favor ingrese el título de la noticia.', confirmButtonColor: '#2196F3' });
       return false;
     }
 
     if (!this.noticiaForm.contenido?.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campo requerido',
-        text: 'Por favor ingrese el contenido de la noticia.',
-        confirmButtonColor: '#2196F3'
-      });
-      return false;
-    }
-
-    if (!this.noticiaForm.fecha_publicacion) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campo requerido',
-        text: 'Por favor seleccione la fecha de publicación.',
-        confirmButtonColor: '#2196F3'
-      });
+      Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'Por favor ingrese el contenido de la noticia.', confirmButtonColor: '#2196F3' });
       return false;
     }
 
     if (!this.noticiaForm.fecha_caducidad) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campo requerido',
-        text: 'Por favor seleccione la fecha de caducidad.',
-        confirmButtonColor: '#2196F3'
-      });
+      Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'Por favor seleccione la fecha de caducidad.', confirmButtonColor: '#2196F3' });
       return false;
     }
 
-    // Validar que la fecha de caducidad sea posterior a la de publicación
-    const fechaPub = new Date(this.noticiaForm.fecha_publicacion);
-    const fechaCad = new Date(this.noticiaForm.fecha_caducidad);
+    const ahora = new Date();
+    const tolerancia = 5 * 60 * 1000;
+    let pub = new Date();
+    const cad = new Date(this.noticiaForm.fecha_caducidad);
 
-    if (fechaCad <= fechaPub) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Fechas inválidas',
-        text: 'La fecha de caducidad debe ser posterior a la fecha de publicación.',
-        confirmButtonColor: '#2196F3'
-      });
+    if (this.noticiaForm.modo_publicacion === 'programada') {
+      if (!this.noticiaForm.fecha_publicacion) {
+        Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'Por favor seleccione la fecha de publicación.', confirmButtonColor: '#2196F3' });
+        return false;
+      }
+
+      pub = new Date(this.noticiaForm.fecha_publicacion);
+
+      if (pub < new Date(ahora.getTime() - tolerancia)) {
+        Swal.fire({ icon: 'warning', title: 'Fecha inválida', text: 'La fecha de publicación no puede ser en el pasado.', confirmButtonColor: '#2196F3' });
+        return false;
+      }
+    }
+
+    const maxFuturo = new Date(ahora);
+    maxFuturo.setFullYear(maxFuturo.getFullYear() + 2);
+
+    if (this.noticiaForm.modo_publicacion === 'programada' && pub > maxFuturo) {
+      Swal.fire({ icon: 'warning', title: 'Fecha inválida', text: 'La fecha de publicación no puede ser más de 2 años en el futuro.', confirmButtonColor: '#2196F3' });
+      return false;
+    }
+
+    if (cad <= pub) {
+      Swal.fire({ icon: 'warning', title: 'Fechas inválidas', text: 'La fecha de caducidad debe ser posterior a la fecha de publicación.', confirmButtonColor: '#2196F3' });
+      return false;
+    }
+
+    if (cad > maxFuturo) {
+      Swal.fire({ icon: 'warning', title: 'Fecha inválida', text: 'La fecha de caducidad no puede ser más de 2 años en el futuro.', confirmButtonColor: '#2196F3' });
       return false;
     }
 
@@ -272,23 +309,41 @@ export class GestionNoticiasComponent implements OnInit {
   }
 
   async guardarNoticia() {
-    if (!this.validarFormulario()) {
-      return;
-    }
+    if (!this.validarFormulario()) return;
 
     this.guardando = true;
-    
+
     try {
       const formData = new FormData();
 
-      // Agregar todos los campos del formulario
       Object.keys(this.noticiaForm).forEach(key => {
-        if (this.noticiaForm[key] !== null && this.noticiaForm[key] !== '' && key !== 'imagen_url' && key !== 'video_url') {
+        if (
+          this.noticiaForm[key] !== null &&
+          this.noticiaForm[key] !== undefined &&
+          key !== 'imagen_url' &&
+          key !== 'video_url' &&
+          key !== 'estado' &&
+          key !== 'modo_publicacion' &&
+          key !== 'fecha_publicacion' &&
+          key !== 'fecha_caducidad'
+        ) {
           formData.append(key, this.noticiaForm[key]);
         }
       });
 
-      // Determinar el mensaje de carga
+      formData.append('modo_publicacion', this.noticiaForm.modo_publicacion);
+
+      if (this.noticiaForm.modo_publicacion === 'programada' && this.noticiaForm.fecha_publicacion) {
+        formData.append('fecha_publicacion', this.noticiaForm.fecha_publicacion.replace('T', ' '));
+      }
+
+      if (this.noticiaForm.fecha_caducidad) {
+        formData.append('fecha_caducidad', this.noticiaForm.fecha_caducidad.replace('T', ' '));
+      }
+
+      formData.append('imagen_url', this.noticiaForm.imagen_url ?? '');
+      formData.append('video_url', this.noticiaForm.video_url ?? '');
+
       if (this.imagenFile && this.videoFile) {
         this.mensajeCarga = 'Subiendo imagen y video...';
       } else if (this.imagenFile) {
@@ -299,38 +354,15 @@ export class GestionNoticiasComponent implements OnInit {
         this.mensajeCarga = 'Guardando noticia...';
       }
 
-      // Agregar archivos si existen
-      if (this.imagenFile) {
-        formData.append('imagen', this.imagenFile);
-      }
+      if (this.imagenFile) formData.append('imagen', this.imagenFile);
+      if (this.videoFile) formData.append('video', this.videoFile);
 
-      if (this.videoFile) {
-        formData.append('video', this.videoFile);
-      }
-
-      // Crear o actualizar
       if (this.noticiaForm.id_noticia) {
-        await firstValueFrom(
-          this.newsService.update(this.noticiaForm.id_noticia, formData)
-        );
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Actualizada',
-          text: 'Noticia actualizada correctamente.',
-          confirmButtonColor: '#2196F3',
-          timer: 2000
-        });
+        await firstValueFrom(this.newsService.update(this.noticiaForm.id_noticia, formData));
+        Swal.fire({ icon: 'success', title: 'Actualizada', text: 'Noticia actualizada correctamente.', confirmButtonColor: '#2196F3', timer: 2000 });
       } else {
         await firstValueFrom(this.newsService.create(formData));
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Creada',
-          text: 'Noticia creada correctamente.',
-          confirmButtonColor: '#2196F3',
-          timer: 2000
-        });
+        Swal.fire({ icon: 'success', title: 'Creada', text: 'Noticia creada correctamente.', confirmButtonColor: '#2196F3', timer: 2000 });
       }
 
       this.editando = false;
@@ -338,13 +370,11 @@ export class GestionNoticiasComponent implements OnInit {
       await this.cargarNoticias();
 
     } catch (error) {
-      console.error('Error al guardar noticia:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo guardar la noticia. Por favor intente nuevamente.',
-        confirmButtonColor: '#2196F3'
-      });
+      const mensaje = (error instanceof HttpErrorResponse && error.error?.message)
+        ? error.error.message
+        : 'No se pudo guardar la noticia. Por favor intente nuevamente.';
+
+      Swal.fire({ icon: 'error', title: 'Error', text: mensaje, confirmButtonColor: '#2196F3' });
     } finally {
       this.guardando = false;
     }
@@ -364,24 +394,14 @@ export class GestionNoticiasComponent implements OnInit {
       if (result.isConfirmed) {
         try {
           await firstValueFrom(this.newsService.delete(id));
-          
-          Swal.fire({
-            icon: 'success',
-            title: 'Eliminada',
-            text: 'La noticia ha sido eliminada.',
-            confirmButtonColor: '#2196F3',
-            timer: 2000
-          });
-          
+          Swal.fire({ icon: 'success', title: 'Eliminada', text: 'La noticia ha sido eliminada.', confirmButtonColor: '#2196F3', timer: 2000 });
           await this.cargarNoticias();
         } catch (error) {
-          console.error('Error al eliminar noticia:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo eliminar la noticia.',
-            confirmButtonColor: '#2196F3'
-          });
+          const mensaje = (error instanceof HttpErrorResponse && error.error?.message)
+            ? error.error.message
+            : 'No se pudo eliminar la noticia.';
+
+          Swal.fire({ icon: 'error', title: 'Error', text: mensaje, confirmButtonColor: '#2196F3' });
         }
       }
     });
@@ -392,17 +412,10 @@ export class GestionNoticiasComponent implements OnInit {
     this.limpiarFormulario();
   }
 
-  /**
-   * Convierte una fecha de formato ISO o timestamp a formato datetime-local
-   */
   convertirFechaADatetimeLocal(fecha: string | Date): string {
     const fechaObj = new Date(fecha);
-    
-    // Ajustar a la zona horaria local
     const offset = fechaObj.getTimezoneOffset();
     const fechaLocal = new Date(fechaObj.getTime() - (offset * 60 * 1000));
-    
-    // Convertir a formato datetime-local (YYYY-MM-DDTHH:mm)
     return fechaLocal.toISOString().slice(0, 16);
   }
 }
