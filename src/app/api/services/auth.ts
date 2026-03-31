@@ -8,9 +8,159 @@ import { API_URL } from '../api.config';
 export class AuthService {
   private readonly api = `${API_URL}`;
   private readonly refreshSkewMs = 5 * 60_000;
+  private readonly refreshRetryMs = 60_000;
+  private readonly sessionIdleWindowMs = 7 * 24 * 60 * 60_000;
+  private readonly sessionActivityKey = 'sessionLastActivityAt';
   private refreshRequest$: Observable<any> | null = null;
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
+  private lifecycleInitialized = false;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {
+    this.initializeSessionLifecycle();
+  }
+
+  registerSessionActivity() {
+    if (!this.hasStoredSession()) return;
+
+    if (this.isSessionInactiveExpired()) {
+      this.clearSession();
+      return;
+    }
+
+    this.persistSessionActivity();
+    this.scheduleProactiveRefresh();
+  }
+
+  private initializeSessionLifecycle() {
+    if (typeof window === 'undefined' || this.lifecycleInitialized) return;
+
+    this.lifecycleInitialized = true;
+
+    const markActivity = () => this.registerSessionActivity();
+
+    window.addEventListener('pointerdown', markActivity, { passive: true });
+    window.addEventListener('keydown', markActivity);
+    window.addEventListener('touchstart', markActivity, { passive: true });
+    window.addEventListener('focus', markActivity);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        this.registerSessionActivity();
+      }
+    });
+    window.addEventListener('storage', (event) => {
+      if (
+        !event.key ||
+        ['accessToken', 'token', 'refreshToken', 'sessionUserId', 'user', 'userData', 'usuario'].includes(
+          event.key,
+        )
+      ) {
+        if (this.hasStoredSession()) {
+          this.ensureSessionActivityTimestamp();
+          this.scheduleProactiveRefresh();
+        } else {
+          this.stopProactiveRefresh();
+        }
+      }
+    });
+
+    if (this.hasStoredSession()) {
+      this.ensureSessionActivityTimestamp();
+      this.scheduleProactiveRefresh();
+    }
+  }
+
+  private hasStoredSession(): boolean {
+    return !!localStorage.getItem('refreshToken') || !!this.getAccessToken();
+  }
+
+  private ensureSessionActivityTimestamp() {
+    if (!this.hasStoredSession()) return;
+
+    const current = Number(localStorage.getItem(this.sessionActivityKey));
+    if (!Number.isFinite(current) || current <= 0) {
+      localStorage.setItem(this.sessionActivityKey, String(Date.now()));
+    }
+  }
+
+  private persistSessionActivity() {
+    localStorage.setItem(this.sessionActivityKey, String(Date.now()));
+  }
+
+  private getLastSessionActivity(): number {
+    const value = Number(localStorage.getItem(this.sessionActivityKey));
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  }
+
+  private isSessionInactiveExpired(): boolean {
+    const lastActivity = this.getLastSessionActivity();
+    if (!lastActivity) return false;
+
+    return Date.now() - lastActivity >= this.sessionIdleWindowMs;
+  }
+
+  private stopProactiveRefresh() {
+    if (this.refreshTimer !== null) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+  }
+
+  private getRefreshDelayMs(token: string | null): number {
+    const payload = this.decodeToken(token);
+    if (!payload?.exp) return 250;
+
+    return payload.exp * 1000 - this.refreshSkewMs - Date.now();
+  }
+
+  private scheduleProactiveRefresh(delayMs?: number) {
+    this.stopProactiveRefresh();
+
+    if (!this.hasStoredSession()) return;
+
+    this.ensureSessionActivityTimestamp();
+
+    if (this.isSessionInactiveExpired()) {
+      this.clearSession();
+      return;
+    }
+
+    if (!localStorage.getItem('refreshToken')) return;
+
+    const rawDelay = delayMs ?? this.getRefreshDelayMs(this.getAccessToken());
+    const nextDelay = Math.max(250, rawDelay);
+
+    this.refreshTimer = setTimeout(() => {
+      this.runProactiveRefresh();
+    }, nextDelay);
+  }
+
+  private runProactiveRefresh() {
+    if (!this.hasUsableRefreshToken()) {
+      this.stopProactiveRefresh();
+      return;
+    }
+
+    if (this.isSessionInactiveExpired()) {
+      this.clearSession();
+      return;
+    }
+
+    if (this.getAccessToken() && !this.shouldRefreshAccessToken()) {
+      this.scheduleProactiveRefresh();
+      return;
+    }
+
+    this.refreshToken({ trackActivity: false }).subscribe({
+      next: () => {
+        this.scheduleProactiveRefresh();
+      },
+      error: () => {
+        if (this.hasUsableRefreshToken()) {
+          this.scheduleProactiveRefresh(this.refreshRetryMs);
+        }
+      },
+    });
+  }
 
   register(data: {
     nombre: string;
@@ -67,7 +217,7 @@ export class AuthService {
       );
   }
 
-  refreshToken(): Observable<any> {
+  refreshToken(options: { trackActivity?: boolean } = {}): Observable<any> {
     const refresh = localStorage.getItem('refreshToken');
     const userId = this.getSessionUserId();
 
@@ -93,7 +243,7 @@ export class AuthService {
           accessToken: res.accessToken,
           refreshToken: res.refreshToken || refresh,
           user: res.user || this.getStoredUser(),
-        });
+        }, { trackActivity: options.trackActivity ?? false });
       }),
       catchError((err) => {
         if (err.status === 401 || err.status === 403) {
@@ -140,7 +290,14 @@ export class AuthService {
 
   hasUsableRefreshToken(): boolean {
     const refresh = localStorage.getItem('refreshToken');
-    return !!refresh;
+    if (!refresh) return false;
+
+    if (this.isSessionInactiveExpired()) {
+      this.clearSession();
+      return false;
+    }
+
+    return true;
   }
 
   getAccessToken(): string | null {
@@ -149,8 +306,11 @@ export class AuthService {
 
   clearSession() {
     this.refreshRequest$ = null;
+    this.stopProactiveRefresh();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('sessionUserId');
+    localStorage.removeItem(this.sessionActivityKey);
     localStorage.removeItem('user');
     localStorage.removeItem('userData');
     localStorage.removeItem('token');
@@ -193,12 +353,15 @@ export class AuthService {
     return this.http.post(`${this.api}/auth/activate-account`, payload);
   }
 
-  storeSession(payload: {
-    accessToken?: string;
-    token?: string;
-    refreshToken?: string;
-    user?: any;
-  }) {
+  storeSession(
+    payload: {
+      accessToken?: string;
+      token?: string;
+      refreshToken?: string;
+      user?: any;
+    },
+    options: { trackActivity?: boolean } = {},
+  ) {
     const accessToken = payload.accessToken || payload.token;
     if (!accessToken) return;
 
@@ -216,12 +379,24 @@ export class AuthService {
     }
 
     const normalizedUser = this.normalizeUser(payload.user, accessToken);
+    if (normalizedUser?.id !== undefined && normalizedUser?.id !== null) {
+      localStorage.setItem('sessionUserId', String(normalizedUser.id));
+    }
+
     if (normalizedUser) {
       const serializedUser = JSON.stringify(normalizedUser);
       localStorage.setItem('user', serializedUser);
       localStorage.setItem('userData', serializedUser);
       localStorage.setItem('usuario', serializedUser);
     }
+
+    this.ensureSessionActivityTimestamp();
+
+    if (options.trackActivity ?? true) {
+      this.persistSessionActivity();
+    }
+
+    this.scheduleProactiveRefresh();
   }
 
   getStoredUser() {
@@ -243,6 +418,12 @@ export class AuthService {
     const user = this.getStoredUser();
     if (user?.id) return user.id;
     if (user?.id_usuario) return user.id_usuario;
+
+    const storedSessionUserId = localStorage.getItem('sessionUserId');
+    if (storedSessionUserId) {
+      const numericId = Number(storedSessionUserId);
+      return Number.isNaN(numericId) ? storedSessionUserId : numericId;
+    }
 
     const payload = this.decodeToken(this.getAccessToken());
     return payload?.id || payload?.id_usuario || null;

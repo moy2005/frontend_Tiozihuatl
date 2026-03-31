@@ -16,6 +16,7 @@ import { AuthService } from '../../api/services/auth';
   encapsulation: ViewEncapsulation.None
 })
 export class PerfilUsuarioComponent implements OnInit {
+  readonly palabraSecretaMaxLength = 10;
   user: any = {};
   cargando = true;
   editando = false;
@@ -123,10 +124,13 @@ export class PerfilUsuarioComponent implements OnInit {
   async guardarCambios() {
     const palabraSecreta = this.palabraSecreta.trim();
 
-    if (palabraSecreta && (palabraSecreta.length < 4 || palabraSecreta.length > 30)) {
+    if (
+      palabraSecreta &&
+      (palabraSecreta.length < 4 || palabraSecreta.length > this.palabraSecretaMaxLength)
+    ) {
       Swal.fire(
         'Dato invalido',
-        'La palabra secreta debe tener entre 4 y 30 caracteres.',
+        `La palabra secreta debe tener entre 4 y ${this.palabraSecretaMaxLength} caracteres.`,
         'info'
       );
       return;
@@ -169,10 +173,10 @@ export class PerfilUsuarioComponent implements OnInit {
       return;
     }
 
-    if (palabraSecreta.length < 4 || palabraSecreta.length > 30) {
+    if (palabraSecreta.length < 4 || palabraSecreta.length > this.palabraSecretaMaxLength) {
       Swal.fire(
         'Dato invalido',
-        'La palabra secreta debe tener entre 4 y 30 caracteres.',
+        `La palabra secreta debe tener entre 4 y ${this.palabraSecretaMaxLength} caracteres.`,
         'info'
       );
       return;
@@ -341,6 +345,46 @@ export class PerfilUsuarioComponent implements OnInit {
 
     const score = [hasLower, hasUpper, hasNumber, hasSymbol, minLength].filter(Boolean).length;
     this.passwordStage = score <= 2 ? 1 : score === 3 || score === 4 ? 2 : 3;
+  }
+
+  onPalabraSecretaInput(event: Event) {
+    const input = event.target as HTMLInputElement | null;
+    if (!input) return;
+
+    const sanitized = input.value.slice(0, this.palabraSecretaMaxLength);
+    if (sanitized !== this.palabraSecreta) {
+      this.palabraSecreta = sanitized;
+    }
+
+    if (input.value !== sanitized) {
+      input.value = sanitized;
+    }
+  }
+
+  onPalabraSecretaPaste(event: ClipboardEvent) {
+    const pastedText = event.clipboardData?.getData('text') || '';
+    if (!pastedText) return;
+
+    const input = event.target as HTMLInputElement | null;
+    const currentValue = this.palabraSecreta || '';
+    const selectionStart = input?.selectionStart ?? currentValue.length;
+    const selectionEnd = input?.selectionEnd ?? currentValue.length;
+
+    const nextValue =
+      currentValue.slice(0, selectionStart) +
+      pastedText +
+      currentValue.slice(selectionEnd);
+
+    if (nextValue.length <= this.palabraSecretaMaxLength) {
+      return;
+    }
+
+    event.preventDefault();
+    Swal.fire(
+      'Limite alcanzado',
+      `La palabra secreta no puede exceder ${this.palabraSecretaMaxLength} caracteres.`,
+      'info'
+    );
   }
 
   validarPasswordFuerte(): boolean {

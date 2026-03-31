@@ -51,12 +51,20 @@ export class GestionUsuariosComponent implements OnInit {
   filtrosActivos = false;
   semestresFiltro: any[] = [];
   gruposFiltro: string[] = [];
+  filtrosInicializados = false;
 
   mostrarModalAvanzar = false;
   pasoAvanzar = 1;
   cargandoAvanzar = false;
   cargandoPreview = false;
   estudiantesParaAvance: any[] = [];
+  filtrosAvance = {
+    semestre: '',
+    grupo: ''
+  };
+  semestresAvanceDisponibles: Array<{ id: string; nombre: string }> = [];
+  gruposAvanceDisponibles: string[] = [];
+  estudiantesParaAvanceFiltrados: any[] = [];
   avanzarData: any = {
     id_periodo_origen: '',
     id_periodo_destino: ''
@@ -156,8 +164,12 @@ export class GestionUsuariosComponent implements OnInit {
 
     this.adminService.getOpcionesPorPeriodo(this.filtros.id_periodo).subscribe({
       next: (res) => {
-        this.semestresFiltro = res.semestres;
-        this.gruposFiltro = res.grupos;
+        this.semestresFiltro = Array.isArray(res?.semestres) ? res.semestres : [];
+        this.gruposFiltro = this.ordenarGrupos(res?.grupos);
+        this.filtros.id_semestre = this.semestresFiltro[0]?.id_semestre
+          ? String(this.semestresFiltro[0].id_semestre)
+          : '';
+        this.filtros.grupo = this.gruposFiltro[0] || '';
         this.aplicarFiltros();
       },
       error: (err) => console.error('Error al cargar opciones del periodo:', err)
@@ -239,14 +251,20 @@ export class GestionUsuariosComponent implements OnInit {
 
   cargarRoles() {
     this.adminService.getRoles().subscribe({
-      next: (res) => (this.roles = res),
+      next: (res) => {
+        this.roles = res;
+        this.intentarAplicarFiltrosPorDefecto();
+      },
       error: (err) => console.error('Error al obtener roles', err),
     });
   }
 
   cargarCatalogos() {
     this.adminService.getCarreras().subscribe({
-      next: (res) => (this.carreras = res),
+      next: (res) => {
+        this.carreras = res;
+        this.intentarAplicarFiltrosPorDefecto();
+      },
       error: (err) => console.error('Error al obtener carreras:', err),
     });
 
@@ -265,6 +283,7 @@ export class GestionUsuariosComponent implements OnInit {
     this.adminService.getPeriodosTodos().subscribe({
       next: (res) => {
         this.periodos = Array.isArray(res) ? res : res ? [res] : [];
+        this.intentarAplicarFiltrosPorDefecto();
       },
       error: (err) => console.error('Error al obtener periodos:', err),
     });
@@ -272,6 +291,7 @@ export class GestionUsuariosComponent implements OnInit {
     this.adminService.getPeriodosActivos().subscribe({
       next: (res) => {
         this.periodosActivos = Array.isArray(res) ? res : res ? [res] : [];
+        this.intentarAplicarFiltrosPorDefecto();
       },
       error: (err) => console.error('Error al obtener periodos activos:', err),
     });
@@ -312,12 +332,14 @@ export class GestionUsuariosComponent implements OnInit {
   limpiarFiltros() {
     this.filtros = { rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
     this.filtrosActivos = false;
+    this.semestresFiltro = this.semestres;
+    this.gruposFiltro = ['A', 'B'];
     this.paginaActual = 1;
     this.cargarUsuarios();
   }
 
   get rolFiltroNombre(): string {
-    return this.getRolNombre(this.filtros.id_rol) || '';
+    return this.filtros.rol || '';
   }
 
   get filtroPorPeriodo(): boolean {
@@ -327,6 +349,7 @@ export class GestionUsuariosComponent implements OnInit {
   abrirModalAvanzar() {
     this.avanzarData = { id_periodo_origen: '', id_periodo_destino: '' };
     this.estudiantesParaAvance = [];
+    this.resetFiltrosAvance();
     this.pasoAvanzar = 1;
     this.mostrarModalAvanzar = true;
   }
@@ -335,6 +358,7 @@ export class GestionUsuariosComponent implements OnInit {
     this.mostrarModalAvanzar = false;
     this.pasoAvanzar = 1;
     this.estudiantesParaAvance = [];
+    this.resetFiltrosAvance();
   }
 
   cargarPreviewAvance() {
@@ -343,7 +367,10 @@ export class GestionUsuariosComponent implements OnInit {
 
     this.adminService.getPreviewAvance(this.avanzarData.id_periodo_origen).subscribe({
       next: (res) => {
-        this.estudiantesParaAvance = res.map((a) => ({ ...a, accion: 'AVANZAR' }));
+        this.estudiantesParaAvance = this.ordenarEstudiantesAvance(
+          res.map((a) => ({ ...a, accion: 'AVANZAR' }))
+        );
+        this.limpiarFiltrosAvance();
         this.cargandoPreview = false;
         this.pasoAvanzar = 2;
       },
@@ -352,6 +379,33 @@ export class GestionUsuariosComponent implements OnInit {
         Swal.fire('Error', 'No se pudieron cargar los estudiantes del periodo.', 'error');
       }
     });
+  }
+
+  get totalEstudiantesVisiblesAvance(): number {
+    return this.estudiantesParaAvanceFiltrados.length;
+  }
+
+  limpiarFiltrosAvance() {
+    this.filtrosAvance = { semestre: '', grupo: '' };
+    this.actualizarOpcionesAvance();
+    this.actualizarVistaAvance();
+  }
+
+  onSemestreAvanceChange() {
+    this.actualizarOpcionesAvance();
+
+    if (
+      this.filtrosAvance.grupo &&
+      !this.gruposAvanceDisponibles.includes(this.filtrosAvance.grupo)
+    ) {
+      this.filtrosAvance = { ...this.filtrosAvance, grupo: '' };
+    }
+
+    this.actualizarVistaAvance();
+  }
+
+  onGrupoAvanceChange() {
+    this.actualizarVistaAvance();
   }
 
   countAccion(accion: string): number {
@@ -440,6 +494,84 @@ export class GestionUsuariosComponent implements OnInit {
     return this.periodos.find((p) => p.id_periodo == id)?.nombre || `#${id}`;
   }
 
+  private resetFiltrosAvance() {
+    this.filtrosAvance = { semestre: '', grupo: '' };
+    this.semestresAvanceDisponibles = [];
+    this.gruposAvanceDisponibles = [];
+    this.estudiantesParaAvanceFiltrados = [];
+  }
+
+  private actualizarOpcionesAvance() {
+    const semestresMap = new Map<string, { id: string; nombre: string; orden: number }>();
+
+    this.estudiantesParaAvance.forEach((estudiante) => {
+      if (!this.tieneValor(estudiante.id_semestre)) return;
+
+      const id = String(estudiante.id_semestre);
+
+      if (!semestresMap.has(id)) {
+        semestresMap.set(id, {
+          id,
+          nombre: estudiante.nombre_semestre || `Semestre ${id}`,
+          orden: Number(estudiante.id_semestre) || Number.MAX_SAFE_INTEGER
+        });
+      }
+    });
+
+    this.semestresAvanceDisponibles = Array.from(semestresMap.values())
+      .sort((a, b) => a.orden - b.orden || this.compararTextoAvance(a.nombre, b.nombre))
+      .map(({ id, nombre }) => ({ id, nombre }));
+
+    const baseGrupos = this.filtrosAvance.semestre
+      ? this.estudiantesParaAvance.filter(
+          (estudiante) => String(estudiante.id_semestre) === this.filtrosAvance.semestre
+        )
+      : this.estudiantesParaAvance;
+
+    this.gruposAvanceDisponibles = Array.from(
+      new Set(
+        baseGrupos
+          .map((estudiante) => String(estudiante.grupo || '').trim())
+          .filter((grupo) => grupo !== '')
+      )
+    ).sort((a, b) => this.compararTextoAvance(a, b));
+  }
+
+  private actualizarVistaAvance() {
+    let lista = [...this.estudiantesParaAvance];
+
+    if (this.filtrosAvance.semestre) {
+      lista = lista.filter(
+        (estudiante) => String(estudiante.id_semestre) === this.filtrosAvance.semestre
+      );
+    }
+
+    if (this.filtrosAvance.grupo) {
+      lista = lista.filter(
+        (estudiante) => String(estudiante.grupo || '').trim() === this.filtrosAvance.grupo
+      );
+    }
+
+    this.estudiantesParaAvanceFiltrados = this.ordenarEstudiantesAvance(lista);
+  }
+
+  private ordenarEstudiantesAvance(lista: any[]): any[] {
+    return [...lista].sort((a, b) => {
+      return (
+        this.compararTextoAvance(a?.a_paterno, b?.a_paterno) ||
+        this.compararTextoAvance(a?.a_materno, b?.a_materno) ||
+        this.compararTextoAvance(a?.nombre, b?.nombre) ||
+        this.compararTextoAvance(a?.matricula, b?.matricula)
+      );
+    });
+  }
+
+  private compararTextoAvance(a: any, b: any): number {
+    return String(a ?? '')
+      .trim()
+      .localeCompare(String(b ?? '').trim(), 'es-MX', { sensitivity: 'base' });
+  }
+
   verDetalles(usuario: any) {
     this.usuarioSeleccionado = { ...usuario };
     this.mostrarDetalles = true;
@@ -490,7 +622,6 @@ export class GestionUsuariosComponent implements OnInit {
         'a_materno',
         'correo',
         'telefono',
-        'contrasena',
         'matricula',
         'id_carrera',
         'id_semestre',
@@ -501,6 +632,16 @@ export class GestionUsuariosComponent implements OnInit {
     }
 
     return ['nombre', 'a_paterno', 'a_materno', 'correo', 'telefono', 'contrasena', 'estado'].includes(campo);
+  }
+
+  mostrarCampoFormulario(campo: string): boolean {
+    const rol = this.getRolNombre(this.nuevoUsuario.id_rol);
+
+    if ((campo === 'correo' || campo === 'telefono') && !this.editando && rol === 'Estudiante') {
+      return false;
+    }
+
+    return true;
   }
 
   getRolNombre(id_rol: number): string {
@@ -531,6 +672,10 @@ export class GestionUsuariosComponent implements OnInit {
         Swal.fire('Periodo requerido', 'Estudiante debe tener un periodo asignado.', 'info');
         return;
       }
+      if (!isEdit) {
+        user.correo = '';
+        user.telefono = '';
+      }
     } else {
       if (!user.correo || String(user.correo).trim() === '') {
         Swal.fire('Campos requeridos', `${rol || 'El usuario'} debe tener correo electrónico.`, 'info');
@@ -555,9 +700,8 @@ export class GestionUsuariosComponent implements OnInit {
       if (!payload.id_periodo) {
         delete payload.id_periodo;
       }
-    } else if (!user.contrasena || user.contrasena.trim() === '') {
-      Swal.fire('Contraseña requerida', 'Debes ingresar una contraseña para el nuevo usuario.', 'info');
-      return;
+    } else {
+      delete payload.contrasena;
     }
 
     const request = isEdit
@@ -566,6 +710,15 @@ export class GestionUsuariosComponent implements OnInit {
 
     request.subscribe({
       next: (res) => {
+        if (res.tokens_excel_b64) {
+          const identificadorArchivo =
+            payload.matricula || payload.correo || payload.nombre || 'usuario';
+          this.descargarExcelTokens(
+            res.tokens_excel_b64,
+            `token_activacion_${String(identificadorArchivo).replace(/\s+/g, '_')}.xlsx`
+          );
+        }
+
         Swal.fire('Éxito', res.message || 'Operación exitosa.', 'success');
         this.nuevoUsuario = this.resetForm();
         this.nuevaContrasena = '';
@@ -622,6 +775,21 @@ export class GestionUsuariosComponent implements OnInit {
       this.importData.id_semestre = '';
       this.importData.grupo = '';
       this.importData.id_periodo = '';
+    }
+  }
+
+  onRolFormularioChange() {
+    const rol = this.getRolNombre(this.nuevoUsuario.id_rol);
+
+    this.nuevoUsuario.id_carrera = '';
+    this.nuevoUsuario.id_semestre = '';
+    this.nuevoUsuario.matricula = '';
+    this.nuevoUsuario.grupo = '';
+    this.nuevoUsuario.id_periodo = '';
+
+    if (!this.editando && rol === 'Estudiante') {
+      this.nuevoUsuario.correo = '';
+      this.nuevoUsuario.telefono = '';
     }
   }
 
@@ -788,5 +956,58 @@ export class GestionUsuariosComponent implements OnInit {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+  }
+
+  private intentarAplicarFiltrosPorDefecto() {
+    if (
+      this.filtrosInicializados ||
+      !this.roles.length ||
+      !this.carreras.length ||
+      !this.periodos.length
+    ) {
+      return;
+    }
+
+    const periodoInicial = this.obtenerPeriodoInicial();
+    if (!periodoInicial) {
+      return;
+    }
+
+    this.filtrosInicializados = true;
+    this.filtros = {
+      rol: 'Estudiante',
+      id_carrera: this.carreras[0]?.id_carrera ? String(this.carreras[0].id_carrera) : '',
+      id_semestre: '',
+      grupo: '',
+      id_periodo: String(periodoInicial.id_periodo),
+    };
+
+    this.onPeriodoFiltroChange();
+  }
+
+  private obtenerPeriodoInicial() {
+    const periodosActivosOrdenados = [...this.periodosActivos].sort((a, b) => {
+      const fechaA = a?.fecha_inicio ? new Date(a.fecha_inicio).getTime() : 0;
+      const fechaB = b?.fecha_inicio ? new Date(b.fecha_inicio).getTime() : 0;
+      return fechaB - fechaA;
+    });
+
+    if (periodosActivosOrdenados.length > 0) {
+      return periodosActivosOrdenados[0];
+    }
+
+    const periodosOrdenados = [...this.periodos].sort((a, b) => {
+      const fechaA = a?.fecha_inicio ? new Date(a.fecha_inicio).getTime() : 0;
+      const fechaB = b?.fecha_inicio ? new Date(b.fecha_inicio).getTime() : 0;
+      return fechaB - fechaA;
+    });
+
+    return periodosOrdenados[0] || null;
+  }
+
+  private ordenarGrupos(grupos: string[] = []): string[] {
+    return [...new Set(grupos)]
+      .filter((grupo) => !!grupo)
+      .sort((a, b) => a.localeCompare(b, 'es'));
   }
 }

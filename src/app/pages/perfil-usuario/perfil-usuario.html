@@ -1268,6 +1268,9 @@
                       <input
                         [type]="mostrarPalabraSecreta ? 'text' : 'password'"
                         [(ngModel)]="palabraSecreta"
+                        maxlength="10"
+                        (input)="onPalabraSecretaInput($event)"
+                        (paste)="onPalabraSecretaPaste($event)"
                         class="pf-field-input pf-secret-input"
                         placeholder="Escribe una palabra secreta"
                       />
@@ -1282,7 +1285,7 @@
                     </div>
 
                     <span class="pf-secret-help">
-                      Usa entre 4 y 30 caracteres. Si no escribes una nueva, se conserva la configuracion actual.
+                      Usa entre 4 y 10 caracteres. Si intentas pegar mas de 10, el sistema no lo permitira.
                     </span>
 
                     <div *ngIf="editandoPalabraSecreta && !editando" class="pf-secret-actions">

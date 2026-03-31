@@ -1,4 +1,4 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA,ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AboutService, AboutItem } from '../../api/services/about.service';
 
@@ -9,6 +9,7 @@ import { AboutService, AboutItem } from '../../api/services/about.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class AboutComponent implements OnInit {
 

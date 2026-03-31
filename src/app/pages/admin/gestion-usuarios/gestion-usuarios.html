@@ -312,7 +312,9 @@
               </div>
               <div>
                 <h3 class="modal-title">Avanzar Semestre</h3>
-                <p class="modal-subtitle">Paso {{ pasoAvanzar }} de 2 — {{ pasoAvanzar === 1 ? 'Selección de periodos' : 'Asignación de acciones' }}</p>
+                <p class="modal-subtitle">
+                  Paso {{ pasoAvanzar }} de 2 - {{ pasoAvanzar === 1 ? 'Seleccion de periodos' : 'Asignacion de acciones' }}
+                </p>
               </div>
             </div>
             <div class="modal-stepper">
@@ -333,15 +335,13 @@
 
           <div class="modal-body">
 
-            <div *ngIf="pasoAvanzar === 1">
+            <div *ngIf="pasoAvanzar === 1" class="avanzar-shell">
               <div class="avanzar-info-box">
                 <div class="avanzar-info-icon"><ion-icon name="information-circle-outline"></ion-icon></div>
                 <div class="avanzar-info-content">
-                  <p class="avanzar-info-titulo">¿Cómo funciona?</p>
+                  <p class="avanzar-info-titulo">¿Como funciona?</p>
                   <p class="avanzar-info-texto">
-                    Selecciona el periodo que vas a <strong>cerrar</strong> (origen) y el periodo al que
-                    pasarán los estudiantes (destino). En el siguiente paso podrás elegir qué acción aplicar
-                    a cada estudiante individualmente.
+                    Selecciona el periodo que vas a <strong>cerrar</strong> y el periodo al que pasaran los estudiantes. En el siguiente paso podras revisar el listado y elegir la accion de cada estudiante.
                   </p>
                 </div>
               </div>
@@ -358,7 +358,7 @@
                   <select [(ngModel)]="avanzarData.id_periodo_origen" class="form-input avanzar-select">
                     <option value="">Seleccionar periodo...</option>
                     <option *ngFor="let p of periodos" [value]="p.id_periodo">
-                      {{ p.nombre }}<ng-container *ngIf="p.estado === 'Activo'"> — Activo</ng-container>
+                      {{ p.nombre }}<ng-container *ngIf="p.estado === 'Activo'"> - Activo</ng-container>
                     </option>
                   </select>
                   <p class="avanzar-periodo-hint">
@@ -381,18 +381,18 @@
                     <option value="">Seleccionar periodo...</option>
                     <option *ngFor="let p of periodos" [value]="p.id_periodo"
                       [disabled]="p.id_periodo == avanzarData.id_periodo_origen">
-                      {{ p.nombre }}<ng-container *ngIf="p.estado === 'Activo'"> — Activo</ng-container>
+                      {{ p.nombre }}<ng-container *ngIf="p.estado === 'Activo'"> - Activo</ng-container>
                     </option>
                   </select>
                   <p class="avanzar-periodo-hint">
                     <ion-icon name="information-circle-outline"></ion-icon>
-                    Periodo al que pasarán los estudiantes.
+                    Periodo al que pasaran los estudiantes.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div *ngIf="pasoAvanzar === 2">
+            <div *ngIf="pasoAvanzar === 2" class="avanzar-shell">
               <div class="avanzar-resumen-periodos">
                 <div class="avanzar-resumen-chip origen">
                   <ion-icon name="archive-outline"></ion-icon>
@@ -409,62 +409,118 @@
                 </div>
               </div>
 
-              <div class="avanzar-acciones-masivas">
-                <span class="avanzar-acciones-label">
-                  <ion-icon name="flash-outline"></ion-icon>
-                  Acción masiva:
-                </span>
-                <div class="avanzar-acciones-btns">
-                  <button (click)="toggleTodosAvanzar('AVANZAR')" class="accion-masiva-btn accion-avanzar">
-                    <ion-icon name="arrow-up-circle-outline"></ion-icon>Todos avanzan
-                  </button>
-                  <button (click)="toggleTodosAvanzar('REPETIR')" class="accion-masiva-btn accion-repetir">
-                    <ion-icon name="refresh-circle-outline"></ion-icon>Todos repiten
-                  </button>
-                  <button (click)="toggleTodosAvanzar('BAJA')" class="accion-masiva-btn accion-baja">
-                    <ion-icon name="remove-circle-outline"></ion-icon>Todos de baja
+              <div class="avanzar-filtros-panel">
+                <div class="avanzar-filtros-head">
+                  <div>
+                    <p class="avanzar-filtros-title">Filtros de revision</p>
+                    <p class="avanzar-filtros-texto">Puedes revisar por semestre y grupo. El listado se mantiene ordenado por apellido paterno.</p>
+                  </div>
+                  <div class="avanzar-filtros-meta">
+                    <span class="avanzar-meta-chip">
+                      Mostrando <strong>{{ totalEstudiantesVisiblesAvance }}</strong> de {{ estudiantesParaAvance.length }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="avanzar-filtros-grid-simple">
+                  <div class="form-group">
+                    <label class="form-label">Semestre</label>
+                    <select
+                      [(ngModel)]="filtrosAvance.semestre"
+                      (ngModelChange)="onSemestreAvanceChange()"
+                      class="form-input avanzar-select"
+                    >
+                      <option value="">Todos los semestres</option>
+                      <option *ngFor="let semestre of semestresAvanceDisponibles" [value]="semestre.id">
+                        {{ semestre.nombre }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Grupo</label>
+                    <select
+                      [(ngModel)]="filtrosAvance.grupo"
+                      (ngModelChange)="onGrupoAvanceChange()"
+                      class="form-input avanzar-select"
+                    >
+                      <option value="">Todos los grupos</option>
+                      <option *ngFor="let grupo of gruposAvanceDisponibles" [value]="grupo">
+                        Grupo {{ grupo }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn-secondary avanzar-limpiar-btn"
+                    (click)="limpiarFiltrosAvance()"
+                    [disabled]="!filtrosAvance.semestre && !filtrosAvance.grupo"
+                  >
+                    <ion-icon name="refresh-outline"></ion-icon>
+                    Limpiar filtros
                   </button>
                 </div>
               </div>
 
-              <div class="avanzar-tabla-wrapper">
-                <table class="avanzar-tabla">
-                  <thead>
-                    <tr>
-                      <th>Estudiante</th>
-                      <th>Matrícula</th>
-                      <th>Semestre</th>
-                      <th>Grupo</th>
-                      <th>Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let a of estudiantesParaAvance"
-                      [ngClass]="{
-                        'fila-baja': a.accion === 'BAJA',
-                        'fila-repetir': a.accion === 'REPETIR',
-                        'fila-avanzar': a.accion === 'AVANZAR'
-                      }">
-                      <td class="avanzar-td-nombre">{{ a.a_paterno }} {{ a.a_materno }} {{ a.nombre }}</td>
-                      <td class="avanzar-td-center avanzar-td-mono">{{ a.matricula || '—' }}</td>
-                      <td class="avanzar-td-center">{{ a.nombre_semestre }}</td>
-                      <td class="avanzar-td-center">{{ a.grupo }}</td>
-                      <td class="avanzar-td-center">
-                        <select [(ngModel)]="a.accion" class="avanzar-accion-select"
-                          [ngClass]="{
-                            'select-avanzar': a.accion === 'AVANZAR',
-                            'select-repetir': a.accion === 'REPETIR',
-                            'select-baja':    a.accion === 'BAJA'
-                          }">
-                          <option value="AVANZAR">Avanzar</option>
-                          <option value="REPETIR">Repetir</option>
-                          <option value="BAJA">Baja</option>
-                        </select>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                <div class="avanzar-acciones-masivas">
+                  <span class="avanzar-acciones-label">
+                    <ion-icon name="flash-outline"></ion-icon>
+                    Accion masiva:
+                  </span>
+                  <div class="avanzar-acciones-btns">
+                    <button (click)="toggleTodosAvanzar('AVANZAR')" class="accion-masiva-btn accion-avanzar">
+                      <ion-icon name="arrow-up-circle-outline"></ion-icon>Todos avanzan
+                    </button>
+                    <button (click)="toggleTodosAvanzar('REPETIR')" class="accion-masiva-btn accion-repetir">
+                      <ion-icon name="refresh-circle-outline"></ion-icon>Todos repiten
+                    </button>
+                    <button (click)="toggleTodosAvanzar('BAJA')" class="accion-masiva-btn accion-baja">
+                      <ion-icon name="remove-circle-outline"></ion-icon>Todos de baja
+                    </button>
+                  </div>
+                </div>
+
+              <ng-container *ngIf="estudiantesParaAvanceFiltrados.length > 0; else sinResultadosAvance">
+                <div class="avanzar-tabla-wrapper">
+                  <table class="avanzar-tabla">
+                    <thead>
+                      <tr>
+                        <th>Estudiante</th>
+                        <th>Matricula</th>
+                        <th>Semestre</th>
+                        <th>Grupo</th>
+                        <th>Accion</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let a of estudiantesParaAvanceFiltrados"
+                        [ngClass]="{
+                          'fila-baja': a.accion === 'BAJA',
+                          'fila-repetir': a.accion === 'REPETIR',
+                          'fila-avanzar': a.accion === 'AVANZAR'
+                        }">
+                        <td class="avanzar-td-nombre">{{ a.a_paterno }} {{ a.a_materno }} {{ a.nombre }}</td>
+                        <td class="avanzar-td-center avanzar-td-mono">{{ a.matricula || '—' }}</td>
+                        <td class="avanzar-td-center">{{ a.nombre_semestre }}</td>
+                        <td class="avanzar-td-center">{{ a.grupo }}</td>
+                        <td class="avanzar-td-center">
+                          <select [(ngModel)]="a.accion" class="avanzar-accion-select"
+                            [ngClass]="{
+                              'select-avanzar': a.accion === 'AVANZAR',
+                              'select-repetir': a.accion === 'REPETIR',
+                              'select-baja':    a.accion === 'BAJA'
+                            }">
+                            <option value="AVANZAR">Avanzar</option>
+                            <option value="REPETIR">Repetir</option>
+                            <option value="BAJA">Baja</option>
+                          </select>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </ng-container>
 
               <div class="avanzar-contadores">
                 <div class="contador-chip contador-avanzar">
@@ -481,6 +537,22 @@
                 </div>
               </div>
             </div>
+
+            <ng-template #sinResultadosAvance>
+              <div class="avanzar-empty-state">
+                <div class="avanzar-empty-icon">
+                  <ion-icon name="search-outline"></ion-icon>
+                </div>
+                <h5 class="avanzar-empty-title">No hay estudiantes con los filtros seleccionados</h5>
+                <p class="avanzar-empty-text">
+                  Ajusta el semestre o el grupo para volver a ver estudiantes en el listado.
+                </p>
+                <button type="button" class="btn-secondary" (click)="limpiarFiltrosAvance()">
+                  <ion-icon name="refresh-outline"></ion-icon>
+                  Mostrar todo el listado
+                </button>
+              </div>
+            </ng-template>
           </div>
 
           <div class="modal-footer">
@@ -548,7 +620,7 @@
                   [disabled]="!campoActivo('a_materno')" class="form-input" />
               </div>
 
-              <div class="form-group">
+              <div class="form-group" *ngIf="mostrarCampoFormulario('correo')">
                 <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('correo')}">
                   Correo Electrónico{{ rolFormularioActual === 'Estudiante' ? ' (opcional)' : ' *' }}
                 </label>
@@ -559,17 +631,17 @@
                 </p>
               </div>
 
-              <div class="form-group">
+              <div class="form-group" *ngIf="mostrarCampoFormulario('telefono')">
                 <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('telefono')}">Teléfono</label>
                 <input [(ngModel)]="nuevoUsuario.telefono" placeholder="Ingrese el teléfono" type="tel"
                   [disabled]="!campoActivo('telefono')" class="form-input" />
               </div>
 
               <div class="form-group" *ngIf="!editando">
-                <label class="form-label" [ngClass]="{'label-disabled': !campoActivo('contrasena')}">Contraseña *</label>
-                <input [(ngModel)]="nuevoUsuario.contrasena" placeholder="Mínimo 8 caracteres"
-                  type="password" minlength="8"
-                  [disabled]="!campoActivo('contrasena')" class="form-input" />
+                <label class="form-label">Activación de cuenta</label>
+                <div class="form-input" style="min-height:auto; background:#eff6ff; border-color:#bfdbfe; color:#1e3a5f;">
+                  Al crear el usuario se descargará automáticamente un Excel con su enlace de activación para que configure su contraseña.
+                </div>
               </div>
 
               <div class="form-group" *ngIf="editando">
@@ -592,7 +664,7 @@
               <div class="form-group">
                 <label class="form-label">Rol</label>
                 <select [(ngModel)]="nuevoUsuario.id_rol"
-                  (change)="nuevoUsuario.id_carrera = nuevoUsuario.id_semestre = nuevoUsuario.matricula = nuevoUsuario.grupo = nuevoUsuario.id_periodo = ''"
+                  (change)="onRolFormularioChange()"
                   class="form-input">
                   <option value="">Seleccionar Rol</option>
                   <option *ngFor="let rol of roles" [value]="rol.id_rol">{{ rol.nombre_rol }}</option>
