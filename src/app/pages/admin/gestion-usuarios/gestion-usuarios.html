@@ -11,15 +11,15 @@
           <button
             (click)="editando = false; nuevoUsuario = resetForm(); nuevaContrasena = ''; mostrarModal = true"
             class="btn-primary flex items-center gap-2">
-            <ion-icon name="add-circle-outline"></ion-icon>
+            <i class="ph ph-plus-circle"></i>
             Nuevo Usuario
           </button>
           <button (click)="abrirModalImportacion()" class="btn-secondary flex items-center gap-2">
-            <ion-icon name="cloud-upload-outline"></ion-icon>
+            <i class="ph ph-upload-simple"></i>
             Importar Excel
           </button>
           <button (click)="abrirModalAvanzar()" class="btn-warning flex items-center gap-2">
-            <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+            <i class="ph ph-arrow-circle-right"></i>
             Avanzar Semestre
           </button>
         </div>
@@ -33,17 +33,17 @@
 
       <div class="filtros-header">
         <div class="filtros-titulo">
-          <ion-icon name="funnel-outline"></ion-icon>
+          <i class="ph ph-funnel"></i>
           <span>Filtrar usuarios</span>
           <span *ngIf="filtrosActivos" class="filtros-badge-count">{{ usuarios.length }}</span>
         </div>
         <div class="flex items-center gap-2">
           <button *ngIf="filtrosActivos" (click)="limpiarFiltros()" class="filtros-limpiar">
-            <ion-icon name="close-circle-outline"></ion-icon>
+            <i class="ph ph-x-circle"></i>
             <span class="hidden sm:inline">Limpiar filtros</span>
           </button>
           <button (click)="toggleFiltros()" class="btn-filter" [ngClass]="{'btn-filter-active': filtrosExpandidos}">
-            <ion-icon [name]="filtrosExpandidos ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+            <i class="ph" [ngClass]="filtrosExpandidos ? 'ph-caret-up' : 'ph-caret-down'"></i>
             <span class="hidden sm:inline">{{ filtrosExpandidos ? 'Ocultar' : 'Mostrar' }} filtros</span>
           </button>
         </div>
@@ -52,35 +52,35 @@
       <div *ngIf="filtrosExpandidos" class="filtros-body">
         <div class="filtros-grid">
           <div class="filtro-item">
-            <label class="filtro-label"><ion-icon name="person-outline"></ion-icon> Rol</label>
+            <label class="filtro-label"><i class="ph ph-user"></i> Rol</label>
             <select [(ngModel)]="filtros.rol" (change)="aplicarFiltros()" class="filtro-select">
               <option value="">Todos los roles</option>
               <option *ngFor="let r of roles" [value]="r.nombre_rol">{{ r.nombre_rol }}</option>
             </select>
           </div>
           <div class="filtro-item">
-            <label class="filtro-label"><ion-icon name="school-outline"></ion-icon> Carrera</label>
+            <label class="filtro-label"><i class="ph ph-graduation-cap"></i> Carrera</label>
             <select [(ngModel)]="filtros.id_carrera" (change)="aplicarFiltros()" class="filtro-select">
               <option value="">Todas las carreras</option>
               <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre_carrera }}</option>
             </select>
           </div>
           <div class="filtro-item">
-            <label class="filtro-label"><ion-icon name="calendar-outline"></ion-icon> Periodo</label>
+            <label class="filtro-label"><i class="ph ph-calendar-blank"></i> Periodo</label>
             <select [(ngModel)]="filtros.id_periodo" (change)="onPeriodoFiltroChange()" class="filtro-select">
               <option value="">Todos los periodos</option>
               <option *ngFor="let p of periodos" [value]="p.id_periodo">{{ p.nombre }}</option>
             </select>
           </div>
           <div class="filtro-item">
-            <label class="filtro-label"><ion-icon name="layers-outline"></ion-icon> Semestre</label>
+            <label class="filtro-label"><i class="ph ph-stack"></i> Semestre</label>
             <select [(ngModel)]="filtros.id_semestre" (change)="aplicarFiltros()" class="filtro-select">
               <option value="">Todos los semestres</option>
               <option *ngFor="let s of semestresFiltro" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
             </select>
           </div>
           <div class="filtro-item">
-            <label class="filtro-label"><ion-icon name="people-circle-outline"></ion-icon> Grupo</label>
+            <label class="filtro-label"><i class="ph ph-users-three"></i> Grupo</label>
             <select [(ngModel)]="filtros.grupo" (change)="aplicarFiltros()" class="filtro-select">
               <option value="">Todos los grupos</option>
               <option *ngFor="let g of gruposFiltro" [value]="g">Grupo {{ g }}</option>
@@ -90,42 +90,42 @@
 
         <div *ngIf="filtrosActivos" class="filtros-activos-tags">
           <span class="filtros-activos-label">
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <i class="ph ph-check-circle"></i>
             Filtros aplicados:
           </span>
           <span *ngIf="filtros.rol" class="filtro-tag">
-            <ion-icon name="person-outline"></ion-icon>
+            <i class="ph ph-user"></i>
             {{ filtros.rol }}
-            <button (click)="filtros.rol = ''; aplicarFiltros()"><ion-icon name="close-outline"></ion-icon></button>
+            <button (click)="filtros.rol = ''; aplicarFiltros()"><i class="ph ph-x"></i></button>
           </span>
           <span *ngIf="filtros.id_carrera" class="filtro-tag">
-            <ion-icon name="school-outline"></ion-icon>
+            <i class="ph ph-graduation-cap"></i>
             Carrera seleccionada
-            <button (click)="filtros.id_carrera = ''; aplicarFiltros()"><ion-icon name="close-outline"></ion-icon></button>
+            <button (click)="filtros.id_carrera = ''; aplicarFiltros()"><i class="ph ph-x"></i></button>
           </span>
           <span *ngIf="filtros.id_periodo" class="filtro-tag">
-            <ion-icon name="calendar-outline"></ion-icon>
+            <i class="ph ph-calendar-blank"></i>
             Periodo seleccionado
-            <button (click)="filtros.id_periodo = ''; onPeriodoFiltroChange()"><ion-icon name="close-outline"></ion-icon></button>
+            <button (click)="filtros.id_periodo = ''; onPeriodoFiltroChange()"><i class="ph ph-x"></i></button>
           </span>
           <span *ngIf="filtros.id_semestre" class="filtro-tag">
-            <ion-icon name="layers-outline"></ion-icon>
+            <i class="ph ph-stack"></i>
             Semestre seleccionado
-            <button (click)="filtros.id_semestre = ''; aplicarFiltros()"><ion-icon name="close-outline"></ion-icon></button>
+            <button (click)="filtros.id_semestre = ''; aplicarFiltros()"><i class="ph ph-x"></i></button>
           </span>
           <span *ngIf="filtros.grupo" class="filtro-tag">
-            <ion-icon name="people-circle-outline"></ion-icon>
+            <i class="ph ph-users-three"></i>
             Grupo {{ filtros.grupo }}
-            <button (click)="filtros.grupo = ''; aplicarFiltros()"><ion-icon name="close-outline"></ion-icon></button>
+            <button (click)="filtros.grupo = ''; aplicarFiltros()"><i class="ph ph-x"></i></button>
           </span>
         </div>
       </div>
 
       <div *ngIf="filtrosActivos && !filtrosExpandidos" class="filter-banner">
-        <ion-icon name="funnel-outline"></ion-icon>
+        <i class="ph ph-funnel"></i>
         <span>Mostrando <strong>{{ usuariosPaginados.length }}</strong> usuario(s) con filtros activos</span>
         <button (click)="limpiarFiltros()" class="btn-ghost ml-auto">
-          <ion-icon name="close-outline"></ion-icon>
+          <i class="ph ph-x"></i>
           Limpiar
         </button>
       </div>
@@ -135,9 +135,100 @@
     <!-- ══════════════════════════════════════════════════════
          LOADING
     ══════════════════════════════════════════════════════ -->
-    <div *ngIf="cargando" class="content-card text-center py-12">
-      <div class="loading-spinner inline-block"></div>
-      <p class="mt-4 text-gray-600 font-medium">Cargando usuarios...</p>
+    <div *ngIf="cargando" class="content-card users-loading-state">
+      <div class="users-loader" aria-hidden="true">
+        <svg class="users-loader-svg" viewBox="0 0 500 500">
+          <g class="arm">
+            <line class="segment" x1="250" y1="250" x2="300" y2="250"></line>
+            <circle class="joint" cx="250" cy="250" r="64"></circle>
+            <g class="arm1">
+              <line class="segment" x1="300" y1="250" x2="400" y2="250"></line>
+              <circle class="joint" cx="300" cy="250" r="30"></circle>
+              <g class="arm2">
+                <line class="segment" x1="400" y1="250" x2="490" y2="250"></line>
+                <circle class="joint" cx="400" cy="250" r="24"></circle>
+                <g class="arm3">
+                  <line class="segment" x1="490" y1="250" x2="550" y2="250"></line>
+                  <circle class="joint" cx="490" cy="250" r="16"></circle>
+                </g>
+              </g>
+              <g class="arm1">
+                <line class="segment" x1="300" y1="250" x2="400" y2="250"></line>
+                <circle class="joint" cx="300" cy="250" r="30"></circle>
+                <g class="arm2">
+                  <line class="segment" x1="400" y1="250" x2="490" y2="250"></line>
+                  <circle class="joint" cx="400" cy="250" r="8"></circle>
+                  <g class="arm3">
+                    <line class="segment" x1="490" y1="250" x2="550" y2="250"></line>
+                    <circle class="joint" cx="490" cy="250" r="8"></circle>
+                  </g>
+                  <g class="arm2">
+                    <line class="segment" x1="400" y1="250" x2="490" y2="250"></line>
+                    <circle class="joint" cx="400" cy="250" r="8"></circle>
+                    <g class="arm3">
+                      <line class="segment" x1="490" y1="250" x2="550" y2="250"></line>
+                      <circle class="joint" cx="490" cy="250" r="8"></circle>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+          <g id="users-loader-mirror" class="arm">
+            <line class="segment" x1="250" y1="250" x2="300" y2="250"></line>
+            <circle class="joint" cx="250" cy="250" r="64"></circle>
+            <g class="arm1">
+              <line class="segment" x1="300" y1="250" x2="400" y2="250"></line>
+              <circle class="joint" cx="300" cy="250" r="30"></circle>
+              <g class="arm2">
+                <line class="segment" x1="400" y1="250" x2="490" y2="250"></line>
+                <circle class="joint" cx="400" cy="250" r="24"></circle>
+                <g class="arm3">
+                  <line class="segment" x1="490" y1="250" x2="550" y2="250"></line>
+                  <circle class="joint" cx="490" cy="250" r="16"></circle>
+                </g>
+              </g>
+              <g class="arm1">
+                <line class="segment" x1="300" y1="250" x2="400" y2="250"></line>
+                <circle class="joint" cx="300" cy="250" r="30"></circle>
+                <g class="arm2">
+                  <line class="segment" x1="400" y1="250" x2="490" y2="250"></line>
+                  <circle class="joint" cx="400" cy="250" r="8"></circle>
+                  <g class="arm3">
+                    <line class="segment" x1="490" y1="250" x2="550" y2="250"></line>
+                    <circle class="joint" cx="490" cy="250" r="8"></circle>
+                  </g>
+                  <g class="arm2">
+                    <line class="segment" x1="400" y1="250" x2="490" y2="250"></line>
+                    <circle class="joint" cx="400" cy="250" r="8"></circle>
+                    <g class="arm3">
+                      <line class="segment" x1="490" y1="250" x2="550" y2="250"></line>
+                      <circle class="joint" cx="490" cy="250" r="8"></circle>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+          <filter id="users-loader-metaball">
+            <feGaussianBlur
+              in="SourceGraphic"
+              stdDeviation="17"
+              result="blur"
+            ></feGaussianBlur>
+            <feColorMatrix
+              in="blur"
+              mode="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 100 -7"
+              result="fluid"
+            ></feColorMatrix>
+            <feComposite in="SourceGraphic" in2="fluid" operator="atop"></feComposite>
+          </filter>
+        </svg>
+      </div>
+      <div class="users-loading-copy">
+        <p class="users-loading-title">Cargando...</p>
+      </div>
     </div>
 
     <!-- ══════════════════════════════════════════════════════
@@ -146,7 +237,7 @@
     <div *ngIf="!cargando" class="content-card overflow-hidden">
 
       <div *ngIf="usuarios.length === 0" class="text-center py-16">
-        <ion-icon name="people-outline" style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></ion-icon>
+        <i class="ph ph-users" style="font-size:3rem; color:#BBDEFB; display:block; margin: 0 auto 0.75rem;"></i>
         <p style="color:#64748B; font-weight:500;">No se encontraron usuarios</p>
         <p *ngIf="filtrosActivos" style="color:#94A3B8; font-size:0.875rem; margin-top:0.25rem;">Intenta ajustar los filtros</p>
       </div>
@@ -204,22 +295,22 @@
               <td class="td-cell">
                 <div class="flex justify-center gap-2">
                   <button (click)="verDetalles(u)" class="btn-icon btn-icon-info" title="Ver detalles">
-                    <ion-icon name="eye-outline"></ion-icon>
+                    <i class="ph ph-eye"></i>
                   </button>
                   <button (click)="editarUsuario(u)" class="btn-icon btn-icon-primary" title="Editar usuario">
-                    <ion-icon name="create-outline"></ion-icon>
+                    <i class="ph ph-pencil-simple"></i>
                   </button>
                   <button *ngIf="u.estado === 'Activo'" (click)="cambiarEstado(u, 'Inactivo')"
                     class="btn-icon btn-icon-danger" title="Desactivar usuario">
-                    <ion-icon name="close-circle-outline"></ion-icon>
+                    <i class="ph ph-x-circle"></i>
                   </button>
                   <button *ngIf="u.estado === 'Inactivo'" (click)="cambiarEstado(u, 'Activo')"
                     class="btn-icon btn-icon-success" title="Activar usuario">
-                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    <i class="ph ph-check-circle"></i>
                   </button>
                   <button *ngIf="u.estado === 'pending_activation'" (click)="regenerarToken(u)"
                     class="btn-icon btn-icon-warning" title="Regenerar token de activación">
-                    <ion-icon name="key-outline"></ion-icon>
+                    <i class="ph ph-key"></i>
                   </button>
                 </div>
               </td>
@@ -278,22 +369,22 @@
           </div>
           <div class="flex gap-2 pt-3 border-t border-gray-200">
             <button (click)="verDetalles(u)" class="btn-icon-mobile btn-icon-info flex-1">
-              <ion-icon name="eye-outline"></ion-icon><span>Ver</span>
+              <i class="ph ph-eye"></i><span>Ver</span>
             </button>
             <button (click)="editarUsuario(u)" class="btn-icon-mobile btn-icon-primary flex-1">
-              <ion-icon name="create-outline"></ion-icon><span>Editar</span>
+              <i class="ph ph-pencil-simple"></i><span>Editar</span>
             </button>
             <button *ngIf="u.estado === 'Activo'" (click)="cambiarEstado(u, 'Inactivo')"
               class="btn-icon-mobile btn-icon-danger flex-1">
-              <ion-icon name="close-circle-outline"></ion-icon><span>Desactivar</span>
+              <i class="ph ph-x-circle"></i><span>Desactivar</span>
             </button>
             <button *ngIf="u.estado === 'Inactivo'" (click)="cambiarEstado(u, 'Activo')"
               class="btn-icon-mobile btn-icon-success flex-1">
-              <ion-icon name="checkmark-circle-outline"></ion-icon><span>Activar</span>
+              <i class="ph ph-check-circle"></i><span>Activar</span>
             </button>
             <button *ngIf="u.estado === 'pending_activation'" (click)="regenerarToken(u)"
               class="btn-icon-mobile btn-icon-warning flex-1">
-              <ion-icon name="key-outline"></ion-icon><span>Token</span>
+              <i class="ph ph-key"></i><span>Token</span>
             </button>
           </div>
         </div>
@@ -308,7 +399,7 @@
           <div class="modal-header modal-header-warning">
             <div class="modal-header-left">
               <div class="modal-icon-wrapper modal-icon-warning">
-                <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+                <i class="ph ph-arrow-circle-right"></i>
               </div>
               <div>
                 <h3 class="modal-title">Avanzar Semestre</h3>
@@ -329,7 +420,7 @@
               </div>
             </div>
             <button (click)="cerrarModalAvanzar()" class="btn-close">
-              <ion-icon name="close-outline"></ion-icon>
+              <i class="ph ph-x"></i>
             </button>
           </div>
 
@@ -337,7 +428,7 @@
 
             <div *ngIf="pasoAvanzar === 1" class="avanzar-shell">
               <div class="avanzar-info-box">
-                <div class="avanzar-info-icon"><ion-icon name="information-circle-outline"></ion-icon></div>
+                <div class="avanzar-info-icon"><i class="ph ph-info"></i></div>
                 <div class="avanzar-info-content">
                   <p class="avanzar-info-titulo">¿Como funciona?</p>
                   <p class="avanzar-info-texto">
@@ -349,7 +440,7 @@
               <div class="avanzar-periodos-grid">
                 <div class="avanzar-periodo-card avanzar-periodo-origen">
                   <div class="avanzar-periodo-header">
-                    <div class="avanzar-periodo-icono origen"><ion-icon name="archive-outline"></ion-icon></div>
+                    <div class="avanzar-periodo-icono origen"><i class="ph ph-archive"></i></div>
                     <div>
                       <p class="avanzar-periodo-titulo">Periodo Origen</p>
                       <p class="avanzar-periodo-desc">Periodo a cerrar</p>
@@ -362,16 +453,16 @@
                     </option>
                   </select>
                   <p class="avanzar-periodo-hint">
-                    <ion-icon name="information-circle-outline"></ion-icon>
+                    <i class="ph ph-info"></i>
                     Periodo del que provienen los estudiantes actualmente.
                   </p>
                 </div>
 
-                <div class="avanzar-flecha"><ion-icon name="arrow-forward-outline"></ion-icon></div>
+                <div class="avanzar-flecha"><i class="ph ph-arrow-right"></i></div>
 
                 <div class="avanzar-periodo-card avanzar-periodo-destino">
                   <div class="avanzar-periodo-header">
-                    <div class="avanzar-periodo-icono destino"><ion-icon name="enter-outline"></ion-icon></div>
+                    <div class="avanzar-periodo-icono destino"><i class="ph ph-sign-in"></i></div>
                     <div>
                       <p class="avanzar-periodo-titulo">Periodo Destino</p>
                       <p class="avanzar-periodo-desc">Periodo nuevo</p>
@@ -385,7 +476,7 @@
                     </option>
                   </select>
                   <p class="avanzar-periodo-hint">
-                    <ion-icon name="information-circle-outline"></ion-icon>
+                    <i class="ph ph-info"></i>
                     Periodo al que pasaran los estudiantes.
                   </p>
                 </div>
@@ -395,16 +486,16 @@
             <div *ngIf="pasoAvanzar === 2" class="avanzar-shell">
               <div class="avanzar-resumen-periodos">
                 <div class="avanzar-resumen-chip origen">
-                  <ion-icon name="archive-outline"></ion-icon>
+                  <i class="ph ph-archive"></i>
                   <span>{{ getNombrePeriodo(avanzarData.id_periodo_origen) }}</span>
                 </div>
-                <ion-icon name="arrow-forward-outline" class="avanzar-resumen-flecha"></ion-icon>
+                <i class="ph ph-arrow-right avanzar-resumen-flecha"></i>
                 <div class="avanzar-resumen-chip destino">
-                  <ion-icon name="enter-outline"></ion-icon>
+                  <i class="ph ph-sign-in"></i>
                   <span>{{ getNombrePeriodo(avanzarData.id_periodo_destino) }}</span>
                 </div>
                 <div class="avanzar-resumen-total">
-                  <ion-icon name="people-outline"></ion-icon>
+                  <i class="ph ph-users"></i>
                   <strong>{{ estudiantesParaAvance.length }}</strong> estudiantes
                 </div>
               </div>
@@ -457,7 +548,7 @@
                     (click)="limpiarFiltrosAvance()"
                     [disabled]="!filtrosAvance.semestre && !filtrosAvance.grupo"
                   >
-                    <ion-icon name="refresh-outline"></ion-icon>
+                    <i class="ph ph-arrows-clockwise"></i>
                     Limpiar filtros
                   </button>
                 </div>
@@ -465,18 +556,18 @@
 
                 <div class="avanzar-acciones-masivas">
                   <span class="avanzar-acciones-label">
-                    <ion-icon name="flash-outline"></ion-icon>
+                    <i class="ph ph-lightning"></i>
                     Accion masiva:
                   </span>
                   <div class="avanzar-acciones-btns">
                     <button (click)="toggleTodosAvanzar('AVANZAR')" class="accion-masiva-btn accion-avanzar">
-                      <ion-icon name="arrow-up-circle-outline"></ion-icon>Todos avanzan
+                      <i class="ph ph-arrow-circle-up"></i>Todos avanzan
                     </button>
                     <button (click)="toggleTodosAvanzar('REPETIR')" class="accion-masiva-btn accion-repetir">
-                      <ion-icon name="refresh-circle-outline"></ion-icon>Todos repiten
+                      <i class="ph ph-arrow-clockwise"></i>Todos repiten
                     </button>
                     <button (click)="toggleTodosAvanzar('BAJA')" class="accion-masiva-btn accion-baja">
-                      <ion-icon name="remove-circle-outline"></ion-icon>Todos de baja
+                      <i class="ph ph-minus-circle"></i>Todos de baja
                     </button>
                   </div>
                 </div>
@@ -524,15 +615,15 @@
 
               <div class="avanzar-contadores">
                 <div class="contador-chip contador-avanzar">
-                  <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                  <i class="ph ph-arrow-circle-up"></i>
                   <span><strong>{{ countAccion('AVANZAR') }}</strong> avanzan</span>
                 </div>
                 <div class="contador-chip contador-repetir">
-                  <ion-icon name="refresh-circle-outline"></ion-icon>
+                  <i class="ph ph-arrow-clockwise"></i>
                   <span><strong>{{ countAccion('REPETIR') }}</strong> repiten</span>
                 </div>
                 <div class="contador-chip contador-baja">
-                  <ion-icon name="remove-circle-outline"></ion-icon>
+                  <i class="ph ph-minus-circle"></i>
                   <span><strong>{{ countAccion('BAJA') }}</strong> de baja</span>
                 </div>
               </div>
@@ -541,14 +632,14 @@
             <ng-template #sinResultadosAvance>
               <div class="avanzar-empty-state">
                 <div class="avanzar-empty-icon">
-                  <ion-icon name="search-outline"></ion-icon>
+                  <i class="ph ph-magnifying-glass"></i>
                 </div>
                 <h5 class="avanzar-empty-title">No hay estudiantes con los filtros seleccionados</h5>
                 <p class="avanzar-empty-text">
                   Ajusta el semestre o el grupo para volver a ver estudiantes en el listado.
                 </p>
                 <button type="button" class="btn-secondary" (click)="limpiarFiltrosAvance()">
-                  <ion-icon name="refresh-outline"></ion-icon>
+                  <i class="ph ph-arrows-clockwise"></i>
                   Mostrar todo el listado
                 </button>
               </div>
@@ -558,26 +649,26 @@
           <div class="modal-footer">
             <ng-container *ngIf="pasoAvanzar === 1">
               <button (click)="cerrarModalAvanzar()" class="btn-secondary">
-                <ion-icon name="close-outline"></ion-icon> Cancelar
+                <i class="ph ph-x"></i> Cancelar
               </button>
               <button (click)="cargarPreviewAvance()"
                 [disabled]="cargandoPreview || !avanzarData.id_periodo_origen || !avanzarData.id_periodo_destino"
                 class="btn-primary flex items-center gap-2">
                 <div *ngIf="cargandoPreview" class="loading-spinner-sm"></div>
-                <ion-icon *ngIf="!cargandoPreview" name="people-outline"></ion-icon>
+                <i *ngIf="!cargandoPreview" class="ph ph-users"></i>
                 {{ cargandoPreview ? 'Cargando...' : 'Ver estudiantes' }}
-                <ion-icon *ngIf="!cargandoPreview" name="arrow-forward-outline"></ion-icon>
+                <i *ngIf="!cargandoPreview" class="ph ph-arrow-right"></i>
               </button>
             </ng-container>
             <ng-container *ngIf="pasoAvanzar === 2">
               <button (click)="pasoAvanzar = 1" class="btn-secondary">
-                <ion-icon name="arrow-back-outline"></ion-icon> Atrás
+                <i class="ph ph-arrow-left"></i> Atrás
               </button>
               <button (click)="ejecutarAvanzarSemestre()"
                 [disabled]="cargandoAvanzar || estudiantesParaAvance.length === 0"
                 class="btn-danger flex items-center gap-2">
                 <div *ngIf="cargandoAvanzar" class="loading-spinner-sm"></div>
-                <ion-icon *ngIf="!cargandoAvanzar" name="checkmark-circle-outline"></ion-icon>
+                <i *ngIf="!cargandoAvanzar" class="ph ph-check-circle"></i>
                 {{ cargandoAvanzar ? 'Procesando...' : 'Confirmar y procesar' }}
               </button>
             </ng-container>
@@ -595,7 +686,7 @@
           <div class="modal-header">
             <h3 class="modal-title">{{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
             <button (click)="mostrarModal = false; nuevaContrasena = ''" class="btn-close">
-              <ion-icon name="close-outline"></ion-icon>
+              <i class="ph ph-x"></i>
             </button>
           </div>
 
@@ -648,7 +739,7 @@
                 <label class="form-label">Nueva Contraseña (opcional)</label>
                 <div class="password-indicator mb-2">
                   <div class="flex items-center gap-2 text-sm">
-                    <ion-icon name="shield-checkmark-outline" class="text-green-600"></ion-icon>
+                    <i class="ph ph-shield-check text-green-600"></i>
                     <span class="text-gray-400 font-mono">••••••••</span>
                     <span class="text-green-600 font-medium">✓ Configurada</span>
                   </div>
@@ -656,7 +747,7 @@
                 <input [(ngModel)]="nuevaContrasena" placeholder="Ingresa una nueva contraseña para cambiarla"
                   type="password" minlength="8" class="form-input" />
                 <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                  <ion-icon name="information-circle-outline" class="text-sm"></ion-icon>
+                  <i class="ph ph-info text-sm"></i>
                   Dejar vacío para mantener la contraseña actual
                 </p>
               </div>
@@ -735,7 +826,7 @@
           <div class="modal-header">
             <h3 class="modal-title">Detalles del Usuario</h3>
             <button (click)="cerrarDetalles()" class="btn-close">
-              <ion-icon name="close-outline"></ion-icon>
+              <i class="ph ph-x"></i>
             </button>
           </div>
 
@@ -805,11 +896,11 @@
 
           <div class="modal-header">
             <h3 class="modal-title flex items-center gap-2">
-              <ion-icon name="cloud-upload-outline"></ion-icon>
+              <i class="ph ph-upload-simple"></i>
               Importar Usuarios desde Excel
             </h3>
             <button (click)="cerrarImportacion()" class="btn-close">
-              <ion-icon name="close-outline"></ion-icon>
+              <i class="ph ph-x"></i>
             </button>
           </div>
 
@@ -866,7 +957,7 @@
 
                 <div class="form-group import-template-field">
                   <button class="btn-secondary w-full flex items-center justify-center gap-2" (click)="descargarPlantilla()">
-                    <ion-icon name="download-outline"></ion-icon>
+                    <i class="ph ph-download-simple"></i>
                     Descargar plantilla de importacion
                   </button>
                 </div>
@@ -877,12 +968,16 @@
 
                 <div class="import-preview-header">
                   <div class="import-preview-titulo">
-                    <ion-icon name="eye-outline"></ion-icon>
-                    <span>Vista previa — {{ previewImport.length }} fila(s) detectadas</span>
+                    <i class="ph ph-eye"></i>
+                    <span>Vista previa — {{ importRows.length }} fila(s) detectadas</span>
                   </div>
                   <span *ngIf="previewImport.length === 50" class="import-preview-aviso">
-                    <ion-icon name="information-circle-outline"></ion-icon>
+                    <i class="ph ph-info"></i>
                     Mostrando primeras 50 filas
+                  </span>
+                  <span *ngIf="cargandoPreviewExistentes" class="import-preview-aviso">
+                    <i class="ph ph-arrows-clockwise"></i>
+                    Validando usuarios ya registrados
                   </span>
                 </div>
 
@@ -901,25 +996,42 @@
                     <tbody>
                       <tr *ngFor="let row of previewImport; let i = index"
                         [ngClass]="{
-                          'preview-fila-ok'   :  esFilaImportValida(row),
-                          'preview-fila-error': !esFilaImportValida(row)
+                          'preview-fila-ok'        : getEstadoFilaImport(row) === 'listo',
+                          'preview-fila-existing'  : getEstadoFilaImport(row) === 'existente',
+                          'preview-fila-duplicada' : getEstadoFilaImport(row) === 'duplicado',
+                          'preview-fila-error'     : getEstadoFilaImport(row) === 'incompleto'
                         }">
                         <td class="preview-td-num">{{ i + 1 }}</td>
                         <td class="preview-td">
-                          <span *ngIf="row[importIdentifierKey]" class="preview-chip-ok">{{ row[importIdentifierKey] }}</span>
+                          <span *ngIf="row[importIdentifierKey]"
+                            [ngClass]="{
+                              'preview-chip-ok': getEstadoFilaImport(row) === 'listo',
+                              'preview-chip-existing': getEstadoFilaImport(row) === 'existente',
+                              'preview-chip-duplicate': getEstadoFilaImport(row) === 'duplicado'
+                            }">
+                            {{ row[importIdentifierKey] }}
+                          </span>
                           <span *ngIf="!row[importIdentifierKey]" class="preview-chip-error">Sin {{ importIdentifierLabel.toLowerCase() }}</span>
                         </td>
                         <td class="preview-td">{{ row.a_paterno || '—' }}</td>
                         <td class="preview-td">{{ row.a_materno || '—' }}</td>
                         <td class="preview-td">{{ row.nombre    || '—' }}</td>
                         <td class="preview-td">
-                          <span *ngIf="esFilaImportValida(row)"
+                          <span *ngIf="getEstadoFilaImport(row) === 'listo'"
                             class="preview-badge-ok">
-                            <ion-icon name="checkmark-outline"></ion-icon>Listo
+                            <i class="ph ph-check"></i>Listo
                           </span>
-                          <span *ngIf="!esFilaImportValida(row)"
+                          <span *ngIf="getEstadoFilaImport(row) === 'duplicado'"
+                            class="preview-badge-duplicate">
+                            <i class="ph ph-copy"></i>Repetido
+                          </span>
+                          <span *ngIf="getEstadoFilaImport(row) === 'existente'"
+                            class="preview-badge-existing">
+                            <i class="ph ph-user"></i>Ya existe
+                          </span>
+                          <span *ngIf="getEstadoFilaImport(row) === 'incompleto'"
                             class="preview-badge-error">
-                            <ion-icon name="warning-outline"></ion-icon>Incompleto
+                            <i class="ph ph-warning"></i>Incompleto
                           </span>
                         </td>
                       </tr>
@@ -929,12 +1041,24 @@
 
                 <div class="import-preview-resumen">
                   <div class="preview-resumen-chip preview-resumen-ok">
-                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    <i class="ph ph-check-circle"></i>
                     <strong>{{ filasValidas }}</strong>&nbsp;filas válidas
                   </div>
                   <div class="preview-resumen-chip preview-resumen-error">
-                    <ion-icon name="close-circle-outline"></ion-icon>
+                    <i class="ph ph-x-circle"></i>
                     <strong>{{ filasInvalidas }}</strong>&nbsp;incompletas
+                  </div>
+                  <div class="preview-resumen-chip"
+                    [ngClass]="hayDuplicadosImport ? 'preview-resumen-duplicate' : 'preview-resumen-clean'">
+                    <i class="ph" [ngClass]="hayDuplicadosImport ? 'ph-copy' : 'ph-checks'"></i>
+                    <strong>{{ hayDuplicadosImport ? filasDuplicadas : 0 }}</strong>
+                    &nbsp;{{ hayDuplicadosImport ? 'repetidas' : 'sin repetidos' }}
+                  </div>
+                  <div class="preview-resumen-chip"
+                    [ngClass]="hayExistentesImport ? 'preview-resumen-existing' : 'preview-resumen-clean'">
+                    <i class="ph" [ngClass]="hayExistentesImport ? 'ph-user' : 'ph-checks'"></i>
+                    <strong>{{ hayExistentesImport ? filasExistentesImport : 0 }}</strong>
+                    &nbsp;{{ hayExistentesImport ? 'ya existen en la base' : 'sin usuarios existentes' }}
                   </div>
                 </div>
 
@@ -947,13 +1071,23 @@
               <p class="resultado-titulo">Resultado de la importación</p>
               <div class="resultado-grid resultado-grid-simple">
                 <div class="resultado-stat resultado-stat-exito">
-                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                  <i class="ph ph-check-circle"></i>
                   <span class="resultado-stat-valor">{{ resultadoImportacion?.insertados ?? 0 }}</span>
                   <span class="resultado-stat-label">Insertados</span>
                 </div>
+                <div class="resultado-stat resultado-stat-advertencia" *ngIf="resultadoImportacion?.omitidos">
+                  <i class="ph ph-warning-circle"></i>
+                  <span class="resultado-stat-valor">{{ resultadoImportacion?.omitidos ?? 0 }}</span>
+                  <span class="resultado-stat-label">Omitidos</span>
+                </div>
+                <div class="resultado-stat resultado-stat-info" *ngIf="resultadoImportacion?.existentes_omitidos">
+                  <i class="ph ph-user-circle"></i>
+                  <span class="resultado-stat-valor">{{ resultadoImportacion?.existentes_omitidos ?? 0 }}</span>
+                  <span class="resultado-stat-label">Existentes omitidos</span>
+                </div>
               </div>
               <p class="resultado-mensaje">
-                <ion-icon name="information-circle-outline"></ion-icon>
+                <i class="ph ph-info"></i>
                 {{ resultadoImportacion?.message }}
               </p>
             </div>
@@ -963,7 +1097,7 @@
             <button class="btn-secondary" (click)="cerrarImportacion()">Cancelar</button>
             <button class="btn-primary flex items-center gap-2" [disabled]="cargandoImport" (click)="importarUsuarios()">
               <div *ngIf="cargandoImport" class="loading-spinner-sm"></div>
-              <ion-icon *ngIf="!cargandoImport" name="cloud-upload-outline"></ion-icon>
+              <i *ngIf="!cargandoImport" class="ph ph-upload-simple"></i>
               {{ cargandoImport ? 'Importando...' : 'Importar' }}
             </button>
           </div>
@@ -975,7 +1109,7 @@
       ══════════════════════════════════════════════════════ -->
       <div *ngIf="!cargando && usuarios.length > 0" class="pagination-section">
         <div class="pagination-info">
-          <ion-icon name="people-outline" class="text-blue-500"></ion-icon>
+          <i class="ph ph-users text-blue-500"></i>
           <span>
             Mostrando <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
             a <strong>{{ Math.min(paginaActual * itemsPorPagina, usuarios.length) }}</strong>
@@ -995,7 +1129,7 @@
 
           <div class="pagination-controls">
             <button class="pagination-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
-              <ion-icon name="chevron-back-outline"></ion-icon>
+              <i class="ph ph-caret-left"></i>
             </button>
             <ng-container *ngFor="let page of paginas">
               <button *ngIf="page !== '...'" class="pagination-btn" [class.active]="paginaActual === page" (click)="irAPagina(page)">
@@ -1004,7 +1138,7 @@
               <span *ngIf="page === '...'" class="pagination-dots">...</span>
             </ng-container>
             <button class="pagination-btn" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
-              <ion-icon name="chevron-forward-outline"></ion-icon>
+              <i class="ph ph-caret-right"></i>
             </button>
           </div>
         </div>

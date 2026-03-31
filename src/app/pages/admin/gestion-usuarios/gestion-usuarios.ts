@@ -1,4 +1,4 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,7 +11,6 @@ import { AdminUserService } from '../../../api/services/admin-user.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './gestion-usuarios.html',
   styleUrls: ['./gestion-usuarios.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
 export class GestionUsuariosComponent implements OnInit {
@@ -37,7 +36,11 @@ export class GestionUsuariosComponent implements OnInit {
   importData: any = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
   esEstudianteImport = false;
 
+  importRows: any[] = [];
   previewImport: any[] = [];
+  existingImportKeys = new Set<string>();
+  detalleExistentesImport: any[] = [];
+  cargandoPreviewExistentes = false;
   mostrarPreview = false;
 
   mostrarFiltros = false;
@@ -129,15 +132,71 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   get filasValidas(): number {
-    return this.previewImport.filter((r) => this.esFilaImportValida(r)).length;
+    return this.importRows.filter((r) => this.esFilaImportValida(r)).length;
   }
 
   get filasInvalidas(): number {
-    return this.previewImport.filter((r) => !this.esFilaImportValida(r)).length;
+    return this.importRows.filter((r) => !this.esFilaImportValida(r)).length;
+  }
+
+  get filasDuplicadas(): number {
+    return this.importRows.filter((row) => this.esFilaImportDuplicada(row)).length;
+  }
+
+  get hayDuplicadosImport(): boolean {
+    return this.filasDuplicadas > 0;
+  }
+
+  get filasExistentesImport(): number {
+    return this.importRows.filter((row) => this.esFilaImportExistente(row)).length;
+  }
+
+  get hayExistentesImport(): boolean {
+    return this.filasExistentesImport > 0;
   }
 
   private tieneValor(value: any): boolean {
     return value !== null && value !== undefined && String(value).trim() !== '';
+  }
+
+  private normalizarIdentificadorImportacion(value: any): string {
+    return String(value ?? '')
+      .trim()
+      .toLowerCase();
+  }
+
+  private normalizarTextoImportacion(value: any): string {
+    return String(value ?? '')
+      .trim()
+      .toUpperCase();
+  }
+
+  private construirLlaveExistenciaImport(row: any): string {
+    const identificadorRaw = row?.[this.importIdentifierKey];
+    const identificador = this.esEstudianteImport
+      ? String(identificadorRaw ?? '').trim().toUpperCase()
+      : String(identificadorRaw ?? '').trim().toLowerCase();
+    const a_paterno = this.normalizarTextoImportacion(row?.a_paterno);
+    const a_materno = this.normalizarTextoImportacion(row?.a_materno);
+    const nombre = this.normalizarTextoImportacion(row?.nombre);
+
+    if (!identificador || !a_paterno || !a_materno || !nombre) {
+      return '';
+    }
+
+    return [identificador, a_paterno, a_materno, nombre].join('||');
+  }
+
+  private obtenerConteoDuplicadosPreview(): Map<string, number> {
+    const conteos = new Map<string, number>();
+
+    for (const row of this.importRows) {
+      const identificador = this.normalizarIdentificadorImportacion(row?.[this.importIdentifierKey]);
+      if (!identificador) continue;
+      conteos.set(identificador, (conteos.get(identificador) || 0) + 1);
+    }
+
+    return conteos;
   }
 
   esFilaImportValida(row: any): boolean {
@@ -147,6 +206,25 @@ export class GestionUsuariosComponent implements OnInit {
       this.tieneValor(row?.a_materno) &&
       this.tieneValor(row?.nombre)
     );
+  }
+
+  esFilaImportDuplicada(row: any): boolean {
+    const identificador = this.normalizarIdentificadorImportacion(row?.[this.importIdentifierKey]);
+    if (!identificador) return false;
+
+    return (this.obtenerConteoDuplicadosPreview().get(identificador) || 0) > 1;
+  }
+
+  esFilaImportExistente(row: any): boolean {
+    const key = this.construirLlaveExistenciaImport(row);
+    return !!key && this.existingImportKeys.has(key);
+  }
+
+  getEstadoFilaImport(row: any): 'listo' | 'existente' | 'duplicado' | 'incompleto' {
+    if (!this.esFilaImportValida(row)) return 'incompleto';
+    if (this.esFilaImportExistente(row)) return 'existente';
+    if (this.esFilaImportDuplicada(row)) return 'duplicado';
+    return 'listo';
   }
 
   onPeriodoFiltroChange() {
@@ -429,33 +507,33 @@ export class GestionUsuariosComponent implements OnInit {
       `#${this.avanzarData.id_periodo_destino}`;
 
     Swal.fire({
-      title: '¿Confirmar proceso?',
+      title: 'Confirmar proceso',
       html: `
         <div style="text-align:left; font-size:0.875rem;">
           <p><strong>Origen:</strong> ${periodoOrigenNombre}</p>
           <p><strong>Destino:</strong> ${periodoDestinoNombre}</p>
           <hr style="margin: 0.75rem 0;">
           <p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
-            <ion-icon name="arrow-up-circle-outline" style="font-size:1.1rem; color:#16A34A;"></ion-icon>
+            <i class="ph ph-arrow-circle-up" style="font-size:1.1rem; color:#16A34A;"></i>
             <strong>${avanzar}</strong> estudiantes avanzan de semestre
           </p>
           <p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
-            <ion-icon name="refresh-circle-outline" style="font-size:1.1rem; color:#D97706;"></ion-icon>
+            <i class="ph ph-arrow-clockwise" style="font-size:1.1rem; color:#D97706;"></i>
             <strong>${repetir}</strong> estudiantes repiten
           </p>
           <p style="display:flex; align-items:center; gap:0.5rem; margin:0.35rem 0;">
-            <ion-icon name="remove-circle-outline" style="font-size:1.1rem; color:#DC2626;"></ion-icon>
+            <i class="ph ph-minus-circle" style="font-size:1.1rem; color:#DC2626;"></i>
             <strong>${baja}</strong> estudiantes de baja
           </p>
           <hr style="margin: 0.75rem 0;">
-          <p style="color:#DC2626; font-size:0.8rem;">Esta acción no se puede deshacer.</p>
+          <p style="color:#DC2626; font-size:0.8rem;">Esta accion no se puede deshacer.</p>
         </div>
       `,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#E53E3E',
       cancelButtonColor: '#6B7280',
-      confirmButtonText: 'Sí, procesar',
+      confirmButtonText: 'Si, procesar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
@@ -757,13 +835,54 @@ export class GestionUsuariosComponent implements OnInit {
     this.resultadoImportacion = null;
     this.importData = { id_rol: '', id_carrera: '', id_semestre: '', grupo: '', id_periodo: '' };
     this.archivoSeleccionado = null;
+    this.importRows = [];
     this.previewImport = [];
+    this.existingImportKeys = new Set<string>();
+    this.detalleExistentesImport = [];
+    this.cargandoPreviewExistentes = false;
     this.mostrarPreview = false;
     this.esEstudianteImport = false;
   }
 
   cerrarImportacion() {
     this.mostrarModalImportacion = false;
+  }
+
+  private resetEstadoExistentesImport() {
+    this.existingImportKeys = new Set<string>();
+    this.detalleExistentesImport = [];
+    this.cargandoPreviewExistentes = false;
+  }
+
+  private validarExistentesImport() {
+    if (!this.archivoSeleccionado || !this.importData.id_rol) {
+      this.resetEstadoExistentesImport();
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', this.archivoSeleccionado);
+    formData.append('id_rol', this.importData.id_rol);
+
+    this.cargandoPreviewExistentes = true;
+
+    this.adminService.previewImport(formData).subscribe({
+      next: (res) => {
+        this.existingImportKeys = new Set(
+          Array.isArray(res?.keys) ? res.keys.filter((item: any) => !!item) : [],
+        );
+        this.detalleExistentesImport = Array.isArray(res?.detalle_existentes)
+          ? res.detalle_existentes
+          : [];
+      },
+      error: (err) => {
+        console.error('Error al validar usuarios existentes del Excel:', err);
+        this.resetEstadoExistentesImport();
+      },
+      complete: () => {
+        this.cargandoPreviewExistentes = false;
+      },
+    });
   }
 
   onRolImportChange() {
@@ -775,6 +894,12 @@ export class GestionUsuariosComponent implements OnInit {
       this.importData.id_semestre = '';
       this.importData.grupo = '';
       this.importData.id_periodo = '';
+    }
+
+    if (this.importRows.length > 0 && this.archivoSeleccionado) {
+      this.validarExistentesImport();
+    } else {
+      this.resetEstadoExistentesImport();
     }
   }
 
@@ -798,7 +923,9 @@ export class GestionUsuariosComponent implements OnInit {
     if (!file) return;
 
     this.archivoSeleccionado = file;
+    this.importRows = [];
     this.previewImport = [];
+    this.resetEstadoExistentesImport();
     this.mostrarPreview = false;
 
     const reader = new FileReader();
@@ -810,8 +937,11 @@ export class GestionUsuariosComponent implements OnInit {
           const sheet = workbook.Sheets[workbook.SheetNames[0]];
           const rows: any[] = XLSX.utils.sheet_to_json(sheet);
 
+          this.importRows = rows;
           this.previewImport = rows.slice(0, 50);
           this.mostrarPreview = rows.length > 0;
+
+          this.validarExistentesImport();
 
           if (!rows.length) {
             Swal.fire('Archivo vacío', 'El archivo Excel no contiene datos.', 'warning');
@@ -911,6 +1041,55 @@ export class GestionUsuariosComponent implements OnInit {
     formData.append('grupo', this.importData.grupo || '');
     formData.append('id_periodo', this.importData.id_periodo || '');
 
+    if (this.hayExistentesImport) {
+      Swal.fire({
+        title: 'Se encontraron usuarios ya registrados',
+        html: `
+          <p>Se detectaron <strong>${this.filasExistentesImport}</strong> fila(s) que ya existen en la base de datos.</p>
+          <p class="text-sm text-gray-500 mt-1">La comparacion se hizo con ${this.importIdentifierLabel.toLowerCase()}, apellido paterno, apellido materno y nombre.</p>
+          <p class="text-sm text-gray-500 mt-1">Puedes omitir esos registros y continuar solo con los nuevos.</p>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Omitir y continuar',
+        cancelButtonText: 'Revisar archivo',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.continuarImportacionConAdvertencias(formData, true);
+        }
+      });
+      return;
+    }
+
+    this.continuarImportacionConAdvertencias(formData, false);
+  }
+
+  private continuarImportacionConAdvertencias(formData: FormData, omitExisting: boolean) {
+    formData.set('omit_existing', omitExisting ? 'true' : 'false');
+
+    if (this.hayDuplicadosImport) {
+      Swal.fire({
+        title: 'Se detectaron datos repetidos',
+        html: `
+          <p>La vista previa muestra <strong>${this.filasDuplicadas}</strong> fila(s) repetidas.</p>
+          <p class="text-sm text-gray-500 mt-1">Puedes corregir el archivo antes de importar o continuar para que el sistema omita los registros que no pueda procesar.</p>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Continuar importacion',
+        cancelButtonText: 'Revisar archivo',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.ejecutarImportacion(formData);
+        }
+      });
+      return;
+    }
+
+    this.ejecutarImportacion(formData);
+  }
+
+  private ejecutarImportacion(formData: FormData) {
     this.cargandoImport = true;
 
     this.adminService.importExcel(formData).subscribe({
@@ -925,11 +1104,12 @@ export class GestionUsuariosComponent implements OnInit {
 
         Swal.fire({
           icon: 'success',
-          title: 'Importación completada',
+          title: 'Importacion completada',
           html: `
             <p><strong>${res.insertados}</strong> usuario(s) creados correctamente.</p>
-            ${res.omitidos > 0 ? `<p class="text-sm text-gray-500 mt-1">${res.omitidos} fila(s) omitidas.</p>` : ''}
-            ${res.insertados > 0 ? '<p class="text-sm text-blue-600 mt-2">Se descargó el archivo con los tokens de activación.</p>' : ''}
+            ${res.existentes_omitidos > 0 ? `<p class="text-sm text-blue-600 mt-1">${res.existentes_omitidos} usuario(s) existentes se omitieron automaticamente.</p>` : ''}
+            ${res.omitidos > 0 ? `<p class="text-sm text-gray-500 mt-1">${res.omitidos} fila(s) omitidas.</p>` : '<p class="text-sm text-green-600 mt-1">No se detectaron filas omitidas.</p>'}
+            ${res.insertados > 0 ? '<p class="text-sm text-blue-600 mt-2">Se descargo el archivo con los enlaces de activacion.</p>' : ''}
           `,
         });
       },

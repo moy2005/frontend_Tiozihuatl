@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
+import { Observable, of, throwError, timer } from 'rxjs';
+import { catchError, finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { API_URL } from '../api.config';
 
 @Injectable({ providedIn: 'root' })
@@ -9,9 +9,13 @@ export class AuthService {
   private readonly api = `${API_URL}`;
   private readonly refreshSkewMs = 5 * 60_000;
   private readonly refreshRetryMs = 60_000;
+  private readonly refreshImmediateRetryMs = 1_500;
   private readonly sessionIdleWindowMs = 7 * 24 * 60 * 60_000;
   private readonly sessionActivityKey = 'sessionLastActivityAt';
+  private readonly serverActivityTouchKey = 'sessionLastServerTouchAt';
+  private readonly serverActivityTouchCooldownMs = 5 * 60_000;
   private refreshRequest$: Observable<any> | null = null;
+  private activityRequest$: Observable<unknown> | null = null;
   private refreshTimer: ReturnType<typeof setTimeout> | null = null;
   private lifecycleInitialized = false;
 
@@ -29,6 +33,7 @@ export class AuthService {
 
     this.persistSessionActivity();
     this.scheduleProactiveRefresh();
+    this.touchServerActivity();
   }
 
   private initializeSessionLifecycle() {
@@ -50,13 +55,22 @@ export class AuthService {
     window.addEventListener('storage', (event) => {
       if (
         !event.key ||
-        ['accessToken', 'token', 'refreshToken', 'sessionUserId', 'user', 'userData', 'usuario'].includes(
+        [
+          'accessToken',
+          'token',
+          'refreshToken',
+          'sessionUserId',
+          'user',
+          'userData',
+          'usuario',
+          this.serverActivityTouchKey,
+        ].includes(
           event.key,
         )
       ) {
         if (this.hasStoredSession()) {
           this.ensureSessionActivityTimestamp();
-          this.scheduleProactiveRefresh();
+          this.bootstrapSessionRecovery();
         } else {
           this.stopProactiveRefresh();
         }
@@ -65,8 +79,40 @@ export class AuthService {
 
     if (this.hasStoredSession()) {
       this.ensureSessionActivityTimestamp();
-      this.scheduleProactiveRefresh();
+      this.bootstrapSessionRecovery();
     }
+  }
+
+  private bootstrapSessionRecovery() {
+    if (!this.hasStoredSession()) return;
+
+    this.ensureSessionActivityTimestamp();
+
+    if (this.isSessionInactiveExpired()) {
+      this.clearSession();
+      return;
+    }
+
+    const accessToken = this.getAccessToken();
+    const needsImmediateRefresh =
+      !!localStorage.getItem('refreshToken') &&
+      (!accessToken || this.shouldRefreshAccessToken(accessToken, 0));
+
+    if (!needsImmediateRefresh) {
+      this.scheduleProactiveRefresh();
+      return;
+    }
+
+    setTimeout(() => {
+      this.refreshToken({ trackActivity: false }).subscribe({
+        next: () => this.scheduleProactiveRefresh(),
+        error: () => {
+          if (this.hasStoredSession()) {
+            this.scheduleProactiveRefresh(this.refreshRetryMs);
+          }
+        },
+      });
+    }, 0);
   }
 
   private hasStoredSession(): boolean {
@@ -84,6 +130,15 @@ export class AuthService {
 
   private persistSessionActivity() {
     localStorage.setItem(this.sessionActivityKey, String(Date.now()));
+  }
+
+  private getLastServerActivityTouch(): number {
+    const value = Number(localStorage.getItem(this.serverActivityTouchKey));
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  }
+
+  private persistServerActivityTouch() {
+    localStorage.setItem(this.serverActivityTouchKey, String(Date.now()));
   }
 
   private getLastSessionActivity(): number {
@@ -162,6 +217,34 @@ export class AuthService {
     });
   }
 
+  private shouldTouchServerActivity(force = false): boolean {
+    if (force) return true;
+    return Date.now() - this.getLastServerActivityTouch() >= this.serverActivityTouchCooldownMs;
+  }
+
+  private touchServerActivity(force = false) {
+    if (!this.hasStoredSession() || !this.hasUsableRefreshToken() || !this.shouldTouchServerActivity(force)) {
+      return;
+    }
+
+    if (this.activityRequest$) return;
+
+    this.activityRequest$ = this.ensureValidSession().pipe(
+      switchMap(() => this.http.post(`${this.api}/auth/activity`, {})),
+      tap(() => this.persistServerActivityTouch()),
+      finalize(() => {
+        this.activityRequest$ = null;
+      }),
+      shareReplay(1),
+    );
+
+    this.activityRequest$.subscribe({
+      error: () => {
+        /* El interceptor ya se encarga del cierre si la sesion no es recuperable */
+      },
+    });
+  }
+
   register(data: {
     nombre: string;
     apaterno: string;
@@ -217,6 +300,33 @@ export class AuthService {
       );
   }
 
+  isSessionAuthError(err: any): boolean {
+    const status = Number(err?.status);
+    if (status === 401 || status === 403) return true;
+
+    const message = String(
+      err?.error?.error ||
+      err?.error?.message ||
+      err?.message ||
+      '',
+    ).toLowerCase();
+
+    return (
+      message.includes('token inval') ||
+      message.includes('token expir') ||
+      (message.includes('sesi') && message.includes('expir')) ||
+      message.includes('no hay sesi') ||
+      message.includes('no autorizado')
+    );
+  }
+
+  isRecoverableSessionError(err: any): boolean {
+    if (this.isSessionAuthError(err)) return false;
+
+    const status = Number(err?.status);
+    return !status || status === 0 || status >= 500;
+  }
+
   refreshToken(options: { trackActivity?: boolean } = {}): Observable<any> {
     const refresh = localStorage.getItem('refreshToken');
     const userId = this.getSessionUserId();
@@ -232,7 +342,20 @@ export class AuthService {
 
     const payload = { id_usuario: userId, refreshToken: refresh };
 
-    this.refreshRequest$ = this.http.post(`${this.api}/auth/refresh`, payload).pipe(
+    const performRefreshRequest = (allowRetry = true): Observable<any> =>
+      this.http.post(`${this.api}/auth/refresh`, payload).pipe(
+        catchError((err) => {
+          if (allowRetry && this.isRecoverableSessionError(err)) {
+            return timer(this.refreshImmediateRetryMs).pipe(
+              switchMap(() => performRefreshRequest(false)),
+            );
+          }
+
+          return throwError(() => err);
+        }),
+      );
+
+    this.refreshRequest$ = performRefreshRequest().pipe(
       tap((res: any) => {
         if (!res?.accessToken) {
           this.clearSession();
@@ -246,7 +369,7 @@ export class AuthService {
         }, { trackActivity: options.trackActivity ?? false });
       }),
       catchError((err) => {
-        if (err.status === 401 || err.status === 403) {
+        if (this.isSessionAuthError(err)) {
           this.clearSession();
         }
         return throwError(() => err);
@@ -306,11 +429,13 @@ export class AuthService {
 
   clearSession() {
     this.refreshRequest$ = null;
+    this.activityRequest$ = null;
     this.stopProactiveRefresh();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('sessionUserId');
     localStorage.removeItem(this.sessionActivityKey);
+    localStorage.removeItem(this.serverActivityTouchKey);
     localStorage.removeItem('user');
     localStorage.removeItem('userData');
     localStorage.removeItem('token');
@@ -394,6 +519,7 @@ export class AuthService {
 
     if (options.trackActivity ?? true) {
       this.persistSessionActivity();
+      this.persistServerActivityTouch();
     }
 
     this.scheduleProactiveRefresh();

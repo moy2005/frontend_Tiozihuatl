@@ -62,6 +62,15 @@ export class AdminUserService {
     });
   }
 
+  previewImport(formData: FormData): Observable<any> {
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
+    return this.http.post<any>(`${this.api}/import-preview`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
   /** 📥 Descargar plantilla Excel */
   downloadTemplate(idRol: number | string): Observable<Blob> {
     const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';

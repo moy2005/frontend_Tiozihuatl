@@ -16,31 +16,34 @@ export class AuthGuard implements CanActivate {
       !!this.auth.getAccessToken() || this.auth.hasUsableRefreshToken();
 
     if (!hasSession) {
-      return this.redirectToLogin('Inicia sesión para continuar.');
+      return this.redirectToLogin('Inicia sesion para continuar.');
     }
 
     try {
       await firstValueFrom(this.auth.ensureValidSession());
-    } catch {
-      return this.redirectToLogin('Tu sesión expiró. Inicia sesión nuevamente.');
+    } catch (error: any) {
+      if (!this.auth.isRecoverableSessionError(error)) {
+        return this.redirectToLogin('Tu sesion expiro. Inicia sesion nuevamente.');
+      }
     }
 
+    const storedUser = this.auth.getStoredUser();
     const currentToken = this.auth.getAccessToken() || '';
     const decoded = this.decodeToken(currentToken);
-    if (!decoded) {
-      return this.redirectToLogin('Sesión inválida. Inicia sesión nuevamente.');
+
+    if (!decoded && !storedUser?.rol && !this.auth.hasUsableRefreshToken()) {
+      return this.redirectToLogin('Sesion invalida. Inicia sesion nuevamente.');
     }
 
     const allowedRoles: string[] = route.data?.['roles'] || [];
     if (allowedRoles.length > 0) {
-      const user = this.auth.getStoredUser();
-      const userRole = user?.rol || decoded?.rol;
+      const userRole = storedUser?.rol || decoded?.rol;
 
       if (!userRole || !allowedRoles.includes(userRole)) {
         Swal.fire({
           icon: 'warning',
           title: 'Acceso denegado',
-          text: 'No tienes permisos para acceder a esta sección.',
+          text: 'No tienes permisos para acceder a esta seccion.',
           confirmButtonColor: '#E53E3E',
         });
         return this.router.createUrlTree(['/perfil']);
@@ -64,7 +67,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private redirectToLogin(message: string): UrlTree {
-    Swal.fire('Autenticación requerida', message, 'info');
+    Swal.fire('Autenticacion requerida', message, 'info');
     this.auth.clearSession();
     return this.router.createUrlTree(['/login']);
   }

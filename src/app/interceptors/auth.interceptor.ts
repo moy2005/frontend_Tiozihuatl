@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
-import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { AuthService } from '../api/services/auth';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, switchMap, throwError, timer } from 'rxjs';
 
 const isRefreshRequest = (url: string) => url.includes('/auth/refresh');
 
@@ -35,11 +35,29 @@ const shouldRetryWithRefresh = (err: any) => {
   return false;
 };
 
+const shouldRetryTransientRequest = (req: HttpRequest<unknown>, err: any) => {
+  if (!['GET', 'HEAD'].includes(req.method.toUpperCase())) return false;
+
+  const status = Number(err?.status);
+  return status === 0 || status === 502 || status === 503 || status === 504;
+};
+
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const isBootstrapRequest = isSessionBootstrapRequest(req.url);
 
-  const sendRequest = () => next(attachAccessToken(req, authService.getAccessToken()));
+  const sendRequest = (allowTransientRetry = true): Observable<HttpEvent<unknown>> =>
+    next(attachAccessToken(req, authService.getAccessToken())).pipe(
+      catchError((err) => {
+        if (allowTransientRetry && shouldRetryTransientRequest(req, err)) {
+          return timer(450).pipe(
+            switchMap(() => sendRequest(false)),
+          );
+        }
+
+        return throwError(() => err);
+      }),
+    );
 
   if (isRefreshRequest(req.url)) {
     return next(req).pipe(

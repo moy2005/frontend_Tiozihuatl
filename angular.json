@@ -77,7 +77,10 @@
               "buildTarget": "frontend:build:production"
             },
             "development": {
-              "buildTarget": "frontend:build:development"
+              "buildTarget": "frontend:build:development",
+              "liveReload": false,
+              "hmr": false,
+              "prebundle": false
             }
           },
           "defaultConfiguration": "development"
@@ -112,7 +115,10 @@
     }
   },
   "cli": {
-    "analytics": "1262dab3-ba88-42ac-b06a-8b99ec757f84"
+    "analytics": "1262dab3-ba88-42ac-b06a-8b99ec757f84",
+    "cache": {
+      "enabled": false
+    }
   }
   
 }

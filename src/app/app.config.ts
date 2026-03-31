@@ -8,6 +8,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { provideHttpClient, withFetch,withInterceptors } from '@angular/common/http';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { environment } from './api/environments/environment';
 
 
 export const appConfig: ApplicationConfig = {
@@ -22,7 +23,7 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled'
       })
     ),
-    provideClientHydration(withEventReplay()),
+    ...(environment.production ? [provideClientHydration(withEventReplay())] : []),
 
     // Toastr y Animaciones (ya correcto)
     importProvidersFrom(
