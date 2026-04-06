@@ -365,57 +365,47 @@
   gap: 1.25rem;
   padding: 3rem 1.5rem;
   text-align: center;
+  background:
+    radial-gradient(circle at top, rgba(144, 202, 249, 0.28), transparent 55%),
+    linear-gradient(180deg, rgba(227, 242, 253, 0.72), rgba(255, 255, 255, 0.96));
 }
 
 .admin-content .users-loader {
-  width: min(17rem, 70vw);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
+  position: relative;
+  width: 7.5rem;
+  height: 7.5rem;
+  border-left: 5px solid var(--color-primario);
+  border-radius: 50%;
+  animation: users-loader-spin-right 0.9s linear infinite;
+  filter:
+    drop-shadow(0 0 12px rgba(33, 150, 243, 0.18))
+    drop-shadow(0 10px 18px rgba(21, 101, 192, 0.14));
 }
 
-.admin-content .users-loader-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+.admin-content .users-loader::before,
+.admin-content .users-loader::after {
+  content: "";
+  display: block;
+  position: absolute;
+  border-radius: 50%;
 }
 
-.admin-content .users-loader-svg .segment {
-  stroke: rgba(0, 0, 0, 0);
-  stroke-width: 10;
-  stroke-linecap: round;
+.admin-content .users-loader::before {
+  width: 6rem;
+  height: 6rem;
+  top: calc(50% - 3rem);
+  left: calc(50% - 3rem);
+  border-right: 5px solid var(--color-info);
+  animation: users-loader-spin-left 0.9s linear infinite;
 }
 
-.admin-content .users-loader-svg .joint {
-  fill: var(--color-primario);
-  stroke: rgba(144, 202, 249, 0.55);
-  stroke-width: 5px;
-}
-
-.admin-content .users-loader-svg .arm {
-  filter: url("#users-loader-metaball");
-  scale: 0.25;
-  transform-origin: 250px 250px;
-  animation: users-loader-rotate 31s ease-in-out infinite;
-}
-
-.admin-content .users-loader-svg .arm1 {
-  transform-origin: 300px 200px;
-  animation: users-loader-rotate 23s ease-in-out infinite;
-}
-
-.admin-content .users-loader-svg .arm2 {
-  transform-origin: 400px 200px;
-  animation: users-loader-rotate 17s ease-in-out infinite;
-}
-
-.admin-content .users-loader-svg .arm3 {
-  transform-origin: 490px 200px;
-  animation: users-loader-rotate 11s ease-in-out infinite;
-}
-
-.admin-content .users-loader-svg #users-loader-mirror {
-  scale: -0.25;
+.admin-content .users-loader::after {
+  width: 4.5rem;
+  height: 4.5rem;
+  top: calc(50% - 2.25rem);
+  left: calc(50% - 2.25rem);
+  border-top: 5px solid var(--color-primario-dark);
+  animation: none;
 }
 
 .admin-content .users-loading-copy {
@@ -429,6 +419,7 @@
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--color-primario-dark);
+  letter-spacing: 0.02em;
 }
 
 .admin-content .loading-spinner {
@@ -451,21 +442,23 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-@keyframes users-loader-rotate {
-  0% {
-    transform: rotate(-90deg);
+@keyframes users-loader-spin-right {
+  from {
+    transform: rotate(0deg);
   }
-  25% {
+
+  to {
     transform: rotate(360deg);
   }
-  50% {
-    transform: rotate(90deg);
+}
+
+@keyframes users-loader-spin-left {
+  from {
+    transform: rotate(720deg);
   }
-  75% {
-    transform: rotate(-360deg);
-  }
-  100% {
-    transform: rotate(-90deg);
+
+  to {
+    transform: rotate(0deg);
   }
 }
 

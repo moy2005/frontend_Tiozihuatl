@@ -53,7 +53,7 @@
           <div>
             <h2 class="mon-header-title">
               <i class="ph ph-pulse"></i>
-              Monitoreo
+              Monitoreo de la Base de Datos
             </h2>
           
           </div>
@@ -1162,147 +1162,6 @@
           </div>
         </div>
       </div>
-      <div class="mon-tab-section" *ngIf="activeTab === 'security'">
-        <div class="mon-section-header">
-          <div class="mon-section-icon"><i class="ph ph-shield-check"></i></div>
-          <div>
-            <div class="mon-section-title">Seguridad</div>
-            <div class="mon-section-sub">USUARIOS MYSQL - BACKUPS - ALERTAS EVALUADAS</div>
-          </div>
-        </div>
-
-        <div class="mon-kpi-grid-4">
-          <div class="mon-kpi" style="--delay: 0ms; --kpi-color: #1e6fcf;">
-            <i class="ph ph-user-gear mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Usuarios MySQL</div>
-            <div class="mon-kpi-value">{{ dbUsers.length }}</div>
-          </div>
-
-          <div class="mon-kpi" style="--delay: 80ms; --kpi-color: #2a9d4e;">
-            <i class="ph ph-archive mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Backups registrados</div>
-            <div class="mon-kpi-value">{{ backups.length }}</div>
-            <div class="mon-kpi-sub">{{ lastBackup ? formatDate(lastBackup.fecha) : 'Sin historial' }}</div>
-          </div>
-
-          <div class="mon-kpi" style="--delay: 160ms; --kpi-color: #e74c3c;">
-            <i class="ph ph-warning mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Alertas criticas</div>
-            <div class="mon-kpi-value" [style.color]="alerts.critical > 0 ? '#e74c3c' : '#2a9d4e'">
-              {{ alerts.critical }}
-            </div>
-          </div>
-
-          <div class="mon-kpi" style="--delay: 240ms; --kpi-color: #8e44ad;">
-            <i class="ph ph-list-checks mon-kpi-icon"></i>
-            <div class="mon-kpi-label">Alertas totales</div>
-            <div class="mon-kpi-value">{{ alerts.total }}</div>
-            <div class="mon-kpi-sub">{{ formatDate(alerts.evaluated_at) }}</div>
-          </div>
-        </div>
-
-        <div class="mon-row-2" style="margin-bottom: 1rem;">
-          <div class="mon-card">
-            <div class="mon-card-header">
-              <div class="mon-card-title">
-                <i class="ph ph-users"></i>
-                Usuarios de la base de datos
-              </div>
-              <span class="mon-card-sub">mysql.user</span>
-            </div>
-            <div class="mon-card-body">
-              <ng-container *ngIf="dbUsers.length > 0; else noData">
-                <div class="mon-session-list">
-                  <div class="mon-session-item" *ngFor="let user of dbUsers">
-                    <div class="mon-session-avatar"><i class="ph ph-user-gear"></i></div>
-                    <div class="mon-session-info">
-                      <div class="mon-session-name mon-mono">{{ user.user }}</div>
-                      <div class="mon-session-email">Host: {{ user.host }}</div>
-                    </div>
-                    <span class="mon-badge mon-badge-blue">MySQL</span>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-
-          <div class="mon-card">
-            <div class="mon-card-header">
-              <div class="mon-card-title">
-                <i class="ph ph-archive"></i>
-                Historial de backups
-              </div>
-              <span class="mon-card-sub">backups_log</span>
-            </div>
-            <ng-container *ngIf="backups.length > 0; else noBackups">
-              <div class="mon-table-wrapper">
-                <table class="mon-table">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Estado</th>
-                      <th class="mon-text-right">Tamano</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let backup of backups">
-                      <td class="mon-mono" style="font-size: 0.75rem;">{{ formatDate(backup.fecha) }}</td>
-                      <td>
-                        <span
-                          class="mon-badge"
-                          [class.mon-badge-green]="backup.estado === 'exitoso'"
-                          [class.mon-badge-red]="backup.estado !== 'exitoso'"
-                        >
-                          {{ backup.estado || 'N/A' }}
-                        </span>
-                      </td>
-                      <td class="mon-text-right mon-mono">{{ formatMB(backup.tamanio_mb) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </ng-container>
-          </div>
-        </div>
-
-        <div class="mon-card">
-          <div class="mon-card-header">
-            <div class="mon-card-title" [style.color]="hasAlerts ? '#e74c3c' : '#2a9d4e'">
-              <i
-                [class]="hasAlerts ? 'ph ph-warning' : 'ph ph-check-circle'"
-                [style.color]="hasAlerts ? '#e74c3c' : '#2a9d4e'"
-              ></i>
-              Alertas estructuradas
-            </div>
-            <span class="mon-card-sub">Severidad, categoria y recomendacion</span>
-          </div>
-          <div class="mon-card-body">
-            <ng-container *ngIf="hasAlerts; else noSecurityAlerts">
-              <div
-                class="mon-status-block"
-                *ngFor="let alert of alertItems"
-                [style.border-left]="'3px solid ' + getSeverityColor(alert.severity)"
-                style="margin-bottom: 0.75rem;"
-              >
-                <div class="mon-status-block-label">
-                  <span class="mon-badge" [ngClass]="getSeverityBadgeClass(alert.severity)">
-                    {{ getSeverityLabel(alert.severity) }}
-                  </span>
-                  <span style="margin-left: 0.5rem;">{{ alert.category }}</span>
-                  <span class="mon-badge mon-badge-gray" style="margin-left: 0.5rem;" *ngIf="alert.is_new">
-                    Nuevo
-                  </span>
-                </div>
-                <div class="mon-status-block-val">{{ alert.message }}</div>
-                <div class="mon-kpi-sub">Detectada {{ formatDate(alert.timestamp) }}</div>
-                <div class="mon-kpi-sub" *ngIf="alert.recommendation">
-                  {{ alert.recommendation }}
-                </div>
-              </div>
-            </ng-container>
-          </div>
-        </div>
-      </div>
     </ng-container>
   </div>
 </div>
@@ -1391,12 +1250,6 @@
   </div>
 </ng-template>
 
-<ng-template #noBackups>
-  <div class="mon-empty">
-    <i class="ph ph-archive"></i>
-    Sin historial de backups
-  </div>
-</ng-template>
 
 <ng-template #noSecurityAlerts>
   <div class="mon-empty" style="padding: 1.25rem;">

@@ -16,8 +16,6 @@ export type MonitoringSnapshotSource =
   | 'locks'
   | 'maintenance'
   | 'healthScore'
-  | 'security'
-  | 'backups'
   | 'alerts';
 
 export interface MonitoringDatabaseStatus {
@@ -164,18 +162,6 @@ export interface MonitoringExtendedStats {
   Handler_read_rnd_next?: NumberLike;
   tmp_disk_ratio?: NumberLike;
   table_cache_hit_ratio?: NumberLike;
-}
-
-export interface MonitoringDbUser {
-  user: string;
-  host: string;
-}
-
-export interface MonitoringBackup {
-  fecha?: string | null;
-  estado?: string | null;
-  tamanio_mb?: NumberLike | null;
-  [key: string]: unknown;
 }
 
 export interface MonitoringAlert {
@@ -370,8 +356,6 @@ export interface MonitoringSnapshot {
   locks: MonitoringLocksResponse | null;
   maintenance: MonitoringMaintenanceResponse | null;
   healthScore: MonitoringHealthScore | null;
-  security: MonitoringDbUser[];
-  backups: MonitoringBackup[];
   alerts: MonitoringAlertsResponse;
   errors: MonitoringLoadError[];
 }

@@ -500,9 +500,10 @@
 
 .topbar {
   height: var(--topbar-height);
-  background: transparent;
+  background: rgba(3, 169, 244, 0.85); /* ajusta el 0.85 a tu gusto */
   border-bottom: none;
   display: flex;
+  border-radius: 0 0 12px 12px; 
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
@@ -556,7 +557,7 @@
 .topbar-section-label {
   font-size: 0.82rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.75);
+  color: white;
   letter-spacing: 0.03em;
   white-space: nowrap;
 }

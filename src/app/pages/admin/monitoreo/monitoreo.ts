@@ -20,12 +20,10 @@ import {
   MonitoringAlert,
   MonitoringAlertSeverity,
   MonitoringAlertsResponse,
-  MonitoringBackup,
   MonitoringConnectionStats,
   MonitoringConnectionsResponse,
   MonitoringDashboard,
   MonitoringDatabaseResponse,
-  MonitoringDbUser,
   MonitoringExtendedStats,
   MonitoringHealthPenalty,
   MonitoringHealthScore,
@@ -50,8 +48,7 @@ type MonitoringTab =
   | 'overview'
   | 'database'
   | 'connections'
-  | 'performance'
-  | 'security';
+  | 'performance';
 
 type MonitoringChartKey =
   | 'healthScore'
@@ -99,11 +96,10 @@ export class MonitoreoComponent implements OnInit {
   loadErrors: MonitoringLoadError[] = [];
 
   readonly tabs: ReadonlyArray<{ id: MonitoringTab; label: string; icon: string }> = [
-    { id: 'overview', label: 'Overview', icon: 'pulse' },
+    { id: 'overview', label: 'Resumen', icon: 'pulse' },
     { id: 'database', label: 'Base de Datos', icon: 'database' },
     { id: 'connections', label: 'Conexiones', icon: 'git-branch' },
-    { id: 'performance', label: 'Performance', icon: 'lightning' },
-    { id: 'security', label: 'Seguridad', icon: 'shield-check' },
+    { id: 'performance', label: 'Rendimiento', icon: 'lightning' },
   ];
 
   readonly chartColors = ['#1565C0', '#2E7D32', '#6A1B9A', '#E65100', '#F57F17', '#B71C1C'];
@@ -119,8 +115,6 @@ export class MonitoreoComponent implements OnInit {
   locks: MonitoringLocksResponse | null = null;
   maintenance: MonitoringMaintenanceResponse | null = null;
   healthScore: MonitoringHealthScore | null = null;
-  dbUsers: MonitoringDbUser[] = [];
-  backups: MonitoringBackup[] = [];
   alerts: MonitoringAlertsResponse = EMPTY_MONITORING_ALERTS_RESPONSE;
 
   @ViewChild('healthScoreChart')
@@ -268,10 +262,6 @@ export class MonitoreoComponent implements OnInit {
 
   get unusedIndexes(): MonitoringUnusedIndex[] {
     return this.indexes?.unused_indexes ?? this.performanceSchema?.unused_indexes ?? [];
-  }
-
-  get lastBackup(): MonitoringBackup | null {
-    return this.backups.length > 0 ? this.backups[0] : null;
   }
 
   get blockedTransactionsCount(): number {
@@ -708,7 +698,7 @@ export class MonitoreoComponent implements OnInit {
   }
 
   getLoadErrorLabel(source: MonitoringLoadError['source']): string {
-      const labels: Record<MonitoringLoadError['source'], string> = {
+    const labels: Record<MonitoringLoadError['source'], string> = {
       snapshot: 'Snapshot',
       dashboard: 'Dashboard',
       database: 'Base de datos',
@@ -721,8 +711,6 @@ export class MonitoreoComponent implements OnInit {
       locks: 'Locks',
       maintenance: 'Mantenimiento',
       healthScore: 'Health score',
-      security: 'Seguridad',
-      backups: 'Backups',
       alerts: 'Alertas',
     };
 
@@ -849,8 +837,6 @@ export class MonitoreoComponent implements OnInit {
     this.locks = snapshot.locks;
     this.maintenance = snapshot.maintenance;
     this.healthScore = snapshot.healthScore ?? snapshot.maintenance?.health_score ?? null;
-    this.dbUsers = snapshot.security;
-    this.backups = snapshot.backups;
     this.alerts = snapshot.alerts ?? snapshot.dashboard?.alerts ?? EMPTY_MONITORING_ALERTS_RESPONSE;
     this.loadErrors = snapshot.errors;
   }
@@ -867,8 +853,6 @@ export class MonitoreoComponent implements OnInit {
     this.locks = null;
     this.maintenance = null;
     this.healthScore = null;
-    this.dbUsers = [];
-    this.backups = [];
     this.alerts = EMPTY_MONITORING_ALERTS_RESPONSE;
     this.destroyAllCharts();
   }

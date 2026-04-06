@@ -6,11 +6,9 @@ import { API_URL } from '../api.config';
 import {
   EMPTY_MONITORING_ALERTS_RESPONSE,
   MonitoringAlertsResponse,
-  MonitoringBackup,
   MonitoringConnectionsResponse,
   MonitoringDashboard,
   MonitoringDatabaseResponse,
-  MonitoringDbUser,
   MonitoringDeadlockInfo,
   MonitoringHealthScore,
   MonitoringIndexesResponse,
@@ -102,14 +100,6 @@ export class MonitoringService {
 
   getHealthScore(): Observable<MonitoringHealthScore> {
     return this.get<MonitoringHealthScore>('/health-score');
-  }
-
-  getSecurity(): Observable<MonitoringDbUser[]> {
-    return this.get<MonitoringDbUser[]>('/security');
-  }
-
-  getBackups(): Observable<MonitoringBackup[]> {
-    return this.get<MonitoringBackup[]>('/backups');
   }
 
   getAlerts(): Observable<MonitoringAlertsResponse> {
@@ -235,8 +225,6 @@ export class MonitoringService {
       locks: null,
       maintenance: null,
       healthScore: null,
-      security: [],
-      backups: [],
       alerts: EMPTY_MONITORING_ALERTS_RESPONSE,
       errors: error ? [error] : [],
     };
@@ -246,11 +234,9 @@ export class MonitoringService {
 export {
   EMPTY_MONITORING_ALERTS_RESPONSE,
   type MonitoringAlertsResponse,
-  type MonitoringBackup,
   type MonitoringConnectionsResponse,
   type MonitoringDashboard,
   type MonitoringDatabaseResponse,
-  type MonitoringDbUser,
   type MonitoringDeadlockInfo,
   type MonitoringHealthScore,
   type MonitoringIndexesResponse,
