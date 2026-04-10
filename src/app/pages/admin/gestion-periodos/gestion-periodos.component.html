@@ -1,0 +1,250 @@
+<section class="periodos-admin">
+
+  <!-- HEADER -->
+  <div class="header-principal">
+    <h2 class="titulo-principal">
+      <ion-icon name="calendar-check-outline"></ion-icon>
+      Gestión de Periodos
+    </h2>
+    <button class="btn-nuevo" type="button" (click)="abrirModal()">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      Nuevo Periodo
+    </button>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filtros-container">
+    <input
+      type="text"
+      class="filtro-input"
+      placeholder="Buscar periodo..."
+      [(ngModel)]="search"
+      (input)="buscar()"
+    />
+    <button class="btn-limpiar" (click)="limpiar()">Limpiar</button>
+  </div>
+
+  <!-- CONTADOR -->
+  <div class="contador-bar">
+    Mostrando {{ periodos.length }} periodo{{ periodos.length === 1 ? '' : 's' }}
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading-wrapper">
+    <div class="loading-spinner"></div>
+    <p style="margin-top:1rem;color:#64748B;font-weight:500;font-size:.875rem">Cargando periodos...</p>
+  </div>
+
+  <!-- TABLA DESKTOP -->
+  <div *ngIf="!loading" class="tabla-wrapper">
+    <div class="tabla-scroll">
+      <table class="tabla-periodos">
+        <thead>
+          <tr>
+            <th><ion-icon name="calendar-outline"></ion-icon> PERIODO</th>
+            <th><ion-icon name="play-outline"></ion-icon> FECHA INICIO</th>
+            <th><ion-icon name="stop-outline"></ion-icon> FECHA FIN</th>
+            <th><ion-icon name="power-outline"></ion-icon> ESTADO</th>
+            <th><ion-icon name="settings-outline"></ion-icon> ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of periodos">
+
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.fecha_inicio | date:'dd/MM/yyyy' }}</td>
+            <td>{{ p.fecha_fin   | date:'dd/MM/yyyy' }}</td>
+
+            <td>
+              <span class="badge" [ngClass]="p.estado === 'Activo' ? 'badge-activo' : 'badge-cerrado'">
+                <ion-icon [name]="p.estado === 'Activo' ? 'checkmark-circle-outline' : 'lock-closed-outline'"></ion-icon>
+                {{ p.estado }}
+              </span>
+            </td>
+
+            <td>
+              <div class="acciones-cell">
+
+                <!-- Editar -->
+                <button class="btn-icon btn-icon-primary" (click)="editar(p)" title="Editar periodo">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+
+                <!-- Activar (solo si no está activo) -->
+                <button
+                  *ngIf="p.estado !== 'Activo'"
+                  class="btn-icon btn-icon-success"
+                  (click)="activar(p.id_periodo)"
+                  title="Activar periodo">
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                </button>
+
+                <!-- Verificando relaciones -->
+                <span
+                  *ngIf="deleteInfo[p.id_periodo]?.verificando"
+                  class="btn-icon btn-icon-checking"
+                  title="Verificando dependencias...">
+                  <ion-icon name="sync-outline" class="spin"></ion-icon>
+                </span>
+
+                <!-- Puede eliminar -->
+                <button
+                  *ngIf="!deleteInfo[p.id_periodo]?.verificando && deleteInfo[p.id_periodo]?.puedeEliminar"
+                  class="btn-icon btn-icon-delete"
+                  title="Eliminar periodo"
+                  (click)="eliminar(p.id_periodo)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+
+                <!-- No puede eliminar -->
+                <button
+                  *ngIf="!deleteInfo[p.id_periodo]?.verificando && deleteInfo[p.id_periodo] && !deleteInfo[p.id_periodo]?.puedeEliminar"
+                  class="btn-icon btn-icon-locked"
+                  title="Tiene registros relacionados — clic para ver detalles"
+                  (click)="mostrarRelaciones(p)">
+                  <ion-icon name="lock-closed-outline"></ion-icon>
+                </button>
+
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!periodos.length">
+            <td colspan="5">
+              <div class="empty-state">
+                <ion-icon name="calendar-outline"></ion-icon>
+                No hay periodos registrados
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CARDS MOBILE -->
+  <div *ngIf="!loading && periodos.length > 0" class="cards-mobile-wrapper">
+    <div *ngFor="let p of periodos" class="periodo-card">
+
+      <div class="periodo-card-header">
+        <div>
+          <p class="periodo-card-nombre">{{ p.nombre }}</p>
+        </div>
+        <span class="badge" [ngClass]="p.estado === 'Activo' ? 'badge-activo' : 'badge-cerrado'">
+          <ion-icon [name]="p.estado === 'Activo' ? 'checkmark-circle-outline' : 'lock-closed-outline'"></ion-icon>
+          {{ p.estado }}
+        </span>
+      </div>
+
+      <div class="periodo-card-body">
+        <div class="periodo-card-detalle">
+          <ion-icon name="play-outline"></ion-icon>
+          <span>Inicio: {{ p.fecha_inicio | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="periodo-card-detalle">
+          <ion-icon name="stop-outline"></ion-icon>
+          <span>Fin: {{ p.fecha_fin | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="periodo-card-acciones">
+
+        <button class="periodo-card-btn periodo-card-btn-primary" (click)="editar(p)">
+          <ion-icon name="create-outline"></ion-icon> Editar
+        </button>
+
+        <button
+          *ngIf="p.estado !== 'Activo'"
+          class="periodo-card-btn periodo-card-btn-success"
+          (click)="activar(p.id_periodo)">
+          <ion-icon name="checkmark-circle-outline"></ion-icon> Activar
+        </button>
+
+        <!-- Verificando -->
+        <button *ngIf="deleteInfo[p.id_periodo]?.verificando"
+          class="periodo-card-btn periodo-card-btn-checking" disabled>
+          <ion-icon name="sync-outline" class="spin"></ion-icon> Verificando...
+        </button>
+
+        <!-- Puede eliminar  -->
+        <button
+          *ngIf="!deleteInfo[p.id_periodo]?.verificando && deleteInfo[p.id_periodo]?.puedeEliminar"
+          class="periodo-card-btn periodo-card-btn-delete"
+          (click)="eliminar(p.id_periodo)">
+          <ion-icon name="trash-outline"></ion-icon> Eliminar
+        </button>
+
+        <!-- No puede eliminar  -->
+        <button
+          *ngIf="!deleteInfo[p.id_periodo]?.verificando && deleteInfo[p.id_periodo] && !deleteInfo[p.id_periodo]?.puedeEliminar"
+          class="periodo-card-btn periodo-card-btn-locked"
+          (click)="mostrarRelaciones(p)">
+          <ion-icon name="lock-closed-outline"></ion-icon> Bloqueado
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+      <div *ngIf="guardando" class="upload-loading-overlay">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"></div>
+          <p style="margin-top:1rem;color:white;font-weight:600;font-size:1rem">Guardando periodo...</p>
+          <p style="color:rgba(255,255,255,.8);font-size:.8125rem;margin-top:.375rem">Por favor espere...</p>
+        </div>
+      </div>
+
+      <div class="modal-header">
+        <h3>
+          <ion-icon [name]="editando ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+          {{ editando ? 'Editar Periodo' : 'Nuevo Periodo' }}
+        </h3>
+        <button class="btn-cerrar-modal" type="button" (click)="cerrarModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+
+          <div class="form-group full-width">
+            <label><ion-icon name="calendar-outline"></ion-icon> Nombre del periodo *</label>
+            <input
+              type="text"
+              [(ngModel)]="form.nombre"
+              placeholder="Ej: Feb-Jul 2025"
+              [disabled]="guardando"
+            />
+          </div>
+
+          <div class="form-group">
+            <label><ion-icon name="play-outline"></ion-icon> Fecha inicio *</label>
+            <input type="date" [(ngModel)]="form.fecha_inicio" [disabled]="guardando" />
+          </div>
+
+          <div class="form-group">
+            <label><ion-icon name="stop-outline"></ion-icon> Fecha fin *</label>
+            <input type="date" [(ngModel)]="form.fecha_fin" [disabled]="guardando" />
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" [disabled]="guardando" (click)="cerrarModal()">
+          <ion-icon name="close-circle-outline"></ion-icon> Cancelar
+        </button>
+        <button type="button" class="btn-primary-modal" [disabled]="guardando" (click)="guardar()">
+          <ion-icon [name]="editando ? 'checkmark-circle-outline' : 'add-circle-outline'"></ion-icon>
+          {{ editando ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</section>
