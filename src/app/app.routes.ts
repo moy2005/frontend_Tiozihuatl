@@ -42,7 +42,8 @@ import { MyLoans } from './pages/my-loans/my-loans';
 import { ActivateAccountComponent } from './auth/activate-account/activate-account';
 import { GestionMantenimientoComponent } from './pages/admin/gestion-maintenance/gestion-maintenance';
 import { PredictionComponent } from './pages/admin/prediction/prediction';
-
+import { GestionPeriodosComponent } from './pages/admin/gestion-periodos/gestion-periodos.component';
+import { GestionMateriasComponent } from './pages/admin/gestion-materias/gestion-materias.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -92,7 +93,9 @@ export const routes: Routes = [
       { path: 'revistas', component: GestionRevistasComponent },
       { path: 'monitoreo', component: MonitoreoComponent },
       { path: 'mantenimiento', component: GestionMantenimientoComponent},
-      { path: 'prediction', component: PredictionComponent}
+      { path: 'prediction', component: PredictionComponent},
+      { path: 'periodos', component: GestionPeriodosComponent},
+      { path: 'materias', component: GestionMateriasComponent},
     ]
   },
   
