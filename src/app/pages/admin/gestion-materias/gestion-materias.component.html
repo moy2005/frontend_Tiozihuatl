@@ -1,0 +1,220 @@
+<section class="materias-admin">
+
+  <!-- HEADER -->
+  <div class="header-principal">
+    <h2 class="titulo-principal">
+      <ion-icon name="school-outline"></ion-icon>
+      Gestión de Materias
+    </h2>
+    <button class="btn-nuevo" type="button" (click)="abrirModal()">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      Nueva Materia
+    </button>
+  </div>
+
+  <!-- FILTROS  -->
+  <div class="filtros-container">
+    <input
+      type="text"
+      class="filtro-input"
+      placeholder="Buscar materia..."
+      [(ngModel)]="search"
+      (input)="buscar()"
+    />
+    <button class="btn-limpiar" (click)="limpiar()">Limpiar</button>
+  </div>
+
+  <!-- CONTADOR -->
+  <div class="contador-bar">
+    Mostrando {{ materias.length }} materia{{ materias.length === 1 ? '' : 's' }}
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading-wrapper">
+    <div class="loading-spinner"></div>
+    <p style="margin-top:1rem;color:#64748B;font-weight:500;font-size:.875rem">Cargando materias...</p>
+  </div>
+
+  <!-- TABLA DESKTOP -->
+  <div *ngIf="!loading" class="tabla-wrapper">
+    <div class="tabla-scroll">
+      <table class="tabla-materias">
+        <thead>
+          <tr>
+            <th><ion-icon name="school-outline"></ion-icon> NOMBRE</th>
+            <th><ion-icon name="power-outline"></ion-icon> ESTADO</th>
+            <th><ion-icon name="settings-outline"></ion-icon> ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of materias">
+
+            <td>{{ m.nombre }}</td>
+
+            <td>
+              <span class="badge" [ngClass]="m.activo ? 'badge-activo' : 'badge-inactivo'">
+                {{ m.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+
+            <td>
+              <div class="acciones-cell">
+
+                <!-- Editar -->
+                <button class="btn-icon btn-icon-primary" (click)="editar(m)" title="Editar materia">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+
+                <!-- Activar / Desactivar -->
+                <button
+                  class="btn-icon"
+                  [class.btn-icon-danger]="m.activo"
+                  [class.btn-icon-success]="!m.activo"
+                  [title]="m.activo ? 'Desactivar materia' : 'Activar materia'"
+                  (click)="cambiarEstado(m)">
+                  <ion-icon [name]="m.activo ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+                </button>
+
+                <!-- Verificando relaciones -->
+                <span
+                  *ngIf="deleteInfo[m.id]?.verificando"
+                  class="btn-icon btn-icon-checking"
+                  title="Verificando dependencias...">
+                  <ion-icon name="sync-outline" class="spin"></ion-icon>
+                </span>
+
+                <!-- Puede eliminar -->
+                <button
+                  *ngIf="!deleteInfo[m.id]?.verificando && deleteInfo[m.id]?.puedeEliminar"
+                  class="btn-icon btn-icon-delete"
+                  title="Eliminar materia"
+                  (click)="eliminar(m)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+
+                <!-- No puede eliminar (tiene dependencias) -->
+                <button
+                  *ngIf="!deleteInfo[m.id]?.verificando && deleteInfo[m.id] && !deleteInfo[m.id]?.puedeEliminar"
+                  class="btn-icon btn-icon-locked"
+                  title="Tiene registros relacionados — clic para ver detalles"
+                  (click)="mostrarRelaciones(m)">
+                  <ion-icon name="lock-closed-outline"></ion-icon>
+                </button>
+
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!materias.length">
+            <td colspan="3">
+              <div class="empty-state">
+                <ion-icon name="school-outline"></ion-icon>
+                No hay materias registradas
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CARDS MOBILE -->
+  <div *ngIf="!loading && materias.length > 0" class="cards-mobile-wrapper">
+    <div *ngFor="let m of materias" class="materia-card">
+
+      <div class="materia-card-header">
+        <p class="materia-card-nombre">{{ m.nombre }}</p>
+        <span class="badge" [ngClass]="m.activo ? 'badge-activo' : 'badge-inactivo'">
+          {{ m.activo ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+
+      <div class="materia-card-acciones">
+
+        <button class="materia-card-btn materia-card-btn-primary" (click)="editar(m)">
+          <ion-icon name="create-outline"></ion-icon> Editar
+        </button>
+
+        <button
+          class="materia-card-btn"
+          [class.materia-card-btn-danger]="m.activo"
+          [class.materia-card-btn-success]="!m.activo"
+          (click)="cambiarEstado(m)">
+          <ion-icon [name]="m.activo ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+          {{ m.activo ? 'Desactivar' : 'Activar' }}
+        </button>
+
+        <!-- Verificando -->
+        <button *ngIf="deleteInfo[m.id]?.verificando"
+          class="materia-card-btn materia-card-btn-checking" disabled>
+          <ion-icon name="sync-outline" class="spin"></ion-icon> Verificando...
+        </button>
+
+        <!-- Puede eliminar -->
+        <button
+          *ngIf="!deleteInfo[m.id]?.verificando && deleteInfo[m.id]?.puedeEliminar"
+          class="materia-card-btn materia-card-btn-delete"
+          (click)="eliminar(m)">
+          <ion-icon name="trash-outline"></ion-icon> Eliminar
+        </button>
+
+        <!-- No puede eliminar -->
+        <button
+          *ngIf="!deleteInfo[m.id]?.verificando && deleteInfo[m.id] && !deleteInfo[m.id]?.puedeEliminar"
+          class="materia-card-btn materia-card-btn-locked"
+          (click)="mostrarRelaciones(m)">
+          <ion-icon name="lock-closed-outline"></ion-icon> Bloqueado
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" style="position:relative">
+
+      <div *ngIf="guardando" class="upload-loading-overlay">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"></div>
+          <p style="margin-top:1rem;color:white;font-weight:600;font-size:1rem">Guardando materia...</p>
+          <p style="color:rgba(255,255,255,.8);font-size:.8125rem;margin-top:.375rem">Por favor espere...</p>
+        </div>
+      </div>
+
+      <div class="modal-header">
+        <h3>
+          <ion-icon [name]="editando ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+          {{ editando ? 'Editar Materia' : 'Nueva Materia' }}
+        </h3>
+        <button class="btn-cerrar-modal" type="button" (click)="cerrarModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label><ion-icon name="school-outline"></ion-icon> Nombre *</label>
+          <input
+            type="text"
+            [(ngModel)]="form.nombre"
+            placeholder="Nombre de la materia"
+            [disabled]="guardando"
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" [disabled]="guardando" (click)="cerrarModal()">
+          <ion-icon name="close-circle-outline"></ion-icon> Cancelar
+        </button>
+        <button type="button" class="btn-primary-modal" [disabled]="guardando" (click)="guardar()">
+          <ion-icon [name]="editando ? 'checkmark-circle-outline' : 'add-circle-outline'"></ion-icon>
+          {{ editando ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</section>
