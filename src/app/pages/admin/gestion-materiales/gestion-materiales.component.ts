@@ -21,6 +21,9 @@ export class GestionMaterialesComponent implements OnInit {
   mostrarModal = false;
   editMode = false;
   editId: number | null = null;
+  
+  materialEditando: any = null;
+  archivoActualNombre = '';
 
   form: any = {
     titulo: '',
@@ -44,14 +47,11 @@ export class GestionMaterialesComponent implements OnInit {
   constructor(private service: MaterialesService) {}
 
   ngOnInit() {
-
-      // DEBUG temporal
-  console.log('accessToken:', localStorage.getItem('accessToken'));
-  console.log('token:', localStorage.getItem('token'));
-  console.log('refreshToken:', localStorage.getItem('refreshToken'));
-    this.load();
-    this.loadCatalogos();
-  }
+    setTimeout(() => {
+        this.load();
+        this.loadCatalogos();
+    }, 300);
+    }
 
     load() {
     this.service.getAllAdmin(this.filters).subscribe((res: any) => {
@@ -78,38 +78,57 @@ export class GestionMaterialesComponent implements OnInit {
 
   onFile(e: any) { this.file = e.target.files[0]; }
 
-  submit() {
-    if (!this.editMode && !this.file) {
-      Swal.fire('Error', 'Debes seleccionar un archivo', 'error');
-      return;
+    submit() {
+    if (!this.form.titulo) {
+        alert('El título es obligatorio');
+        return;
     }
 
-    const fd = new FormData();
-    fd.append('titulo', this.form.titulo);
-    fd.append('descripcion', this.form.descripcion);
-    fd.append('visibilidad', this.form.visibilidad);
-    fd.append('materias', JSON.stringify(this.form.materias));
-    fd.append('semestres', JSON.stringify(this.form.semestres));
-    if (this.file) fd.append('file', this.file);
+    const formData = new FormData();
 
-    if (this.editMode && this.editId) {
-      this.service.update(this.editId, fd).subscribe({
-        next: () => {
-          Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1500, showConfirmButton: false });
-          this.load(); this.reset(); this.mostrarModal = false;
-        },
-        error: () => Swal.fire('Error', 'No se pudo actualizar', 'error')
-      });
+    formData.append('titulo', this.form.titulo);
+    formData.append('descripcion', this.form.descripcion || '');
+    formData.append('visibilidad', this.form.visibilidad);
+
+    formData.append('materias', JSON.stringify(this.form.materias));
+    formData.append('semestres', JSON.stringify(this.form.semestres));
+
+    // 🔥 SOLO agregar archivo si existe
+    if (this.file) {
+        formData.append('file', this.file);
+    }
+
+    // 🔥 UPDATE vs CREATE
+        if (this.editMode && this.editId) {
+        this.service.update(this.editId, formData).subscribe({
+            next: () => {
+            Swal.fire({ icon: 'success', title: 'Material actualizado', timer: 1500, showConfirmButton: false });
+            this.mostrarModal = false;
+            this.reset();
+            this.load();
+            },
+            error: (err: any) => {
+            console.error('Error update:', err);
+            Swal.fire('Error', err?.error?.error || 'No se pudo actualizar', 'error');
+            }
+        });
+
     } else {
-      this.service.create(fd).subscribe({
+
+        this.service.create(formData).subscribe({
         next: () => {
-          Swal.fire({ icon: 'success', title: 'Material subido', timer: 1500, showConfirmButton: false });
-          this.load(); this.reset(); this.mostrarModal = false;
+            console.log('Material creado');
+            this.mostrarModal = false;
+            this.reset();
+            this.load();
         },
-        error: () => Swal.fire('Error', 'Error al subir material', 'error')
-      });
+        error: (err) => {
+            console.error('Error al crear', err);
+        }
+        });
+
     }
-  }
+    }
 
   delete(id: number) {
     Swal.fire({
@@ -129,27 +148,42 @@ export class GestionMaterialesComponent implements OnInit {
     });
   }
 
-  editar(material: any) {
-    this.service.getById(material.id_material).subscribe((res: any) => {
-      this.mostrarModal = true;
-      this.editMode = true;
-      this.editId = material.id_material;
-      this.form = {
-        titulo: res.titulo,
+    editar(m: any) {
+    this.service.getById(m.id_material).subscribe((res: any) => {
+        this.mostrarModal = true;
+        this.editMode = true;
+        this.editId = m.id_material;
+        this.materialEditando = m;
+
+        // ✅ Extraer nombre del archivo desde public_id
+        const extMap: Record<string, string> = {
+        PDF: '.pdf', WORD: '.docx', EXCEL: '.xlsx',
+        PPT: '.pptx', IMAGEN: '.jpg', VIDEO: '.mp4'
+        };
+        const partes = (res.public_id || '').split('/');
+        this.archivoActualNombre = partes[partes.length - 1] || res.titulo;
+
+
+        this.form = {
+        titulo:      res.titulo,
         descripcion: res.descripcion,
         visibilidad: res.visibilidad,
-        materias: res.materias ? res.materias.split(',').map((m: string) => Number(m)) : [],
-        semestres: res.semestres ? res.semestres.split(',').map((s: string) => Number(s)) : []
-      };
-    });
-  }
+        materias:  res.materias  ? res.materias.split(',').map((x: string) => Number(x.trim()))  : [],
+        semestres: res.semestres ? res.semestres.split(',').map((x: string) => Number(x.trim())) : []
+        };
 
-  reset() {
+        this.file = null;
+    });
+    }
+
+    reset() {
     this.form = { titulo: '', descripcion: '', visibilidad: 'PUBLICO', materias: [], semestres: [] };
     this.file = null;
     this.editMode = false;
     this.editId = null;
-  }
+    this.materialEditando = null;
+    this.archivoActualNombre = ''; // ✅
+    }
 
   toggleMateria(id: number) {
     if (this.form.materias.includes(id)) {
