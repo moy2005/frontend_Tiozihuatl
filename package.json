@@ -41,6 +41,7 @@
     "express": "^5.1.0",
     "ionicons": "^8.0.13",
     "jwt-decode": "^4.0.0",
+    "ngx-doc-viewer": "^21.0.5",
     "ngx-pagination": "^6.0.3",
     "ngx-toastr": "^19.1.0",
     "pdfjs-dist": "^4.10.38",
