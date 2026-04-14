@@ -38,9 +38,9 @@ export class AdminLayoutComponent implements OnInit {
   showNotifPanel = false;
 
   menuItems: MenuItem[] = [
-    { label: 'Dashboard',     icon: 'ph-squares-four',    route: '/admin/dashboard' },
+    // { label: 'Dashboard',     icon: 'ph-squares-four',    route: '/admin/dashboard' },
     { label: 'Usuarios',      icon: 'ph-users',           route: '/admin/usuarios' },
-    { label: 'Preguntas',     icon: 'ph-question',        route: '/admin/preguntas' },
+    // { label: 'Preguntas',     icon: 'ph-question',        route: '/admin/preguntas' },
     { label: 'Contactos',     icon: 'ph-envelope',        route: '/admin/contactos', badge: 5 },
     { label: 'Noticias',      icon: 'ph-megaphone',       route: '/admin/noticias' },
     { label: 'Quienes Somos', icon: 'ph ph-buildings',    route: '/admin/about' },
