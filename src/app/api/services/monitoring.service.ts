@@ -1,4 +1,10 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpEvent,
+  HttpEventType,
+  HttpParams,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, filter, map, of, startWith, take, timeout } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -140,33 +146,39 @@ export class MonitoringService {
       ],
     };
 
-    return this.capture(
+    return this.captureSnapshotProgress(
       source,
-      this.getSnapshot(options, forceRefresh),
-      null,
-    ).pipe(
-      map((result) => ({
-        snapshot: result.data ?? this.buildEmptySnapshot(result.error),
-        completed: 1,
-        total: 1,
-        progress: 100,
-        activeSource: source,
-        loading: false,
-        steps: [
-          {
-            source,
-            status: result.error ? 'error' : 'success',
-          } as MonitoringLoadStep,
-        ],
-      })),
-      startWith(initialState),
-    );
+      this.getWithProgress<MonitoringSnapshot>('/snapshot', {
+        limit: options.limit,
+        min_avg_ms: options.minAvgMs,
+        force: forceRefresh || undefined,
+      }),
+    ).pipe(startWith(initialState));
   }
 
   private get<T>(
     path: string,
     queryParams?: Record<string, string | number | boolean | undefined>,
   ): Observable<T> {
+    const params = this.buildParams(queryParams);
+    return this.http.get<T>(`${this.api}${path}`, { params });
+  }
+
+  private getWithProgress<T>(
+    path: string,
+    queryParams?: Record<string, string | number | boolean | undefined>,
+  ): Observable<HttpEvent<T>> {
+    const params = this.buildParams(queryParams);
+    return this.http.get<T>(`${this.api}${path}`, {
+      params,
+      observe: 'events',
+      reportProgress: true,
+    });
+  }
+
+  private buildParams(
+    queryParams?: Record<string, string | number | boolean | undefined>,
+  ): HttpParams {
     let params = new HttpParams();
 
     if (queryParams) {
@@ -177,7 +189,7 @@ export class MonitoringService {
       }
     }
 
-    return this.http.get<T>(`${this.api}${path}`, { params });
+    return params;
   }
 
   private capture<T>(
@@ -210,6 +222,114 @@ export class MonitoringService {
         });
       }),
     );
+  }
+
+  private captureSnapshotProgress(
+    source: MonitoringSnapshotSource,
+    request$: Observable<HttpEvent<MonitoringSnapshot>>,
+  ): Observable<MonitoringSnapshotProgress> {
+    const pendingState: MonitoringSnapshotProgress = {
+      snapshot: null,
+      completed: 0,
+      total: 1,
+      progress: 0,
+      activeSource: source,
+      loading: true,
+      steps: [
+        {
+          source,
+          status: 'pending',
+        },
+      ],
+    };
+
+    return request$.pipe(
+      timeout(this.requestTimeoutMs),
+      map((event) => this.mapSnapshotProgressEvent(source, event, pendingState)),
+      catchError((error: unknown) =>
+        of(this.buildSnapshotProgressErrorState(source, error)),
+      ),
+    );
+  }
+
+  private mapSnapshotProgressEvent(
+    source: MonitoringSnapshotSource,
+    event: HttpEvent<MonitoringSnapshot>,
+    currentState: MonitoringSnapshotProgress,
+  ): MonitoringSnapshotProgress {
+    switch (event.type) {
+      case HttpEventType.Sent:
+        return currentState;
+
+      case HttpEventType.DownloadProgress: {
+        const total = event.total ?? 0;
+        const progress =
+          total > 0
+            ? Math.max(currentState.progress, Math.min(99, Math.round((event.loaded / total) * 100)))
+            : currentState.progress;
+
+        return {
+          ...currentState,
+          progress,
+        };
+      }
+
+      case HttpEventType.Response:
+        return {
+          snapshot: event.body ?? this.buildEmptySnapshot(null),
+          completed: 1,
+          total: 1,
+          progress: 100,
+          activeSource: source,
+          loading: false,
+          steps: [
+            {
+              source,
+              status: 'success',
+            },
+          ],
+        };
+
+      default:
+        return currentState;
+    }
+  }
+
+  private buildSnapshotProgressErrorState(
+    source: MonitoringSnapshotSource,
+    error: unknown,
+  ): MonitoringSnapshotProgress {
+    console.error(`[Monitoring] Error loading ${source}`, error);
+
+    const isTimeout = (error as { name?: string })?.name === 'TimeoutError';
+    const httpError = error as HttpErrorResponse;
+
+    const message = isTimeout
+      ? 'Tiempo de espera agotado al cargar el recurso.'
+      : typeof httpError.error?.message === 'string'
+        ? httpError.error.message
+        : 'No se pudo cargar el recurso.';
+
+    const loadError: MonitoringLoadError = {
+      source,
+      status: isTimeout ? undefined : httpError.status || undefined,
+      message,
+    };
+
+    return {
+      snapshot: this.buildEmptySnapshot(loadError),
+      completed: 1,
+      total: 1,
+      progress: 100,
+      activeSource: source,
+      loading: false,
+      steps: [
+        {
+          source,
+          status: 'error',
+        },
+      ],
+    };
   }
 
   private buildEmptySnapshot(error: MonitoringLoadError | null): MonitoringSnapshot {
