@@ -226,6 +226,12 @@
                       <div class="item-label">Mis Compras</div>
                     </a>
                   </ng-container>
+                   <ng-container *ngIf="userRole === 'Docente'">
+                    <a routerLink="/materiales-doc" class="profile-panel-item">
+                      <i class="ph ph-upload"></i>
+                      <div class="item-label">Mis Materiales</div>
+                    </a>
+                  </ng-container>
                   <div class="profile-panel-sep"></div>
                   <button (click)="cerrarSesion()" class="profile-panel-item logout-item">
                     <i class="ph ph-sign-out"></i>
