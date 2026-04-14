@@ -75,6 +75,9 @@ export const routes: Routes = [
   { path: 'my-purchases', component: MyPurchases, canActivate: [AuthGuard] },
   { path: 'my-loans', component: MyLoans, canActivate: [AuthGuard] },
   { path: 'biblioteca/libro/:id', component: VisorLibroComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador', 'Docente', 'Bibliotecario'] }},
+  { path: 'materiales', component: MaterialesComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante'] }},
+  { path: 'materiales-doc', component: MaterialesDocComponent, canActivate: [AuthGuard], data: { roles: ['Docente'] }},
+  { path: 'materiales/:id', component: MaterialesDetalleComponent, canActivate: [AuthGuard], data: {roles: ['Estudiante']}},
 
   // Panel de administrador con rutas anidadas
   { path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'], hideNavbar: true},
@@ -96,6 +99,7 @@ export const routes: Routes = [
       { path: 'prediction', component: PredictionComponent},
       { path: 'periodos', component: GestionPeriodosComponent},
       { path: 'materias', component: GestionMateriasComponent},
+      { path: 'materiales', component: GestionMaterialesComponent },
     ]
   },
   
