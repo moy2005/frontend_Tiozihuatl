@@ -1,0 +1,342 @@
+<div class="materiales-page">
+
+  <!-- ── HERO ─────────────────────────────────────────────────── -->
+  <header class="hero-section">
+    <div class="hero-content">
+      <h1>Materiales</h1>
+      <p class="hero-subtitle">Recursos educativos compartidos por tus docentes</p>
+
+      <div class="search-container">
+        <input
+          type="text"
+          class="search-box"
+          [class.con-texto]="search !== ''"
+          placeholder="Buscar por título o descripción..."
+          [(ngModel)]="search"
+          (ngModelChange)="cargarMateriales(true)">
+
+        <button
+          class="search-clear"
+          *ngIf="search !== ''"
+          (click)="search = ''; cargarMateriales(true)"
+          type="button">
+          <i class="ph ph-x"></i>
+        </button>
+
+        <button class="search-icon" type="button">
+          <i class="ph ph-magnifying-glass"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,60 C360,100 1080,20 1440,55 L1440,90 L0,90 Z" fill="#fafbfc"/>
+      </svg>
+    </div>
+  </header>
+
+  <!-- ── BARRA DE FILTROS (sin semestre) ───────────────────────── -->
+  <div class="filtros-bar-wrap">
+    <div class="filtros-bar">
+
+      <span class="filtros-bar-label">
+        <i class="ph ph-funnel-simple"></i>
+        Filtrar
+      </span>
+      <div class="filtros-divider-v"></div>
+
+      <!-- Docente -->
+      <div class="chip-wrap">
+        <select class="chip-select" [class.activo]="selectedDocente"
+                [(ngModel)]="selectedDocente" (change)="cargarMateriales(true)">
+          <option value="">Todos los docentes</option>
+          <option *ngFor="let d of docentes" [value]="d.id_usuario">{{ d.nombre }}</option>
+        </select>
+        <i class="ph ph-caret-down chip-arrow"></i>
+      </div>
+
+      <!-- Tipo -->
+      <div class="chip-wrap">
+        <select class="chip-select" [class.activo]="selectedTipo"
+                [(ngModel)]="selectedTipo" (change)="cargarMateriales(true)">
+          <option *ngFor="let t of tiposArchivo" [value]="t.value">{{ t.label }}</option>
+        </select>
+        <i class="ph ph-caret-down chip-arrow"></i>
+      </div>
+
+      <!-- Materia -->
+      <div class="chip-wrap">
+        <select class="chip-select" [class.activo]="selectedMateria"
+                [(ngModel)]="selectedMateria" (change)="cargarMateriales(true)">
+          <option value="">Todas las materias</option>
+          <option *ngFor="let m of materias" [value]="m.id">{{ m.nombre }}</option>
+        </select>
+        <i class="ph ph-caret-down chip-arrow"></i>
+      </div>
+
+      <!-- Borrar filtros -->
+      <button
+        class="btn-borrar-filtros"
+        *ngIf="filtrosActivos.length > 0"
+        (click)="limpiarFiltros()">
+        <i class="ph ph-x-circle"></i>
+        Borrar filtros
+      </button>
+
+      <div class="filtros-spacer"></div>
+
+      <span class="resultados-count" *ngIf="!cargando">
+        {{ totalItems }} material{{ totalItems !== 1 ? 'es' : '' }} encontrado{{ totalItems !== 1 ? 's' : '' }}
+      </span>
+
+    </div>
+  </div>
+
+  <!-- ── MAIN ───────────────────────────────────────────────────── -->
+  <div class="main-content">
+
+    <!-- SKELETONS -->
+    <div class="skeleton-grid" *ngIf="cargando">
+      <div class="skeleton-card" *ngFor="let _ of [1,2,3,4,5,6,7,8,9]">
+        <span class="sk sk-cover"></span>
+        <div class="sk-body">
+          <span class="sk sk-line w-80"></span>
+          <span class="sk sk-line w-55"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div *ngIf="!cargando && materiales.length === 0" class="empty-wrapper">
+      <div class="empty-icon">
+        <i class="ph ph-folder-dashed"></i>
+      </div>
+      <h3>Sin resultados</h3>
+      <p>
+        {{ filtrosActivos.length > 0
+          ? 'Ningún material coincide con los filtros aplicados.'
+          : 'No hay materiales disponibles para tu semestre todavía.' }}
+      </p>
+      <button class="btn-limpiar-empty" *ngIf="filtrosActivos.length > 0" (click)="limpiarFiltros()">
+        <i class="ph ph-x-circle"></i> Quitar filtros
+      </button>
+    </div>
+
+    <!-- GRID DE CARDS -->
+    <div class="materiales-grid" *ngIf="!cargando && materiales.length > 0">
+      <div class="mat-card" *ngFor="let m of materiales" (click)="abrirModal(m)">
+
+        <div class="card-cover" [ngClass]="getCoverTipo(m.tipo)">
+          <i [class]="'ph cover-icon ' + getIconoTipo(m.tipo) + ' ' + getCiTipo(m.tipo)"></i>
+          <span class="tipo-pill" [ngClass]="getPillTipo(m.tipo)">{{ m.tipo }}</span>
+        </div>
+
+        <div class="card-body">
+          <div class="card-title">{{ m.titulo }}</div>
+          <div class="card-desc" *ngIf="m.descripcion">{{ m.descripcion }}</div>
+          <div class="card-meta" *ngIf="m.nombre_docente">
+            <i class="ph ph-user"></i>
+            {{ m.nombre_docente }}
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <span class="card-fecha">
+            <i class="ph ph-calendar-blank"></i>
+            {{ formatearFecha(m.fecha_creacion) }}
+          </span>
+          <button class="btn-dl" (click)="descargar(m.url, m.titulo, m.tipo, $event)">
+            <i class="ph ph-download-simple"></i>
+            <span class="dl-text">Descargar</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PAGINACIÓN (igual al catálogo) ─────────────────────── -->
+    <div class="pagination-wrap" *ngIf="!cargando && totalPages > 1">
+      <div class="pagination">
+
+        <!-- Anterior -->
+        <button
+          class="pg-btn pg-nav"
+          [disabled]="currentPage === 1"
+          (click)="irAPagina(currentPage - 1)">
+          <i class="ph ph-caret-left"></i>
+        </button>
+
+        <!-- Primera página + ellipsis -->
+        <ng-container *ngIf="paginasVisibles[0] > 1">
+          <button class="pg-btn" (click)="irAPagina(1)">1</button>
+          <span class="pg-ellipsis" *ngIf="paginasVisibles[0] > 2">…</span>
+        </ng-container>
+
+        <!-- Páginas visibles -->
+        <button
+          class="pg-btn"
+          [class.pg-active]="p === currentPage"
+          *ngFor="let p of paginasVisibles"
+          (click)="irAPagina(p)">
+          {{ p }}
+        </button>
+
+        <!-- Ellipsis + última página -->
+        <ng-container *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPages">
+          <span class="pg-ellipsis" *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPages - 1">…</span>
+          <button class="pg-btn" (click)="irAPagina(totalPages)">{{ totalPages }}</button>
+        </ng-container>
+
+        <!-- Siguiente -->
+        <button
+          class="pg-btn pg-nav"
+          [disabled]="currentPage === totalPages"
+          (click)="irAPagina(currentPage + 1)">
+          <i class="ph ph-caret-right"></i>
+        </button>
+
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /materiales-page -->
+
+<!-- ── MODAL ─────────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="tipo-box" [ngClass]="getClaseTipo(materialSeleccionado?.tipo)">
+          <i [class]="'ph ' + getIconoTipo(materialSeleccionado?.tipo)"></i>
+        </div>
+        <div style="min-width:0;">
+          <div class="modal-titulo">{{ materialSeleccionado?.titulo }}</div>
+          <small>{{ materialSeleccionado?.nombre_docente }}</small>
+        </div>
+      </div>
+      <button class="modal-cerrar" (click)="cerrarModal()">
+        <i class="ph ph-x"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="layout-preview">
+
+        <!-- VISOR -->
+        <div class="preview-side">
+          <div class="preview-container" *ngIf="materialSeleccionado?.url">
+
+            <div *ngIf="['PDF','WORD','EXCEL','PPT'].includes(materialSeleccionado.tipo)"
+                 class="pdf-container">
+              <div class="pdf-toolbar">
+                <button (click)="descargar(materialSeleccionado.url, materialSeleccionado.titulo, materialSeleccionado.tipo, $event)">
+                  <i class="ph ph-download-simple"></i>
+                </button>
+                <button (click)="abrirEnNuevaPestana(materialSeleccionado.url)">
+                  <i class="ph ph-arrow-square-out"></i>
+                </button>
+              </div>
+              <div class="iframe-loading" *ngIf="iframeLoading">
+                <i class="ph ph-spinner"></i>
+                <p>Cargando documento...</p>
+              </div>
+              <ngx-doc-viewer
+                [url]="getViewerUrl(materialSeleccionado.url, materialSeleccionado.tipo)"
+                [viewer]="getViewerType(materialSeleccionado.tipo)"
+                style="width:100%; height:100%;"
+                (loaded)="iframeLoading = false">
+              </ngx-doc-viewer>
+            </div>
+
+            <video *ngIf="materialSeleccionado.tipo === 'VIDEO'"
+                   controls
+                   style="width:100%;height:100%;object-fit:contain;border-radius:12px;">
+              <source [src]="materialSeleccionado.url">
+            </video>
+
+            <div *ngIf="materialSeleccionado.tipo === 'IMAGEN'" class="image-wrapper">
+              <img [src]="materialSeleccionado.url"
+                   class="preview-img"
+                   [class.zoomed]="zoomActivo"
+                   (click)="toggleZoom()">
+            </div>
+
+            <div *ngIf="!['PDF','VIDEO','IMAGEN','WORD','EXCEL','PPT'].includes(materialSeleccionado.tipo)"
+                 class="no-preview-box">
+              <i class="ph ph-file-zip" style="font-size:3rem;"></i>
+              <p>Vista previa no disponible para este tipo de archivo</p>
+              <button class="btn-dl-modal"
+                (click)="descargar(materialSeleccionado.url, materialSeleccionado.titulo, materialSeleccionado.tipo, $event)">
+                <i class="ph ph-download-simple"></i> Descargar archivo
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- INFO LATERAL -->
+        <div class="info-side">
+          <div class="info-content">
+
+            <div class="detalle-item" *ngIf="materialSeleccionado?.nombre_docente">
+              <div class="detalle-label">Docente</div>
+              <div class="detalle-valor">{{ materialSeleccionado?.nombre_docente }}</div>
+            </div>
+
+            <div class="detalle-item" *ngIf="materialSeleccionado?.descripcion">
+              <div class="detalle-label">Descripción</div>
+              <div class="detalle-valor">{{ materialSeleccionado?.descripcion }}</div>
+            </div>
+
+            <div class="detalle-row" *ngIf="materialSeleccionado?.materias">
+              <span class="detalle-label">Materias</span>
+              <div class="detalle-tags">
+                <span class="tag tg-mat"
+                      *ngFor="let mat of materialSeleccionado?.materias?.split(',')">
+                  <i class="ph ph-book-open"></i>{{ mat.trim() }}
+                </span>
+              </div>
+            </div>
+
+            <div class="detalle-row" *ngIf="materialSeleccionado?.semestres">
+              <span class="detalle-label">Semestres</span>
+              <div class="detalle-tags">
+                <span class="tag tg-sem"
+                      *ngFor="let sem of materialSeleccionado?.semestres?.split(',')">
+                  <i class="ph ph-graduation-cap"></i>{{ sem.trim() }}
+                </span>
+              </div>
+            </div>
+
+            <div class="detalle-row">
+              <span class="detalle-label">Fecha</span>
+              <span class="detalle-valor">{{ formatearFecha(materialSeleccionado?.fecha_creacion) }}</span>
+            </div>
+
+            <div class="detalle-row">
+              <span class="detalle-label">Tipo</span>
+              <span class="badge-tipo" [ngClass]="getClaseTipo(materialSeleccionado?.tipo)">
+                <i [class]="'ph ' + getIconoTipo(materialSeleccionado?.tipo)"></i>
+                {{ materialSeleccionado?.tipo }}
+              </span>
+            </div>
+
+          </div>
+
+          <div class="info-actions">
+            <button class="btn-cancelar" (click)="cerrarModal()">Cerrar</button>
+            <button class="btn-dl-modal"
+              (click)="descargar(materialSeleccionado?.url, materialSeleccionado?.titulo, materialSeleccionado?.tipo, $event)">
+              <i class="ph ph-download-simple"></i>
+              Descargar
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -43,7 +43,10 @@ import { ActivateAccountComponent } from './auth/activate-account/activate-accou
 import { GestionMantenimientoComponent } from './pages/admin/gestion-maintenance/gestion-maintenance';
 import { PredictionComponent } from './pages/admin/prediction/prediction';
 import { GestionPeriodosComponent } from './pages/admin/gestion-periodos/gestion-periodos.component';
+import { MaterialesDocComponent } from './pages/materiales-doc/materiales-doc.component';
+import { MaterialesComponent } from './pages/materiales/materiales.component';
 import { GestionMateriasComponent } from './pages/admin/gestion-materias/gestion-materias.component';
+import { GestionMaterialesComponent } from './pages/admin/gestion-materiales/gestion-materiales.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -75,6 +78,9 @@ export const routes: Routes = [
   { path: 'my-purchases', component: MyPurchases, canActivate: [AuthGuard] },
   { path: 'my-loans', component: MyLoans, canActivate: [AuthGuard] },
   { path: 'biblioteca/libro/:id', component: VisorLibroComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador', 'Docente', 'Bibliotecario'] }},
+  { path: 'materiales', component: MaterialesComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante'] }},
+  { path: 'materiales-doc', component: MaterialesDocComponent, canActivate: [AuthGuard], data: { roles: ['Docente'] }},
+
 
   // Panel de administrador con rutas anidadas
   { path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'], hideNavbar: true},
@@ -96,6 +102,7 @@ export const routes: Routes = [
       { path: 'prediction', component: PredictionComponent},
       { path: 'periodos', component: GestionPeriodosComponent},
       { path: 'materias', component: GestionMateriasComponent},
+      { path: 'materiales', component: GestionMaterialesComponent },
     ]
   },
   
