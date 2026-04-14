@@ -46,6 +46,7 @@ import { GestionPeriodosComponent } from './pages/admin/gestion-periodos/gestion
 import { MaterialesDocComponent } from './pages/materiales-doc/materiales-doc.component';
 import { MaterialesComponent } from './pages/materiales/materiales.component';
 import { GestionMateriasComponent } from './pages/admin/gestion-materias/gestion-materias.component';
+import { GestionMaterialesComponent } from './pages/admin/gestion-materiales/gestion-materiales.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
