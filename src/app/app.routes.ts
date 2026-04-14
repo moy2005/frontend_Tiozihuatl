@@ -43,6 +43,8 @@ import { ActivateAccountComponent } from './auth/activate-account/activate-accou
 import { GestionMantenimientoComponent } from './pages/admin/gestion-maintenance/gestion-maintenance';
 import { PredictionComponent } from './pages/admin/prediction/prediction';
 import { GestionPeriodosComponent } from './pages/admin/gestion-periodos/gestion-periodos.component';
+import { MaterialesDocComponent } from './pages/materiales-doc/materiales-doc.component';
+import { MaterialesComponent } from './pages/materiales/materiales.component';
 import { GestionMateriasComponent } from './pages/admin/gestion-materias/gestion-materias.component';
 
 export const routes: Routes = [
@@ -77,7 +79,7 @@ export const routes: Routes = [
   { path: 'biblioteca/libro/:id', component: VisorLibroComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador', 'Docente', 'Bibliotecario'] }},
   { path: 'materiales', component: MaterialesComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante'] }},
   { path: 'materiales-doc', component: MaterialesDocComponent, canActivate: [AuthGuard], data: { roles: ['Docente'] }},
-  { path: 'materiales/:id', component: MaterialesDetalleComponent, canActivate: [AuthGuard], data: {roles: ['Estudiante']}},
+
 
   // Panel de administrador con rutas anidadas
   { path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'], hideNavbar: true},
