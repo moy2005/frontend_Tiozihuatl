@@ -152,6 +152,15 @@
           <span>Biblioteca</span>
         </a>
 
+        <!-- Materiales -->
+        <ng-container *ngIf="userRole === 'Estudiante'">
+          <a routerLink="/materiales"
+            class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
+            <i class="ph ph-folder text-lg"></i>
+            <span>Materiales</span>
+          </a>
+        </ng-container>
+
          <!-- Tienda -->
         <a routerLink="/magazines"
            class="nav-link flex items-center gap-1 px-3 py-2 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition font-medium text-sm">
