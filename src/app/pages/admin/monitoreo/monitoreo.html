@@ -1,49 +1,16 @@
 <div class="mon-admin">
   <div style="max-width: 95%; margin: 0 auto;">
     <div class="mon-loading" *ngIf="loading">
-      <div class="mon-loading-card">
-        <div class="mon-loading-eyebrow">Monitor en sincronizacion</div>
-
-        <div class="mon-loading-head">
-          <div>
-            <div class="mon-loading-title">Cargando monitoreo</div>
-            <div class="mon-loading-subtitle">{{ loadingStatusText }}</div>
-          </div>
-          <div class="mon-loading-percent">{{ loadingProgress }}%</div>
-        </div>
-
-        <div class="mon-loading-runway-shell" [style.--mon-load-progress]="loadingProgress + '%'">
-          <div class="mon-loading-runway-intro">
-            <span class="mon-loading-progress-label">Sincronizando snapshot del monitor</span>
-            <span class="mon-loading-progress-meta">{{ loadingCompleted }}/{{ loadingTotal }} bloque(s)</span>
-          </div>
-
-          <div class="mon-loading-runway">
-            <div class="mon-loading-runway-fill" [style.width.%]="loadingProgress"></div>
-            <div class="mon-loading-runway-stage">
-              <div class="mon-loading-loader"></div>
-            </div>
-          </div>
-
-          <div class="mon-loading-scale">
-            <span>0%</span>
-            <span>50%</span>
-            <span>100%</span>
-          </div>
-        </div>
-
-        <div class="mon-loading-caption">{{ loadingCurrentLabel }}</div>
-
-        <div class="mon-loading-steps">
-          <div
-            class="mon-loading-step"
-            *ngFor="let step of loadingSteps"
-            [ngClass]="getLoadStepClass(step.status)"
-          >
-            <i [class]="getLoadStepIcon(step.status)"></i>
-            <span>{{ getLoadErrorLabel(step.source) }}</span>
-          </div>
-        </div>
+      <div
+        class="mon-loading-bar"
+        role="progressbar"
+        aria-label="Cargando monitoreo"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        [attr.aria-valuenow]="loadingProgress"
+      >
+        <div class="mon-loading-bar-fill" [style.width.%]="loadingProgress"></div>
+        <div class="mon-loading-bar-text">{{ loadingProgress }}%</div>
       </div>
     </div>
 
