@@ -76,6 +76,7 @@ export class MonitoreoComponent implements OnInit {
     maximumFractionDigits: 2,
   });
   private loadSubscription: Subscription | null = null;
+  private loadingHideTimer: ReturnType<typeof setTimeout> | null = null;
   private loadingProgressTimer: ReturnType<typeof setInterval> | null = null;
   private chartRenderTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly charts: Partial<Record<MonitoringChartKey, Chart>> = {};
@@ -94,6 +95,10 @@ export class MonitoreoComponent implements OnInit {
   loadingActiveSource: MonitoringSnapshotSource | null = null;
   loadingSteps: MonitoringLoadStep[] = [];
   loadErrors: MonitoringLoadError[] = [];
+  private loadingStartedAt = 0;
+  private loadingRequestActive = false;
+  private loadingFinishPending = false;
+  private loadingReportedProgress = 0;
 
   readonly tabs: ReadonlyArray<{ id: MonitoringTab; label: string; icon: string }> = [
     { id: 'overview', label: 'Resumen', icon: 'pulse' },
@@ -150,8 +155,15 @@ export class MonitoreoComponent implements OnInit {
   ngOnInit(): void {
     this.destroyRef.onDestroy(() => {
       this.loadSubscription?.unsubscribe();
-      this.stopLoadingProgressAnimation();
       this.destroyAllCharts();
+
+      if (this.loadingHideTimer) {
+        clearTimeout(this.loadingHideTimer);
+      }
+
+      if (this.loadingProgressTimer) {
+        clearInterval(this.loadingProgressTimer);
+      }
 
       if (this.chartRenderTimer) {
         clearTimeout(this.chartRenderTimer);
@@ -776,14 +788,20 @@ export class MonitoreoComponent implements OnInit {
     const initialSteps = this.createPendingLoadSteps();
 
     this.loadSubscription?.unsubscribe();
-    this.startLoadingProgressAnimation();
     this.destroyAllCharts();
+    this.clearLoadingHideTimer();
     this.loading = true;
+    this.loadingProgress = 0;
+    this.loadingStartedAt = Date.now();
+    this.loadingRequestActive = true;
+    this.loadingFinishPending = false;
+    this.loadingReportedProgress = 0;
     this.loadingCompleted = 0;
     this.loadingTotal = initialSteps.length;
     this.loadingActiveSource = null;
     this.loadingSteps = initialSteps;
     this.loadErrors = [];
+    this.startLoadingProgressLoop();
     this.cdr.markForCheck();
 
     this.loadSubscription = this.monitoringService
@@ -791,27 +809,28 @@ export class MonitoreoComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (state) => {
+          this.loadingReportedProgress = Math.max(0, Math.min(100, Math.round(state.progress)));
           this.loadingCompleted = state.completed;
           this.loadingTotal = state.total;
           this.loadingActiveSource = state.activeSource;
           this.loadingSteps = state.steps;
 
           if (!state.loading) {
-            this.finishLoadingProgressAnimation();
             if (state.snapshot) {
               this.applySnapshot(state.snapshot);
             }
-            this.loading = false;
-            this.queueChartRender();
+            this.loadingRequestActive = false;
+            this.loadingFinishPending = true;
           }
 
           this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('[Monitoring] Error loading snapshot', error);
-          this.finishLoadingProgressAnimation();
           this.resetState();
-          this.loading = false;
+          this.loadingRequestActive = false;
+          this.loadingFinishPending = true;
+          this.loadingReportedProgress = 100;
           this.loadErrors = [
             {
               source: 'snapshot',
@@ -928,35 +947,66 @@ export class MonitoreoComponent implements OnInit {
     }));
   }
 
-  private startLoadingProgressAnimation(): void {
-    this.stopLoadingProgressAnimation();
-    this.loadingProgress = 4;
+  private startLoadingProgressLoop(): void {
+    this.stopLoadingProgressLoop();
 
     this.loadingProgressTimer = setInterval(() => {
-      const cap = 92;
-      const step =
-        this.loadingProgress < 30
-          ? 7
-          : this.loadingProgress < 55
-            ? 4
-            : this.loadingProgress < 78
-              ? 2
-              : 1;
+      const nextProgress = this.calculateNextLoadingProgress();
 
-      this.loadingProgress = Math.min(cap, this.loadingProgress + step);
-      this.cdr.markForCheck();
-    }, 180);
+      if (nextProgress !== this.loadingProgress) {
+        this.loadingProgress = nextProgress;
+        this.cdr.markForCheck();
+      }
+
+      if (this.loadingFinishPending && this.loadingProgress >= 100) {
+        this.stopLoadingProgressLoop();
+        this.clearLoadingHideTimer();
+        this.loadingHideTimer = setTimeout(() => {
+          this.loading = false;
+          this.loadingFinishPending = false;
+          this.queueChartRender();
+          this.cdr.markForCheck();
+        }, 120);
+      }
+    }, 70);
   }
 
-  private finishLoadingProgressAnimation(): void {
-    this.stopLoadingProgressAnimation();
-    this.loadingProgress = 100;
-  }
-
-  private stopLoadingProgressAnimation(): void {
+  private stopLoadingProgressLoop(): void {
     if (this.loadingProgressTimer) {
       clearInterval(this.loadingProgressTimer);
       this.loadingProgressTimer = null;
+    }
+  }
+
+  private calculateNextLoadingProgress(): number {
+    const baseTarget = this.loadingRequestActive
+      ? this.getLoadingPendingTarget()
+      : 100;
+
+    const target = Math.max(baseTarget, this.loadingReportedProgress);
+    const difference = target - this.loadingProgress;
+
+    if (difference <= 0) {
+      return this.loadingProgress;
+    }
+
+    if (!this.loadingRequestActive) {
+      return Math.min(100, this.loadingProgress + Math.max(2, Math.ceil(difference * 0.34)));
+    }
+
+    return Math.min(target, this.loadingProgress + Math.max(1, Math.ceil(difference * 0.18)));
+  }
+
+  private getLoadingPendingTarget(): number {
+    const elapsed = Math.max(0, Date.now() - this.loadingStartedAt);
+    const curve = 8 + (1 - Math.exp(-elapsed / 1800)) * 84;
+    return Math.min(92, Math.round(curve));
+  }
+
+  private clearLoadingHideTimer(): void {
+    if (this.loadingHideTimer) {
+      clearTimeout(this.loadingHideTimer);
+      this.loadingHideTimer = null;
     }
   }
 
