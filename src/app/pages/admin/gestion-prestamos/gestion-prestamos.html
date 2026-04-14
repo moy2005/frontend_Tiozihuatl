@@ -1,290 +1,722 @@
-<div class="admin-content">
-  <div class="max-w-[95%] mx-auto">
-
-    <!-- Header -->
-    <div class="header-section mb-6">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 class="page-title">
-          <ion-icon name="library-outline"></ion-icon>
-          Gestión de Préstamos
-        </h2>
-      </div>
+<section class="prestamos-admin">
+  <div class="header-principal">
+    <div class="header-copy">
+      <h2 class="titulo-principal">
+        <i class="ph ph-arrows-left-right"></i>
+        Gestion de prestamos
+      </h2>
+      <p class="subtitulo-principal">
+        Registra y da seguimiento a los prestamos de libros para estudiantes.
+      </p>
     </div>
 
-    <!-- Filtros -->
-    <div class="filtros-bar">
-      <div class="filtro-busqueda">
-        <ion-icon name="search-outline"></ion-icon>
-        <input
-          type="text"
-          placeholder="Buscar por estudiante o libro..."
-          [(ngModel)]="filtroBusqueda"
-          (input)="aplicarFiltros()">
+    <button class="btn-nuevo" type="button" (click)="abrirModalCrear()">
+      <i class="ph ph-plus-circle"></i>
+      Nuevo prestamo
+    </button>
+  </div>
+
+  <div class="filtros-section">
+    <div class="filtros-header">
+      <div class="filtros-title-block">
+        <div class="filtros-title-line">
+          <i class="ph ph-funnel"></i>
+          <span>Filtrar prestamos</span>
+        </div>
+        <p class="filtros-subtitle">
+          Usa los filtros para encontrar rapido un prestamo por estudiante, libro, estado o
+          datos escolares.
+        </p>
       </div>
 
-      <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
-        <option value="">Todos los estados</option>
-        <option value="Activo">Activo</option>
-        <option value="Devuelto">Devuelto</option>
-        <option value="Vencido">Vencido</option>
-        <option value="Cancelado">Cancelado</option>
-      </select>
-
-      <select [(ngModel)]="filtroOrden" (change)="aplicarFiltros()">
-        <option value="DESC">Más recientes primero</option>
-        <option value="ASC">Más antiguos primero</option>
-      </select>
-
-      <button class="btn-refresh" (click)="cargarPrestamos()">
-        <ion-icon name="refresh-outline"></ion-icon>
-        Actualizar
+      <button class="btn-limpiar" type="button" (click)="limpiarFiltros()" [disabled]="!hayFiltrosActivos">
+        Limpiar
       </button>
     </div>
 
-    <!-- Loading State -->
-    <div *ngIf="cargando" class="content-card text-center py-12">
-      <div class="loading-spinner inline-block"></div>
-      <p class="mt-4 text-gray-600 font-medium">Cargando préstamos...</p>
+    <div class="filtros-grid">
+      <div class="filtro-item filtro-item-busqueda">
+        <label class="filtro-label" for="filtroBusquedaPrestamo">
+          <i class="ph ph-magnifying-glass"></i>
+          Buscar
+        </label>
+        <input
+          id="filtroBusquedaPrestamo"
+          type="text"
+          class="filtro-input buscar-input"
+          [(ngModel)]="filtros.busqueda"
+          (input)="aplicarFiltros()"
+          placeholder="Escribe nombre del estudiante, matricula o libro"
+        />
+      </div>
+
+      <div class="filtro-item">
+        <label class="filtro-label" for="filtroEstadoPrestamo">
+          <i class="ph ph-flag"></i>
+          Estado
+        </label>
+        <select id="filtroEstadoPrestamo" class="filtro-select" [(ngModel)]="filtros.estado" (change)="aplicarFiltros()">
+          <option value="">Todos los estados</option>
+          <option *ngFor="let estado of estadosFiltro" [value]="estado">{{ estado }}</option>
+        </select>
+      </div>
+
+      <div class="filtro-item">
+        <label class="filtro-label" for="filtroCarreraPrestamo">
+          <i class="ph ph-graduation-cap"></i>
+          Carrera
+        </label>
+        <select id="filtroCarreraPrestamo" class="filtro-select" [(ngModel)]="filtros.carrera" (change)="aplicarFiltros()">
+          <option value="">Todas las carreras</option>
+          <option *ngFor="let carrera of opcionesCarrera" [value]="carrera">{{ carrera }}</option>
+        </select>
+      </div>
+
+      <div class="filtro-item">
+        <label class="filtro-label" for="filtroSemestrePrestamo">
+          <i class="ph ph-number-square-eight"></i>
+          Semestre
+        </label>
+        <select id="filtroSemestrePrestamo" class="filtro-select" [(ngModel)]="filtros.semestre" (change)="aplicarFiltros()">
+          <option value="">Todos los semestres</option>
+          <option *ngFor="let semestre of opcionesSemestre" [value]="semestre">{{ semestre }}</option>
+        </select>
+      </div>
+
+      <div class="filtro-item">
+        <label class="filtro-label" for="filtroGrupoPrestamo">
+          <i class="ph ph-users-three"></i>
+          Grupo
+        </label>
+        <select id="filtroGrupoPrestamo" class="filtro-select" [(ngModel)]="filtros.grupo" (change)="aplicarFiltros()">
+          <option value="">Todos los grupos</option>
+          <option *ngFor="let grupo of opcionesGrupo" [value]="grupo">{{ grupo }}</option>
+        </select>
+      </div>
+
+      <div class="filtro-item">
+        <label class="filtro-label" for="filtroOrdenPrestamo">
+          <i class="ph ph-sort-descending"></i>
+          Orden
+        </label>
+        <select id="filtroOrdenPrestamo" class="filtro-select" [(ngModel)]="filtros.orden" (change)="aplicarFiltros()">
+          <option value="DESC">Mas recientes primero</option>
+          <option value="ASC">Mas antiguos primero</option>
+        </select>
+      </div>
     </div>
 
-    <!-- Loans Table -->
-    <div *ngIf="!cargando" class="content-card overflow-hidden">
-
-      <!-- Desktop Table View -->
-      <div class="hidden lg:block overflow-x-auto">
-        <table class="min-w-full">
-          <thead class="table-header">
-            <tr>
-              <th class="th-cell"><ion-icon name="key-outline"></ion-icon> #</th>
-              <th class="th-cell"><ion-icon name="person-outline"></ion-icon> Estudiante</th>
-              <th class="th-cell"><ion-icon name="book-outline"></ion-icon> Libro</th>
-              <th class="th-cell"><ion-icon name="calendar-outline"></ion-icon> Fecha Préstamo</th>
-              <th class="th-cell"><ion-icon name="time-outline"></ion-icon> Vencimiento</th>
-              <th class="th-cell"><ion-icon name="checkmark-circle-outline"></ion-icon> Devolución</th>
-              <th class="th-cell"><ion-icon name="ellipse-outline"></ion-icon> Estado</th>
-              <th class="th-cell text-center"><ion-icon name="settings-outline"></ion-icon> Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let p of prestamosVisibles" class="table-row">
-              <td class="td-cell font-medium text-gray-900">{{ p.id_prestamo }}</td>
-              <td class="td-cell text-gray-600">{{ p.nombre }}</td>
-              <td class="td-cell font-medium text-gray-900">{{ p.titulo }}</td>
-              <td class="td-cell text-gray-600">{{ p.fecha_prestamo | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td class="td-cell text-gray-600">{{ p.fecha_vencimiento | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td class="td-cell text-gray-600">
-                <span *ngIf="p.fecha_devolucion">{{ p.fecha_devolucion | date:'dd/MM/yyyy HH:mm' }}</span>
-                <span *ngIf="!p.fecha_devolucion" class="sin-devolucion">—</span>
-              </td>
-              <td class="td-cell">
-                <span
-                  class="badge-estado"
-                  [ngClass]="{
-                    'badge-activo':    p.estado === 'Activo',
-                    'badge-devuelto':  p.estado === 'Devuelto',
-                    'badge-vencido':   p.estado === 'Vencido',
-                    'badge-cancelado': p.estado === 'Cancelado'
-                  }">
-                  {{ p.estado }}
-                </span>
-              </td>
-              <td class="td-cell">
-                <div class="flex justify-center gap-2">
-                  <!-- Devolver -->
-                  <button
-                    *ngIf="esAccionable(p.estado)"
-                    (click)="devolver(p)"
-                    class="btn-icon btn-icon-success"
-                    title="Marcar como devuelto">
-                    <ion-icon name="checkmark-outline"></ion-icon>
-                  </button>
-
-                  <!-- Cancelar -->
-                  <button
-                    *ngIf="esAccionable(p.estado)"
-                    (click)="cancelar(p)"
-                    class="btn-icon btn-icon-danger"
-                    title="Cancelar préstamo">
-                    <ion-icon name="close-outline"></ion-icon>
-                  </button>
-
-                  <!-- Vencido -->
-                  <button
-                    *ngIf="esAccionable(p.estado)"
-                    (click)="marcarVencido(p)"
-                    class="btn-icon btn-icon-warning"
-                    title="Marcar como vencido">
-                    <ion-icon name="alert-outline"></ion-icon>
-                  </button>
-
-                  <!-- Observaciones -->
-                  <button
-                    (click)="abrirObservaciones(p)"
-                    class="btn-icon btn-icon-primary"
-                    title="Editar observaciones">
-                    <ion-icon name="create-outline"></ion-icon>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- Sin resultados -->
-            <tr *ngIf="prestamosVisibles.length === 0">
-              <td colspan="8" class="td-cell">
-                <div class="sin-resultados">
-                  <ion-icon name="search-outline"></ion-icon>
-                  No se encontraron préstamos
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Mobile/Tablet Card View -->
-      <div class="lg:hidden p-4 space-y-4">
-        <div *ngFor="let p of prestamosVisibles" class="prestamo-card">
-
-          <!-- Card Header -->
-          <div class="card-header">
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-semibold text-gray-500">ID: {{ p.id_prestamo }}</span>
-                <span
-                  class="badge-estado"
-                  [ngClass]="{
-                    'badge-activo':    p.estado === 'Activo',
-                    'badge-devuelto':  p.estado === 'Devuelto',
-                    'badge-vencido':   p.estado === 'Vencido',
-                    'badge-cancelado': p.estado === 'Cancelado'
-                  }">
-                  {{ p.estado }}
-                </span>
-              </div>
-              <p class="card-nombre">{{ p.nombre }}</p>
-              <p class="card-titulo">{{ p.titulo }}</p>
-            </div>
-          </div>
-
-          <!-- Card Dates -->
-          <div class="card-fechas">
-            <span>
-              <ion-icon name="calendar-outline" class="text-blue-500"></ion-icon>
-              Préstamo: {{ p.fecha_prestamo | date:'dd/MM/yyyy HH:mm' }}
-            </span>
-            <span>
-              <ion-icon name="time-outline" class="text-red-500"></ion-icon>
-              Vence: {{ p.fecha_vencimiento | date:'dd/MM/yyyy HH:mm' }}
-            </span>
-            <span *ngIf="p.fecha_devolucion">
-              <ion-icon name="checkmark-circle-outline" class="text-blue-500"></ion-icon>
-              Devuelto: {{ p.fecha_devolucion | date:'dd/MM/yyyy HH:mm' }}
-            </span>
-          </div>
-
-          <!-- Actions -->
-          <div class="card-acciones">
-            <button
-              *ngIf="esAccionable(p.estado)"
-              (click)="devolver(p)"
-              class="btn-icon-mobile btn-icon-success flex-1">
-              <ion-icon name="checkmark-outline"></ion-icon>
-              <span>Devolver</span>
-            </button>
-
-            <button
-              *ngIf="esAccionable(p.estado)"
-              (click)="cancelar(p)"
-              class="btn-icon-mobile btn-icon-danger flex-1">
-              <ion-icon name="close-outline"></ion-icon>
-              <span>Cancelar</span>
-            </button>
-
-            <button
-              *ngIf="esAccionable(p.estado)"
-              (click)="marcarVencido(p)"
-              class="btn-icon-mobile btn-icon-warning flex-1">
-              <ion-icon name="alert-outline"></ion-icon>
-              <span>Vencido</span>
-            </button>
-
-            <button
-              (click)="abrirObservaciones(p)"
-              class="btn-icon-mobile btn-icon-primary flex-1">
-              <ion-icon name="create-outline"></ion-icon>
-              <span>Notas</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Sin resultados móvil -->
-        <div *ngIf="prestamosVisibles.length === 0" class="sin-resultados">
-          <ion-icon name="search-outline"></ion-icon>
-          No se encontraron préstamos
-        </div>
-      </div>
-
+    <div class="filtros-footer">
+      <span><strong>{{ prestamosFiltrados.length }}</strong> resultado(s)</span>
+      <span>Puedes combinar estado, carrera, semestre, grupo y orden para encontrar mas rapido.</span>
     </div>
   </div>
 
-  <!-- Modal Observaciones -->
-  <div *ngIf="modalObservaciones" class="modal-overlay" (click)="cerrarObservaciones()">
-    <div class="modal-container" (click)="$event.stopPropagation()">
+  <div class="tabla-toolbar">
+    <div class="toolbar-copy">
+      <p class="toolbar-title">Mostrando {{ prestamosFiltrados.length }} prestamo(s)</p>
+      <div class="toolbar-resumen">
+        <span>Activos: {{ totalActivos }}</span>
+        <span>Vencidos: {{ totalVencidos }}</span>
+        <span>Devueltos: {{ totalDevueltos }}</span>
+        <span>Hoy: {{ prestamosHoy }}</span>
+      </div>
+      <p class="toolbar-note">
+        La fecha del prestamo se registra sola y el vencimiento siempre queda el mismo dia a las 16:00.
+      </p>
+    </div>
 
-      <!-- Modal Header -->
+    <div class="toolbar-actions">
+      <label class="page-size">
+        <span>Mostrar</span>
+        <select [(ngModel)]="itemsPorPagina" (change)="cambiarItemsPorPagina()">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="15">15</option>
+          <option [ngValue]="20">20</option>
+          <option [ngValue]="30">30</option>
+        </select>
+        <span>por pagina</span>
+      </label>
+
+      <button class="btn-actualizar" type="button" (click)="cargarPrestamos()">
+        <i class="ph ph-arrows-clockwise"></i>
+        Actualizar tabla
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="cargando" class="loading-wrapper">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Cargando prestamos...</p>
+  </div>
+
+  <div *ngIf="!cargando && prestamosFiltrados.length === 0" class="empty-wrapper">
+    <i class="ph ph-folder-open"></i>
+    <p>No se encontraron prestamos con los filtros seleccionados.</p>
+  </div>
+
+  <div *ngIf="!cargando && prestamosFiltrados.length > 0" class="tabla-wrapper">
+    <div class="tabla-scroll">
+      <table class="tabla-prestamos">
+        <thead>
+          <tr>
+            <th>ESTUDIANTE</th>
+            <th>LIBRO</th>
+            <th>REGISTRADO</th>
+            <th>VENCE</th>
+            <th>ESTADO</th>
+            <th style="text-align:center;">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let prestamo of prestamosPaginados">
+            <td>
+              <div class="cell-title">{{ prestamo.nombre_estudiante }}</div>
+              <div class="cell-subtitle">Matricula: {{ prestamo.matricula || 'Sin matricula' }}</div>
+            </td>
+
+            <td>
+              <div class="cell-title">{{ prestamo.titulo }}</div>
+              <div class="cell-subtitle">{{ prestamo.autores || 'Autor no disponible' }}</div>
+            </td>
+
+            <td>
+              <div class="cell-title">{{ formatFecha(prestamo.fecha_prestamo) }}</div>
+            </td>
+
+            <td>
+              <div class="cell-title">{{ formatFecha(prestamo.fecha_vencimiento) }}</div>
+            </td>
+
+            <td>
+              <span class="badge" [ngClass]="getBadgeClass(prestamo.estado)">
+                {{ prestamo.estado }}
+              </span>
+            </td>
+
+            <td>
+              <div class="acciones-cell">
+                <button
+                  class="btn-icon btn-icon-info"
+                  type="button"
+                  title="Ver detalles"
+                  (click)="abrirModalDetalles(prestamo)"
+                >
+                  <i class="ph ph-eye"></i>
+                </button>
+
+                <button
+                  *ngIf="puedeEditar(prestamo)"
+                  class="btn-icon btn-icon-primary"
+                  type="button"
+                  title="Editar prestamo"
+                  (click)="abrirModalEditar(prestamo)"
+                >
+                  <i class="ph ph-pencil-simple"></i>
+                </button>
+
+                <button
+                  *ngIf="esPendiente(prestamo)"
+                  class="btn-icon btn-icon-success"
+                  type="button"
+                  title="Marcar devolucion"
+                  (click)="confirmarAccion(prestamo, 'devolver')"
+                >
+                  <i class="ph ph-check-circle"></i>
+                </button>
+
+                <button
+                  *ngIf="prestamo.estado === 'Activo'"
+                  class="btn-icon btn-icon-danger"
+                  type="button"
+                  title="Cancelar prestamo"
+                  (click)="confirmarAccion(prestamo, 'cancelar')"
+                >
+                  <i class="ph ph-x-circle"></i>
+                </button>
+
+                <button
+                  *ngIf="prestamo.estado === 'Activo'"
+                  class="btn-icon btn-icon-warning"
+                  type="button"
+                  title="Marcar vencido"
+                  (click)="confirmarAccion(prestamo, 'vencido')"
+                >
+                  <i class="ph ph-warning-circle"></i>
+                </button>
+
+                <button
+                  *ngIf="puedeActivar(prestamo)"
+                  class="btn-icon btn-icon-primary"
+                  type="button"
+                  title="Activar prestamo"
+                  (click)="confirmarAccion(prestamo, 'activar')"
+                >
+                  <i class="ph ph-play-circle"></i>
+                </button>
+
+                <button
+                  class="btn-icon btn-icon-danger"
+                  type="button"
+                  title="Eliminar registro"
+                  (click)="confirmarEliminacion(prestamo)"
+                >
+                  <i class="ph ph-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="!cargando && prestamosFiltrados.length > 0" class="pagination-bar">
+    <p>
+      Mostrando
+      <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
+      a
+      <strong>{{ Math.min(paginaActual * itemsPorPagina, prestamosFiltrados.length) }}</strong>
+      de
+      <strong>{{ prestamosFiltrados.length }}</strong>
+      prestamos
+    </p>
+
+    <div class="pagination-controls">
+      <button type="button" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
+        Anterior
+      </button>
+
+      <button
+        *ngFor="let pagina of paginasVisibles"
+        type="button"
+        [class.active]="pagina === paginaActual"
+        [disabled]="pagina === '...'"
+        (click)="irAPagina(pagina)"
+      >
+        {{ pagina }}
+      </button>
+
+      <button type="button" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
+        Siguiente
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="mostrarModalPrestamo" class="modal-overlay" (click)="cerrarModalPrestamo()">
+    <div class="modal-container modal-prestamo" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3 class="modal-title">
-          <ion-icon name="create-outline"></ion-icon>
-          Observaciones
+          {{ modoPrestamo === 'crear' ? 'Nuevo prestamo' : 'Editar prestamo' }}
         </h3>
-        <button (click)="cerrarObservaciones()" class="btn-close" [disabled]="guardandoObs">
-          <ion-icon name="close-outline"></ion-icon>
+        <button class="btn-close" type="button" (click)="cerrarModalPrestamo()">
+          <i class="ph ph-x"></i>
         </button>
       </div>
 
-      <!-- Loading Overlay -->
-      <div *ngIf="guardandoObs" class="upload-loading-overlay">
-        <div class="upload-loading-content">
-          <div class="loading-spinner"></div>
-          <p class="mt-4 text-white font-semibold text-lg">Guardando observaciones...</p>
-          <p class="text-blue-200 text-sm">Por favor espere...</p>
+      <div class="modal-body">
+        <div class="modal-info-box">
+          <i class="ph ph-info"></i>
+          <div>
+            <p class="modal-info-title">Como funciona</p>
+            <p class="modal-info-text">{{ descripcionVentanaPrestamo }}</p>
+          </div>
+        </div>
+
+        <div class="selection-grid">
+          <div class="selection-card">
+            <div class="selection-title">Estudiante</div>
+
+            <div *ngIf="estudianteSeleccionado; else estudiantePendiente">
+              <div class="cell-title">{{ obtenerNombreCompleto(estudianteSeleccionado) }}</div>
+              <div class="cell-subtitle">Matricula: {{ estudianteSeleccionado.matricula || 'Sin matricula' }}</div>
+              <div class="cell-subtitle">
+                {{ estudianteSeleccionado.carrera || 'Sin carrera' }} -
+                {{ estudianteSeleccionado.semestre || 'Sin semestre' }}
+                <span *ngIf="estudianteSeleccionado.grupo"> - Grupo {{ estudianteSeleccionado.grupo }}</span>
+              </div>
+              <div class="tag-row">
+                <span class="tag-info">
+                  Pendientes: {{ obtenerPendientesEstudiante(estudianteSeleccionado.id_usuario) }}
+                </span>
+                <span
+                  *ngIf="obtenerVencidosEstudiante(estudianteSeleccionado.id_usuario) > 0"
+                  class="tag-info tag-warning"
+                >
+                  Vencidos: {{ obtenerVencidosEstudiante(estudianteSeleccionado.id_usuario) }}
+                </span>
+              </div>
+            </div>
+
+            <ng-template #estudiantePendiente>
+              <p class="helper-text">Aun no has elegido un estudiante.</p>
+            </ng-template>
+
+            <button class="btn-secondary-modal" type="button" (click)="abrirModalEstudiantes()">
+              {{ estudianteSeleccionado ? 'Cambiar estudiante' : 'Buscar estudiante' }}
+            </button>
+          </div>
+
+          <div class="selection-card">
+            <div class="selection-title">Libro</div>
+
+            <div *ngIf="libroSeleccionado; else libroPendiente">
+              <div class="cell-title">{{ libroSeleccionado.titulo }}</div>
+              <div class="cell-subtitle">{{ libroSeleccionado.autores || 'Autor no disponible' }}</div>
+              <div class="cell-subtitle">
+                {{ libroSeleccionado.editorial || 'Sin editorial' }} -
+                Disponibles {{ libroSeleccionado.disponibles ?? 0 }}/{{ libroSeleccionado.total ?? 0 }}
+              </div>
+            </div>
+
+            <ng-template #libroPendiente>
+              <p class="helper-text">Aun no has elegido un libro.</p>
+            </ng-template>
+
+            <button class="btn-secondary-modal" type="button" (click)="abrirModalLibros()">
+              {{ libroSeleccionado ? 'Cambiar libro' : 'Buscar libro' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>Nota</label>
+            <textarea
+              [(ngModel)]="formPrestamo.observaciones"
+              maxlength="400"
+              rows="5"
+              placeholder="Escribe una nota si necesitas dejar informacion del prestamo."
+            ></textarea>
+            <small>{{ formPrestamo.observaciones.length }}/400 caracteres</small>
+          </div>
         </div>
       </div>
 
-      <!-- Modal Body -->
-      <div class="modal-body">
-        <p class="obs-info">
-          <strong>{{ prestamoEditando?.nombre }}</strong> —
-          {{ prestamoEditando?.titulo }}
-        </p>
-        <textarea
-          [(ngModel)]="observacionesTexto"
-          placeholder="Escribe una observación..."
-          rows="5"
-          maxlength="400">
-        </textarea>
-        <small>{{ observacionesTexto.length }}/400 caracteres</small>
-      </div>
-
-      <!-- Modal Footer -->
       <div class="modal-footer">
-        <button
-          (click)="cerrarObservaciones()"
-          class="btn-secondary"
-          [disabled]="guardandoObs">
+        <button class="btn-secondary-modal" type="button" (click)="cerrarModalPrestamo()" [disabled]="guardandoPrestamo">
           Cancelar
         </button>
-
         <button
-          (click)="guardarObservaciones()"
-          class="btn-primary"
-          [disabled]="guardandoObs || !observacionesTexto.trim()">
-          <ion-icon *ngIf="!guardandoObs" name="save-outline"></ion-icon>
-          <span>{{ guardandoObs ? 'Guardando...' : 'Guardar' }}</span>
+          class="btn-primary-modal"
+          type="button"
+          (click)="guardarPrestamo()"
+          [disabled]="guardandoPrestamo || !formPrestamo.id_usuario || !formPrestamo.libro_id"
+        >
+          {{ guardandoPrestamo ? 'Guardando...' : (modoPrestamo === 'crear' ? 'Guardar prestamo' : 'Guardar cambios') }}
         </button>
       </div>
-
     </div>
   </div>
 
-</div>
+  <div *ngIf="mostrarModalDetalles && prestamoSeleccionado" class="modal-overlay" (click)="cerrarModalDetalles()">
+    <div class="modal-container modal-details" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Detalles del prestamo</h3>
+        <button class="btn-close" type="button" (click)="cerrarModalDetalles()">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">Estado</span>
+            <span class="detail-value">
+              <span class="badge" [ngClass]="getBadgeClass(prestamoSeleccionado.estado)">
+                {{ prestamoSeleccionado.estado }}
+              </span>
+            </span>
+          </div>
+
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Estudiante</span>
+            <span class="detail-value">{{ prestamoSeleccionado.nombre_estudiante }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Matricula</span>
+            <span class="detail-value">{{ prestamoSeleccionado.matricula || 'Sin matricula' }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Carrera</span>
+            <span class="detail-value">{{ prestamoSeleccionado.carrera || 'Sin carrera' }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Semestre</span>
+            <span class="detail-value">{{ prestamoSeleccionado.semestre || 'Sin semestre' }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Grupo</span>
+            <span class="detail-value">{{ prestamoSeleccionado.grupo || 'Sin grupo' }}</span>
+          </div>
+
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Libro</span>
+            <span class="detail-value">{{ prestamoSeleccionado.titulo }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Autor</span>
+            <span class="detail-value">{{ prestamoSeleccionado.autores || 'Autor no disponible' }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Editorial</span>
+            <span class="detail-value">{{ prestamoSeleccionado.editorial || 'Sin editorial' }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Disponibles</span>
+            <span class="detail-value">{{ prestamoSeleccionado.stock_disponible ?? 0 }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Total</span>
+            <span class="detail-value">{{ prestamoSeleccionado.stock_total ?? 0 }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Fecha de prestamo</span>
+            <span class="detail-value">{{ formatFecha(prestamoSeleccionado.fecha_prestamo) }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Fecha de vencimiento</span>
+            <span class="detail-value">{{ formatFecha(prestamoSeleccionado.fecha_vencimiento) }}</span>
+          </div>
+
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Fecha de devolucion</span>
+            <span class="detail-value">
+              {{ prestamoSeleccionado.fecha_devolucion ? formatFecha(prestamoSeleccionado.fecha_devolucion) : 'Pendiente' }}
+            </span>
+          </div>
+
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Nota</span>
+            <span class="detail-value">{{ prestamoSeleccionado.observaciones || 'Sin nota' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary-modal" type="button" (click)="cerrarModalDetalles()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="mostrarModalEstudiantes" class="modal-overlay" (click)="cerrarModalEstudiantes()">
+    <div class="modal-container modal-selector" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Buscar estudiante</h3>
+        <button class="btn-close" type="button" (click)="cerrarModalEstudiantes()">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="periodosActivos.length === 0" class="warning-box">
+          <i class="ph ph-warning-circle"></i>
+          <span>No hay un periodo activo configurado. Puedes buscar estudiantes de cualquier periodo.</span>
+        </div>
+
+        <div class="selector-filters">
+          <input
+            type="text"
+            class="filtro-input buscar-input"
+            [(ngModel)]="filtrosEstudiantes.busqueda"
+            (input)="aplicarFiltroEstudiantesLocal()"
+            placeholder="Buscar por nombre, matricula o carrera"
+          />
+
+          <select class="filtro-select" [(ngModel)]="filtrosEstudiantes.id_periodo" (change)="onPeriodoEstudiantesChange()">
+            <option value="">Todos los periodos</option>
+            <option *ngFor="let periodo of periodos" [value]="periodo.id_periodo">{{ periodo.nombre }}</option>
+          </select>
+
+          <select class="filtro-select" [(ngModel)]="filtrosEstudiantes.id_carrera" (change)="cargarEstudiantes()">
+            <option value="">Todas las carreras</option>
+            <option *ngFor="let carrera of carreras" [value]="carrera.id_carrera">
+              {{ carrera.nombre_carrera }}
+            </option>
+          </select>
+
+          <select class="filtro-select" [(ngModel)]="filtrosEstudiantes.id_semestre" (change)="cargarEstudiantes()">
+            <option value="">Todos los semestres</option>
+            <option *ngFor="let semestre of semestresPeriodo" [value]="semestre.id_semestre">
+              {{ semestre.nombre_semestre }}
+            </option>
+          </select>
+
+          <select class="filtro-select" [(ngModel)]="filtrosEstudiantes.grupo" (change)="cargarEstudiantes()">
+            <option value="">Todos los grupos</option>
+            <option *ngFor="let grupo of gruposPeriodo" [value]="grupo">{{ grupo }}</option>
+          </select>
+
+          <button class="btn-limpiar" type="button" (click)="limpiarFiltrosEstudiantes()">
+            Limpiar
+          </button>
+        </div>
+
+        <div class="selector-toolbar">
+          <p>Solo se muestran estudiantes.</p>
+          <button class="btn-secondary-modal" type="button" (click)="cargarEstudiantes()">
+            Actualizar lista
+          </button>
+        </div>
+
+        <div *ngIf="cargandoEstudiantes" class="loading-inline">
+          <div class="loading-spinner spinner-small"></div>
+          <span>Cargando estudiantes...</span>
+        </div>
+
+        <div *ngIf="!cargandoEstudiantes && estudiantesVisibles.length === 0" class="selector-empty">
+          No hay estudiantes con los filtros seleccionados.
+        </div>
+
+        <div *ngIf="!cargandoEstudiantes && estudiantesVisibles.length > 0" class="selector-table">
+          <div class="selector-head">
+            <div>Estudiante</div>
+            <div>Datos escolares</div>
+            <div>Prestamos</div>
+            <div class="text-center">Accion</div>
+          </div>
+
+          <div class="selector-row" *ngFor="let estudiante of estudiantesVisibles">
+            <div>
+              <div class="cell-title">{{ obtenerNombreCompleto(estudiante) }}</div>
+              <div class="cell-subtitle">Matricula: {{ estudiante.matricula || 'Sin matricula' }}</div>
+            </div>
+
+            <div>
+              <div class="cell-subtitle">{{ estudiante.carrera || 'Sin carrera' }}</div>
+              <div class="cell-subtitle">
+                {{ estudiante.semestre || 'Sin semestre' }}
+                <span *ngIf="estudiante.grupo"> - Grupo {{ estudiante.grupo }}</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="cell-subtitle">Pendientes: {{ obtenerPendientesEstudiante(estudiante.id_usuario) }}</div>
+              <div class="cell-subtitle">Vencidos: {{ obtenerVencidosEstudiante(estudiante.id_usuario) }}</div>
+            </div>
+
+            <div class="text-center">
+              <button
+                class="btn-primary-modal btn-small"
+                type="button"
+                (click)="seleccionarEstudiante(estudiante)"
+                [disabled]="!puedeSeleccionarEstudiante(estudiante)"
+              >
+                {{ puedeSeleccionarEstudiante(estudiante) ? 'Seleccionar' : 'Limite alcanzado' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="mostrarModalLibros" class="modal-overlay" (click)="cerrarModalLibros()">
+    <div class="modal-container modal-selector" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Buscar libro</h3>
+        <button class="btn-close" type="button" (click)="cerrarModalLibros()">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="selector-filters selector-filters-books">
+          <input
+            type="text"
+            class="filtro-input buscar-input"
+            [(ngModel)]="filtrosLibros.busqueda"
+            (input)="aplicarFiltroLibrosLocal()"
+            placeholder="Buscar por titulo, autor o editorial"
+          />
+
+          <select class="filtro-select" [(ngModel)]="filtrosLibros.materia" (change)="cargarLibros()">
+            <option value="">Todas las materias</option>
+            <option *ngFor="let materia of materias" [value]="materia.nombre">{{ materia.nombre }}</option>
+          </select>
+
+          <select class="filtro-select" [(ngModel)]="filtrosLibros.semestre" (change)="cargarLibros()">
+            <option value="">Todos los semestres</option>
+            <option *ngFor="let semestre of semestres" [value]="semestre.id_semestre">
+              {{ semestre.nombre_semestre }}
+            </option>
+          </select>
+
+          <select class="filtro-select" [(ngModel)]="filtrosLibros.disponibilidad" (change)="aplicarFiltroLibrosLocal()">
+            <option value="disponibles">Solo disponibles</option>
+            <option value="todos">Todos</option>
+          </select>
+
+          <button class="btn-limpiar" type="button" (click)="limpiarFiltrosLibros()">
+            Limpiar
+          </button>
+        </div>
+
+        <div class="selector-toolbar">
+          <p>Solo se muestran libros fisicos.</p>
+          <button class="btn-secondary-modal" type="button" (click)="cargarLibros()">
+            Actualizar lista
+          </button>
+        </div>
+
+        <div *ngIf="cargandoLibros" class="loading-inline">
+          <div class="loading-spinner spinner-small"></div>
+          <span>Cargando libros...</span>
+        </div>
+
+        <div *ngIf="!cargandoLibros && librosVisibles.length === 0" class="selector-empty">
+          No hay libros con los filtros seleccionados.
+        </div>
+
+        <div *ngIf="!cargandoLibros && librosVisibles.length > 0" class="selector-table">
+          <div class="selector-head selector-head-books">
+            <div>Libro</div>
+            <div>Detalles</div>
+            <div>Disponibilidad</div>
+            <div class="text-center">Accion</div>
+          </div>
+
+          <div class="selector-row selector-row-books" *ngFor="let libro of librosVisibles">
+            <div>
+              <div class="cell-title">{{ libro.titulo }}</div>
+              <div class="cell-subtitle">{{ libro.autores || 'Autor no disponible' }}</div>
+            </div>
+
+            <div>
+              <div class="cell-subtitle">{{ libro.editorial || 'Sin editorial' }}</div>
+              <div class="cell-subtitle">{{ libro.materias || 'Sin materia' }}</div>
+            </div>
+
+            <div>
+              <div class="cell-subtitle">Disponibles: {{ libro.disponibles ?? 0 }}</div>
+              <div class="cell-subtitle">Total: {{ libro.total ?? 0 }}</div>
+            </div>
+
+            <div class="text-center">
+              <button
+                class="btn-primary-modal btn-small"
+                type="button"
+                (click)="seleccionarLibro(libro)"
+                [disabled]="!puedeSeleccionarLibro(libro) && libro.id !== formPrestamo.libro_id"
+              >
+                {{ (puedeSeleccionarLibro(libro) || libro.id === formPrestamo.libro_id) ? 'Seleccionar' : 'Sin stock' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
