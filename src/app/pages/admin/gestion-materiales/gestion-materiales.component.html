@@ -1,0 +1,293 @@
+<div class="gestion-materiales-page">
+    <div class="table-container">
+
+  <!-- HEADER -->
+  <div class="section-header">
+    <h2 class="section-title">Gestión de Materiales</h2>
+    <div class="section-actions">
+      <button class="btn-primary" (click)="mostrarModal = true">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        Nuevo Material
+      </button>
+    </div>
+  </div>
+
+  <!-- BÚSQUEDA -->
+  <div class="search-bar">
+    <div class="search-wrapper">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Buscar por título..."
+        [(ngModel)]="filters.search"
+        (input)="onSearch()">
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filtros-section">
+    <div class="filtros-header">
+      <div class="filtros-titulo">
+        <ion-icon name="funnel-outline"></ion-icon>
+        <span>Filtrar materiales</span>
+      </div>
+      <div class="filtros-acciones">
+        <button class="btn-limpiar-filtros" (click)="clearFilters()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+          Limpiar filtros
+        </button>
+        <button
+          class="btn-toggle-filtros"
+          [class.active]="filtrosExpandidos"
+          (click)="filtrosExpandidos = !filtrosExpandidos">
+          <ion-icon [name]="filtrosExpandidos ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+          {{ filtrosExpandidos ? 'Ocultar' : 'Mostrar' }} filtros
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="filtrosExpandidos" class="filtros-body">
+      <div class="filtros-grid">
+        <div class="filtro-item">
+          <label class="filtro-label">
+            <ion-icon name="book-outline"></ion-icon> Materia
+          </label>
+          <select [(ngModel)]="filters.materia" (change)="load()" class="filtro-select">
+            <option value="">Todas las materias</option>
+            <option *ngFor="let m of materias" [value]="m.id">{{ m.nombre }}</option>
+          </select>
+        </div>
+        <div class="filtro-item">
+          <label class="filtro-label">
+            <ion-icon name="layers-outline"></ion-icon> Semestre
+          </label>
+          <select [(ngModel)]="filters.semestre" (change)="load()" class="filtro-select">
+            <option value="">Todos los semestres</option>
+            <option *ngFor="let s of semestres" [value]="s.id_semestre">{{ s.nombre_semestre }}</option>
+          </select>
+        </div>
+        <div class="filtro-item">
+          <label class="filtro-label">
+            <ion-icon name="document-outline"></ion-icon> Tipo
+          </label>
+          <select [(ngModel)]="filters.tipo" (change)="load()" class="filtro-select">
+            <option value="">Todos</option>
+            <option value="PDF">PDF</option>
+            <option value="WORD">Word</option>
+            <option value="PPT">PowerPoint</option>
+            <option value="EXCEL">Excel</option>
+            <option value="IMAGEN">Imagen</option>
+            <option value="VIDEO">Video</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="table-wrapper">
+    <table>
+      <thead class="table-header">
+        <tr>
+          <th class="th-cell">Título</th>
+          <th class="th-cell">Docente</th>
+          <th class="th-cell">Descripción</th>
+          <th class="th-cell center">Tipo</th>
+          <th class="th-cell center">Visibilidad</th>
+          <th class="th-cell center">Estado</th>
+          <th class="th-cell center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="materiales.length === 0">
+          <td colspan="7">
+            <div class="empty-state">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <p>No se encontraron materiales</p>
+            </div>
+          </td>
+        </tr>
+        <tr *ngFor="let m of materiales" class="table-row">
+          <td class="td-cell" style="font-weight:600; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            {{ m.titulo }}
+          </td>
+            <!-- ✅ celda docente -->
+            <td class="td-cell" style="max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#E0F2FE; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; color:#0288D1; flex-shrink:0;">
+                    {{ m.nombre_docente ? m.nombre_docente.charAt(0).toUpperCase() : '?' }}
+                </div>
+                <span style="font-size:0.8125rem; color:#334155;">{{ m.nombre_docente || '—' }}</span>
+                </div>
+            </td>
+          <td class="td-cell" style="color:#64748B; max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            {{ m.descripcion || '—' }}
+          </td>
+          <td class="td-cell center">
+            <span class="badge-tipo"
+              [ngClass]="{
+                'badge-pdf'  : m.tipo === 'PDF',
+                'badge-video': m.tipo === 'VIDEO',
+                'badge-img'  : m.tipo === 'IMAGEN',
+                'badge-otro' : m.tipo !== 'PDF' && m.tipo !== 'VIDEO' && m.tipo !== 'IMAGEN'
+              }">
+              {{ m.tipo || 'Otro' }}
+            </span>
+          </td>
+          <td class="td-cell center">
+            <span class="badge-vis"
+              [ngClass]="{
+                'badge-publico'    : m.visibilidad === 'PUBLICO',
+                'badge-restringido': m.visibilidad === 'RESTRINGIDO'
+              }">
+              {{ m.visibilidad === 'PUBLICO' ? 'Público' : 'Restringido' }}
+            </span>
+          </td>
+          <td class="td-cell center">
+            <span [ngClass]="m.activo ? 'badge-activo' : 'badge-inactivo'">
+              {{ m.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td class="td-cell center">
+            <div style="display:inline-flex; align-items:center; gap:0.375rem;">
+              <button class="btn-icon" title="Editar" (click)="editar(m)">
+                <ion-icon name="create-outline"></ion-icon>
+              </button>
+              <button
+                class="btn-icon"
+                [ngClass]="m.activo ? 'btn-icon-warning' : 'btn-icon-success'"
+                [title]="m.activo ? 'Desactivar' : 'Activar'"
+                (click)="toggleEstado(m)">
+                <ion-icon [name]="m.activo ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+              </button>
+              <button class="btn-icon btn-icon-danger" title="Eliminar" (click)="delete(m.id_material)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINACIÓN -->
+  <div *ngIf="materiales.length > 0" class="pagination-section">
+    <div class="pagination-info">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <span>Página <strong>{{ filters.page }}</strong></span>
+    </div>
+    <div class="pagination-controls">
+      <button class="pagination-btn" (click)="prevPage()" [disabled]="filters.page === 1">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <button class="pagination-btn active">{{ filters.page }}</button>
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="materiales.length < filters.limit">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div *ngIf="mostrarModal" class="modal-overlay" (click)="mostrarModal = false; reset()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-icon-wrapper">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+          </div>
+          <div>
+            <h3 class="modal-title">{{ editMode ? 'Actualizar Material' : 'Nuevo Material' }}</h3>
+            <p class="modal-subtitle">Completa los campos y sube tu archivo</p>
+          </div>
+        </div>
+        <button class="btn-close" (click)="mostrarModal = false; reset()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+
+          <div class="form-group full-col">
+            <label class="form-label">Título <span class="req">*</span></label>
+            <input type="text" class="form-input" placeholder="Título del material"
+              [(ngModel)]="form.titulo" name="titulo">
+          </div>
+
+          <div class="form-group full-col">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-input" placeholder="Breve descripción..."
+              [(ngModel)]="form.descripcion" name="descripcion" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Visibilidad</label>
+            <select [(ngModel)]="form.visibilidad" name="visibilidad" class="form-input">
+              <option value="PUBLICO">Público</option>
+              <option value="RESTRINGIDO">Restringido</option>
+            </select>
+          </div>
+
+          <div class="form-group full-col">
+            <div class="multi-section-label">
+              <ion-icon name="book-outline"></ion-icon> Materias
+            </div>
+            <div class="multi-grid">
+              <label *ngFor="let m of materias">
+                <input type="checkbox" [checked]="form.materias.includes(m.id)" (change)="toggleMateria(m.id)">
+                {{ m.nombre }}
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group full-col">
+            <div class="multi-section-label">
+              <ion-icon name="layers-outline"></ion-icon> Semestres
+            </div>
+            <div class="multi-grid">
+              <label *ngFor="let s of semestres">
+                <input type="checkbox" [checked]="form.semestres.includes(s.id_semestre)" (change)="toggleSemestre(s.id_semestre)">
+                {{ s.nombre_semestre }}
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group full-col">
+            <label class="form-label">Archivo <span class="req">*</span></label>
+            <div class="file-upload-area">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+              <div class="upload-text">
+                <strong>Haz clic para seleccionar</strong> o arrastra aquí
+              </div>
+              <span *ngIf="file" class="file-name-chip">
+                <ion-icon name="document-outline"></ion-icon>
+                {{ file.name }}
+              </span>
+              <input type="file" (change)="onFile($event)">
+            </div>
+            <div *ngIf="editMode && !file" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.625rem;background:#EFF6FF;border:1px solid #93C5FD;border-radius:8px;padding:0.625rem 1rem;">
+              <ion-icon name="checkmark-circle-outline" style="color:#2563EB;font-size:1.125rem;flex-shrink:0;"></ion-icon>
+              <span style="font-size:0.8125rem;font-weight:600;color:#1D4ED8;">Archivo actual cargado — sube uno nuevo para reemplazarlo</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="mostrarModal = false; reset()">
+          <ion-icon name="close-outline"></ion-icon> Cancelar
+        </button>
+        <button class="btn-primary" (click)="submit()">
+          <ion-icon [name]="editMode ? 'create-outline' : 'cloud-upload-outline'"></ion-icon>
+          {{ editMode ? 'Actualizar' : 'Subir Material' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+</div>
