@@ -79,7 +79,7 @@ export const routes: Routes = [
   // Panel de administrador con rutas anidadas
   { path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'], hideNavbar: true},
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '', redirectTo: 'usuarios', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'usuarios', component: GestionUsuariosComponent },
       { path: 'preguntas', component: GestionFaqComponent },
