@@ -18,7 +18,7 @@ import { HttpClientModule } from '@angular/common/http';
 export class MagazineDetailComponent implements OnInit {
 
 
-    // ✅ inject()
+    // inject()
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private sanitizer = inject(DomSanitizer);
@@ -52,7 +52,7 @@ export class MagazineDetailComponent implements OnInit {
   }
 
   getPdfCover(publicId: string) {
-  return `https://res.cloudinary.com/dazzy4wzq/image/upload/${publicId}.jpg`;
+  return `https://res.cloudinary.com/dtfto3sgm/image/upload/${publicId}.jpg`;
 }
 
   /* ==============================
@@ -137,7 +137,19 @@ addToCart() {
       alert("Debes comprar esta revista primero 📚");
       return;
     }
-    // 🔥 Redirigir al visor propio en lugar de iframe
     this.router.navigate(['/magazines/view', this.magazineId]);
   }
+
+  goBack() {
+  this.router.navigate(['/magazines']);
+  }
+
+  cerrarModal(event: MouseEvent) {
+    // Cierra si hace clic en el overlay (fuera del modal)
+    if ((event.target as HTMLElement).classList.contains('mag-overlay')) {
+      this.goBack();
+    }
+  }
+
+
 }
