@@ -1,63 +1,74 @@
-<div class="detalle-overlay">
+<div class="mag-overlay" (click)="cerrarModal($event)">
+  <div class="mag-modal" *ngIf="magazine">
 
-      <div class="detalle-card" *ngIf="magazine">
-        <!-- Imagen -->
-      <div class="detalle-cover">
-     <img
-      *ngIf="magazine.pdf_public_id"
-      [src]="getPdfCover(magazine.pdf_public_id)"
-      alt="Portada revista">
-        </div>
-    <!-- Información -->
-    <div class="detalle-content">
+    <button class="mag-close" (click)="goBack()">
+      <i class="ph ph-x"></i>
+    </button>
 
-      <h2 class="detalle-title">
-        {{ magazine.titulo }}
-      </h2>
+    <!-- PORTADA -->
+    <div class="mag-cover">
+      <div class="mag-cover-inner">
+        <img
+          *ngIf="magazine.pdf_public_id"
+          [src]="getPdfCover(magazine.pdf_public_id)"
+          [alt]="magazine.titulo"
+          class="mag-cover-img">
+        <div class="mag-cover-glow"></div>
+      </div>
+    </div>
 
-      <p class="detalle-description">
+    <!-- INFORMACIÓN -->
+    <div class="mag-info">
+
+      <h1 class="mag-titulo">{{ magazine.titulo }}</h1>
+
+      <p class="mag-descripcion" *ngIf="magazine.descripcion">
         {{ magazine.descripcion }}
       </p>
 
-      <div class="detalle-price">
-        ${{ magazine.precio }}
+      <div class="mag-precio">
+        ${{ magazine.precio | number:'1.2-2' }}
+        <span class="mag-precio-label">MXN</span>
       </div>
 
-      <div 
-        class="stock-badge"
+      <div class="mag-stock"
         [ngClass]="{
-          'stock-available': magazine.stock > 0,
-          'stock-empty': magazine.stock === 0
+          'mag-stock--ok':  magazine.stock > 0,
+          'mag-stock--out': magazine.stock === 0
         }">
-
+        <i [class]="magazine.stock > 0 ? 'ph ph-check-circle' : 'ph ph-x-circle'"></i>
         {{ magazine.stock > 0 ? 'Disponible' : 'Agotado' }}
       </div>
 
-      <button 
-        *ngIf="!hasPurchased"
-        (click)="addToCart()"
-        [disabled]="magazine.stock === 0"
-        class="btn-buy"
-        [ngClass]="{ 'btn-disabled': magazine.stock === 0 }">
-        🛒 Agregar al carrito
-      </button>
+      <div class="mag-actions">
 
-      <button 
-        *ngIf="hasPurchased"
-        (click)="openReader()"
-        class="btn-buy bg-blue-600 hover:bg-blue-700">
-        📖 Leer ahora
-      </button>
+        <button
+          *ngIf="!hasPurchased"
+          (click)="addToCart()"
+          [disabled]="magazine.stock === 0"
+          class="mag-btn mag-btn--cart"
+          [class.mag-btn--disabled]="magazine.stock === 0">
+          <i class="ph ph-shopping-cart"></i>
+          {{ magazine.stock === 0 ? 'Sin stock' : 'Agregar al carrito' }}
+        </button>
+
+        <button
+          *ngIf="hasPurchased"
+          (click)="openReader()"
+          class="mag-btn mag-btn--read">
+          <i class="ph ph-book-open"></i>
+          Ver revista
+        </button>
+
+      </div>
+
 
     </div>
-
   </div>
-
 </div>
 
-<div 
-  *ngIf="showAddedMessage"
-  class="fixed top-6 right-6 bg-green-600 text-white px-6 py-3 rounded-xl shadow-xl z-50 animate-fade">
-  ✔ Revista agregada al carrito
+<!-- TOAST -->
+<div class="mag-toast" [class.mag-toast--visible]="showAddedMessage">
+  <i class="ph ph-check-circle"></i>
+  Revista agregada al carrito
 </div>
-
