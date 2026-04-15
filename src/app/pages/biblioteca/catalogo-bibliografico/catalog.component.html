@@ -143,7 +143,7 @@
       class="libro-card"
       [class.solo-fisico]="libro.tiene_fisico && !libro.tiene_digital">
 
-      <div class="book-cover">
+      <div class="book-cover clickable" *ngIf="libro.tiene_digital" (click)="abrirPdf(libro)">
         <ng-container *ngIf="libro.tiene_digital">
           <div class="cover-loading" *ngIf="!libro.previewUrl"></div>
           <img
