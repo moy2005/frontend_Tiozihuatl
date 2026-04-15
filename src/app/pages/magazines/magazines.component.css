@@ -280,7 +280,7 @@
 /* ================= GRID ================= */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(6, 1fr);
   gap: 1.5rem;
 }
 
@@ -1117,7 +1117,7 @@
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; 
 }
 
 .filtros-bar-label {
@@ -1313,3 +1313,136 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+.grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.btn-view {
+  color: #3FA6E8;
+}
+
+.btn-view ion-icon {
+  color: #3FA6E8;
+}
+
+/* ================= TABS ================= */
+.tabs-bar {
+  display: flex;
+  align-items: center;  
+  gap: 0.5rem;
+  padding: 0;          
+  background: transparent;
+  border-bottom: none;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  background: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-gray);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.2s ease;
+  font-family: 'Nunito', sans-serif;
+}
+
+.tab-btn ion-icon { font-size: 1.1rem; }
+
+.tab-btn:hover {
+  color: var(--primary);
+  background: rgba(63,166,232,0.06);
+}
+
+.tab-active {
+  color: var(--primary) !important;
+  border-bottom-color: var(--primary) !important;
+  background: rgba(63,166,232,0.08) !important;
+}
+
+.tab-count {
+  background: var(--border);
+  color: var(--text-gray);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+
+.tab-active .tab-count {
+  background: var(--primary);
+  color: white;
+}
+
+/* ================= EMPTY STATE ================= */
+.empty-purchased {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.empty-purchased ion-icon {
+  font-size: 4rem;
+  color: #cbd5e1;
+}
+
+.empty-purchased h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+}
+
+.empty-purchased p {
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  margin: 0;
+}
+
+.btn-go-catalog {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Nunito', sans-serif;
+}
+
+.btn-go-catalog:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(63,166,232,0.35);
+}
+
+.btn-go-catalog ion-icon { font-size: 1rem; }
