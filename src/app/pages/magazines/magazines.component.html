@@ -54,44 +54,47 @@
       </span>
 
       <div class="filtros-divider-v"></div>
+          <!-- TABS -->
+          <div class="tabs-bar">
+            <button class="tab-btn" [class.tab-active]="activeTab === 'all'" (click)="setTab('all')">
+              <ion-icon name="grid-outline"></ion-icon>
+              Todas las revistas
+              <span class="tab-count">{{ magazines.length }}</span>
+            </button>
+            <button class="tab-btn" [class.tab-active]="activeTab === 'purchased'" (click)="setTab('purchased')">
+              <ion-icon name="bag-check-outline"></ion-icon>
+              Mis revistas
+              <span class="tab-count">{{ purchasedIds.length }}</span>
+            </button>
+          </div>
 
-      <!-- Ordenar A-Z -->
-      <div class="chip-wrap">
-        <select class="chip-select"
-                [class.activo]="sortAlpha !== ''"
-                [(ngModel)]="sortAlpha"
-                (change)="sortOrder = sortAlpha; applyFilters()">
-          <option value="">Ordenar A-Z</option>
-          <option value="asc">A → Z</option>
-          <option value="desc">Z → A</option>
-        </select>
-        <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
-      </div>
+          <!-- Ordenar A-Z -->
+          <div class="chip-wrap">
+            <select class="chip-select"
+                    [class.activo]="sortAlpha !== ''"
+                    [(ngModel)]="sortAlpha"
+                    (change)="sortOrder = sortAlpha; applyFilters()">
+              <option value="">Ordenar A-Z</option>
+              <option value="asc">A → Z</option>
+              <option value="desc">Z → A</option>
+            </select>
+            <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
+          </div>
 
-      <!-- Precio -->
-      <div class="chip-wrap">
-        <select class="chip-select"
-                [class.activo]="sortPrice !== ''"
-                [(ngModel)]="sortPrice"
-                (change)="sortOrder = sortPrice; applyFilters()">
-          <option value="">Ordenar por precio</option>
-          <option value="price_asc">Menor precio</option>
-          <option value="price_desc">Mayor precio</option>
-        </select>
-        <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
-      </div>
+          <!-- Precio -->
+          <div class="chip-wrap">
+            <select class="chip-select"
+                    [class.activo]="sortPrice !== ''"
+                    [(ngModel)]="sortPrice"
+                    (change)="sortOrder = sortPrice; applyFilters()">
+              <option value="">Ordenar por precio</option>
+              <option value="price_asc">Menor precio</option>
+              <option value="price_desc">Mayor precio</option>
+            </select>
+            <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
+          </div>
 
-      <!-- Letra inicial -->
-      <div class="chip-wrap chip-wrap-letras">
-        <select class="chip-select"
-                [class.activo]="selectedLetter !== ''"
-                [(ngModel)]="selectedLetter"
-                (change)="filterByLetter(selectedLetter)">
-          <option value="">Letra inicial</option>
-          <option *ngFor="let letter of alphabet" [value]="letter">{{ letter }}</option>
-        </select>
-        <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
-      </div>
+
 
       <!-- Borrar filtros -->
       <button class="btn-borrar-filtros"
@@ -118,6 +121,17 @@
       <p>Cargando catálogo...</p>
     </div>
 
+    <!-- dentro del <div class="catalog-content">, antes del grid -->
+    <div *ngIf="activeTab === 'purchased' && purchasedIds.length === 0" class="empty-purchased">
+      <ion-icon name="bag-handle-outline"></ion-icon>
+      <h3>Aún no tienes revistas</h3>
+      <p>Explora el catálogo y adquiere tus primeras revistas</p>
+      <button (click)="setTab('all')" class="btn-go-catalog">
+        <ion-icon name="grid-outline"></ion-icon>
+        Ver catálogo
+      </button>
+    </div>
+
     <div class="grid" *ngIf="!loading">
       <div class="card" *ngFor="let m of paginatedMagazines">
 
@@ -126,6 +140,9 @@
           <span *ngIf="m.descuento_activo" class="card-badge card-badge-sale">OFERTA</span>
           <span *ngIf="isPurchased(m.id_magazine)" class="card-badge card-badge-owned">
             <ion-icon name="checkmark-circle-outline"></ion-icon> Adquirida
+          </span>
+          <span class="resultados-count" *ngIf="!loading">
+            {{ displayedMagazines.length }} revista{{ displayedMagazines.length !== 1 ? 's' : '' }}
           </span>
         </div>
 
