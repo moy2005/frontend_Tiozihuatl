@@ -52,8 +52,8 @@ export class MagazinesComponent implements OnInit {
   cartAddedMagazine: any = null;  // revista recién agregada
   showCartModal = false;           // controla el modal
   currentPage: number = 1;
-  itemsPerPage: number = 4;  
-
+  itemsPerPage: number = 6;  
+  activeTab: 'all' | 'purchased' = 'all';
   filterOpen = { orden: true, precio: true, letra: true };
 
   /* ── Toasts ── */
@@ -67,8 +67,23 @@ export class MagazinesComponent implements OnInit {
     this.updateCart();
     this.cartService.cart$.subscribe(() => this.updateCart());
     this.cartService.cart$.subscribe(cart => this.cartCount = cart.length);
+    this.loadPurchases();
   }
 
+  loadPurchasedIds(): void {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) return;
+
+    this.http.get<any[]>(
+      `${environment.apiUrl}/magazines/my-purchases`,
+      { headers: this.getAuthHeaders() }
+    ).subscribe({
+      next: (data) => {
+        this.purchasedIds = data.map(m => m.id_revista ?? m.id_magazine);
+      },
+      error: (err) => console.error('Error cargando compras', err)
+    });
+  }
   /* ── Toast helper ── */
   showToast(type: Toast['type'], title: string, message: string, icon: string): void {
     const id = ++this.toastId;
@@ -137,7 +152,17 @@ export class MagazinesComponent implements OnInit {
   toggleFilter(section: 'orden' | 'precio' | 'letra'): void {
     this.filterOpen[section] = !this.filterOpen[section];
   }
+  get displayedMagazines(): any[] {
+    if (this.activeTab === 'purchased') {
+      return this.magazines.filter(m => this.isPurchased(m.id_magazine));
+    }
+    return this.magazines;
+  }
 
+  setTab(tab: 'all' | 'purchased') {
+    this.activeTab = tab;
+    this.currentPage = 1;
+  }
   clearFilters(): void {
     this.sortOrder = ''; this.sortAlpha = ''; this.sortPrice = '';
     this.selectedLetter = ''; this.searchTerm = '';
@@ -151,11 +176,7 @@ export class MagazinesComponent implements OnInit {
       letter: this.selectedLetter
     }).subscribe((res: any) => this.magazines = res.data);
   }
-
-  filterByLetter(letter: string): void {
-    this.selectedLetter = letter;
-    this.applyFilters();
-  }
+  
 
   /* ── Pago ── */
   simulatePayment(): void {
@@ -207,24 +228,17 @@ export class MagazinesComponent implements OnInit {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
-    get paginatedMagazines() {
-  const start = (this.currentPage - 1) * this.itemsPerPage;
-  return this.magazines.slice(start, start + this.itemsPerPage);
+  get paginatedMagazines() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.displayedMagazines.slice(start, start + this.itemsPerPage);
   }
-
   get totalPages(): number {
-    return Math.ceil(this.magazines.length / this.itemsPerPage);
+    return Math.ceil(this.displayedMagazines.length / this.itemsPerPage);
   }
 
   changePage(page: number) {
     this.currentPage = page;
   }
-  get magazinesProduccion() {
-  return this.magazines.filter(m => m.pdf_public_id.includes('dazzy4wzq'));
-  }
 
-  get magazinesLocal() {
-    return this.magazines.filter(m => m.pdf_public_id.includes('dtfto3sgm'));
-  }
   
 }
