@@ -178,27 +178,6 @@
     </div>
   </div>
 
-  <div class="pagination" *ngIf="totalPages > 1">
-
-  <button (click)="changePage(currentPage - 1)"
-          [disabled]="currentPage === 1">
-    ‹
-  </button>
-
-  <button *ngFor="let page of [].constructor(totalPages); let i = index"
-          (click)="changePage(i + 1)"
-          [class.active]="currentPage === i + 1">
-    {{ i + 1 }}
-  </button>
-
-  <button (click)="changePage(currentPage + 1)"
-          [disabled]="currentPage === totalPages">
-    ›
-  </button>
-  
-  </div>
-</div>
-
 <!-- ===================================== -->
 <!-- OVERLAY CARRITO                       -->
 <!-- ===================================== -->
