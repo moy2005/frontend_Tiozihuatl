@@ -1,6 +1,3 @@
-    /* =====================================================
-   VARIABLES
-   ===================================================== */
 :root {
   --primary:       #3FA6E8;
   --primary-dark:  #2D8BE8;
@@ -27,18 +24,15 @@ body {
 /* =====================================================
    HEADER
    ===================================================== */
+
 .header-catalogo {
   position: relative; width: 100%;
-  background:
-    linear-gradient(135deg, rgba(63,166,232,0.85) 0%, rgba(45,139,232,0.88) 100%),
-    url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop&q=80') center/cover;
+  background-color: #3FA6E8;
   color: white; padding: 4rem 2rem 4.5rem;
   overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 .header-catalogo::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg,rgba(255,255,255,.08) 0%,rgba(248,250,252,.05) 50%);
-  z-index: 1;
+  display: none;
 }
 .header-content {
   position: relative; z-index: 2;
