@@ -1,4 +1,4 @@
-  @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ============================================================
    VARIABLES
@@ -45,7 +45,7 @@
 .hero-section::before {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(180deg,rgba(255,255,255,.07) 0%,rgba(248,250,252,.04) 50%);
+  background: #3FA6E8;
   z-index: 1;
 }
 .hero-content {
@@ -557,7 +557,7 @@
   text-transform: uppercase; letter-spacing: 0.8px; margin-top: 14px;
 }
 .detalle-label:first-child { margin-top: 0; }
-.detalle-valor { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.5; }
+.detalle-valor { font-size: 11px; font-weight: 600; color: var(--ink); line-height: 1.5; }
 .detalle-item  { display: flex; flex-direction: column; gap: 4px; }
 .detalle-row   { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
 .detalle-tags  { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
@@ -586,8 +586,6 @@
 }
 .btn-cancelar:hover { background: #e2e8f0; border-color: #94a3b8; color: #1e293b; }
 
-/* ── Botón Descargar modal — se fuerza el color para evitar
-      conflictos con encapsulación de Angular o herencia ────── */
 .btn-dl-modal {
   background: linear-gradient(135deg, #3FA6E8, #2D8BE8) !important;
   color: #ffffff !important;
