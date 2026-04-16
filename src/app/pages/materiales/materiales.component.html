@@ -213,7 +213,6 @@
         </div>
         <div style="min-width:0;">
           <div class="modal-titulo">{{ materialSeleccionado?.titulo }}</div>
-          <small>{{ materialSeleccionado?.nombre_docente }}</small>
         </div>
       </div>
       <button class="modal-cerrar" (click)="cerrarModal()">
@@ -282,6 +281,7 @@
 
             <div class="detalle-item" *ngIf="materialSeleccionado?.nombre_docente">
               <div class="detalle-label">Docente</div>
+              <div class="detalle-valor">{{ materialSeleccionado?.nombre_docente }}</div>
             </div>
 
             <div class="detalle-item" *ngIf="materialSeleccionado?.descripcion">
