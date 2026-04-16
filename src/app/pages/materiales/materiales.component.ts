@@ -5,12 +5,6 @@ import { MaterialesService } from '../../api/services/materiales.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { NgxDocViewerModule, viewerType } from 'ngx-doc-viewer';
 import Swal from 'sweetalert2';
-
-// ──────────────────────────────────────────────────────────────
-// Ajusta la ruta según tu proyecto. Este servicio debe exponer
-// un método getUser() que retorne el usuario logueado con
-// al menos: { id_usuario, nombre, id_semestre, ... }
-// ──────────────────────────────────────────────────────────────
 import { AuthService } from '../../api/services/auth';
 
 @Component({
@@ -23,22 +17,12 @@ import { AuthService } from '../../api/services/auth';
 })
 export class MaterialesComponent implements OnInit {
 
-  // ─────────────────────────────────────────
-  // DATOS
-  // ─────────────────────────────────────────
   materiales: any[] = [];
   docentes:   any[] = [];
   materias:   any[] = [];
   cargando = false;
-
-  // ─────────────────────────────────────────
-  // SEMESTRE DEL ALUMNO (automático, sin filtro visible)
-  // ─────────────────────────────────────────
   alumnoSemestre: string | number = '';
 
-  // ─────────────────────────────────────────
-  // FILTROS (sin semestre — ya es automático)
-  // ─────────────────────────────────────────
   search          = '';
   selectedDocente = '';
   selectedTipo    = '';
@@ -54,17 +38,11 @@ export class MaterialesComponent implements OnInit {
     { label: 'PPT',             value: 'PPT'    }
   ];
 
-  // ─────────────────────────────────────────
-  // PAGINACIÓN
-  // ─────────────────────────────────────────
   currentPage  = 1;
   totalPages   = 1;
   totalItems   = 0;
   limit        = 9;
 
-  // ─────────────────────────────────────────
-  // MODAL
-  // ─────────────────────────────────────────
   modalAbierto         = false;
   materialSeleccionado: any = null;
   zoomActivo           = false;
@@ -72,7 +50,7 @@ export class MaterialesComponent implements OnInit {
 
   constructor(
     private service:     MaterialesService,
-    private authService: AuthService        // ← inyecta tu servicio de auth
+    private authService: AuthService        
   ) {}
 
   ngOnInit() {
@@ -83,14 +61,9 @@ export class MaterialesComponent implements OnInit {
     this.cargarMateriales();
   }
 
-  // ─────────────────────────────────────────
-  // CARGAS
-  // ─────────────────────────────────────────
-
   cargarCatalogos() {
     this.service.getDocentes().subscribe((res: any) => this.docentes = res);
     this.service.getMaterias().subscribe((res: any) => this.materias = res);
-    // Ya no se carga catálogo de semestres — no hay filtro visible
   }
 
   cargarMateriales(resetPage = false) {
@@ -103,7 +76,7 @@ export class MaterialesComponent implements OnInit {
       docente:  this.selectedDocente,
       tipo:     this.selectedTipo,
       materia:  this.selectedMateria,
-      semestre: this.alumnoSemestre,   // ← automático según el alumno
+      semestre: this.alumnoSemestre,   // automatico según el alumno
       page:     this.currentPage,
       limit:    this.limit
     };
@@ -119,10 +92,6 @@ export class MaterialesComponent implements OnInit {
       error: () => { this.cargando = false; }
     });
   }
-
-  // ─────────────────────────────────────────
-  // PAGINACIÓN
-  // ─────────────────────────────────────────
 
   irAPagina(page: number) {
     if (page < 1 || page > this.totalPages || page === this.currentPage) return;
@@ -141,10 +110,6 @@ export class MaterialesComponent implements OnInit {
     }
     return pages;
   }
-
-  // ─────────────────────────────────────────
-  // FILTROS
-  // ─────────────────────────────────────────
 
   limpiarFiltros() {
     this.search         = '';
@@ -176,10 +141,6 @@ export class MaterialesComponent implements OnInit {
     this.cargarMateriales(true);
   }
 
-  // ─────────────────────────────────────────
-  // MODAL
-  // ─────────────────────────────────────────
-
   abrirModal(material: any) {
     this.materialSeleccionado = material;
     this.modalAbierto         = true;
@@ -194,10 +155,6 @@ export class MaterialesComponent implements OnInit {
   }
 
   toggleZoom() { this.zoomActivo = !this.zoomActivo; }
-
-  // ─────────────────────────────────────────
-  // VISOR — ngx-doc-viewer
-  // ─────────────────────────────────────────
 
   getViewerType(tipo: string): viewerType {
     switch (tipo?.toUpperCase()) {
@@ -221,10 +178,6 @@ export class MaterialesComponent implements OnInit {
     if (ext && !cleanUrl.endsWith(ext)) cleanUrl += ext;
     return cleanUrl;
   }
-
-  // ─────────────────────────────────────────
-  // DESCARGA
-  // ─────────────────────────────────────────
 
   descargar(url: string, titulo: string, tipo: string, event: Event) {
     event.stopPropagation();
@@ -270,10 +223,6 @@ export class MaterialesComponent implements OnInit {
   }
 
   abrirEnNuevaPestana(url: string) { window.open(url, '_blank'); }
-
-  // ─────────────────────────────────────────
-  // UI HELPERS
-  // ─────────────────────────────────────────
 
   getClaseTipo(tipo: string): string {
     return ({
@@ -336,4 +285,5 @@ export class MaterialesComponent implements OnInit {
       day: '2-digit', month: 'short', year: 'numeric'
     });
   }
+  
 }
