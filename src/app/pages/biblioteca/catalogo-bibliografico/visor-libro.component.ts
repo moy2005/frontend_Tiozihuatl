@@ -105,12 +105,18 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
     }
   }
 
+  cancelarRenderActual() {
+    this.renderTasks.forEach((task) => {
+      try { task.cancel(); } catch {}
+    });
+    this.renderTasks.clear();
+  }
   renderTodasLasPaginas() {
+    this.cancelarRenderActual();
     this.renderVersion++;
     const currentVersion = this.renderVersion;
 
     setTimeout(() => {
-      // ✅ Solo renderiza página actual + 2 adelante + 1 atrás
       const inicio = Math.max(1, this.pageNum - 1);
       const fin = Math.min(this.totalPages, this.pageNum + 2);
 
@@ -121,16 +127,31 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
   }
 
   renderPagina(num: number, version?: number) {
+
     const v = version ?? this.renderVersion;
 
+    if (this.renderTasks.has(num)) return;
+
     this.pdfDoc.getPage(num).then((page: any) => {
+
       if (v !== this.renderVersion) return;
 
-      const dpr = window.devicePixelRatio || 1;
-      const viewport = page.getViewport({ scale: this.renderScale });
       const canvas: any = document.getElementById(`page-${num}`);
       if (!canvas) return;
+
+      if (canvas.getAttribute('data-rendered') === 'true') return;
+
       const context = canvas.getContext('2d');
+      if (!context) return;
+
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      const dpr = window.devicePixelRatio || 1;
+
+      const viewport = page.getViewport({
+        scale: this.renderScale
+      });
 
       canvas.height = viewport.height;
       canvas.width = viewport.width;
@@ -144,15 +165,20 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
       canvas.style.width = anchoFinal + 'px';
       canvas.style.height = alturaFinal + 'px';
 
-      const task = page.render({ canvasContext: context, viewport });
+      const task = page.render({
+        canvasContext: context,
+        viewport
+      });
+
       this.renderTasks.set(num, task);
 
       task.promise
         .then(() => {
+          if (v !== this.renderVersion) return;
+
           this.renderTasks.delete(num);
-          // ✅ Marcar como renderizado
-          const c = document.getElementById(`page-${num}`);
-          if (c) c.setAttribute('data-rendered', 'true');
+
+          canvas.setAttribute('data-rendered', 'true');
         })
         .catch((err: any) => {
           if (err?.name !== 'RenderingCancelledException') {
@@ -160,6 +186,7 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
           }
           this.renderTasks.delete(num);
         });
+
     });
   }
 
@@ -176,6 +203,7 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
   }
 
   rerenderConZoom() {
+    this.cancelarRenderActual();
     this.limpiarCanvasRendereados();
     this.renderVersion++;
     const currentVersion = this.renderVersion;
@@ -187,85 +215,144 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
   }
 
   renderPaginaConZoom(num: number, version?: number) {
+
     const v = version ?? this.renderVersion;
 
+    if (this.renderTasks.has(num)) {
+      try { this.renderTasks.get(num)?.cancel(); } catch {}
+      this.renderTasks.delete(num);
+    }
+
     this.pdfDoc.getPage(num).then((page: any) => {
+
       if (v !== this.renderVersion) return;
+
+      const canvas: any = document.getElementById(`page-${num}`);
+      if (!canvas) return;
+
+      canvas.removeAttribute('data-rendered');
+      canvas.width = 0;
+      canvas.height = 0;
 
       const dpr = window.devicePixelRatio || 1;
       const escalaFinal = this.renderScale * this.scale;
       const viewport = page.getViewport({ scale: escalaFinal });
-      const canvas: any = document.getElementById(`page-${num}`);
-      if (!canvas) return;
-
       const offscreen = document.createElement('canvas');
-      offscreen.height = viewport.height;
       offscreen.width = viewport.width;
-      const context = offscreen.getContext('2d');
+      offscreen.height = viewport.height;
 
-      const task = page.render({ canvasContext: context, viewport });
+      const ctxOff = offscreen.getContext('2d');
+      if (!ctxOff) return;
+
+      ctxOff.setTransform(1, 0, 0, 1, 0, 0);
+      ctxOff.clearRect(0, 0, offscreen.width, offscreen.height);
+
+      const task = page.render({
+        canvasContext: ctxOff,
+        viewport
+      });
+
       this.renderTasks.set(num, task);
 
       task.promise.then(() => {
-        if (v !== this.renderVersion) return;
+
+        if (v !== this.renderVersion) {
+          this.renderTasks.delete(num);
+          return;
+        }
+
         this.renderTasks.delete(num);
 
-        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
         canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(offscreen, 0, 0);
 
         const anchoVisual = viewport.width / dpr;
         const anchoMax = window.innerWidth - (window.innerWidth < 600 ? 16 : 32);
         const anchoFinal = Math.min(anchoVisual, anchoMax);
+
         const ratio = anchoFinal / anchoVisual;
         const alturaFinal = (viewport.height / dpr) * ratio;
 
         canvas.style.width = anchoFinal + 'px';
         canvas.style.height = alturaFinal + 'px';
-        canvas.getContext('2d').drawImage(offscreen, 0, 0);
+
         canvas.setAttribute('data-rendered', 'true');
+
       }).catch((err: any) => {
+
+        this.renderTasks.delete(num);
+
+        canvas.removeAttribute('data-rendered');
+
         if (err?.name !== 'RenderingCancelledException') {
           console.error('Error zoom página', num, err);
         }
-        this.renderTasks.delete(num);
       });
+
     });
   }
 
-  escucharScroll() {
-    this.scrollHandler = () => {
-      for (let i = 1; i <= this.totalPages; i++) {
-        const canvas = document.getElementById(`page-${i}`);
-        if (!canvas) continue;
-        const rect = canvas.getBoundingClientRect();
-        if (rect.top >= 0 && rect.top <= window.innerHeight / 2) {
-          if (this.pageNum !== i) {
-            this.pageNum = i;
+ escucharScroll() {
+  let ticking = false;
 
-            this.preRenderizarCercanas(i);
-          }
-          break;
+  this.scrollHandler = () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        this.detectarPaginaVisible();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  };
+
+  window.addEventListener('scroll', this.scrollHandler, { passive: true });
+}
+
+ detectarPaginaVisible() {
+    for (let i = 1; i <= this.totalPages; i++) {
+      const canvas = document.getElementById(`page-${i}`);
+      if (!canvas) continue;
+
+      const rect = canvas.getBoundingClientRect();
+
+      if (rect.top >= 0 && rect.top <= window.innerHeight / 2) {
+        if (this.pageNum !== i) {
+          this.pageNum = i;
+
+          this.preRenderizarCercanas(i);
         }
+        break;
       }
-    };
-    window.addEventListener('scroll', this.scrollHandler, { passive: true });
+    }
   }
 
   preRenderizarCercanas(paginaActual: number) {
-  const currentVersion = this.renderVersion;
-  const inicio = Math.max(1, paginaActual - 1);
-  const fin = Math.min(this.totalPages, paginaActual + 2);
+    const currentVersion = this.renderVersion;
+    const inicio = Math.max(1, paginaActual - 1);
+    const fin = Math.min(this.totalPages, paginaActual + 2);
 
-  for (let i = inicio; i <= fin; i++) {
-    const canvas = document.getElementById(`page-${i}`);
-    if (!canvas) continue;
+    for (let i = inicio; i <= fin; i++) {
+      const canvas = document.getElementById(`page-${i}`);
+      if (!canvas) continue;
 
-    if (canvas.getAttribute('data-rendered') !== 'true' && 
-        !this.renderTasks.has(i)) {
-      this.renderPagina(i, currentVersion);
+      if (canvas.getAttribute('data-rendered') !== 'true' && 
+          !this.renderTasks.has(i)) {
+        if (this.scale !== 1.0) {
+          this.renderPaginaConZoom(i, currentVersion);
+        } else {
+          this.renderPagina(i, currentVersion);
+        }
+      }
     }
   }
-}
 
   nextPage() {
     if (this.pageNum >= this.totalPages) return;
@@ -289,4 +376,5 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
   isMobile(): boolean {
     return window.innerWidth < 600;
   }
+  
 }
