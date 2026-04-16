@@ -1,4 +1,6 @@
 import { Component, OnInit, HostListener, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgxDocViewerModule, viewerType } from 'ngx-doc-viewer';
+import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { MaterialesService } from '../../api/services/materiales.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -9,7 +11,7 @@ import Swal from 'sweetalert2';
   templateUrl: './materiales-doc.component.html',
   styleUrls: ['./materiales-doc.component.css'],
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, NgxDocViewerModule, SafeUrlPipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class MaterialesDocComponent implements OnInit {
@@ -17,6 +19,11 @@ export class MaterialesDocComponent implements OnInit {
   materiales: any[] = [];
   materias:   any[] = [];
   semestres:  any[] = [];
+
+  modalVistaAbierto = false;
+  materialVista: any = null;
+  iframeLoadingVista = true;
+  zoomActivoVista = false;
 
   filtrosExpandidos = false;
   mostrarModal      = false;
@@ -237,6 +244,15 @@ export class MaterialesDocComponent implements OnInit {
     return map[tipo] ?? 'badge-otro';
   }
 
+  getMateriaNombre(id: number): string {
+    const mat = this.materias.find(m => m.id == id);
+    return mat ? mat.nombre : String(id);
+  }
+
+  getSemestreNombre(id: number): string {
+    const sem = this.semestres.find(s => s.id_semestre == id);
+    return sem ? sem.nombre_semestre : String(id);
+  }
 
   shortFileName(material: any): string {
     if (material.nombre_archivo)  return material.nombre_archivo;
@@ -257,5 +273,60 @@ export class MaterialesDocComponent implements OnInit {
 
   visibilidadIcon(vis: string): string {
     return vis === 'PUBLICO' ? 'globe-outline' : 'lock-closed-outline';
+  }
+  // Métodos a agregar:
+  verMaterial(material: any) {
+    this.openMenuId = null;
+     this.mostrarModal = false;
+    this.service.getById(material.id_material).subscribe((res: any) => {
+      this.materialVista = res;
+      this.modalVistaAbierto = true;
+      this.iframeLoadingVista = true;
+      this.zoomActivoVista = false;
+    });
+  }
+
+  cerrarVistaModal() {
+    this.modalVistaAbierto = false;
+    this.materialVista = null;
+    this.zoomActivoVista = false;
+  }
+
+  toggleZoomVista() { this.zoomActivoVista = !this.zoomActivoVista; }
+
+  getViewerType(tipo: string): viewerType {
+    switch (tipo?.toUpperCase()) {
+      case 'PDF':   return 'google';
+      case 'WORD':
+      case 'EXCEL':
+      case 'PPT':   return 'office';
+      default:      return 'url';
+    }
+  }
+  getViewerUrl(url: string, tipo: string): string {
+    let cleanUrl = url?.split('?')[0] ?? '';
+    const extensiones: Record<string, string> = {
+      WORD: '.docx', EXCEL: '.xlsx', PPT: '.pptx', PDF: '.pdf'
+    };
+    const ext = extensiones[tipo?.toUpperCase()];
+    if (ext && !cleanUrl.endsWith(ext)) cleanUrl += ext;
+    return cleanUrl;
+  }
+
+ 
+  tipoBoxClass(tipo: string): string {
+    return ({ PDF: 'tipo-pdf', VIDEO: 'tipo-video', IMAGEN: 'tipo-imagen',
+      WORD: 'tipo-doc', EXCEL: 'tipo-excel', PPT: 'tipo-ppt'
+    } as Record<string, string>)[tipo] || 'tipo-otro';
+  }
+
+  tipoIconModal(tipo: string): string {
+    return ({ PDF: 'document-text-outline', WORD: 'document-outline',
+      EXCEL: 'grid-outline', PPT: 'easel-outline',
+      IMAGEN: 'image-outline', VIDEO: 'videocam-outline', ZIP: 'archive-outline'
+    } as Record<string, string>)[tipo] ?? 'attach-outline';
+  }
+  abrirModal(url: string) {
+    window.open(url, '_blank');
   }
 }
