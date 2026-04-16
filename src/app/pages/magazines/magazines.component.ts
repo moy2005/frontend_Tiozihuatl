@@ -52,7 +52,7 @@ export class MagazinesComponent implements OnInit {
   cartAddedMagazine: any = null;  // revista recién agregada
   showCartModal = false;           // controla el modal
   currentPage: number = 1;
-  itemsPerPage: number = 6;  
+  itemsPerPage: number = 9999;  
   activeTab: 'all' | 'purchased' = 'all';
   filterOpen = { orden: true, precio: true, letra: true };
 
