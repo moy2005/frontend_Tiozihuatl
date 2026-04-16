@@ -81,7 +81,6 @@ export const routes: Routes = [
   { path: 'materiales', component: MaterialesComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante'] }},
   { path: 'materiales-doc', component: MaterialesDocComponent, canActivate: [AuthGuard], data: { roles: ['Docente'] }},
 
-
   // Panel de administrador con rutas anidadas
   { path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'], hideNavbar: true},
     children: [
