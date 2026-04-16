@@ -1,3 +1,6 @@
+/* =====================================================
+   VARIABLES
+   ===================================================== */
 :root {
   --primary:       #3FA6E8;
   --primary-dark:  #2D8BE8;
@@ -8,9 +11,9 @@
   --bg-page:  #fafbfc;
   --bg-white: #ffffff;
   --border:      #e2e8f0;
-  --border-card: #c7c7c7;
-  --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
-  --shadow-hover: 0 8px 24px rgba(0,0,0,0.13);
+  --border-card: #e6e6e6;
+  --shadow:       0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-hover: 0 6px 20px rgba(0,0,0,0.10);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,16 +27,13 @@ body {
 /* =====================================================
    HEADER
    ===================================================== */
-
 .header-catalogo {
   position: relative; width: 100%;
   background-color: #3FA6E8;
   color: white; padding: 4rem 2rem 4.5rem;
   overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
-.header-catalogo::before {
-  display: none;
-}
+.header-catalogo::before { display: none; }
 .header-content {
   position: relative; z-index: 2;
   max-width: 1200px; margin: 0 auto;
@@ -52,7 +52,6 @@ body {
 
 /* Buscador */
 .search-container { width: 100%; max-width: 650px; position: relative; }
-
 .search-box {
   width: 100%;
   padding: 0.9375rem 3.5rem 0.9375rem 1.5rem;
@@ -61,20 +60,14 @@ body {
   transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,.06);
   font-family: inherit;
 }
-/* Cuando hay texto, más padding para que no tape la X */
-.search-box.con-texto {
-  padding-right: 5.5rem;
-}
+.search-box.con-texto { padding-right: 5.5rem; }
 .search-box::placeholder { color: #94a3b8; font-style: italic; }
 .search-box:focus {
   outline: none; border-color: #3FA6E8;
   box-shadow: 0 4px 16px rgba(63,166,232,.15), 0 0 0 3px rgba(63,166,232,.1);
 }
-
-/* Lupa — siempre visible a la derecha */
 .search-icon {
-  position: absolute;
-  right: 6px; top: 50%; transform: translateY(-50%);
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   width: 40px; height: 40px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 8px; font-size: 1.125rem; cursor: pointer;
@@ -82,11 +75,8 @@ body {
   transition: all 0.2s; z-index: 2;
 }
 .search-icon:hover { color: var(--primary-dark); transform: translateY(-50%) scale(1.05); }
-
-/* X — aparece a la izquierda de la lupa solo cuando hay texto */
 .search-clear {
-  position: absolute;
-  right: 50px; top: 50%; transform: translateY(-50%);
+  position: absolute; right: 50px; top: 50%; transform: translateY(-50%);
   width: 28px; height: 28px;
   display: flex; align-items: center; justify-content: center;
   border: none; background: #e2e8f0;
@@ -96,36 +86,21 @@ body {
 }
 .search-clear:hover { color: #ef4444; background: #fee2e2; }
 
-
 /* OLA ANIMADA */
 .header-wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  overflow: hidden;
-  line-height: 0;
-  z-index: 3;
+  position: absolute; bottom: -1px; left: 0;
+  width: 100%; overflow: hidden; line-height: 0; z-index: 3;
 }
-
 .header-wave svg {
-  display: block;
-  width: 100%;
-  height: 90px;
+  display: block; width: 100%; height: 90px;
   animation: ola-subir 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transform-origin: bottom center;
 }
-
 @keyframes ola-subir {
-  0% {
-    transform: translateY(150%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  0%   { transform: translateY(150%); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
 }
+
 /* =====================================================
    FILTROS
    ===================================================== */
@@ -180,7 +155,6 @@ body {
 .chip-select:hover ~ .chip-arrow,
 .chip-select.activo ~ .chip-arrow { color: var(--primary); }
 
-/* Botón borrar filtros — solo selects */
 .btn-borrar-filtros {
   display: inline-flex; align-items: center; gap: 0.375rem;
   padding: 0.5rem 1rem 0.5rem 0.8rem;
@@ -214,11 +188,10 @@ body {
 .biblioteca-layout {
   width: 100%; max-width: 1400px;
   margin: 0 auto; padding: 1.75rem 2rem 3rem;
-  display: block;
 }
 
 /* =====================================================
-   CARGANDO — un solo contenedor centrado
+   ANIMACIONES
    ===================================================== */
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -232,6 +205,9 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* =====================================================
+   CARGANDO
+   ===================================================== */
 .cargando-wrap {
   width: 100%; min-height: 360px;
   display: flex; flex-direction: column;
@@ -252,29 +228,42 @@ body {
    GRID DE CARDS
    ===================================================== */
 .catalogo-container {
-  width: 100%; display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.75rem;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
 }
 
 /* =====================================================
    CARD
    ===================================================== */
 .libro-card {
-  background: var(--bg-white); border-radius: 12px; overflow: hidden;
-  box-shadow: var(--shadow); transition: all 0.3s;
-  display: flex; flex-direction: column;
-  border: 1px solid #e0dede; min-width: 0; width: 100%;
+  background: var(--bg-white);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid var(--border-card);
+  display: flex;
+  flex-direction: column;
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+  min-width: 0;
+  width: 100%;
 }
 .libro-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-hover); border-color: #c8dcee;
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: #c0d8ef;
 }
 
+/* Portada */
 .book-cover {
-  width: 100%; height: 300px; background: #f0f5fa;
-  position: relative; overflow: hidden;
-  border-bottom: 2px solid #c7c7c7; flex-shrink: 0;
+  width: 100%;
+  height: 240px;
+  background: #eef4fb;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1.5px solid #dde6ef;
+  flex-shrink: 0;
 }
 
 .cover-loading {
@@ -295,84 +284,79 @@ body {
 .placeholder-cover {
   width: 100%; height: 100%;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: .75rem;
-  background: linear-gradient(145deg, #eef6ff 0%, #dbeeff 60%, #cce4fb 100%);
+  align-items: center; justify-content: center; gap: .6rem;
+  background: linear-gradient(145deg, #eef6ff 0%, #dbeeff 100%);
   position: relative; overflow: hidden;
 }
-.placeholder-cover::before {
-  content: ''; position: absolute;
-  width: 140px; height: 140px; border-radius: 50%;
-  background: rgba(63,166,232,0.08); top: -30px; right: -30px;
-}
-.placeholder-cover::after {
-  content: ''; position: absolute;
-  width: 100px; height: 100px; border-radius: 50%;
-  background: rgba(63,166,232,0.06); bottom: -20px; left: -20px;
-}
+.placeholder-cover::before,
+.placeholder-cover::after { display: none; }
 .placeholder-cover .placeholder-icon {
-  font-size: 3.75rem; color: var(--primary); opacity: .35;
+  font-size: 2.75rem; color: var(--primary); opacity: .3;
   position: relative; z-index: 1;
 }
 .placeholder-cover span {
-  font-size: .8125rem; color: #5a8fbe; font-weight: 600;
+  font-size: .7rem; color: #5a8fbe; font-weight: 600;
   position: relative; z-index: 1;
-  background: rgba(255,255,255,0.6); padding: .25rem .75rem;
-  border-radius: 999px; border: 1px solid rgba(63,166,232,0.2);
+  background: rgba(255,255,255,.6); padding: .2rem .6rem;
+  border-radius: 999px; border: 1px solid rgba(63,166,232,.2);
 }
 
 /* Contenido */
 .libro-content {
-  padding: 1.125rem; flex: 1;
-  display: flex; flex-direction: column; gap: .625rem;
+  padding: .875rem 1rem;
+  flex: 1;
+  display: flex; flex-direction: column; gap: .5rem;
 }
 .libro-card h3 {
-   font-size: 1rem;
+  font-size: .875rem;
   font-weight: 700;
   color: var(--text-dark);
-  line-height: 1.4;
+  line-height: 1.35;
   margin: 0;
   overflow: visible;
   white-space: normal;
-  text-overflow: unset;
-  display: block
+  display: block;
 }
-.libro-info { display: flex; flex-direction: column; gap: .375rem; }
-.libro-card p { font-size: .8rem; color: var(--text-gray); line-height: 1.5; margin: 0; }
-.libro-card p strong { color: var(--text-dark); font-weight: 600; margin-right: .2rem; }
-.autor-lista { display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap; }
-.autor-label { font-size: .8rem; font-weight: 700; color: var(--text-dark); white-space: nowrap; flex-shrink: 0; }
-.autores-nombres { display: flex; flex-wrap: wrap; gap: .15rem; align-items: baseline; }
-.autor-nombre { font-size: .8rem; color: var(--text-gray); line-height: 1.5; }
+.libro-info { display: flex; flex-direction: column; gap: .3rem; }
+.libro-card p { font-size: .72rem; color: var(--text-gray); line-height: 1.4; margin: 0; }
+.libro-card p strong { color: var(--text-dark); font-weight: 600; margin-right: .15rem; }
 
-.badge-container { display: flex; gap: .4rem; flex-wrap: wrap; }
+.autor-lista { display: flex; align-items: baseline; gap: .25rem; flex-wrap: wrap; }
+.autor-label  { font-size: .72rem; font-weight: 700; color: var(--text-dark); white-space: nowrap; flex-shrink: 0; }
+.autores-nombres { display: flex; flex-wrap: wrap; gap: .1rem; align-items: baseline; }
+.autor-nombre { font-size: .72rem; color: var(--text-gray); line-height: 1.4; }
+
+/* Badges */
+.badge-container { display: flex; gap: .35rem; flex-wrap: wrap; }
 .badge {
-  display: inline-flex; align-items: center; gap: .3rem;
-  padding: .3rem .65rem; border-radius: 6px;
-  font-size: .7rem; font-weight: 600; line-height: 1;
+  display: inline-flex; align-items: center; gap: .25rem;
+  padding: .22rem .55rem; border-radius: 6px;
+  font-size: .65rem; font-weight: 600; line-height: 1;
 }
-.badge ion-icon { font-size: .8rem; }
+.badge ion-icon { font-size: .75rem; }
 .badge.fisico  { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
 .badge.digital { background: #dbeafe; color: #1e40af; border: 1px solid #60a5fa; }
 
+/* Acciones */
 .acciones {
-  display: flex; gap: .5rem;
-  margin-top: auto; padding-top: .875rem;
+  display: flex; gap: .4rem;
+  margin-top: auto; padding-top: .75rem;
   border-top: 1px solid var(--border);
 }
 .btn {
-  flex: 1; padding: .575rem .75rem;
+  flex: 1; padding: .5rem .6rem;
   border: none; border-radius: 8px;
-  font-size: .8rem; font-weight: 600;
+  font-size: .72rem; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
   font-family: inherit; text-align: center; min-width: 0;
 }
 .btn:not(.secondary) {
   background: #3FA6E8; color: #fff;
-  box-shadow: 0 2px 8px rgba(63,166,232,.25);
+  box-shadow: 0 2px 6px rgba(63,166,232,.22);
 }
 .btn:not(.secondary):hover {
   background: #2D8BE8; transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(63,166,232,.35);
+  box-shadow: 0 4px 10px rgba(63,166,232,.32);
 }
 .btn:not(.secondary):active  { transform: translateY(0); }
 .btn:not(.secondary):disabled {
@@ -389,6 +373,25 @@ body {
 .btn.prestamo-btn:disabled {
   background: #e2e8f0; color: #94a3b8;
   cursor: not-allowed; opacity: .8; transform: none; box-shadow: none;
+}
+
+/* =====================================================
+   SEMESTRE
+   ===================================================== */
+.semestres-wrap { display: flex; flex-direction: column; gap: 0.3rem; }
+.semestres-titulo {
+  display: flex; align-items: center; gap: 0.25rem;
+  font-size: .72rem; font-weight: 700; color: var(--text-dark);
+}
+.semestres-titulo ion-icon { font-size: 0.85rem; color: var(--primary); }
+.semestres-badges { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.badge-semestre {
+  display: inline-flex; align-items: center;
+  background: #ede9fe; color: #6d28d9;
+  border: 1px solid #c4b5fd;
+  padding: .2rem .55rem; border-radius: 6px;
+  font-size: .65rem; font-weight: 600;
+  white-space: nowrap; line-height: 1.4;
 }
 
 /* =====================================================
@@ -416,63 +419,17 @@ body {
   transform: translateY(-1px);
 }
 .pag-btn.activa {
-  background: var(--primary); border-color: var(--primary);
-  color: white;
+  background: var(--primary); border-color: var(--primary); color: white;
   box-shadow: 0 4px 14px rgba(63,166,232,0.38);
   transform: translateY(-1px);
 }
 .pag-btn:disabled { opacity: .3; cursor: not-allowed; transform: none; box-shadow: none; }
 .pag-btn.pag-nav {
-  background: #f1f8fe; border-color: #c8dff0; color: var(--primary);
-  font-size: 1rem;
+  background: #f1f8fe; border-color: #c8dff0; color: var(--primary); font-size: 1rem;
 }
 .pag-btn.pag-nav:hover:not(:disabled) {
   background: var(--primary); color: white; border-color: var(--primary);
 }
-
-/* =====================================================
-   SEMESTRE
-   ===================================================== */
-.semestres-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.semestres-titulo {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-dark);
-}
-
-.semestres-titulo ion-icon {
-  font-size: 0.9rem;
-  color: var(--primary);
-}
-
-.semestres-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.badge-semestre {
-  display: inline-flex;
-  align-items: center;
-  background: #ede9fe;
-  color: #6d28d9;
-  border: 1px solid #c4b5fd;
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  white-space: nowrap;
-  line-height: 1.4;
-}
-
 
 /* =====================================================
    MODAL PRÉSTAMO
@@ -655,22 +612,31 @@ body {
   }
 
   /* Físico sin digital: compacto */
-  .libro-card.solo-fisico { min-height: 90px; align-items: stretch; }
+  .libro-card.solo-fisico { min-height: 130px; align-items: stretch; }
   .libro-card.solo-fisico .book-cover {
-    width: 72px !important; min-width: 72px !important; max-width: 72px !important;
-    min-height: 90px; border-right: 2px solid #c8e2f5 !important;
+    width: 115px !important; min-width: 115px !important; max-width: 115px !important;
+    min-height: 130px;
+    border-right: 2px solid #d1dde8 !important;
     border-radius: 12px 0 0 12px;
     background: linear-gradient(160deg, #deeefb 0%, #c8e2f5 100%);
   }
-  .libro-card.solo-fisico .placeholder-cover { background: transparent; gap: .2rem; }
+  .libro-card.solo-fisico .placeholder-cover {
+    background: transparent; gap: .35rem;
+  }
   .libro-card.solo-fisico .placeholder-cover::before,
   .libro-card.solo-fisico .placeholder-cover::after { display: none; }
-  .libro-card.solo-fisico .placeholder-cover .placeholder-icon { font-size: 1.875rem; opacity: .45; }
-  .libro-card.solo-fisico .placeholder-cover span { display: none; }
-  .libro-card.solo-fisico .libro-content { padding: .5rem .75rem; gap: .15rem; justify-content: center; }
-  .libro-card.solo-fisico h3 { font-size: .8rem; }
-  .libro-card.solo-fisico .acciones { padding-top: .3rem; flex-wrap: nowrap; }
-  .libro-card.solo-fisico .btn { font-size: .66rem; padding: .35rem .45rem; }
+  .libro-card.solo-fisico .placeholder-cover .placeholder-icon {
+    font-size: 2rem; opacity: .4;
+  }
+  .libro-card.solo-fisico .placeholder-cover span {
+    display: inline-flex; font-size: .6rem; padding: .15rem .4rem;
+  }
+  .libro-card.solo-fisico .libro-content {
+    padding: .75rem .875rem; gap: .25rem;
+  }
+  .libro-card.solo-fisico h3 { font-size: .875rem; }
+  .libro-card.solo-fisico .acciones { padding-top: .5rem; flex-wrap: wrap; }
+  .libro-card.solo-fisico .btn { font-size: .7rem; padding: .45rem .5rem; }
 
   .semestres-badges { gap: 0.25rem; }
   .badge-semestre { font-size: 0.65rem; padding: 0.2rem 0.45rem; }
