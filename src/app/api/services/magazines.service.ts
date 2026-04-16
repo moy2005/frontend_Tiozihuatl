@@ -54,7 +54,15 @@ export class MagazinesService {
     { params }
   );
 }
+  getMyPurchases() {
+    const token = localStorage.getItem('accessToken') || '';
 
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    return this.http.get<any[]>(`${this.api}/my-purchases`, { headers });
+  }
   /* ===========================
      CATÁLOGO PÚBLICO
   =========================== */
