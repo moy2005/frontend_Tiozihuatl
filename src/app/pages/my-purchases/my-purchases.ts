@@ -16,7 +16,7 @@ import { environment } from '../../api/environments/environment.prod';
 export class MyPurchases implements OnInit {
   purchasedMagazines: any[] = [];
   loadingPurchases = false;
-
+  
   constructor(
     private http: HttpClient,
     private router: Router
@@ -28,9 +28,13 @@ export class MyPurchases implements OnInit {
 
   cargarRevistasCompradas() {
     this.loadingPurchases = true;
+
     this.http.get<any[]>(`${environment.apiUrl}/magazines/my-purchases`).subscribe({
       next: (data) => {
-        this.purchasedMagazines = data;
+        console.log('Compras recibidas:', data);
+
+        this.purchasedMagazines = data; 
+
         this.loadingPurchases = false;
       },
       error: () => {
