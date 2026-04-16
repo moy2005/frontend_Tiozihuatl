@@ -67,11 +67,11 @@ export class MagazinesComponent implements OnInit {
     this.updateCart();
     this.cartService.cart$.subscribe(() => this.updateCart());
     this.cartService.cart$.subscribe(cart => this.cartCount = cart.length);
-    this.loadPurchases();
+    this.loadPurchasedIds();
   }
 
   loadPurchasedIds(): void {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    const token = localStorage.getItem('accessToken');
     if (!token) return;
 
     this.http.get<any[]>(
@@ -79,11 +79,15 @@ export class MagazinesComponent implements OnInit {
       { headers: this.getAuthHeaders() }
     ).subscribe({
       next: (data) => {
-        this.purchasedIds = data.map(m => m.id_revista ?? m.id_magazine);
+        console.log('Compras:', data); // 👈 DEBUG
+
+        this.purchasedIds = data.map(m => 
+          m.id_magazine ?? m.id_revista ?? m.magazine_id
+        );
       },
       error: (err) => console.error('Error cargando compras', err)
     });
-  }
+}
   /* ── Toast helper ── */
   showToast(type: Toast['type'], title: string, message: string, icon: string): void {
     const id = ++this.toastId;
