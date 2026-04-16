@@ -35,7 +35,7 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   prestamoError     = '';
 
   paginaActual    = 1;
-  librosPorPagina = 12;
+  librosPorPagina = 15;
 
   filtroSemestre = '';
   semestres: any[] = [];
@@ -54,7 +54,6 @@ export class CatalogoComponent implements OnInit, OnDestroy {
     this._ejecutarCarga();
     this.cargarSemestres();
 
-    // Fix: pasar el valor directamente al Subject para que debounce funcione
     this.searchSubject.pipe(
       debounceTime(400),
       takeUntil(this.destroy$)
@@ -71,6 +70,7 @@ export class CatalogoComponent implements OnInit, OnDestroy {
 
   onSearchInput(event: Event): void {
     const valor = (event.target as HTMLInputElement).value;
+    this.paginaActual = 1;
     this.searchSubject.next(valor);
   }
 
