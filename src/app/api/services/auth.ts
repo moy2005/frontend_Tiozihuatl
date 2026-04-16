@@ -586,6 +586,7 @@ export class AuthService {
       rol: baseUser.rol ?? payload.rol ?? null,
       correo: baseUser.correo ?? payload.correo ?? null,
       nombre: baseUser.nombre ?? payload.nombre ?? null,
+      id_semestre: baseUser.id_semestre ?? payload.id_semestre ?? null, 
       metodo_autenticacion:
         baseUser.metodo_autenticacion ?? payload.metodo_autenticacion ?? null,
     };
