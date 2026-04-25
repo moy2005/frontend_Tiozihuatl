@@ -1431,7 +1431,7 @@
   gap: 0.5rem;
   margin-top: 0.5rem;
   padding: 0.7rem 1.5rem;
-  background: var(--primary);
+   background: #3FA6E8;
   color: white;
   border: none;
   border-radius: 10px;
@@ -1448,4 +1448,4 @@
   box-shadow: 0 4px 14px rgba(63,166,232,0.35);
 }
 
-.btn-go-catalog ion-icon { font-size: 1rem; }
+.btn-go-catalog ion-icon {  color: white; font-size: 1rem;}
