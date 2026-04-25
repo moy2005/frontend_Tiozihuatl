@@ -281,9 +281,10 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
+  align-items: start;   /* ← clave: cada card ocupa solo su altura natural */
 }
-
+ 
 /* ================= CARDS ================= */
 .card {
   background: var(--bg-white);
@@ -297,6 +298,8 @@
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  height: 100%;           /* ocupa el espacio del grid cell */
+  min-height: 0; 
 }
 
 .card:hover {
@@ -1314,7 +1317,7 @@
   cursor: not-allowed;
 }
 .grid {
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
 }
 
 @media (max-width: 1200px) {
