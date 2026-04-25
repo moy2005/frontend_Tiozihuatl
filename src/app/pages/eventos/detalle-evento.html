@@ -1,0 +1,176 @@
+<div class="evento-detail-page" [class.evento-detail-page--viewer]="visorAbierto">
+  <nav class="breadcrumb-bar">
+    <a routerLink="/inicio">Inicio</a>
+    <span class="sep">></span>
+    <a routerLink="/eventos">Eventos</a>
+
+    <ng-container *ngIf="!visorAbierto; else breadcrumbGaleria">
+      <span class="sep">></span>
+      <span class="current">{{ evento?.titulo || 'Detalle del evento' }}</span>
+    </ng-container>
+
+    <ng-template #breadcrumbGaleria>
+      <span class="sep">></span>
+      <button type="button" class="breadcrumb-action" (click)="cerrarVisor()">
+        {{ evento?.titulo || 'Detalle del evento' }}
+      </button>
+      <span class="sep">></span>
+      <span class="current">Galeria</span>
+    </ng-template>
+  </nav>
+
+  <div *ngIf="cargando" class="detail-loading">
+    <div class="loader"></div>
+    <p>Cargando detalle del evento...</p>
+  </div>
+
+  <div *ngIf="!cargando && noEncontrado" class="detail-empty">
+    <i class="ph ph-calendar-x"></i>
+    <h2>Evento no disponible</h2>
+    <p>El evento solicitado ya no es publico o no existe.</p>
+    <a routerLink="/eventos" class="back-link">
+      <i class="ph ph-arrow-left"></i>
+      Volver a eventos
+    </a>
+  </div>
+
+  <ng-container *ngIf="!cargando && evento">
+    <ng-container *ngIf="!visorAbierto; else vistaGaleriaCompleta">
+      <section class="detail-hero">
+        <div class="detail-hero-inner">
+          <div class="detail-kicker">
+            <span class="detail-pill">
+              <i class="ph {{ evento.tipo === 'VIRTUAL' ? 'ph-monitor-play' : 'ph-map-pin' }}"></i>
+              {{ evento.tipo === 'VIRTUAL' ? 'Virtual' : 'Presencial' }}
+            </span>
+            <span
+              class="detail-pill"
+              [class.detail-pill--done]="evento.estado === 'Finalizado'"
+              [class.detail-pill--live]="evento.estado !== 'Finalizado'"
+            >
+              <i class="ph {{ evento.estado === 'Finalizado' ? 'ph-check-circle' : 'ph-broadcast' }}"></i>
+              {{ evento.estado === 'Finalizado' ? 'Finalizado' : 'Publicado' }}
+            </span>
+            <span *ngIf="esDestacado()" class="detail-pill detail-pill--star">
+              <i class="ph ph-star-four"></i> Destacado
+            </span>
+          </div>
+
+          <h1 class="detail-title">{{ evento.titulo }}</h1>
+
+          <div class="hero-meta">
+            <span class="hero-meta-item">
+              <i class="ph ph-calendar-blank"></i>
+              {{ formatearFecha(evento.fecha_inicio) }}
+            </span>
+            <span class="hero-meta-item" *ngIf="evento.ubicacion">
+              <i class="ph ph-map-pin"></i>
+              {{ evento.ubicacion }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section class="detail-content detail-content--single">
+        <div class="content-main">
+          <article class="ed-card">
+            <div class="ed-card-header">
+              <div class="ed-card-icon"><i class="ph ph-article"></i></div>
+              <div>
+                <div class="ed-card-title">Descripcion del evento</div>
+                <div class="ed-card-sub">Informacion completa</div>
+              </div>
+            </div>
+            <div class="ed-card-body">
+              <div class="ed-description">{{ evento.descripcion }}</div>
+            </div>
+          </article>
+
+          <article id="galeria" class="ed-card" *ngIf="galeria.length > 0">
+            <div class="ed-card-header">
+              <div class="ed-card-icon"><i class="ph ph-images"></i></div>
+              <div>
+                <div class="ed-card-title">Galeria del evento</div>
+                <div class="ed-card-sub">
+                  {{ galeria.length }} imagen{{ galeria.length !== 1 ? 'es' : '' }} - Toca una para ampliar
+                </div>
+              </div>
+            </div>
+
+            <div class="ed-card-body">
+              <div
+                class="ed-gallery"
+                [class.ed-gallery--two]="galeria.length === 2"
+                [class.ed-gallery--single]="galeria.length === 1"
+              >
+                <figure
+                  *ngFor="let img of galeria; let i = index"
+                  class="ed-gallery-item"
+                  [style.--i]="i"
+                  (click)="abrirVisor(i)"
+                >
+                  <img [src]="img.url" [alt]="evento.titulo" loading="lazy" />
+                  <div class="ed-gallery-zoom">
+                    <i class="ph ph-magnifying-glass-plus"></i>
+                  </div>
+                </figure>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </ng-container>
+
+    <ng-template #vistaGaleriaCompleta>
+      <section class="ed-viewer ed-viewer--page" *ngIf="galeria.length > 0">
+        <div class="ed-viewer-stage">
+          <button
+            type="button"
+            class="ed-nav-btn ed-nav-btn--prev"
+            [disabled]="imagenActiva === 0"
+            (click)="irAImagen(imagenActiva - 1)"
+            aria-label="Imagen anterior"
+          >
+            <span class="ed-nav-btn-inner">
+              <i class="ph ph-caret-left"></i>
+            </span>
+          </button>
+
+          <img
+            #imgPrincipal
+            class="ed-viewer-img"
+            [src]="galeria[imagenActiva].url"
+            [alt]="evento.titulo + ' - imagen ' + (imagenActiva + 1)"
+            (load)="onImageLoad()"
+          />
+
+          <button
+            type="button"
+            class="ed-nav-btn ed-nav-btn--next"
+            [disabled]="imagenActiva === galeria.length - 1"
+            (click)="irAImagen(imagenActiva + 1)"
+            aria-label="Imagen siguiente"
+          >
+            <span class="ed-nav-btn-inner">
+              <i class="ph ph-caret-right"></i>
+            </span>
+          </button>
+        </div>
+
+        <div class="ed-thumb-strip" #thumbStrip>
+          <button
+            *ngFor="let img of galeria; let i = index"
+            type="button"
+            class="ed-thumb"
+            [class.ed-thumb--active]="i === imagenActiva"
+            (click)="irAImagen(i)"
+            [attr.aria-label]="'Ver imagen ' + (i + 1)"
+            #thumbItem
+          >
+            <img [src]="img.url" [alt]="'Miniatura ' + (i + 1)" loading="lazy" />
+          </button>
+        </div>
+      </section>
+    </ng-template>
+  </ng-container>
+</div>

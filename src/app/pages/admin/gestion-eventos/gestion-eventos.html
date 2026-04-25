@@ -1,0 +1,555 @@
+<div class="admin-content">
+  <div class="max-w-[95%] mx-auto">
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h2 class="page-title">Gestion de Eventos</h2>
+        <button (click)="nuevoEvento()" class="btn-primary flex items-center gap-2" type="button">
+          <i class="ph ph-plus-circle"></i>
+          <span>Nuevo Evento</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="content-card filters-card mb-6">
+      <div class="filters-grid">
+        <div class="form-group">
+          <label class="form-label">Buscar</label>
+          <input
+            [(ngModel)]="filtros.search"
+            (keyup.enter)="buscarEventos()"
+            class="form-input"
+            placeholder="Titulo o descripcion"
+            type="text"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select [(ngModel)]="filtros.tipo" class="form-input">
+            <option value="">Todos</option>
+            <option value="PRESENCIAL">Presencial</option>
+            <option value="VIRTUAL">Virtual</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Estado</label>
+          <select [(ngModel)]="filtros.estado" class="form-input">
+            <option value="">Todos</option>
+            <option value="Borrador">Borrador</option>
+            <option value="Publicado">Publicado</option>
+            <option value="Finalizado">Finalizado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Destacado</label>
+          <select [(ngModel)]="filtros.destacado" class="form-input">
+            <option value="">Todos</option>
+            <option value="1">Destacados</option>
+            <option value="0">No destacados</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Vigencia</label>
+          <select [(ngModel)]="filtros.vigencia" class="form-input">
+            <option value="">Todas</option>
+            <option value="vigentes">Vigentes</option>
+            <option value="futuros">Programados</option>
+            <option value="finalizados">Finalizados</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Inicio desde</label>
+          <input [(ngModel)]="filtros.fecha_desde" class="form-input" type="datetime-local" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Inicio hasta</label>
+          <input [(ngModel)]="filtros.fecha_hasta" class="form-input" type="datetime-local" />
+        </div>
+      </div>
+
+      <div class="filters-actions">
+        <button (click)="buscarEventos()" class="btn-primary flex items-center gap-2" type="button">
+          <i class="ph ph-magnifying-glass"></i>
+          <span>Buscar</span>
+        </button>
+        <button (click)="limpiarFiltros()" class="btn-secondary flex items-center gap-2" type="button">
+          <i class="ph ph-arrow-clockwise"></i>
+          <span>Limpiar</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="cargando" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 loading-text">Cargando eventos...</p>
+    </div>
+
+    <div *ngIf="!cargando" class="content-card overflow-hidden">
+      <div *ngIf="eventos.length === 0" class="empty-state">
+        <i class="ph ph-calendar-blank"></i>
+        <p>No se encontraron eventos</p>
+      </div>
+
+      <div *ngIf="eventos.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell">Titulo</th>
+              <th class="th-cell">Tipo</th>
+              <th class="th-cell">Estado</th>
+              <th class="th-cell">Inicio</th>
+              <th class="th-cell">Fin</th>
+              <th class="th-cell">Imagenes</th>
+              <th class="th-cell">Destacado</th>
+              <th class="th-cell text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let evento of eventos" class="table-row">
+              <td class="td-cell">
+                <div class="table-title-cell">
+                  <strong>{{ evento.titulo }}</strong>
+                  <span>{{ evento.ubicacion || evento.enlace || 'Sin ubicacion definida' }}</span>
+                </div>
+              </td>
+              <td class="td-cell text-gray-600">{{ evento.tipo }}</td>
+              <td class="td-cell">
+                <span class="badge-estado" [ngClass]="obtenerClaseEstado(evento.estado)">
+                  {{ evento.estado }}
+                </span>
+              </td>
+              <td class="td-cell text-gray-600">
+                {{ evento.fecha_inicio | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="td-cell text-gray-600">
+                {{ evento.fecha_fin | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="td-cell text-gray-600">{{ evento.total_imagenes || 0 }}</td>
+              <td class="td-cell">
+                <span class="featured-pill" [class.featured-pill--active]="normalizarBooleano(evento.destacado)">
+                  {{ normalizarBooleano(evento.destacado) ? 'Si' : 'No' }}
+                </span>
+              </td>
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+                  <button
+                    (click)="verDetalles(evento)"
+                    class="btn-icon btn-icon-info"
+                    title="Ver detalles"
+                    type="button">
+                    <i class="ph ph-eye"></i>
+                  </button>
+
+                  <button
+                    (click)="editarEvento(evento)"
+                    class="btn-icon btn-icon-primary"
+                    title="Editar evento"
+                    type="button">
+                    <i class="ph ph-pencil-simple"></i>
+                  </button>
+
+                  <button
+                    (click)="toggleDestacado(evento)"
+                    class="btn-icon btn-icon-warning"
+                    [class.is-active]="normalizarBooleano(evento.destacado)"
+                    [title]="normalizarBooleano(evento.destacado) ? 'Quitar destacado' : 'Marcar destacado'"
+                    type="button">
+                    <i class="ph ph-star"></i>
+                  </button>
+
+                  <button
+                    (click)="eliminarEvento(evento.id_evento)"
+                    class="btn-icon btn-icon-danger"
+                    title="Eliminar evento"
+                    type="button">
+                    <i class="ph ph-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="eventos.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let evento of eventos" class="news-card">
+          <div class="flex items-start justify-between gap-3 mb-3 pb-3 border-b border-gray-200">
+            <div class="flex-1">
+              <div class="card-meta">
+                <span class="text-xs font-semibold text-gray-500">ID: {{ evento.id_evento }}</span>
+                <span class="badge-estado" [ngClass]="obtenerClaseEstado(evento.estado)">
+                  {{ evento.estado }}
+                </span>
+              </div>
+              <h4 class="text-lg font-bold text-gray-900">{{ evento.titulo }}</h4>
+              <p class="text-sm text-gray-600 mt-1">{{ evento.tipo }} | {{ evento.total_imagenes || 0 }} imagen(es)</p>
+            </div>
+            <span class="featured-pill" [class.featured-pill--active]="normalizarBooleano(evento.destacado)">
+              {{ normalizarBooleano(evento.destacado) ? 'Destacado' : 'Normal' }}
+            </span>
+          </div>
+
+          <div class="card-dates">
+            <div class="flex items-center gap-2">
+              <i class="ph ph-calendar-blank text-blue-500"></i>
+              <span>Inicio: {{ evento.fecha_inicio | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="ph ph-clock text-red-500"></i>
+              <span>Fin: {{ evento.fecha_fin | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+
+          <div class="flex gap-2 pt-3 border-t border-gray-200">
+            <button (click)="verDetalles(evento)" class="btn-icon-mobile btn-icon-info flex-1" type="button">
+              <i class="ph ph-eye"></i>
+              <span>Ver</span>
+            </button>
+
+            <button (click)="editarEvento(evento)" class="btn-icon-mobile btn-icon-primary flex-1" type="button">
+              <i class="ph ph-pencil-simple"></i>
+              <span>Editar</span>
+            </button>
+
+            <button
+              (click)="toggleDestacado(evento)"
+              class="btn-icon-mobile btn-icon-warning flex-1"
+              type="button">
+              <i class="ph ph-star"></i>
+              <span>Destacar</span>
+            </button>
+
+            <button
+              (click)="eliminarEvento(evento.id_evento)"
+              class="btn-icon-mobile btn-icon-danger flex-1"
+              type="button">
+              <i class="ph ph-trash"></i>
+              <span>Eliminar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="editando" class="modal-overlay" (click)="cancelar()">
+    <div class="modal-container modal-container-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ eventoForm.id_evento ? 'Editar Evento' : 'Crear Evento' }}</h3>
+        <button (click)="cancelar()" class="btn-close" type="button">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+
+      <div *ngIf="guardando" class="upload-loading-overlay">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"></div>
+          <p class="mt-4 text-white font-semibold text-lg">{{ mensajeCarga }}</p>
+          <p class="text-blue-200 text-sm">Por favor espere...</p>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group form-group-full">
+            <label class="form-label">Titulo *</label>
+            <input
+              [(ngModel)]="eventoForm.titulo"
+              class="form-input"
+              maxlength="200"
+              placeholder="Ingresa el titulo del evento"
+              type="text"
+            />
+          </div>
+
+          <div class="form-group form-group-full">
+            <label class="form-label">Descripcion *</label>
+            <textarea
+              [(ngModel)]="eventoForm.descripcion"
+              class="form-input"
+              placeholder="Describe el evento"
+              rows="6"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipo *</label>
+            <select [(ngModel)]="eventoForm.tipo" (change)="onTipoChange()" class="form-input">
+              <option value="PRESENCIAL">Presencial</option>
+              <option value="VIRTUAL">Virtual</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Publicacion</label>
+            <select
+              [(ngModel)]="eventoForm.modo_publicacion"
+              (change)="onModoPublicacionChange()"
+              class="form-input">
+              <option value="ahora">Publicar ahora</option>
+              <option value="programada">Programar fecha</option>
+            </select>
+            <p class="helper-text">{{ obtenerMensajeProgramacion() }}</p>
+          </div>
+
+          <div class="form-group" *ngIf="eventoForm.tipo === 'PRESENCIAL'">
+            <label class="form-label">Ubicacion *</label>
+            <input
+              [(ngModel)]="eventoForm.ubicacion"
+              class="form-input"
+              maxlength="300"
+              placeholder="Auditorio, campus o direccion"
+              type="text"
+            />
+          </div>
+
+          <div class="form-group" *ngIf="eventoForm.tipo === 'VIRTUAL'">
+            <label class="form-label">Enlace *</label>
+            <input
+              [(ngModel)]="eventoForm.enlace"
+              class="form-input"
+              maxlength="500"
+              placeholder="https://..."
+              type="url"
+            />
+          </div>
+
+          <div class="form-group" *ngIf="eventoForm.modo_publicacion === 'programada'">
+            <label class="form-label">Inicio y publicacion *</label>
+            <input
+              [(ngModel)]="eventoForm.fecha_inicio"
+              [max]="obtenerMaxFechaInicioProgramado()"
+              [min]="obtenerMinFechaInicioProgramado()"
+              class="form-input"
+              type="datetime-local"
+            />
+            <p class="helper-text">Puedes programarlo hasta 1 anio hacia adelante.</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fin del evento *</label>
+            <input
+              [(ngModel)]="eventoForm.fecha_fin"
+              [max]="obtenerMaxFechaFin()"
+              class="form-input"
+              type="datetime-local"
+            />
+            <p class="helper-text">La fecha final puede extenderse hasta 5 anios hacia adelante.</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Destacado</label>
+            <label class="check-card">
+              <input [(ngModel)]="eventoForm.destacado" type="checkbox" />
+              <span>
+                <strong>Marcar como destacado</strong>
+                <small>Se prioriza visualmente dentro del modulo de eventos.</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="form-group" *ngIf="puedeCancelarEvento()">
+            <label class="form-label">Cancelacion</label>
+            <label class="check-card check-card-danger">
+              <input [(ngModel)]="eventoForm.cancelar_evento" type="checkbox" />
+              <span>
+                <strong>Marcar como cancelado</strong>
+                <small>Solo se usa cuando el evento ya no debe continuar.</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="form-group form-group-full">
+            <div class="gallery-header">
+              <label class="form-label">Galeria del evento</label>
+              <span class="gallery-help">Arrastra cada imagen para definir su orden final.</span>
+            </div>
+
+            <input
+              #imagenesInput
+              id="event-images-input"
+              (change)="onImagenesChange($event)"
+              accept="image/*"
+              class="gallery-input-hidden"
+              multiple
+              type="file"
+            />
+
+            <div class="gallery-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem;">
+              <button
+                (click)="abrirSelectorImagenes()"
+                type="button"
+                style="display:flex; min-height:260px; width:100%; flex-direction:column; align-items:center; justify-content:center; gap:0.75rem; padding:1.5rem; text-align:center; border:2px dashed #cbd5e1; border-radius:12px; background:#f8fbff; color:#1e293b; cursor:pointer;">
+                <i class="ph ph-plus-circle" style="font-size:2.4rem; color:#03a9f4;"></i>
+                <strong style="display:block; font-size:1rem; font-weight:700; color:#1e293b;">
+                  {{ imagenesOrdenadas.length ? 'Agregar mas imagenes' : 'Agregar imagenes' }}
+                </strong>
+                <span style="display:block; color:#64748b; line-height:1.5;">
+                  Selecciona una o varias imagenes para el evento.
+                </span>
+              </button>
+
+              <article
+                *ngFor="let imagen of imagenesOrdenadas"
+                (dragend)="onDragEnd()"
+                (dragleave)="onDragLeave(imagen.uid)"
+                (dragover)="onDragOver($event, imagen.uid)"
+                (dragstart)="onDragStart($event, imagen.uid)"
+                (drop)="onDrop($event, imagen.uid)"
+                [class.is-drag-over]="dragOverImageUid === imagen.uid"
+                class="gallery-card"
+                style="display:block; overflow:hidden; border:1px solid #cbd5e1; border-radius:12px; background:#ffffff;"
+                draggable="true">
+                <div class="gallery-card-header">
+                  <span class="gallery-order">Orden {{ imagen.orden }}</span>
+                  <span class="gallery-source">
+                    {{ imagen.source === 'existing' ? 'Actual' : 'Nueva' }}
+                  </span>
+                </div>
+
+                <img
+                  [src]="imagen.url"
+                  [alt]="'Imagen ' + imagen.orden"
+                  class="gallery-image"
+                  style="display:block; width:100%; height:220px; object-fit:cover; background:#e2e8f0;" />
+
+                <div class="gallery-card-footer">
+                  <span>Arrastra para reordenar</span>
+                  <button (click)="eliminarImagen(imagen)" class="media-remove-btn" type="button">
+                    Quitar
+                  </button>
+                </div>
+              </article>
+            </div>
+
+            <div
+              class="gallery-empty-state"
+              *ngIf="!imagenesOrdenadas.length"
+              style="margin-top:0.85rem; padding:1rem; border:1px dashed #cbd5e1; border-radius:10px; text-align:center; color:#64748b;">
+              <p>Aun no has agregado imagenes al evento.</p>
+            </div>
+
+            <p class="helper-text helper-text-inline">
+              <i class="ph ph-info"></i>
+              <span>Maximo 15 imagenes por evento. Cada una debe pesar hasta 5MB.</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="cancelar()" [disabled]="guardando" class="btn-secondary" type="button">
+          <span>Cancelar</span>
+        </button>
+        <button
+          (click)="guardarEvento()"
+          [disabled]="guardando"
+          class="modal-save-btn"
+          type="button"
+          style="display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; min-width:220px; min-height:48px; padding:0.75rem 1.5rem; border:none; border-radius:8px; background:#03a9f4; color:#ffffff; font-size:0.875rem; font-weight:700; line-height:1.2; text-align:center;">
+          <i *ngIf="!guardando" [class]="eventoForm.id_evento ? 'ph ph-pencil-simple' : 'ph ph-plus-circle'" style="font-size:1rem; color:#ffffff;"></i>
+          {{ eventoForm.id_evento ? 'Guardar Cambios' : 'Crear Evento' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="mostrarDetalles && eventoSeleccionado" class="modal-overlay" (click)="cerrarDetalles()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Detalle del Evento</h3>
+        <button (click)="cerrarDetalles()" class="btn-close" type="button">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="details-grid">
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Titulo</span>
+            <span class="detail-value">{{ eventoSeleccionado.titulo }}</span>
+          </div>
+
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Descripcion</span>
+            <span class="detail-value detail-text">{{ eventoSeleccionado.descripcion }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Tipo</span>
+            <span class="detail-value">{{ eventoSeleccionado.tipo }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Estado</span>
+            <span class="badge-estado" [ngClass]="obtenerClaseEstado(eventoSeleccionado.estado)">
+              {{ eventoSeleccionado.estado }}
+            </span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Inicio</span>
+            <span class="detail-value">{{ eventoSeleccionado.fecha_inicio | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Fin</span>
+            <span class="detail-value">{{ eventoSeleccionado.fecha_fin | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="eventoSeleccionado.ubicacion">
+            <span class="detail-label">Ubicacion</span>
+            <span class="detail-value">{{ eventoSeleccionado.ubicacion }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="eventoSeleccionado.enlace">
+            <span class="detail-label">Enlace</span>
+            <a
+              [href]="eventoSeleccionado.enlace"
+              class="detail-link"
+              rel="noopener noreferrer"
+              target="_blank">
+              {{ eventoSeleccionado.enlace }}
+            </a>
+          </div>
+
+          <div class="detail-item detail-item-full">
+            <span class="detail-label">Destacado</span>
+            <span class="detail-value">
+              {{ normalizarBooleano(eventoSeleccionado.destacado) ? 'Si' : 'No' }}
+            </span>
+          </div>
+
+          <div class="detail-item detail-item-full" *ngIf="eventoSeleccionado.imagenes?.length">
+            <span class="detail-label detail-label-gallery">
+              <i class="ph ph-image"></i>
+              <span>Galeria</span>
+            </span>
+
+            <div class="detail-gallery-grid">
+              <div *ngFor="let imagen of eventoSeleccionado.imagenes" class="detail-gallery-card">
+                <img
+                  [src]="imagen.url"
+                  [alt]="eventoSeleccionado.titulo"
+                  class="detail-gallery-image"
+                  style="display:block; width:100%; height:180px; object-fit:cover; background:#e2e8f0;" />
+                <span class="detail-gallery-order">Orden {{ imagen.orden }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="cerrarDetalles()" class="btn-secondary" type="button">
+          <span>Cerrar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

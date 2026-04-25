@@ -1,0 +1,172 @@
+<div class="eventos-page">
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="ph ph-calendar-blank"></i>
+      </div>
+      <h1 class="hero-title">Eventos Institucionales</h1>
+      <p class="hero-subtitle">Conoce actividades vigentes, destacados y eventos ya finalizados.</p>
+    </div>
+  </div>
+
+  <div *ngIf="cargandoEventos" class="loading-wrapper">
+    <div class="loader"></div>
+    <p>Cargando eventos...</p>
+  </div>
+
+  <div *ngIf="!cargandoEventos && eventos.length > 0" class="main-content">
+    <div class="info-section">
+      <h2 class="section-title">
+        <span class="title-icon">
+          <i class="ph ph-funnel"></i>
+        </span>
+        Filtrar eventos
+      </h2>
+
+      <div class="filter-grid">
+        <button
+          *ngFor="let filtro of filtros"
+          (click)="aplicarFiltro(filtro.key)"
+          [class.active]="filtroSeleccionado === filtro.key"
+          class="filter-card"
+          type="button">
+          <div class="filter-content">
+            <div class="filter-icon">
+              <i class="ph" [ngClass]="filtro.icon"></i>
+            </div>
+            <div class="filter-text">
+              <h3 class="filter-value">{{ filtro.label }}</h3>
+              <div class="filter-count">{{ contarPorFiltro(filtro.key) }}</div>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h2 class="section-title">
+        <span class="title-icon">
+          <i class="ph ph-calendar-check"></i>
+        </span>
+        {{ filtroSeleccionado === 'Todas' ? 'Todos los eventos' : filtroSeleccionado }}
+      </h2>
+
+      <div class="events-grid">
+        <article
+          *ngFor="let evento of eventosFiltrados"
+          (click)="irADetalle(evento, $event)"
+          (keydown.enter)="irADetalle(evento, $event)"
+          (keydown.space)="irADetalle(evento, $event)"
+          class="event-card"
+          tabindex="0"
+          role="button">
+          <div
+            class="event-media"
+            [class.event-media--empty]="!obtenerImagenPreview(evento)"
+            [style.aspect-ratio]="obtenerAspectRatioEventoCss(evento)">
+            <button
+              (click)="abrirEvento(evento, $event)"
+              class="event-preview-btn"
+              type="button"
+              title="Vista previa"
+              aria-label="Abrir vista previa del evento">
+              <i class="ph ph-eye"></i>
+            </button>
+
+            <img
+              *ngIf="obtenerImagenPreview(evento)"
+              [alt]="evento.titulo"
+              [src]="obtenerImagenPreview(evento)"
+              class="event-image" />
+
+            <div *ngIf="!obtenerImagenPreview(evento)" class="event-placeholder">
+              <i class="ph ph-image"></i>
+            </div>
+
+            <div class="event-badges">
+              <span class="event-badge event-badge--type">{{ obtenerEtiquetaTipo(evento) }}</span>
+              <span
+                class="event-badge"
+                [class.event-badge--done]="evento.estado === 'Finalizado'">
+                {{ obtenerEtiquetaEstado(evento) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="event-body">
+            <div class="event-meta">
+              <span><i class="ph ph-calendar-blank"></i>{{ formatearFechaCorta(evento.fecha_inicio) }}</span>
+              <span *ngIf="normalizarBooleano(evento.destacado)" class="event-meta-star">
+                <i class="ph ph-star"></i> Destacado
+              </span>
+            </div>
+
+            <h3 class="event-title">{{ evento.titulo }}</h3>
+            <p class="event-description">{{ truncarTexto(evento.descripcion, 115) }}</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div *ngIf="eventosFiltrados.length === 0" class="empty-wrapper">
+      <i class="ph ph-magnifying-glass"></i>
+      <h3>No hay eventos en este filtro</h3>
+      <p>Intenta explorar otra vista para encontrar publicaciones disponibles.</p>
+      <button (click)="aplicarFiltro('Todas')" class="reset-btn" type="button">
+        <i class="ph ph-arrow-clockwise"></i>
+        Ver todos los eventos
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!cargandoEventos && eventos.length === 0" class="empty-wrapper">
+    <i class="ph ph-calendar-x"></i>
+    <h3>No hay eventos disponibles</h3>
+    <p>Pronto se publicaran nuevas actividades institucionales.</p>
+  </div>
+
+  <div *ngIf="eventoSeleccionado" class="modal-overlay" (click)="cerrarModal($event)">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <button (click)="cerrarModal($event)" class="modal-close" type="button">
+        <i class="ph ph-x"></i>
+      </button>
+
+      <div class="modal-media" *ngIf="obtenerImagenPreview(eventoSeleccionado)">
+        <img
+          [alt]="eventoSeleccionado.titulo"
+          [src]="obtenerImagenPreview(eventoSeleccionado)"
+        />
+      </div>
+
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-badge">
+            <i class="ph ph-calendar-blank"></i>
+            {{ obtenerEtiquetaTipo(eventoSeleccionado) }}
+          </span>
+          <span class="modal-date">
+            <i class="ph ph-clock"></i>
+            {{ formatearFecha(eventoSeleccionado.fecha_inicio) }}
+          </span>
+        </div>
+
+        <h2 class="modal-title">{{ eventoSeleccionado.titulo }}</h2>
+
+        <div class="modal-facts">
+          <span><i class="ph ph-clock"></i> Fin: {{ formatearFecha(eventoSeleccionado.fecha_fin) }}</span>
+          <span *ngIf="eventoSeleccionado.ubicacion"><i class="ph ph-map-pin"></i> {{ eventoSeleccionado.ubicacion }}</span>
+          <span *ngIf="eventoSeleccionado.enlace"><i class="ph ph-link"></i> Evento virtual</span>
+        </div>
+
+        <p class="modal-text">{{ truncarTexto(eventoSeleccionado.descripcion, 260) }}</p>
+
+        <div class="modal-actions">
+          <button (click)="irADetalle(eventoSeleccionado, $event)" class="modal-detail-btn" type="button">
+            <i class="ph ph-arrow-right"></i>
+            Ver detalle completo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

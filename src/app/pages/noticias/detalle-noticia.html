@@ -1,0 +1,54 @@
+<div class="noticia-detail-page">
+  <nav class="breadcrumb-bar">
+    <a routerLink="/inicio">Inicio</a>
+    <span class="sep">›</span>
+    <a routerLink="/noticias">Noticias</a>
+    <span class="sep">›</span>
+    <span class="current">{{ noticia?.titulo || 'Detalle de noticia' }}</span>
+  </nav>
+
+  <div *ngIf="cargando" class="detail-loading">
+    <div class="loader"></div>
+    <p>Cargando detalle de la noticia...</p>
+  </div>
+
+  <div *ngIf="!cargando && noEncontrado" class="detail-empty">
+    <i class="ph ph-newspaper"></i>
+    <h2>Noticia no disponible</h2>
+    <p>La noticia solicitada ya no se encuentra publicada.</p>
+    <a routerLink="/noticias" class="back-link">Volver a noticias</a>
+  </div>
+
+  <ng-container *ngIf="!cargando && noticia">
+    <section class="detail-hero">
+      <div class="detail-hero-inner">
+        <div class="detail-kicker">
+          <span *ngIf="noticia.categoria" class="detail-pill">
+            <i class="ph ph-tag"></i>
+            {{ noticia.categoria }}
+          </span>
+          <span class="detail-pill">
+            <i class="ph ph-calendar-blank"></i>
+            {{ formatearFecha(noticia.fecha_publicacion) }}
+          </span>
+        </div>
+
+        <h1 class="detail-title">{{ noticia.titulo }}</h1>
+      </div>
+    </section>
+
+    <section class="detail-content">
+      <article class="detail-card detail-card--media" *ngIf="noticia.imagen_url || noticia.video_url">
+        <img *ngIf="noticia.imagen_url" [src]="noticia.imagen_url" [alt]="noticia.titulo" class="detail-image" />
+        <video *ngIf="noticia.video_url" [src]="noticia.video_url" class="detail-video" controls></video>
+      </article>
+
+      <article class="detail-card">
+        <h2 class="detail-card-title">Contenido completo</h2>
+        <div class="detail-description">
+          {{ noticia.contenido }}
+        </div>
+      </article>
+    </section>
+  </ng-container>
+</div>

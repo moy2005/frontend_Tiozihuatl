@@ -47,4 +47,9 @@ export class NewsService {
   getPublicNews() {
     return this.http.get<any[]>(`${this.api}`);
   }
+
+  /** 🔎 Obtener detalle público de noticia */
+  getPublicNewsById(id: number) {
+    return this.http.get<any>(`${this.api}/${id}`);
+  }
 }

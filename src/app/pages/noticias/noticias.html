@@ -1,37 +1,30 @@
 <div class="noticias-page">
-  
-  <!-- Hero Section IGUAL a contacto -->
   <div class="hero-section">
     <div class="hero-content">
       <div class="hero-badge">
         <ion-icon name="newspaper-outline"></ion-icon>
       </div>
-      <h1 class="hero-title">Noticias y Eventos</h1>
-      <p class="hero-subtitle">Mantente informado de las últimas novedades</p>
+      <h1 class="hero-title">Noticias Institucionales</h1>
+      <p class="hero-subtitle">Mantente informado de las ultimas novedades</p>
     </div>
-   
   </div>
 
-  <!-- Loading -->
   <div *ngIf="cargandoNoticias" class="loading-wrapper">
     <div class="loader"></div>
     <p>Cargando noticias...</p>
   </div>
 
-  <!-- Main Content -->
   <div *ngIf="!cargandoNoticias && noticias.length > 0" class="main-content">
-
-    <!-- Filtros por Categoría (usando el mismo estilo que info-section) -->
     <div class="info-section">
       <h2 class="section-title">
         <span class="title-icon">
           <ion-icon name="filter-outline"></ion-icon>
         </span>
-        Filtrar por Categoría
+        Filtrar por categoria
       </h2>
 
       <div class="filter-grid">
-        <button 
+        <button
           class="filter-card"
           [class.active]="categoriaSeleccionada === 'Todas'"
           (click)="filtrarPorCategoria('Todas')">
@@ -43,14 +36,14 @@
               <ion-icon name="apps-outline"></ion-icon>
             </div>
             <div class="filter-text">
-              <span class="filter-label">Ver Todas</span>
+              <span class="filter-label">Ver todas</span>
               <h3 class="filter-value">Todas</h3>
               <div class="filter-count">{{ noticias.length }}</div>
             </div>
           </div>
         </button>
 
-        <button 
+        <button
           *ngFor="let cat of categorias; let i = index"
           class="filter-card"
           [class.active]="categoriaSeleccionada === cat"
@@ -67,7 +60,7 @@
               <ion-icon name="pricetag-outline"></ion-icon>
             </div>
             <div class="filter-text">
-              <span class="filter-label">Categoría</span>
+              <span class="filter-label">Categoria</span>
               <h3 class="filter-value">{{ cat }}</h3>
               <div class="filter-count">{{ contarPorCategoria(cat) }}</div>
             </div>
@@ -76,35 +69,45 @@
       </div>
     </div>
 
-    <!-- Noticias Grid (usando el mismo estilo que info-section) -->
     <div class="info-section">
       <h2 class="section-title">
         <span class="title-icon">
           <ion-icon name="newspaper"></ion-icon>
         </span>
-        {{ categoriaSeleccionada === 'Todas' ? 'Todas las Noticias' : categoriaSeleccionada }}
+        {{ categoriaSeleccionada === 'Todas' ? 'Todas las noticias' : categoriaSeleccionada }}
       </h2>
 
       <div class="info-grid">
-        <div 
-          *ngFor="let noticia of noticiasFiltradas; let i = index"
+        <div
+          *ngFor="let noticia of noticiasFiltradas"
           class="info-card noticia-card"
           [ngStyle]="getCardStyle(noticia)"
-          (click)="abrirNoticia(noticia, $event)">
-          
+          (click)="irADetalle(noticia, $event)"
+          (keydown.enter)="irADetalle(noticia, $event)"
+          (keydown.space)="irADetalle(noticia, $event)"
+          tabindex="0"
+          role="button">
           <div class="info-bg">
             <ion-icon name="newspaper"></ion-icon>
           </div>
 
-          <!-- Media - SOLO IMAGEN/VIDEO -->
+          <button
+            class="preview-eye-btn"
+            type="button"
+            title="Vista previa"
+            aria-label="Abrir vista previa de la noticia"
+            (click)="abrirNoticia(noticia, $event)">
+            <i class="ph ph-eye"></i>
+          </button>
+
           <div class="noticia-media" *ngIf="noticia.imagen_url || noticia.video_url">
-            <img 
+            <img
               *ngIf="noticia.imagen_url && !noticia.video_url"
-              [src]="noticia.imagen_url" 
+              [src]="noticia.imagen_url"
               [alt]="noticia.titulo"
               class="noticia-image"
             />
-            <video 
+            <video
               *ngIf="noticia.video_url"
               [src]="noticia.video_url"
               class="noticia-video"
@@ -120,7 +123,6 @@
             </div>
           </div>
 
-          <!-- TODO EL CONTENIDO DE TEXTO ESTÁ OCULTO EN CSS -->
           <div class="info-content">
             <div class="info-text">
               <span class="info-label">
@@ -135,44 +137,37 @@
       </div>
     </div>
 
-    <!-- Sin resultados -->
     <div *ngIf="noticiasFiltradas.length === 0" class="empty-wrapper">
       <ion-icon name="search-outline"></ion-icon>
-      <h3>No hay noticias en esta categoría</h3>
-      <p>Intenta seleccionar otra categoría</p>
+      <h3>No hay noticias en esta categoria</h3>
+      <p>Intenta seleccionar otra categoria</p>
       <button class="reset-btn" (click)="filtrarPorCategoria('Todas')">
         <ion-icon name="arrow-forward"></ion-icon>
         Ver todas las noticias
       </button>
     </div>
-
   </div>
 
-  <!-- Empty State -->
   <div *ngIf="!cargandoNoticias && noticias.length === 0" class="empty-wrapper">
     <ion-icon name="newspaper-outline"></ion-icon>
     <h3>No hay noticias disponibles</h3>
-    <p>Pronto publicaremos nuevas noticias y eventos</p>
+    <p>Pronto publicaremos nuevas noticias institucionales</p>
   </div>
-
 </div>
 
-<!-- Modal IGUAL al estilo de contacto -->
 <div class="modal-overlay" *ngIf="noticiaSeleccionada" (click)="cerrarModal($event)">
   <div class="modal-container" (click)="$event.stopPropagation()">
-    
-    <button class="modal-close" (click)="cerrarModal($event)">
+    <button class="modal-close" (click)="cerrarModal($event)" type="button">
       <ion-icon name="close"></ion-icon>
     </button>
 
-    <!-- Media -->
     <div class="modal-media" *ngIf="noticiaSeleccionada.imagen_url || noticiaSeleccionada.video_url">
-      <img 
+      <img
         *ngIf="noticiaSeleccionada.imagen_url && !noticiaSeleccionada.video_url"
-        [src]="noticiaSeleccionada.imagen_url" 
+        [src]="noticiaSeleccionada.imagen_url"
         [alt]="noticiaSeleccionada.titulo"
       />
-      <video 
+      <video
         *ngIf="noticiaSeleccionada.video_url"
         [src]="noticiaSeleccionada.video_url"
         controls
@@ -193,8 +188,14 @@
       </div>
 
       <h2 class="modal-title">{{ noticiaSeleccionada.titulo }}</h2>
-      <div class="modal-text">{{ noticiaSeleccionada.contenido }}</div>
-    </div>
+      <div class="modal-text">{{ truncarTexto(noticiaSeleccionada.contenido, 280) }}</div>
 
+      <div class="modal-actions">
+        <button class="modal-detail-btn" (click)="irADetalle(noticiaSeleccionada, $event)" type="button">
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+          Ver detalle completo
+        </button>
+      </div>
+    </div>
   </div>
 </div>

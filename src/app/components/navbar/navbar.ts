@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { UserProfileService } from '../../api/services/user-profile.service';
 import { NewsService } from '../../api/services/news.service';
+import { EventsService } from '../../api/services/events.service';
 import Swal from 'sweetalert2';
 import { filter } from 'rxjs/operators';
 
@@ -25,8 +26,10 @@ export class Navbar implements OnInit, OnDestroy {
 
   // ── Mega menú noticias ──────────────────────────────────────────────
   noticiasMenu: any[] = [];
+  eventosMenu: any[] = [];
   cargandoNoticiasMenu = false;
-  noticiasPanelVisible = false;
+  cargandoEventosMenu = false;
+  panelInstitucionalActivo: 'noticias' | 'eventos' | null = null;
 
   // ── Menú móvil ──────────────────────────────────────────────────────
   isMobileMenuOpen = false;
@@ -43,13 +46,14 @@ export class Navbar implements OnInit, OnDestroy {
     private router: Router,
     private userService: UserProfileService,
     private newsService: NewsService,
+    private eventsService: EventsService,
     private ngZone: NgZone
   ) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
         this.verificarAutenticacion();
-        this.noticiasPanelVisible = false;
+        this.panelInstitucionalActivo = null;
         this.isMobileMenuOpen = false;
       });
   }
@@ -57,6 +61,7 @@ export class Navbar implements OnInit, OnDestroy {
   ngOnInit() {
     this.verificarAutenticacion();
     this.cargarNoticiasMenu();
+    this.cargarEventosMenu();
 
     this.isScrolled = window.scrollY > this.SCROLL_THRESHOLD;
 
@@ -182,21 +187,71 @@ export class Navbar implements OnInit, OnDestroy {
     });
   }
 
-  mostrarPanelNoticias() {
+  mostrarPanelInstitucional(tipo: 'noticias' | 'eventos') {
     clearTimeout(this.panelHideTimeout);
     this.panelShowTimeout = setTimeout(() => {
-      this.noticiasPanelVisible = true;
+      this.panelInstitucionalActivo = tipo;
     }, 60);
   }
 
-  ocultarPanelNoticias() {
+  ocultarPanelInstitucional() {
     clearTimeout(this.panelShowTimeout);
     this.panelHideTimeout = setTimeout(() => {
-      this.noticiasPanelVisible = false;
+      this.panelInstitucionalActivo = null;
     }, 120);
   }
 
   // ── Menú móvil ──────────────────────────────────────────────────────
+  cargarEventosMenu() {
+    this.cargandoEventosMenu = true;
+    this.eventsService.getPublicEvents({ limit: 3 }).subscribe({
+      next: (eventos) => {
+        this.eventosMenu = eventos || [];
+        this.cargandoEventosMenu = false;
+      },
+      error: () => {
+        this.eventosMenu = [];
+        this.cargandoEventosMenu = false;
+      }
+    });
+  }
+
+  get panelInstitucionalVisible(): boolean {
+    return this.panelInstitucionalActivo !== null;
+  }
+
+  get panelInstitucionalTitulo(): string {
+    return this.panelInstitucionalActivo === 'eventos'
+      ? 'Ultimos eventos'
+      : 'Ultimas noticias';
+  }
+
+  get panelInstitucionalLink(): string {
+    return this.panelInstitucionalActivo === 'eventos' ? '/eventos' : '/noticias';
+  }
+
+  get panelInstitucionalItems(): any[] {
+    return this.panelInstitucionalActivo === 'eventos'
+      ? this.eventosMenu
+      : this.noticiasMenu;
+  }
+
+  get panelInstitucionalCargando(): boolean {
+    return this.panelInstitucionalActivo === 'eventos'
+      ? this.cargandoEventosMenu
+      : this.cargandoNoticiasMenu;
+  }
+
+  obtenerPreviewLink(item: any) {
+    return this.panelInstitucionalActivo === 'eventos'
+      ? ['/eventos', item.id_evento]
+      : ['/noticias', item.id_noticia];
+  }
+
+  obtenerPreviewMedia(item: any): string {
+    return item?.imagen_principal || item?.imagen_url || item?.imagenes?.[0]?.url || '';
+  }
+
   toggleMobileMenu(event: Event) {
     this.isMobileMenuOpen = (event.target as HTMLInputElement).checked;
   }

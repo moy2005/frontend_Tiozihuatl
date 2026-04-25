@@ -1,5 +1,12 @@
-import { Component, OnInit, ViewEncapsulation, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewEncapsulation,
+  CUSTOM_ELEMENTS_SCHEMA,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { NewsService } from '../../api/services/news.service';
 
 interface Noticia {
@@ -27,7 +34,7 @@ interface Noticia {
   encapsulation: ViewEncapsulation.None,
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class NoticiasComponent implements OnInit {
+export class NoticiasComponent implements OnInit, OnDestroy {
   cargandoNoticias = false;
   noticias: Noticia[] = [];
   noticiasFiltradas: Noticia[] = [];
@@ -35,10 +42,17 @@ export class NoticiasComponent implements OnInit {
   categoriaSeleccionada = 'Todas';
   noticiaSeleccionada: Noticia | null = null;
 
-  constructor(private newsService: NewsService) {}
+  constructor(
+    private newsService: NewsService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.cargarNoticias();
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
   }
 
   /**
@@ -245,6 +259,16 @@ export class NoticiasComponent implements OnInit {
     document.body.style.overflow = '';
     
     console.log('❌ Modal cerrado');
+  }
+
+  irADetalle(noticia: Noticia, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    this.cerrarModal();
+    this.router.navigate(['/noticias', noticia.id_noticia]);
   }
 
   /**

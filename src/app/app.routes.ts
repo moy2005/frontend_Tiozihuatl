@@ -17,7 +17,11 @@ import { GestionFaqComponent } from './pages/admin/gestion-faq/gestion-faq';
 import { GestionContactoComponent } from './pages/admin/gestion-contacto/gestion-contacto';
 import { ContactanosComponent } from './pages/contactanos/contactanos';
 import { GestionNoticiasComponent } from './pages/admin/gestion-noticias/gestion-noticias';
+import { GestionEventosComponent } from './pages/admin/gestion-eventos/gestion-eventos';
 import { NoticiasComponent } from './pages/noticias/noticias';
+import { DetalleNoticiaComponent } from './pages/noticias/detalle-noticia';
+import { EventosComponent } from './pages/eventos/eventos';
+import { DetalleEventoComponent } from './pages/eventos/detalle-evento';
 import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
 import { VisorLibroComponent } from './pages/biblioteca/catalogo-bibliografico/visor-libro.component';
 import { CalendarioComponent } from './pages/calendario/calendario.component';
@@ -63,6 +67,9 @@ export const routes: Routes = [
   { path: 'seguridad', component: Seguridad},
   { path: 'contactanos',component: ContactanosComponent},
   { path: 'noticias',component: NoticiasComponent},
+  { path: 'noticias/:id', component: DetalleNoticiaComponent},
+  { path: 'eventos', component: EventosComponent},
+  { path: 'eventos/:id', component: DetalleEventoComponent},
   { path: 'about', component: AboutComponent },
   { path: 'calendario', component: CalendarioComponent},
   { path: 'activar', component: ActivateAccountComponent },
@@ -90,6 +97,7 @@ export const routes: Routes = [
       { path: 'preguntas', component: GestionFaqComponent },
       { path: 'contactos', component: GestionContactoComponent },
       { path:'noticias',component:GestionNoticiasComponent},
+      { path: 'eventos', component: GestionEventosComponent },
       { path: 'libros', component: GestionCatalogoComponent },
       { path : 'calendario-admin', component: GestionCalendarioComponent },
       { path : 'prestamos', component:GestionPrestamosComponent },

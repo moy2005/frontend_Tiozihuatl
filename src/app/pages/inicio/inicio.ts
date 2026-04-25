@@ -1,27 +1,48 @@
-import {
-  Component,
-  CUSTOM_ELEMENTS_SCHEMA,
-  OnInit,
-  OnDestroy,
-  ViewChildren,
-  QueryList,
-  ElementRef,
-  AfterViewInit,
-  ViewEncapsulation,
-  NgZone
-} from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { NewsService } from '../../api/services/news.service';
+import { EventsService } from '../../api/services/events.service';
 
-interface Slide {
-  id: number;
-  tipo: 'imagen' | 'video';
-  url: string;
+type NewsMediaKind = 'landscape' | 'portrait' | 'square' | 'no-media';
+type EventMediaKind = 'landscape' | 'portrait' | 'square' | 'no-media';
+
+interface NoticiaHome {
+  id_noticia: number;
   titulo: string;
   contenido: string;
-  categoria?: string;
-  duracion?: number;
+  imagen_url?: string | null;
+  video_url?: string | null;
+  categoria?: string | null;
+}
+
+interface NoticiaDetectada extends NoticiaHome {
+  mediaKind: NewsMediaKind;
+  aspectRatio: number | null;
+}
+
+interface NewsRenderGroup {
+  layout: 'landscape' | 'grid';
+  item?: NoticiaDetectada;
+  items?: NoticiaDetectada[];
+}
+
+interface EventoHomeImagen {
+  url: string;
+}
+
+interface EventoHome {
+  id_evento: number;
+  titulo: string;
+  imagen_principal?: string | null;
+  imagenes?: EventoHomeImagen[];
+  destacado?: boolean | number | string;
+}
+
+interface EventoHomeDetectado extends EventoHome {
+  mediaKind: EventMediaKind;
+  aspectRatio: number | null;
 }
 
 @Component({
@@ -31,294 +52,239 @@ interface Slide {
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
-export class InicioComponent implements OnInit, OnDestroy, AfterViewInit {
-
-  @ViewChildren('videoRef') videoRefs!: QueryList<ElementRef<HTMLVideoElement>>;
-
-  noticias: any[] = [];
-  slides: Slide[] = [];
-  currentSlideIndex = 0;
-  isTransitioning = false;
-  autoplayInterval: any;
+export class InicioComponent implements OnInit {
+  noticias: NoticiaDetectada[] = [];
+  noticiasRender: NewsRenderGroup[] = [];
+  eventosPreview: EventoHomeDetectado[] = [];
   cargandoNoticias = true;
-
-  readonly IMAGE_DURATION = 5000;
-
-  private scrollObserver!: IntersectionObserver;
-  private lastScrollY = 0;
-  private scrollDirection: 'down' | 'up' = 'down';
-  private scrollRafId = 0;
-  private visibilityMap = new Map<HTMLElement, boolean>();
-  private animReady = false;
+  cargandoEventos = true;
 
   constructor(
     private newsService: NewsService,
-    private ngZone: NgZone
+    private eventsService: EventsService
   ) {}
 
-  // ─────────────────────────────────────────
-  //  LIFECYCLE
-  // ─────────────────────────────────────────
-
-  async ngOnInit() {
-    await this.cargarNoticias();
+  async ngOnInit(): Promise<void> {
+    await Promise.all([this.cargarNoticias(), this.cargarEventos()]);
   }
 
-  ngAfterViewInit() {
-    this.videoRefs.changes.subscribe(() => this.gestionarVideo());
+  async cargarNoticias(): Promise<void> {
+    this.cargandoNoticias = true;
 
-    this.ngZone.runOutsideAngular(() => {
-      window.addEventListener('scroll', this.onScroll, { passive: true });
-    });
-  }
-
-  ngOnDestroy() {
-    this.detenerAutoplay();
-    this.scrollObserver?.disconnect();
-    window.removeEventListener('scroll', this.onScroll);
-    cancelAnimationFrame(this.scrollRafId);
-    // Limpiar clase del body al salir
-    document.body.classList.remove('anim-ready');
-  }
-
-  // ─────────────────────────────────────────
-  //  NOTICIAS
-  // ─────────────────────────────────────────
-
-  async cargarNoticias() {
     try {
-      this.cargandoNoticias = true;
+      const noticias = await firstValueFrom(this.newsService.getPublicNews());
+      const listaNoticias = Array.isArray(noticias) ? (noticias as NoticiaHome[]) : [];
+      const noticiasDetectadas = await Promise.all(
+        listaNoticias.map((noticia) => this.detectarMediaNoticia(noticia))
+      );
 
-      this.newsService.getPublicNews().subscribe({
-        next: (noticias) => {
-          this.noticias = noticias || [];
-
-          this.slides = this.noticias
-            .filter(n => n.imagen_url || n.video_url)
-            .map(n => {
-              if (n.video_url) {
-                return {
-                  id: n.id_noticia,
-                  tipo: 'video' as const,
-                  url: n.video_url,
-                  titulo: n.titulo,
-                  contenido: n.contenido,
-                  categoria: n.categoria
-                };
-              } else {
-                return {
-                  id: n.id_noticia,
-                  tipo: 'imagen' as const,
-                  url: n.imagen_url,
-                  titulo: n.titulo,
-                  contenido: n.contenido,
-                  categoria: n.categoria,
-                  duracion: this.IMAGE_DURATION
-                };
-              }
-            });
-
-          this.cargandoNoticias = false;
-          if (this.slides.length > 0) this.iniciarAutoplay();
-
-          // Esperar a que Angular termine de renderizar el DOM
-          // requestAnimationFrame doble garantiza que el paint ya ocurrió
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              this.initScrollAnimations();
-            });
-          });
-        },
-        error: (err) => {
-          console.error('Error al cargar noticias:', err);
-          this.cargandoNoticias = false;
-        }
-      });
-
+      this.noticias = noticiasDetectadas;
+      this.noticiasRender = this.construirGruposNoticias(noticiasDetectadas);
     } catch (error) {
-      console.error('Error en cargarNoticias():', error);
+      console.error('Error al cargar noticias:', error);
+      this.noticias = [];
+      this.noticiasRender = [];
+    } finally {
       this.cargandoNoticias = false;
     }
   }
 
-  // ─────────────────────────────────────────
-  //  ANIMACIONES DE SCROLL
-  // ─────────────────────────────────────────
+  async cargarEventos(): Promise<void> {
+    this.cargandoEventos = true;
 
-  private initScrollAnimations(): void {
-    const articles = Array.from(
-      document.querySelectorAll<HTMLElement>('#noticias .news-item')
-    );
+    try {
+      const eventos = await firstValueFrom(this.eventsService.getPublicEvents());
+      const listaEventos = Array.isArray(eventos) ? (eventos as EventoHome[]) : [];
+      const eventosDetectados = await Promise.all(
+        listaEventos.map((evento) => this.detectarMediaEvento(evento))
+      );
 
-    if (!articles.length) return;
+      this.eventosPreview = eventosDetectados
+        .filter((evento) => this.normalizarBooleano(evento?.destacado))
+        .slice(0, 3);
+    } catch (error) {
+      console.error('Error al cargar eventos:', error);
+      this.eventosPreview = [];
+    } finally {
+      this.cargandoEventos = false;
+    }
+  }
 
-    // 1. Aplicar stagger de palabras ANTES de activar estados ocultos
-    articles.forEach((article) => {
-      const words = article.querySelectorAll<HTMLElement>('.news-word');
-      words.forEach((word, wi) => {
-        const delay = 0.38 + wi * 0.042;
-        word.style.transitionDelay = `${delay}s`;
+  private detectarMediaNoticia(noticia: NoticiaHome): Promise<NoticiaDetectada> {
+    if (noticia.video_url) {
+      return Promise.resolve({
+        ...noticia,
+        mediaKind: 'landscape',
+        aspectRatio: 16 / 9,
       });
-    });
+    }
 
-    // 2. Activar estados iniciales ocultos SOLO si IntersectionObserver
-    //    está disponible (evita SSR o entornos sin soporte)
-    if (!('IntersectionObserver' in window)) return;
+    if (!noticia.imagen_url) {
+      return Promise.resolve({
+        ...noticia,
+        mediaKind: 'no-media',
+        aspectRatio: null,
+      });
+    }
 
-    // 3. Marcar body como listo para animaciones
-    //    Esto activa los estados CSS ocultos
-    document.body.classList.add('anim-ready');
-    this.animReady = true;
+    return new Promise((resolve) => {
+      const image = new Image();
 
-    // 4. Configurar observer
-    this.scrollObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const el = entry.target as HTMLElement;
-          const wasVisible = this.visibilityMap.get(el) ?? false;
+      image.onload = () => {
+        const width = image.naturalWidth || 1;
+        const height = image.naturalHeight || 1;
+        const aspectRatio = width / height;
 
-          if (entry.isIntersecting) {
-            this.visibilityMap.set(el, true);
-            el.classList.remove('is-leaving-up');
-            // Pequeño delay para que el estado oculto aplique antes de animar
-            requestAnimationFrame(() => {
-              el.classList.add('is-visible');
-            });
+        let mediaKind: NewsMediaKind;
+        if (aspectRatio >= 1.25) {
+          mediaKind = 'landscape';
+        } else if (aspectRatio <= 0.9) {
+          mediaKind = 'portrait';
+        } else {
+          mediaKind = 'square';
+        }
 
-          } else {
-            this.visibilityMap.set(el, false);
-            el.classList.remove('is-visible');
-
-            if (wasVisible && this.scrollDirection === 'up') {
-              el.classList.add('is-leaving-up');
-
-              setTimeout(() => {
-                if (!this.visibilityMap.get(el)) {
-                  el.classList.remove('is-leaving-up');
-                }
-              }, 800);
-            } else {
-              el.classList.remove('is-leaving-up');
-            }
-          }
+        resolve({
+          ...noticia,
+          mediaKind,
+          aspectRatio,
         });
-      },
-      {
-        threshold: 0.12,
-        rootMargin: '0px 0px -8% 0px'
+      };
+
+      image.onerror = () => {
+        resolve({
+          ...noticia,
+          mediaKind: 'square',
+          aspectRatio: 1,
+        });
+      };
+
+      image.src = noticia.imagen_url!;
+    });
+  }
+
+  private construirGruposNoticias(noticias: NoticiaDetectada[]): NewsRenderGroup[] {
+    const grupos: NewsRenderGroup[] = [];
+    let bufferGrid: NoticiaDetectada[] = [];
+
+    const vaciarBuffer = () => {
+      if (!bufferGrid.length) return;
+      grupos.push({ layout: 'grid', items: [...bufferGrid] });
+      bufferGrid = [];
+    };
+
+    for (const noticia of noticias) {
+      if (noticia.mediaKind === 'portrait' || noticia.mediaKind === 'square') {
+        bufferGrid.push(noticia);
+        if (bufferGrid.length === 2) {
+          vaciarBuffer();
+        }
+        continue;
       }
-    );
 
-    articles.forEach((article) => {
-      this.scrollObserver.observe(article);
-      this.visibilityMap.set(article, false);
-    });
+      if (noticia.mediaKind === 'no-media') {
+        continue;
+      }
+
+      vaciarBuffer();
+
+      grupos.push({ layout: 'landscape', item: noticia });
+    }
+
+    vaciarBuffer();
+    return grupos;
   }
 
-  private onScroll = (): void => {
-    cancelAnimationFrame(this.scrollRafId);
-    this.scrollRafId = requestAnimationFrame(() => {
-      const currentY = window.scrollY;
-      this.scrollDirection = currentY > this.lastScrollY ? 'down' : 'up';
-      this.lastScrollY = currentY;
-    });
-  };
-
-  // ─────────────────────────────────────────
-  //  COVERFLOW
-  // ─────────────────────────────────────────
-
-  get currentSlide(): Slide | null {
-    return this.slides[this.currentSlideIndex] || null;
+  obtenerClaseGrid(noticia: NoticiaDetectada): string {
+    return noticia.mediaKind === 'portrait' ? 'home-news-card--portrait' : 'home-news-card--square';
   }
 
-  getRelativeIndex(offset: number): number {
-    const len = this.slides.length;
-    return (this.currentSlideIndex + offset + len) % len;
-  }
-
-  isVisible(index: number): boolean {
-    const visible = [
-      this.currentSlideIndex,
-      this.getRelativeIndex(-1),
-      this.getRelativeIndex(-2),
-      this.getRelativeIndex(1),
-      this.getRelativeIndex(2)
-    ];
-    return visible.includes(index);
-  }
-
-  iniciarAutoplay() {
-    this.detenerAutoplay();
-    if (this.currentSlide?.tipo === 'imagen') {
-      this.autoplayInterval = setTimeout(() => this.siguiente(), this.IMAGE_DURATION);
+  obtenerAspectRatioCss(noticia: NoticiaDetectada): string {
+    switch (noticia.mediaKind) {
+      case 'landscape':
+        return '2.45';
+      case 'portrait':
+        return '0.8';
+      case 'square':
+        return '1';
+      default:
+        return '1.4';
     }
   }
 
-  detenerAutoplay() {
-    if (this.autoplayInterval) {
-      clearTimeout(this.autoplayInterval);
-      this.autoplayInterval = null;
+  obtenerImagenEvento(evento: EventoHome): string | null {
+    return evento?.imagen_principal || evento?.imagenes?.[0]?.url || null;
+  }
+
+  obtenerAspectRatioEventoCss(evento: EventoHomeDetectado): string {
+    switch (evento.mediaKind) {
+      case 'landscape':
+        return '1.3';
+      case 'portrait':
+        return '0.95';
+      case 'square':
+        return '1';
+      default:
+        return '1.2';
     }
   }
 
-  gestionarVideo() {
-    if (!this.videoRefs) return;
-    let videoCount = 0;
-    this.slides.forEach((slide, slideIndex) => {
-      if (slide.tipo !== 'video') return;
-      const vidEl = this.videoRefs.toArray()[videoCount]?.nativeElement;
-      videoCount++;
-      if (!vidEl) return;
-      if (slideIndex === this.currentSlideIndex) {
-        vidEl.currentTime = 0;
-        vidEl.play().catch(() => {});
-      } else {
-        vidEl.pause();
-      }
+  private detectarMediaEvento(evento: EventoHome): Promise<EventoHomeDetectado> {
+    const imagenUrl = this.obtenerImagenEvento(evento);
+
+    if (!imagenUrl) {
+      return Promise.resolve({
+        ...evento,
+        mediaKind: 'no-media',
+        aspectRatio: null,
+      });
+    }
+
+    return new Promise((resolve) => {
+      const image = new Image();
+
+      image.onload = () => {
+        const width = image.naturalWidth || 1;
+        const height = image.naturalHeight || 1;
+        const aspectRatio = width / height;
+
+        let mediaKind: EventMediaKind;
+        if (aspectRatio >= 1.25) {
+          mediaKind = 'landscape';
+        } else if (aspectRatio <= 0.9) {
+          mediaKind = 'portrait';
+        } else {
+          mediaKind = 'square';
+        }
+
+        resolve({
+          ...evento,
+          mediaKind,
+          aspectRatio,
+        });
+      };
+
+      image.onerror = () => {
+        resolve({
+          ...evento,
+          mediaKind: 'square',
+          aspectRatio: 1,
+        });
+      };
+
+      image.src = imagenUrl;
     });
   }
 
-  siguiente() {
-    if (this.isTransitioning || this.slides.length === 0) return;
-    this.isTransitioning = true;
-    this.detenerAutoplay();
-    setTimeout(() => {
-      this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length;
-      this.isTransitioning = false;
-      this.iniciarAutoplay();
-      this.gestionarVideo();
-    }, 500);
+  normalizarBooleano(valor: unknown): boolean {
+    return valor === true || valor === 1 || valor === '1' || valor === 'true';
   }
 
-  anterior() {
-    if (this.isTransitioning || this.slides.length === 0) return;
-    this.isTransitioning = true;
-    this.detenerAutoplay();
-    setTimeout(() => {
-      this.currentSlideIndex = this.currentSlideIndex === 0
-        ? this.slides.length - 1
-        : this.currentSlideIndex - 1;
-      this.isTransitioning = false;
-      this.iniciarAutoplay();
-      this.gestionarVideo();
-    }, 500);
+  truncarTexto(texto: string | null | undefined, limite = 220): string {
+    if (!texto) return '';
+    if (texto.length <= limite) return texto;
+    return `${texto.slice(0, limite).trim()}...`;
   }
-
-  irASlide(index: number) {
-    if (this.isTransitioning || index === this.currentSlideIndex || this.slides.length === 0) return;
-    this.isTransitioning = true;
-    this.detenerAutoplay();
-    setTimeout(() => {
-      this.currentSlideIndex = index;
-      this.isTransitioning = false;
-      this.iniciarAutoplay();
-      this.gestionarVideo();
-    }, 500);
-  }
-
-  onVideoEnded() { this.siguiente(); }
-  onVideoError() { console.error('Error al cargar el video'); this.siguiente(); }
 }

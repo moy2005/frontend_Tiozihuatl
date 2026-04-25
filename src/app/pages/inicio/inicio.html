@@ -1,4 +1,3 @@
-<!-- ================= HERO ================= -->
 <section id="inicio" class="relative pt-32 pb-24 bg-[#3FA6E8] text-white overflow-hidden">
   <div
     class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581092919535-7146e93e06f8?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center">
@@ -6,14 +5,14 @@
   <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-16 items-center fade-in">
     <div>
       <span class="inline-block mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold tracking-wide border border-white/20">
-        Centro de formación profesional
+        Centro de formacion profesional
       </span>
       <h1 class="texto text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-md">
-        Vocación, <br> <span class="text-white/90">Fé y Esperanza</span>
+        Vocacion, <br> <span class="text-white/90">Fe y Esperanza</span>
       </h1>
       <p class="text-lg text-white/85 mb-8 leading-relaxed max-w-lg">
-        La enfermería es una mezcla de ciencia, servicio, amor y compromiso, celebramos con gratitud y admiración a
-        quienes, con manos cálidas y corazones fuertes cada día dan su amor y cuidado.
+        La enfermeria es una mezcla de ciencia, servicio, amor y compromiso, celebramos con gratitud y admiracion a
+        quienes, con manos calidas y corazones fuertes cada dia dan su amor y cuidado.
       </p>
       <br><br><br>
     </div>
@@ -24,17 +23,12 @@
   </svg>
 </section>
 
-<!-- ================= NOTICIAS ================= -->
-<section id="noticias" class="news-section">
-
-  <!-- ── SKELETON LOADER ── -->
-  <div *ngIf="cargandoNoticias" class="news-skeleton-list" aria-label="Cargando noticias…" aria-busy="true">
-
-    <!-- Item 1 — fondo blanco / imagen izquierda -->
-    <div class="news-skeleton-item">
-      <div class="news-skeleton-media"></div>
-      <div class="news-skeleton-copy" style="background: #ffffff;">
-        <div class="news-skeleton-copy-inner">
+<section id="noticias" class="home-news-section">
+  <div *ngIf="cargandoNoticias" class="home-news-skeleton-list" aria-label="Cargando noticias..." aria-busy="true">
+    <div class="home-news-skeleton-item">
+      <div class="home-news-skeleton-media"></div>
+      <div class="home-news-skeleton-copy" style="background:#ffffff;">
+        <div class="home-news-skeleton-copy-inner">
           <div class="skeleton-bg sk-badge"></div>
           <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.25rem;">
             <div class="skeleton-bg sk-title1"></div>
@@ -50,10 +44,9 @@
       </div>
     </div>
 
-    <!-- Item 2 — fondo gris / imagen derecha -->
-    <div class="news-skeleton-item">
-      <div class="news-skeleton-copy" style="background: #F4F6F9;">
-        <div class="news-skeleton-copy-inner">
+    <div class="home-news-skeleton-item">
+      <div class="home-news-skeleton-copy" style="background:#F4F6F9;">
+        <div class="home-news-skeleton-copy-inner">
           <div class="skeleton-bg sk-badge"></div>
           <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.25rem;">
             <div class="skeleton-bg sk-title1" style="width:78%;"></div>
@@ -66,14 +59,13 @@
           </div>
         </div>
       </div>
-      <div class="news-skeleton-media" style="background:#DDE3EC;"></div>
+      <div class="home-news-skeleton-media" style="background:#DDE3EC;"></div>
     </div>
 
-    <!-- Item 3 — fondo blanco / imagen izquierda -->
-    <div class="news-skeleton-item">
-      <div class="news-skeleton-media" style="background:#E4E8EE;"></div>
-      <div class="news-skeleton-copy" style="background: #ffffff;">
-        <div class="news-skeleton-copy-inner">
+    <div class="home-news-skeleton-item">
+      <div class="home-news-skeleton-media" style="background:#E4E8EE;"></div>
+      <div class="home-news-skeleton-copy" style="background:#ffffff;">
+        <div class="home-news-skeleton-copy-inner">
           <div class="skeleton-bg sk-badge" style="width:110px;"></div>
           <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.25rem;">
             <div class="skeleton-bg sk-title1" style="width:90%;"></div>
@@ -88,72 +80,98 @@
         </div>
       </div>
     </div>
-
   </div>
-  <!-- ── FIN SKELETON ── -->
 
-  <div *ngIf="!cargandoNoticias && noticias.length === 0" class="news-empty">
+  <div *ngIf="!cargandoNoticias && noticiasRender.length === 0" class="home-news-empty">
     <p>No hay noticias disponibles. Pronto publicaremos contenido nuevo.</p>
   </div>
 
-  <div *ngIf="!cargandoNoticias && noticias.length > 0" class="news-list">
-
-    <article
-      *ngFor="let noticia of noticias; let i = index; let last = last"
-      class="news-item"
-      [attr.data-index]="i"
-      [class.news-item--odd]="i % 2 === 0"
-      [class.news-item--even]="i % 2 !== 0"
-      [class.news-color--a]="!last && i % 4 === 0"
-      [class.news-color--b]="!last && i % 4 === 1"
-      [class.news-color--c]="!last && i % 4 === 2"
-      [class.news-color--d]="!last && i % 4 === 3"
-      [class.news-color--white]="last"
-    >
-
-      <!-- Media -->
-      <div class="news-media-wrap" *ngIf="noticia.imagen_url || noticia.video_url">
-        <div class="news-media-reveal">
-          <img
-            *ngIf="noticia.imagen_url && !noticia.video_url"
-            [src]="noticia.imagen_url"
-            [alt]="noticia.titulo"
-            class="news-img"
-          />
-          <video
-            *ngIf="noticia.video_url"
-            [src]="noticia.video_url"
-            class="news-video"
-            muted autoplay loop playsinline
-          ></video>
-        </div>
-      </div>
-
-      <!-- Copy -->
-      <div class="news-copy">
-        <div class="news-copy-inner">
-
-          <!-- Badge de categoría -->
-          <div class="news-badge-wrap">
-            <span class="news-cat" *ngIf="noticia.categoria">{{ noticia.categoria }}</span>
+  <div *ngIf="!cargandoNoticias && noticiasRender.length > 0" class="home-news-list">
+    <ng-container *ngFor="let group of noticiasRender">
+      <ng-container *ngIf="group.layout === 'landscape'">
+        <article
+          *ngIf="group.item as noticia"
+          class="home-news-card home-news-card--landscape">
+          <div
+            class="home-news-media home-news-media--landscape"
+            *ngIf="noticia.imagen_url || noticia.video_url"
+            [style.aspect-ratio]="obtenerAspectRatioCss(noticia)">
+            <img
+              *ngIf="noticia.imagen_url && !noticia.video_url"
+              [src]="noticia.imagen_url"
+              [alt]="noticia.titulo"
+              class="home-news-image home-news-image--landscape"
+            />
+            <video
+              *ngIf="noticia.video_url"
+              [src]="noticia.video_url"
+              class="home-news-video home-news-video--landscape"
+              muted
+              autoplay
+              loop
+              playsinline
+            ></video>
           </div>
+        </article>
+      </ng-container>
 
-          <!-- Título: palabras con stagger -->
-          <h3 class="news-title" aria-label="{{ noticia.titulo }}">
-            <span
-              class="news-word"
-              *ngFor="let word of noticia.titulo.split(' '); let wi = index"
-              [attr.data-word-index]="wi"
-            >{{ word }}&thinsp;</span>
-          </h3>
-
-          <!-- Descripción -->
-          <p class="news-desc">{{ noticia.contenido }}</p>
-
+      <ng-container *ngIf="group.layout === 'grid'">
+        <div class="home-news-grid-row" [class.home-news-grid-row--single]="(group.items?.length || 0) === 1">
+          <article
+            *ngFor="let noticia of group.items"
+            class="home-news-card home-news-card--grid"
+            [ngClass]="obtenerClaseGrid(noticia)">
+            <div
+              class="home-news-media home-news-media--grid"
+              *ngIf="noticia.imagen_url || noticia.video_url"
+              [style.aspect-ratio]="obtenerAspectRatioCss(noticia)">
+              <img
+                *ngIf="noticia.imagen_url && !noticia.video_url"
+                [src]="noticia.imagen_url"
+                [alt]="noticia.titulo"
+                class="home-news-image home-news-image--grid"
+              />
+              <video
+                *ngIf="noticia.video_url"
+                [src]="noticia.video_url"
+                class="home-news-video home-news-video--grid"
+                muted
+                autoplay
+                loop
+                playsinline
+              ></video>
+            </div>
+          </article>
         </div>
-      </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</section>
 
-    </article>
+<section class="events-home-section" *ngIf="!cargandoEventos && eventosPreview.length > 0">
+  <div class="events-home-inner">
+    <div class="events-home-grid">
+      <a
+        *ngFor="let evento of eventosPreview"
+        [routerLink]="['/eventos', evento.id_evento]"
+        class="events-home-card">
+        <div
+          class="events-home-media"
+          [style.aspect-ratio]="obtenerAspectRatioEventoCss(evento)">
+          <img
+            *ngIf="obtenerImagenEvento(evento)"
+            [src]="obtenerImagenEvento(evento)"
+            [alt]="evento.titulo"
+          />
+          <div *ngIf="!obtenerImagenEvento(evento)" class="events-home-placeholder">
+            <i class="ph ph-calendar-blank"></i>
+          </div>
+        </div>
 
+        <div class="events-home-body">
+          <h3>{{ evento.titulo }}</h3>
+        </div>
+      </a>
+    </div>
   </div>
 </section>
