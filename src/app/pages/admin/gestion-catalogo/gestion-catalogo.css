@@ -1,4 +1,4 @@
-.catalogo-admin {
+  .catalogo-admin {
   --azul:         #29B6F6;
   --azul-dark:    #0288D1;
   --azul-fondo:   #E1F5FE;
@@ -765,47 +765,6 @@
 
 .autor-sugerencia-item:hover { background: var(--azul-fondo); color: var(--azul-dark); }
 .autor-sugerencia-item ion-icon { font-size: 1rem; color: var(--azul); flex-shrink: 0; }
-
-/* ============================================
-   EDITORIAL AUTOCOMPLETE
-   ============================================ */
-.autocomplete-wrapper { position: relative; width: 100%; }
-
-.input-icon {
-  position: absolute;
-  left: 12px; top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-  font-size: 18px;
-}
-
-.autocomplete-wrapper input { width: 100%; padding-left: 38px; }
-
-.autocomplete-dropdown {
-  position: absolute;
-  top: 100%; left: 0;
-  width: 100%;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  margin-top: 6px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  overflow: hidden;
-  z-index: 9999;
-}
-
-.autocomplete-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.autocomplete-item:hover { background: #f3f4f6; }
-.autocomplete-item.active { background: #e0f2fe; }
-.autocomplete-item.create { border-top: 1px solid #eee; color: #2563eb; font-weight: 500; }
 
 /* ============================================
    FILTROS
