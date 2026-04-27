@@ -2,7 +2,7 @@
   --color-fondo:             #E3F2FD;
   --color-contenedor:        #FFFFFF;
   --color-borde:             #BBDEFB;
-  --color-primario:          #29B6F6;
+  --color-primario:          #2196F3;
   --color-primario-hover:    #1976D2;
   --color-secundario:        #607D8B;
   --color-exito:             #4CAF50;
@@ -29,7 +29,7 @@
 
 /* ── Header ── */
 .admin-content .header-section {
-  background: linear-gradient( #29B6F6);
+  background: linear-gradient( #2196F3);
   border-radius: 1px;
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
