@@ -14,7 +14,6 @@ export class MaintenanceService {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
-  /*Ejecutar mantenimiento manual */
   runMaintenance() {
     return this.http.post(
       `${this.api}/run`,
@@ -23,7 +22,6 @@ export class MaintenanceService {
     );
   }
 
-  /* Estado del sistema */
   getStatus() {
     return this.http.get(
       `${this.api}/status`,
@@ -31,7 +29,6 @@ export class MaintenanceService {
     );
   }
 
-  /* Historial de ejecuciones */
   getLogs() {
     return this.http.get(
       `${this.api}/logs`,
@@ -39,7 +36,6 @@ export class MaintenanceService {
     );
   }
 
-  /* Detalle completo de una ejecución */
   getLogDetail(id: number) {
     return this.http.get(
       `${this.api}/logs/${id}`,
@@ -50,6 +46,13 @@ export class MaintenanceService {
   getTablasDetectadas() {
     return this.http.get(
       `${this.api}/tablas-detectadas`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  limpiarLogs(dias: number = 90) {
+    return this.http.delete(
+      `${this.api}/logs/limpiar?dias=${dias}`,
       { headers: this.getAuthHeaders() }
     );
   }
