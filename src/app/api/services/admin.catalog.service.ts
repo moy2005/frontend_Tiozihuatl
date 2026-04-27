@@ -16,7 +16,6 @@ export interface LibroAdmin {
   id?: number;
   titulo: string;
   autores: string;
-  editorial?: string;
   categoria_id: number; 
   materias?: string;   
   materia_id?: number;
@@ -35,6 +34,7 @@ export interface LibroAdmin {
   providedIn: 'root'
 })
 export class CatalogAdminService {
+
   private readonly baseUrl = `${API_URL}/catalog/admin`;
 
   constructor(private http: HttpClient) {}
@@ -90,10 +90,12 @@ export class CatalogAdminService {
     return this.http.patch(`${this.baseUrl}/libros/${id}/estado`, { activo });
   }
 
+
   obtenerMaterias() {
-    return this.http.get<any[]>(`${environment.apiUrl}/catalog/materias`);
+    return this.http.get<any[]>( `${API_URL}/catalog/materias?_t=${Date.now()}`);
   }
-    obtenerAutores(): Observable<any[]> {
+
+  obtenerAutores(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/autores`);
   }
 
@@ -109,5 +111,9 @@ export class CatalogAdminService {
 
  obtenerSemestres(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/semestres`);
+  }
+
+  eliminarLibro(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/libros/${id}`);
   }
 }
