@@ -64,7 +64,6 @@
           <tr>
             <th><ion-icon name="book-outline"></ion-icon> TÍTULO</th>
             <th><ion-icon name="person-outline"></ion-icon> AUTOR</th>
-            <th><ion-icon name="business-outline"></ion-icon> EDITORIAL</th>
             <th><ion-icon name="school-outline"></ion-icon> MATERIA</th>
             <th><ion-icon name="calendar-outline"></ion-icon> SEMESTRE</th>
             <th><ion-icon name="albums-outline"></ion-icon> FORMATO</th>
@@ -73,15 +72,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let libro of libros">
+          <tr *ngFor="let libro of librosPaginados">
             <td>{{ libro.titulo }}</td>
             <td>
               <span *ngFor="let autor of libro.autores?.split(';'); let last = last">
                 {{ autor.trim() }}<span *ngIf="!last">·</span>
               </span>
             </td>
-            <td>{{ libro.editorial || 'N/A' }}</td>
-            <td>{{ libro.materias }}</td>
+            <td>
+              <span *ngFor="let mat of libro.materias?.split(','); let last = last">
+                {{ mat.trim() }}<span *ngIf="!last"> · </span>
+              </span>
+            </td>
             <td>
               <div class="badges-container" *ngIf="libro.semestres; else noSem">
                 <span class="badge badge-semestre" *ngFor="let s of libro.semestres.split(',')">
@@ -123,6 +125,10 @@
                   (click)="cambiarEstado(libro)">
                   <ion-icon [name]="libro.activo === 1 ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
                 </button>
+
+                <button class="btn-icon btn-icon-danger" (click)="eliminarLibro(libro)" title="Eliminar libro">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
               </div>
             </td>
           </tr>
@@ -133,7 +139,7 @@
 
   <!-- CARDS MOBILE -->
   <div *ngIf="!cargandoTabla && libros.length > 0" class="lg:hidden cards-mobile-wrapper">
-    <div *ngFor="let libro of libros" class="libro-card">
+    <div *ngFor="let libro of librosPaginados" class="libro-card">
       <div class="libro-card-header">
         <div class="libro-card-info">
           <div class="libro-card-badges">
@@ -158,13 +164,13 @@
         </div>
       </div>
       <div class="libro-card-body">
-        <div class="libro-card-detalle" *ngIf="libro.editorial">
-          <ion-icon name="business-outline"></ion-icon>
-          <span>{{ libro.editorial }}</span>
-        </div>
         <div class="libro-card-detalle">
           <ion-icon name="school-outline"></ion-icon>
-          <span>{{ libro.materias }}</span>
+          <span>
+            <span *ngFor="let mat of libro.materias?.split(','); let last = last">
+              {{ mat.trim() }}<span *ngIf="!last"> · </span>
+            </span>
+          </span>
         </div>
       </div>
       <div class="libro-card-detalle" *ngIf="libro.semestres">
@@ -183,6 +189,71 @@
           <ion-icon [name]="libro.activo === 1 ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
           {{ libro.activo === 1 ? 'Desactivar' : 'Activar' }}
         </button>
+
+        <button class="libro-card-btn libro-card-btn-danger" (click)="eliminarLibro(libro)">
+          <ion-icon name="trash-outline"></ion-icon>
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGINACIÓN -->
+  <div *ngIf="!cargandoTabla && libros.length > 0" 
+      style="display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:1rem; padding:1.25rem 1.5rem; border-top:1px solid var(--azul-border); background:white; flex-wrap:wrap;">
+    
+    <div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap; gap:1rem;">
+      
+      <!-- Info -->
+      <span style="font-size:0.875rem; color:#64748B; display:flex; align-items:center; gap:0.375rem;">
+        <ion-icon name="library-outline" style="color:var(--azul);"></ion-icon>
+        Mostrando 
+        <strong style="color:var(--azul);">{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
+        &nbsp;a&nbsp;
+        <strong style="color:var(--azul);">{{ Math.min(paginaActual * itemsPorPagina, libros.length) }}</strong>
+        &nbsp;de&nbsp;
+        <strong style="color:var(--azul);">{{ libros.length }}</strong>
+        &nbsp;libro{{ libros.length !== 1 ? 's' : '' }}
+      </span>
+
+      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+
+        <!-- Items por página -->
+        <select [(ngModel)]="itemsPorPagina" (change)="cambiarItemsPorPagina()"
+          style="padding:0.375rem 1.5rem 0.375rem 0.75rem; font-size:0.875rem; border:1px solid #E2E8F0; border-radius:6px; cursor:pointer; background:#fff; color:var(--texto);">
+          <option [value]="20">20 por página</option>
+          <option [value]="30">30 por página</option>
+          <option [value]="50">50 por página</option>
+          <option [value]="100">100 por página</option>
+        </select>
+
+        <!-- Botones de página -->
+        <div style="display:flex; align-items:center; gap:0.375rem; flex-wrap:wrap;">
+          
+          <button (click)="paginaAnterior()" [disabled]="paginaActual === 1"
+            style="min-width:2.375rem; height:2.375rem; display:inline-flex; align-items:center; justify-content:center; border:1px solid #E2E8F0; border-radius:6px; background:white; cursor:pointer; color:#64748B;"
+            [style.opacity]="paginaActual === 1 ? '0.5' : '1'">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+
+          <ng-container *ngFor="let p of paginas">
+            <button *ngIf="p !== '...'" (click)="irAPagina(p)"
+              [style.background]="paginaActual === p ? 'var(--azul)' : 'white'"
+              [style.color]="paginaActual === p ? '#fff' : '#64748B'"
+              [style.border]="paginaActual === p ? '1px solid var(--azul)' : '1px solid #E2E8F0'"
+              style="min-width:2.375rem; height:2.375rem; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; cursor:pointer; font-size:0.875rem; font-weight:500;">
+              {{ p }}
+            </button>
+            <span *ngIf="p === '...'" style="color:#64748B; padding:0 0.25rem;">...</span>
+          </ng-container>
+
+          <button (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas"
+            style="min-width:2.375rem; height:2.375rem; display:inline-flex; align-items:center; justify-content:center; border:1px solid #E2E8F0; border-radius:6px; background:white; cursor:pointer; color:#64748B;"
+            [style.opacity]="paginaActual === totalPaginas ? '0.5' : '1'">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+
+        </div>
       </div>
     </div>
   </div>
@@ -258,40 +329,20 @@
               <small class="autor-hint">Puede agregar múltiples autores del libro.</small>
             </div>
 
-            <!-- EDITORIAL -->
-            <div class="form-group">
-              <label>Editorial </label>
-              <div class="autocomplete-wrapper">
-                <ion-icon class="input-icon" name="business-outline"></ion-icon>
-                <input type="text" [(ngModel)]="nuevoLibro.editorial" name="editorial"
-                  placeholder="Buscar o escribir editorial"
-                  (input)="onBuscarEditorial()" (focus)="onBuscarEditorial()"
-                  (keydown.arrowDown)="moverSeleccion(1)" (keydown.arrowUp)="moverSeleccion(-1)"
-                  (keydown.enter)="seleccionarConEnter()" autocomplete="off" />
-                <div class="autocomplete-dropdown"
-                  *ngIf="!cargando && (editorialesSugeridas.length > 0 || mostrarCrearEditorial)">
-                  <div *ngFor="let e of editorialesSugeridas; let i = index"
-                    class="autocomplete-item" [class.active]="i === indiceSeleccionado"
-                    (mousedown)="seleccionarEditorial(e)">
-                    <ion-icon name="business-outline"></ion-icon>
-                    {{ e.nombre }}
-                  </div>
-                  <div *ngIf="mostrarCrearEditorial" class="autocomplete-item create"
-                    (mousedown)="crearNuevaEditorial()">
-                    <ion-icon name="add-circle-outline"></ion-icon>
-                    Crear "{{ nuevoLibro.editorial }}"
-                  </div>
+            <!-- MATERIA -->
+            <div class="form-group full-width semestres-section">
+              <div class="semestres-label">
+                <ion-icon name="school-outline"></ion-icon>
+                Materia(s) *
+              </div>
+              <div class="semestres-container">
+                <div class="semestre-chip"
+                  *ngFor="let m of materias"
+                  [class.selected]="nuevoLibro.materias?.includes(+m.id)"
+                  (click)="toggleMateria(+m.id)">
+                  {{ m.nombre }}
                 </div>
               </div>
-            </div>
-
-            <!-- MATERIA -->
-            <div class="form-group">
-              <label><ion-icon name="school-outline"></ion-icon> Materia *</label>
-              <select [(ngModel)]="nuevoLibro.materia_id" name="materia_id" required>
-                <option [ngValue]="null" disabled>Seleccione una materia</option>
-                <option *ngFor="let m of materias" [ngValue]="+m.id">{{ m.nombre }}</option>
-              </select>
             </div>
 
             <!-- SEMESTRES -->
@@ -363,7 +414,7 @@
               (click)="pdfInput.click()">
               <ion-icon name="cloud-upload-outline"></ion-icon>
               <span class="pdf-upload-texto">Haz clic para seleccionar un PDF</span>
-              <span class="pdf-upload-limite">Límite: 100MB</span>
+              <span class="pdf-upload-limite">Límite: 10MB</span>
             </div>
 
             <!-- Input oculto -->
