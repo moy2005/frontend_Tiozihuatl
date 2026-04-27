@@ -1,8 +1,8 @@
-  .admin-content {
+    .admin-content {
   --color-fondo:             #E3F2FD;
   --color-contenedor:        #FFFFFF;
   --color-borde:             #BBDEFB;
-  --color-primario:          #2196F3;
+  --color-primario:          #29B6F6;
   --color-primario-hover:    #1976D2;
   --color-secundario:        #607D8B;
   --color-exito:             #4CAF50;
@@ -29,7 +29,7 @@
 
 /* ── Header ── */
 .admin-content .header-section {
-  background: linear-gradient( #2196F3);
+  background: linear-gradient( #29B6F6);
   border-radius: 1px;
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
@@ -572,6 +572,131 @@
   background: white;
   border-radius: 0 0 4px 4px;
   position: sticky; bottom: 0;
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGINACIÓN
+══════════════════════════════════════════════════════ */
+.admin-content .pagination-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--color-borde);
+  background: white;
+}
+
+@media (min-width: 640px) {
+  .admin-content .pagination-section { flex-direction: row; }
+}
+
+.admin-content .pagination-info {
+  font-size: 0.875rem;
+  color: var(--color-texto-secundario);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.admin-content .pagination-info strong {
+  color: var(--color-primario);
+  font-weight: 600;
+}
+
+.admin-content .pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.admin-content .pagination-btn {
+  min-width: 2.375rem;
+  height: 2.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-texto-secundario);
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.admin-content .pagination-btn:hover:not(:disabled) {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+  color: var(--color-texto);
+}
+
+.admin-content .pagination-btn.active {
+  background: var(--color-primario);
+  border-color: var(--color-primario);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.admin-content .pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #F8FAFC;
+}
+
+.admin-content .pagination-btn ion-icon {
+  font-size: 1.125rem;
+}
+
+.admin-content .pagination-dots {
+  color: var(--color-texto-secundario);
+  font-size: 0.875rem;
+  padding: 0 0.25rem;
+}
+
+.admin-content .pagination-page-size {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.admin-content .pagination-page-size select {
+  padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-texto);
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  font-family: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%234B5563' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+}
+
+.admin-content .pagination-page-size select:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+@media (max-width: 640px) {
+  .admin-content .pagination-page-size {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+  }
+  .admin-content .pagination-info { text-align: center; }
 }
 
 /* ── Responsive modal ── */
