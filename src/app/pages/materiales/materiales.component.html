@@ -213,7 +213,6 @@
         </div>
         <div style="min-width:0;">
           <div class="modal-titulo">{{ materialSeleccionado?.titulo }}</div>
-          <small>{{ materialSeleccionado?.nombre_docente }}</small>
         </div>
       </div>
       <button class="modal-cerrar" (click)="cerrarModal()">
@@ -290,37 +289,9 @@
               <div class="detalle-valor">{{ materialSeleccionado?.descripcion }}</div>
             </div>
 
-            <div class="detalle-row" *ngIf="materialSeleccionado?.materias">
-              <span class="detalle-label">Materias</span>
-              <div class="detalle-tags">
-                <span class="tag tg-mat"
-                      *ngFor="let mat of materialSeleccionado?.materias?.split(',')">
-                  <i class="ph ph-book-open"></i>{{ mat.trim() }}
-                </span>
-              </div>
-            </div>
-
-            <div class="detalle-row" *ngIf="materialSeleccionado?.semestres">
-              <span class="detalle-label">Semestres</span>
-              <div class="detalle-tags">
-                <span class="tag tg-sem"
-                      *ngFor="let sem of materialSeleccionado?.semestres?.split(',')">
-                  <i class="ph ph-graduation-cap"></i>{{ sem.trim() }}
-                </span>
-              </div>
-            </div>
-
             <div class="detalle-row">
               <span class="detalle-label">Fecha</span>
               <span class="detalle-valor">{{ formatearFecha(materialSeleccionado?.fecha_creacion) }}</span>
-            </div>
-
-            <div class="detalle-row">
-              <span class="detalle-label">Tipo</span>
-              <span class="badge-tipo" [ngClass]="getClaseTipo(materialSeleccionado?.tipo)">
-                <i [class]="'ph ' + getIconoTipo(materialSeleccionado?.tipo)"></i>
-                {{ materialSeleccionado?.tipo }}
-              </span>
             </div>
 
           </div>
