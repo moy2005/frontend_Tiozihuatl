@@ -35,9 +35,9 @@ export class GestionMantenimientoComponent implements OnInit {
   tablasDetectadas: string[] = [];
   cargandoTablas = false;
 
-   // ── Filtros historial ─────────────────────────────────────────
-  filtroBusqueda  = '';
-  filtroOrigen    = 'todos'; 
+   // Filtros historial ─────────────────────────────────────────
+  private _filtroBusqueda = '';
+  private _filtroOrigen = 'todos';
 
   opcionesFrecuencia = [
     { value: 'weekly',   label: 'Una vez a la semana', icon: 'calendar-outline'  },
@@ -56,6 +56,11 @@ export class GestionMantenimientoComponent implements OnInit {
     { label: 'Dom', value: 0 }
   ];
 
+  paginaActual = 1;
+  itemsPorPagina = 15;
+  totalPaginas = 0;
+  Math = Math;
+
   constructor(
     private maintenanceService: MaintenanceService,
     private automationService: AutomationService
@@ -70,7 +75,7 @@ export class GestionMantenimientoComponent implements OnInit {
     ]);
   }
 
-  // ── Ejecutar mantenimiento manual ─────────────────────────────
+  // Ejecutar mantenimiento manual ─────────────────────────────
   async ejecutarMantenimiento(): Promise<void> {
     const confirm = await Swal.fire({
   title: '¿Ejecutar optimización?',
@@ -119,7 +124,7 @@ export class GestionMantenimientoComponent implements OnInit {
     finally { this.cargandoTablas = false; }
   }
 
-  // ── Cargar estado ────────────────────────────────────
+  // Cargar estado ────────────────────────────────────
   async cargarStatus(): Promise<void> {
     this.cargandoStatus = true;
     try {
@@ -136,7 +141,7 @@ export class GestionMantenimientoComponent implements OnInit {
     finally { this.cargandoLogs = false; }
   }
 
-  // ── Ver detalle de una ejecución ──────────────────────────────
+  // Ver detalle de una ejecución ──────────────────────────────
   async verDetalle(log: any): Promise<void> {
     this.cargandoDetalle = true;
     this.mostrarModal    = true;
@@ -153,7 +158,7 @@ export class GestionMantenimientoComponent implements OnInit {
     this.logDetalle   = null;
   }
 
-  // ── Tareas programadas ────────────────────────────────────────
+  //  Tareas programadas ────────────────────────────────────────
   async cargarTareas(): Promise<void> {
     this.cargandoTareas = true;
     try {
@@ -217,7 +222,14 @@ export class GestionMantenimientoComponent implements OnInit {
     }
   }
 
-   // ── FILTROS ───────────────────────────────────────────────────
+   // FILTROS ───────────────────────────────────────────────────
+
+   get filtroBusqueda() { return this._filtroBusqueda; }
+   set filtroBusqueda(val: string) { this._filtroBusqueda = val; this.paginaActual = 1; }
+
+   get filtroOrigen() { return this._filtroOrigen; }
+   set filtroOrigen(val: string) { this._filtroOrigen = val; this.paginaActual = 1; }
+
   get logsFiltrados(): any[] {
     return this.logs.filter(log => {
       const coincideOrigen = this.filtroOrigen === 'todos' || log.origen === this.filtroOrigen;
@@ -228,6 +240,58 @@ export class GestionMantenimientoComponent implements OnInit {
         String(log.duracion_seg).includes(this.filtroBusqueda);
       return coincideOrigen && coincideBusqueda;
     });
+  }
+
+  get logsPaginados(): any[] {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    return this.logsFiltrados.slice(inicio, inicio + this.itemsPorPagina);
+  }
+
+  calcularTotalPaginas() {
+    this.totalPaginas = Math.ceil(this.logsFiltrados.length / this.itemsPorPagina);
+    if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
+      this.paginaActual = this.totalPaginas;
+    }
+  }
+
+  get paginas(): (number | string)[] {
+    this.calcularTotalPaginas();
+    const total = this.totalPaginas;
+    const actual = this.paginaActual;
+    const delta = 2;
+    const rango: number[] = [];
+    const rangoConPuntos: (number | string)[] = [];
+
+    for (let i = 1; i <= total; i++) {
+      if (i === 1 || i === total || (i >= actual - delta && i <= actual + delta)) {
+        rango.push(i);
+      }
+    }
+
+    let previo: number | null = null;
+    for (const i of rango) {
+      if (previo && i - previo !== 1) rangoConPuntos.push('...');
+      rangoConPuntos.push(i);
+      previo = i;
+    }
+    return rangoConPuntos;
+  }
+
+  irAPagina(pagina: number | string) {
+    if (typeof pagina === 'number') this.paginaActual = pagina;
+  }
+
+  paginaAnterior() {
+    if (this.paginaActual > 1) this.paginaActual--;
+  }
+
+  paginaSiguiente() {
+    if (this.paginaActual < this.totalPaginas) this.paginaActual++;
+  }
+
+  cambiarItemsPorPagina() {
+    this.paginaActual = 1;
+    this.calcularTotalPaginas();
   }
 
   // ── Helpers ───────────────────────────────────────────────────
@@ -282,6 +346,34 @@ export class GestionMantenimientoComponent implements OnInit {
     if (this.tipoFrecuencia === 'interval') return `0 */${this.intervaloHoras} * * *`;
     if (this.tipoFrecuencia === 'days')     return `${m} ${h} * * ${this.diasSeleccionados.join(',')}`;
     throw new Error('Frecuencia inválida');
+  }
+  
+  async limpiarLogsManual(): Promise<void> {
+    const confirm = await Swal.fire({
+      title: 'Limpiar historial',
+      html: `Se eliminarán los registros con más de <b>90 días</b> de antigüedad.<br>
+            <small style="color:#64748B">Esta acción no se puede deshacer.</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, limpiar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#607D8B'
+    });
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res: any = await firstValueFrom(
+        this.maintenanceService.limpiarLogs(90)
+      );
+      Swal.fire({
+        icon: 'success',
+        title: 'Historial limpiado',
+        text: res.message
+      });
+      await this.cargarLogs();
+    } catch {
+      Swal.fire('Error', 'No se pudo limpiar el historial.', 'error');
+    }
   }
   
 }
