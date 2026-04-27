@@ -25,6 +25,8 @@ export class GestionMaterialesComponent implements OnInit {
   materialEditando: any = null;
   archivoActualNombre = '';
 
+  cargando = false;
+
   form: any = {
     titulo: '',
     descripcion: '',
@@ -54,10 +56,13 @@ export class GestionMaterialesComponent implements OnInit {
     }
 
     load() {
-    this.service.getAllAdmin(this.filters).subscribe((res: any) => {
-        this.materiales = res;
-    });
-    }
+      this.cargando = true;
+      this.service.getAllAdmin(this.filters).subscribe((res: any) => {
+      this.materiales = res;
+      this.cargando = false;
+      });
+   }
+
   loadCatalogos() {
     this.service.getMaterias().subscribe((res: any) => this.materias = res);
     this.service.getSemestres().subscribe((res: any) => this.semestres = res);
