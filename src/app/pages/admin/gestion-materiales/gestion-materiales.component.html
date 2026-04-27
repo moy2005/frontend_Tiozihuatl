@@ -85,8 +85,14 @@
       </div>
     </div>
 
+    <!-- LOADING -->
+    <div *ngIf="cargando" class="loading-wrapper">
+      <div class="loading-spinner"></div>
+      <p style="margin-top:1rem; color:#64748B; font-weight:500; font-size:0.875rem;">Cargando materiales...</p>
+    </div>
+
     <!-- TABLA -->
-    <div class="table-wrapper">
+    <div class="table-wrapper" *ngIf="!cargando">
       <table>
         <thead class="table-header">
           <tr>
@@ -109,7 +115,7 @@
             </td>
           </tr>
           <tr *ngFor="let m of materiales" class="table-row">
-            <td class="td-cell" style="font-weight:600; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            <td class="td-cell">
               {{ m.titulo }}
             </td>
               <!-- ✅ celda docente -->
