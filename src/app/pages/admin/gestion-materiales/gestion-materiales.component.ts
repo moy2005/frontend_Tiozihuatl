@@ -24,6 +24,10 @@ export class GestionMaterialesComponent implements OnInit {
   
   materialEditando: any = null;
   archivoActualNombre = '';
+  paginaActual    = 1;
+  itemsPorPagina  = 15;
+  totalPaginas    = 0;
+  Math            = Math;
 
   cargando = false;
 
@@ -55,13 +59,18 @@ export class GestionMaterialesComponent implements OnInit {
     }, 300);
     }
 
-    load() {
-      this.cargando = true;
-      this.service.getAllAdmin(this.filters).subscribe((res: any) => {
+   load() {
+    this.cargando = true;
+    const f = { ...this.filters };
+    delete f.page;
+    delete f.limit;
+    this.service.getAllAdmin(f).subscribe((res: any) => {
       this.materiales = res;
+      this.paginaActual = 1;
+      this.calcularTotalPaginas();
       this.cargando = false;
-      });
-   }
+    });
+  }
 
   loadCatalogos() {
     this.service.getMaterias().subscribe((res: any) => this.materias = res);
@@ -69,17 +78,67 @@ export class GestionMaterialesComponent implements OnInit {
   }
 
   onSearch() {
-    this.filters.page = 1;
+    this.paginaActual = 1;
     this.load();
   }
 
   clearFilters() {
     this.filters = { search: '', materia: '', semestre: '', tipo: '', page: 1, limit: 10 };
+    this.paginaActual = 1;
     this.load();
   }
 
-  nextPage() { this.filters.page++; this.load(); }
-  prevPage() { if (this.filters.page > 1) { this.filters.page--; this.load(); } }
+    get materialesPaginados(): any[] {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    return this.materiales.slice(inicio, inicio + this.itemsPorPagina);
+  }
+
+    calcularTotalPaginas() {
+      this.totalPaginas = Math.ceil(this.materiales.length / this.itemsPorPagina);
+      if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
+        this.paginaActual = this.totalPaginas;
+      }
+    }
+
+    get paginas(): (number | string)[] {
+      this.calcularTotalPaginas();
+      const total  = this.totalPaginas;
+      const actual = this.paginaActual;
+      const delta  = 2;
+      const rango: number[] = [];
+      const rangoConPuntos: (number | string)[] = [];
+
+      for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= actual - delta && i <= actual + delta)) {
+          rango.push(i);
+        }
+      }
+
+      let previo: number | null = null;
+      for (const i of rango) {
+        if (previo && i - previo !== 1) rangoConPuntos.push('...');
+        rangoConPuntos.push(i);
+        previo = i;
+      }
+      return rangoConPuntos;
+    }
+
+    irAPagina(pagina: number | string) {
+      if (typeof pagina === 'number') this.paginaActual = pagina;
+    }
+
+    paginaAnterior() {
+      if (this.paginaActual > 1) this.paginaActual--;
+    }
+
+    paginaSiguiente() {
+      if (this.paginaActual < this.totalPaginas) this.paginaActual++;
+    }
+
+    cambiarItemsPorPagina() {
+      this.paginaActual = 1;
+      this.calcularTotalPaginas();
+    }
 
   onFile(e: any) { this.file = e.target.files[0]; }
 
@@ -105,7 +164,7 @@ export class GestionMaterialesComponent implements OnInit {
 
     // 🔥 UPDATE vs CREATE
         if (this.editMode && this.editId) {
-        this.service.update(this.editId, formData).subscribe({
+        this.service.updateAdmin(this.editId, formData).subscribe({
             next: () => {
             Swal.fire({ icon: 'success', title: 'Material actualizado', timer: 1500, showConfirmButton: false });
             this.mostrarModal = false;
@@ -145,7 +204,7 @@ export class GestionMaterialesComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.isConfirmed) {
-        this.service.delete(id).subscribe(() => {
+        this.service.deleteAdmin(id).subscribe(() => {
           Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500, showConfirmButton: false });
           this.load();
         });
@@ -154,7 +213,7 @@ export class GestionMaterialesComponent implements OnInit {
   }
 
     editar(m: any) {
-    this.service.getById(m.id_material).subscribe((res: any) => {
+    this.service.getByIdAdmin(m.id_material).subscribe((res: any) => {
         this.mostrarModal = true;
         this.editMode = true;
         this.editId = m.id_material;
@@ -217,7 +276,7 @@ export class GestionMaterialesComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.isConfirmed) {
-        this.service.changeStatus(material.id_material, material.activo ? 0 : 1).subscribe(() => {
+        this.service.changeStatusAdmin(material.id_material, material.activo ? 0 : 1).subscribe(() => {
           Swal.fire({ icon: 'success', title: 'Estado actualizado', timer: 1200, showConfirmButton: false });
           this.load();
         });
