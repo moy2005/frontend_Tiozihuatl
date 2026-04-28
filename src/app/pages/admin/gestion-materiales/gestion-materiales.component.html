@@ -177,6 +177,65 @@
       </table>
     </div>
 
+    <!-- CARDS MÓVIL -->
+    <div class="lg:hidden" style="display:none;" *ngIf="!cargando && materiales.length > 0">
+      <div style="padding:1rem; display:flex; flex-direction:column; gap:0.75rem;">
+        <div *ngFor="let m of materialesPaginados" class="material-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid #EFF6FF; gap:0.75rem;">
+            <div style="flex:1; min-width:0;">
+              
+              <p style="font-size:0.9375rem; font-weight:600; color:#1E293B; margin:0 0 0.25rem;">{{ m.titulo }}</p>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <div style="width:24px; height:24px; border-radius:50%; background:#E0F2FE; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700; color:#0288D1; flex-shrink:0;">
+                  {{ m.nombre_docente ? m.nombre_docente.charAt(0).toUpperCase() : '?' }}
+                </div>
+                <span style="font-size:0.8125rem; color:#64748B;">{{ m.nombre_docente || '—' }}</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.375rem; margin-bottom:0.5rem;">
+                <span [ngClass]="m.activo ? 'badge-activo' : 'badge-inactivo'">
+                  {{ m.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+                <span class="badge-tipo"
+                  [ngClass]="{
+                    'badge-pdf'  : m.tipo === 'PDF',
+                    'badge-video': m.tipo === 'VIDEO',
+                    'badge-img'  : m.tipo === 'IMAGEN',
+                    'badge-otro' : m.tipo !== 'PDF' && m.tipo !== 'VIDEO' && m.tipo !== 'IMAGEN'
+                  }">
+                  {{ m.tipo || 'Otro' }}
+                </span>
+                <span class="badge-vis"
+                  [ngClass]="{
+                    'badge-publico'    : m.visibilidad === 'PUBLICO',
+                    'badge-restringido': m.visibilidad === 'RESTRINGIDO'
+                  }">
+                  {{ m.visibilidad === 'PUBLICO' ? 'Público' : 'Restringido' }}
+                </span>
+              </div>
+          <p *ngIf="m.descripcion" style="font-size:0.8125rem; color:#64748B; margin:0 0 0.75rem; line-height:1.5;">
+            {{ m.descripcion }}
+          </p>
+          <div style="display:flex; gap:0.5rem; padding-top:0.75rem; border-top:1px solid #EFF6FF; flex-wrap:wrap;">
+            <button class="btn-icon" title="Editar" (click)="editar(m)"
+              style="flex:1; width:auto; height:2.25rem; border-radius:6px; gap:0.375rem; font-size:0.75rem; font-weight:600; font-family:var(--ff);">
+              <ion-icon name="create-outline"></ion-icon>
+            </button>
+            <button class="btn-icon" (click)="toggleEstado(m)"
+              [ngClass]="m.activo ? 'btn-icon-warning' : 'btn-icon-success'"
+              style="flex:1; width:auto; height:2.25rem; border-radius:6px; gap:0.375rem; font-size:0.75rem; font-weight:600; font-family:var(--ff);">
+              <ion-icon [name]="m.activo ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+            </button>
+            <button class="btn-icon btn-icon-danger" (click)="delete(m.id_material)"
+              style="flex:1; width:auto; height:2.25rem; border-radius:6px; gap:0.375rem; font-size:0.75rem; font-weight:600; font-family:var(--ff);">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- PAGINACIÓN -->
     <div *ngIf="!cargando && materiales.length > 0" class="pagination-section">
       <div class="pagination-info">
