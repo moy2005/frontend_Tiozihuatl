@@ -25,15 +25,11 @@ export class MaterialesService {
     return this.http.get(this.api, { params });
   }
 
-  /**
-   * Lista paginada de materiales con docente.
-   * Ahora recibe semestre del alumno para filtrar automáticamente.
-   */
   getAllMateriales(filters: {
     search?:   string;
     docente?:  string | number;
     tipo?:     string;
-    semestre?: string | number;   // ← semestre del alumno (automático)
+    semestre?: string | number;  
     materia?:  string | number;
     page?:     number;
     limit?:    number;
@@ -98,6 +94,7 @@ export class MaterialesService {
     return this.http.patch(`${this.api}/docente/${id}/estado`, { activo: estado });
   }
 
+  // ── ADMINISTRADOR ──────────────────────────────────────────────────
   getAllAdmin(filters: any = {}) {
     const params = this.buildParams(filters);
     return this.http.get(`${this.api}/admin/todos`, { params });
@@ -112,5 +109,21 @@ export class MaterialesService {
       }
     });
     return params;
+  }
+
+  updateAdmin(id: number, data: FormData) {
+    return this.http.put(`${this.api}/admin/${id}`, data);
+  }
+
+  deleteAdmin(id: number) {
+    return this.http.delete(`${this.api}/admin/${id}`);
+  }
+
+  getByIdAdmin(id: number) {
+    return this.http.get(`${this.api}/admin/${id}`);
+  }
+
+  changeStatusAdmin(id: number, estado: number) {
+    return this.http.patch(`${this.api}/admin/${id}/estado`, { activo: estado });
   }
 }
