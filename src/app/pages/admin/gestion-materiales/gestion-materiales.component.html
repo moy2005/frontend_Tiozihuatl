@@ -114,7 +114,7 @@
               </div>
             </td>
           </tr>
-          <tr *ngFor="let m of materiales" class="table-row">
+          <tr *ngFor="let m of materialesPaginados" class="table-row">
             <td class="td-cell">
               {{ m.titulo }}
             </td>
@@ -178,19 +178,49 @@
     </div>
 
     <!-- PAGINACIÓN -->
-    <div *ngIf="materiales.length > 0" class="pagination-section">
+    <div *ngIf="!cargando && materiales.length > 0" class="pagination-section">
       <div class="pagination-info">
-        <ion-icon name="document-text-outline"></ion-icon>
-        <span>Página <strong>{{ filters.page }}</strong></span>
+        <ion-icon name="document-text-outline" style="color:var(--color-primario);"></ion-icon>
+        <span>
+          Mostrando
+          <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
+          a
+          <strong>{{ Math.min(paginaActual * itemsPorPagina, materiales.length) }}</strong>
+          de
+          <strong>{{ materiales.length }}</strong>
+          material{{ materiales.length !== 1 ? 'es' : '' }}
+        </span>
       </div>
-      <div class="pagination-controls">
-        <button class="pagination-btn" (click)="prevPage()" [disabled]="filters.page === 1">
-          <ion-icon name="chevron-back-outline"></ion-icon>
-        </button>
-        <button class="pagination-btn active">{{ filters.page }}</button>
-        <button class="pagination-btn" (click)="nextPage()" [disabled]="materiales.length < filters.limit">
-          <ion-icon name="chevron-forward-outline"></ion-icon>
-        </button>
+
+      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
+        <select
+          [(ngModel)]="itemsPorPagina"
+          (change)="cambiarItemsPorPagina()"
+          style="padding:0.375rem 1.5rem 0.375rem 0.75rem; font-size:0.875rem;
+                border:1px solid #E2E8F0; border-radius:6px; cursor:pointer;
+                background:#fff; color:var(--ink); font-family:var(--ff);">
+          <option [value]="15">15 por página</option>
+          <option [value]="25">25 por página</option>
+          <option [value]="50">50 por página</option>
+          <option [value]="100">100 por página</option>
+        </select>
+
+        <div class="pagination-controls">
+          <button class="pagination-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <ng-container *ngFor="let p of paginas">
+            <button *ngIf="p !== '...'" class="pagination-btn"
+              [class.active]="paginaActual === p"
+              (click)="irAPagina(p)">
+              {{ p }}
+            </button>
+            <span *ngIf="p === '...'" style="color:#64748B; padding:0 0.25rem;">...</span>
+          </ng-container>
+          <button class="pagination-btn" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
       </div>
     </div>
 
