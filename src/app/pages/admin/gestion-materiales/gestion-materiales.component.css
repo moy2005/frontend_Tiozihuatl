@@ -1053,3 +1053,13 @@ select.form-input {
   border-bottom: 1px solid #BBDEFB;
   background: #fff;
 }
+
+/* ── Mobile: ocultar tabla, mostrar cards ── */
+@media (max-width: 768px) {
+  .gestion-materiales-page .table-wrapper { display: none; }
+  .gestion-materiales-page .table-wrapper + div[class*="lg:hidden"] { display: block !important; }
+}
+
+@media (min-width: 769px) {
+  .gestion-materiales-page .table-wrapper + div[class*="lg:hidden"] { display: none !important; }
+}
