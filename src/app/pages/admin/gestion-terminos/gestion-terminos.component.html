@@ -1,0 +1,305 @@
+<section class="terminos-admin">
+
+  <!-- HEADER -->
+  <div class="header-principal">
+    <h2 class="titulo-principal">
+      <ion-icon name="document-text-outline"></ion-icon>
+      Gestión de Términos y Condiciones
+    </h2>
+    <button class="btn-nuevo" type="button" (click)="abrirModal()">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      Nueva Sección
+    </button>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="cargandoTabla" class="loading-wrapper">
+    <div class="loading-spinner"></div>
+    <p style="margin-top:1rem;color:#64748B;font-weight:500;font-size:0.875rem;">
+      Cargando secciones...
+    </p>
+  </div>
+
+  <!-- CONTADOR -->
+  <div *ngIf="!cargandoTabla" class="contador-bar">
+    Mostrando {{ secciones.length }} sección{{ secciones.length !== 1 ? 'es' : '' }}
+  </div>
+
+  <!-- TABLA DESKTOP -->
+  <div *ngIf="!cargandoTabla" class="tabla-wrapper">
+    <div class="tabla-scroll">
+      <table class="tabla-terminos">
+        <thead>
+          <tr>
+            <th style="width:60px"># N°</th>
+            <th style="width:60px">ORDEN</th>
+            <th>TÍTULO</th>
+            <th>SUBTÍTULO</th>
+            <th style="width:120px">ESTADO</th>
+            <th style="text-align:center;width:130px">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of secciones">
+            <td>
+              <span class="num-badge">{{ s.numero }}</span>
+            </td>
+            <td style="color:#64748B;font-weight:600;">{{ s.orden }}</td>
+            <td>
+              <span class="titulo-cell">{{ s.titulo }}</span>
+            </td>
+            <td style="color:#64748B;font-size:0.8125rem;">
+              {{ s.subtitulo || '—' }}
+            </td>
+            <td>
+              <span class="badge" [ngClass]="s.activo === 1 ? 'badge-activo' : 'badge-inactivo'">
+                <ion-icon [name]="s.activo === 1 ? 'checkmark-circle-outline' : 'close-circle-outline'"></ion-icon>
+                {{ s.activo === 1 ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>
+              <div class="acciones-cell">
+                <button class="btn-icon btn-icon-primary"
+                        title="Editar sección"
+                        (click)="editarSeccion(s)">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button class="btn-icon"
+                        [class.btn-icon-danger]="s.activo === 1"
+                        [class.btn-icon-success]="s.activo !== 1"
+                        [title]="s.activo === 1 ? 'Desactivar' : 'Activar'"
+                        (click)="cambiarEstado(s)">
+                  <ion-icon [name]="s.activo === 1 ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+                </button>
+                <button class="btn-icon btn-icon-danger"
+                        title="Eliminar sección"
+                        (click)="eliminar(s)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="secciones.length === 0">
+            <td colspan="6" style="text-align:center;padding:3rem;color:#94A3B8;">
+              <ion-icon name="document-outline"
+                style="font-size:2.5rem;display:block;margin:0 auto .75rem;color:#CBD5E1;">
+              </ion-icon>
+              <span style="font-size:.9rem;">No hay secciones registradas</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CARDS MOBILE -->
+  <div *ngIf="!cargandoTabla && secciones.length > 0" class="cards-mobile-wrapper">
+    <div *ngFor="let s of secciones" class="termino-card">
+      <div class="termino-card-header">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+          <span class="num-badge">{{ s.numero }}</span>
+          <span class="badge" [ngClass]="s.activo === 1 ? 'badge-activo' : 'badge-inactivo'">
+            <ion-icon [name]="s.activo === 1 ? 'checkmark-circle-outline' : 'close-circle-outline'"></ion-icon>
+            {{ s.activo === 1 ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+        <p class="termino-card-titulo">{{ s.titulo }}</p>
+        <p class="termino-card-sub" *ngIf="s.subtitulo">{{ s.subtitulo }}</p>
+      </div>
+      <div class="termino-card-acciones">
+        <button class="libro-card-btn libro-card-btn-primary" (click)="editarSeccion(s)">
+          <ion-icon name="create-outline"></ion-icon> Editar
+        </button>
+        <button class="libro-card-btn"
+          [class.libro-card-btn-danger]="s.activo === 1"
+          [class.libro-card-btn-success]="s.activo !== 1"
+          (click)="cambiarEstado(s)">
+          <ion-icon [name]="s.activo === 1 ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+          {{ s.activo === 1 ? 'Desactivar' : 'Activar' }}
+        </button>
+        <button class="libro-card-btn libro-card-btn-danger" (click)="eliminar(s)">
+          <ion-icon name="trash-outline"></ion-icon> Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MODAL
+       ═══════════════════════════════════════ -->
+  <div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+      <!-- Loading overlay -->
+      <div *ngIf="cargando" class="upload-loading-overlay">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"
+            style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:4rem;height:4rem;margin:0 auto;"></div>
+          <p style="margin-top:1rem;color:white;font-weight:600;font-size:1rem;">Guardando sección...</p>
+          <p style="color:rgba(255,255,255,.8);font-size:.8125rem;margin-top:.375rem;">Por favor espere...</p>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="modal-header">
+        <h3>
+          <ion-icon [name]="modoEdicion ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+          {{ modoEdicion ? 'Editar Sección' : 'Nueva Sección' }}
+        </h3>
+        <button class="btn-cerrar-modal" type="button" (click)="cerrarModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+
+        <!-- Fila: número, orden, título -->
+        <div class="form-grid-top">
+          <div class="form-group">
+            <label><ion-icon name="list-outline"></ion-icon> N° sección</label>
+            <input type="number" min="1" [(ngModel)]="form.numero" placeholder="1" />
+          </div>
+          <div class="form-group">
+            <label><ion-icon name="swap-vertical-outline"></ion-icon> Orden</label>
+            <input type="number" min="0" [(ngModel)]="form.orden" placeholder="0" />
+            <small>Menor número = primero</small>
+          </div>
+          <div class="form-group form-group-titulo">
+            <label><ion-icon name="text-outline"></ion-icon> Título de la sección *</label>
+            <input type="text" [(ngModel)]="form.titulo" placeholder="Ej: Información General" />
+          </div>
+        </div>
+
+        <!-- Subtítulo (opcional) -->
+        <div class="form-group" style="margin-bottom:1.25rem;">
+          <label><ion-icon name="document-outline"></ion-icon> Subtítulo (opcional)</label>
+          <input type="text" [(ngModel)]="form.subtitulo"
+                 placeholder="Ej: Datos institucionales del responsable de la plataforma" />
+        </div>
+
+        <!-- ═══ EDITOR RICO ═══ -->
+        <div class="rich-editor-container">
+
+          <!-- Etiqueta -->
+          <div class="editor-label">
+            <ion-icon name="document-text-outline"></ion-icon>
+            Contenido de la sección *
+          </div>
+
+          <!-- Barra de herramientas -->
+          <div class="editor-toolbar" role="toolbar" aria-label="Formato de texto">
+
+            <!-- Grupo: texto -->
+            <div class="tb-group">
+              <button type="button" class="tb-btn"
+                      (click)="execFormat('bold')"
+                      title="Negrita (Ctrl+B)">
+                <strong>B</strong>
+              </button>
+              <button type="button" class="tb-btn"
+                      (click)="execFormat('italic')"
+                      title="Cursiva (Ctrl+I)">
+                <em style="font-style:italic;">I</em>
+              </button>
+              <button type="button" class="tb-btn"
+                      (click)="execFormat('strikeThrough')"
+                      title="Tachado">
+                <span style="text-decoration:line-through;font-size:.8rem;">S</span>
+              </button>
+            </div>
+
+            <div class="tb-divider"></div>
+
+            <!-- Grupo: subtítulo H3 -->
+            <div class="tb-group">
+              <button type="button" class="tb-btn"
+                      (click)="formatHeading()"
+                      title="Subtítulo H3">
+                <span style="font-size:.72rem;font-weight:800;letter-spacing:-.03em;">
+                  H<sub>3</sub>
+                </span>
+              </button>
+            </div>
+
+            <div class="tb-divider"></div>
+
+            <!-- Grupo: listas -->
+            <div class="tb-group">
+              <!-- Lista con viñetas -->
+              <button type="button" class="tb-btn"
+                      (click)="toggleList(false)"
+                      title="Lista con viñetas">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <circle cx="2" cy="4" r="1.5"/>
+                  <rect x="5" y="3" width="9" height="2" rx="1"/>
+                  <circle cx="2" cy="8" r="1.5"/>
+                  <rect x="5" y="7" width="9" height="2" rx="1"/>
+                  <circle cx="2" cy="12" r="1.5"/>
+                  <rect x="5" y="11" width="9" height="2" rx="1"/>
+                </svg>
+              </button>
+              <!-- Lista numerada -->
+              <button type="button" class="tb-btn"
+                      (click)="toggleList(true)"
+                      title="Lista numerada">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <text x="0" y="5" font-size="5" font-weight="700" font-family="sans-serif">1.</text>
+                  <rect x="5" y="3" width="9" height="2" rx="1"/>
+                  <text x="0" y="9" font-size="5" font-weight="700" font-family="sans-serif">2.</text>
+                  <rect x="5" y="7" width="9" height="2" rx="1"/>
+                  <text x="0" y="13" font-size="5" font-weight="700" font-family="sans-serif">3.</text>
+                  <rect x="5" y="11" width="9" height="2" rx="1"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="tb-divider"></div>
+
+            <!-- Grupo: limpiar formato -->
+            <div class="tb-group">
+              <button type="button" class="tb-btn"
+                      (click)="execFormat('removeFormat')"
+                      title="Quitar formato">
+                <ion-icon name="close-circle-outline"></ion-icon>
+              </button>
+            </div>
+
+          </div>
+          <!-- /toolbar -->
+
+          <!-- Área editable WYSIWYG -->
+          <div
+            #richEditor
+            class="rich-editor"
+            contenteditable="true"
+            (input)="onEditorInput()"
+            (keydown)="onEditorKeydown($event)"
+            data-placeholder="Escribe aquí el contenido de esta sección...">
+          </div>
+
+          <!-- Contador de caracteres -->
+          <div class="chars-counter">{{ form.contenido?.length || 0 }} caracteres</div>
+
+        </div>
+        <!-- /rich-editor-container -->
+
+      </div>
+      <!-- /modal-body -->
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" [disabled]="cargando" (click)="cerrarModal()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+          Cancelar
+        </button>
+        <button type="button" class="btn-primary-modal" [disabled]="cargando" (click)="guardar()">
+          <ion-icon [name]="modoEdicion ? 'checkmark-circle-outline' : 'add-circle-outline'"></ion-icon>
+          {{ modoEdicion ? 'Actualizar' : 'Crear sección' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</section>
