@@ -1,29 +1,9 @@
-  <style>
-    * { font-family: 'Montserrat', sans-serif; }
-    
-    .fade-in {
-      animation: fadeIn 1s ease-in-out forwards;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+<section class="relative pt-32 pb-20 bg-[#3FA6E8] text-white overflow-hidden">
 
-    .content-section {
-      scroll-margin-top: 120px;
-    }
-
-    .section-title {
-      border-left: 4px solid #3FA6E8;
-      padding-left: 1rem;
-    }
-  </style>
-
-<!-- ================= HERO SECTION ================= -->
-<section class="relative pt-32 pb-16 bg-[#3FA6E8] text-white">
+  <!-- Imagen de fondo -->
   <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center"></div>
-  
+
+  <!-- Contenido -->
   <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 text-center fade-in">
     <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold">
       <ion-icon name="shield-checkmark-outline" class="text-lg"></ion-icon>
@@ -35,1037 +15,125 @@
     <p class="text-lg text-white/90 max-w-3xl mx-auto">
       Sistema Integral Multiplataforma Institucional
     </p>
-    <p class="text-sm text-white/80 mt-2">
-      Última actualización: Noviembre 2025 | Versión 1.0
+    <p class="text-sm text-white/80 mt-2" *ngIf="ultimaActualizacion">
+      Última actualización: {{ ultimaActualizacion }} | Versión 1.0
     </p>
+  </div>
+
+  <!-- OLA ANIMADA  -->
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,60 C360,100 1080,20 1440,55 L1440,90 L0,90 Z" fill="#ffffff"/>
+    </svg>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════
+     CONTENIDO PRINCIPAL
+     ═══════════════════════════════════════ -->
+<section class="py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+
+    <!-- ─── LOADING ─── -->
+    <div *ngIf="cargando" style="text-align:center;padding:4rem 2rem;">
+      <div style="
+        display:inline-block;
+        border:4px solid #B3E5FC;
+        border-top-color:#3FA6E8;
+        width:3rem; height:3rem;
+        border-radius:50%;
+        animation:spin .75s linear infinite;">
+      </div>
+      <p style="margin-top:1rem;color:#64748B;font-weight:500;">Cargando políticas...</p>
+    </div>
+
+    <!-- ─── ERROR ─── -->
+    <div *ngIf="error && !cargando"
+      style="text-align:center;padding:3rem;background:#FEF2F2;
+             border-radius:12px;border:1px solid #FECACA;">
+      <ion-icon name="alert-circle-outline"
+        style="font-size:3rem;color:#F44336;display:block;margin:0 auto .75rem;">
+      </ion-icon>
+      <p style="color:#B91C1C;font-weight:600;font-size:1rem;">
+        No se pudieron cargar las políticas. Intenta más tarde.
+      </p>
+    </div>
+
+    <!-- ─── CONTENIDO DINÁMICO ─── -->
+    <ng-container *ngIf="!cargando && !error">
+
+      <!-- Tabla de Contenidos -->
+      <div *ngIf="secciones.length > 0"
+        class="bg-gray-50 rounded-xl p-8 mb-12 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <ion-icon name="list-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
+          Tabla de Contenidos
+        </h3>
+        <div class="grid md:grid-cols-2 gap-3 text-sm">
+          <a
+            *ngFor="let s of secciones"
+            [routerLink]="[]"
+            [fragment]="'seccion-' + s.seccion_numero"
+            class="text-[#3FA6E8] hover:underline flex items-center gap-1">
+            <ion-icon name="chevron-forward-outline"
+              style="font-size:.75rem;flex-shrink:0;"></ion-icon>
+            {{ s.seccion_numero }}. {{ s.titulo }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Secciones dinámicas -->
+      <div
+        *ngFor="let s of secciones; let i = index"
+        [id]="'seccion-' + s.seccion_numero"
+        class="content-section mb-12">
+
+        <!-- Encabezado de sección -->
+        <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">
+          <ion-icon [name]="s.icono || 'document-text-outline'"></ion-icon>
+          {{ s.seccion_numero }}. {{ s.titulo }}
+        </h2>
+
+        <!-- Contenido renderizado -->
+        <div class="seccion-body" [innerHTML]="textoAHtml(s.contenido)"></div>
+
+      </div>
+
+      <!-- Sin secciones -->
+      <div *ngIf="secciones.length === 0"
+        style="text-align:center;padding:4rem 2rem;background:#F8FAFC;
+               border-radius:12px;border:1px dashed #CBD5E1;">
+        <ion-icon name="document-outline"
+          style="font-size:3rem;color:#94A3B8;display:block;margin:0 auto .75rem;">
+        </ion-icon>
+        <p style="color:#64748B;font-size:1rem;">
+          Las políticas están siendo actualizadas. Por favor vuelve más tarde.
+        </p>
+      </div>
+
+    </ng-container>
+
   </div>
 </section>
 
-<!-- ================= CONTENIDO PRINCIPAL ================= -->
-<section class="py-16 bg-white">
-  <div class="max-w-5xl mx-auto px-6 lg:px-12">
-    
-    <!-- Información del Instituto -->
-    <div class="bg-gradient-to-br from-[#EAF6FF] to-white border-l-4 border-[#3FA6E8] rounded-lg p-8 mb-12 shadow-sm">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">Instituto de Estudios Superiores Tiozihuatl</h2>
-      <div class="space-y-2 text-gray-700">
-        <p><strong>Domicilio:</strong> Carretera Huejutla - Chalahuiyapa S/N, C.P. 43000</p>
-        <p><strong>Ubicación:</strong> Huejutla de Reyes, Hidalgo, México</p>
-        <p><strong>Departamento:</strong> Control Escolar / Protección de Datos Personales</p>
-      </div>
-    </div>
-
-    <!-- Tabla de Contenidos -->
-    <div class="bg-gray-50 rounded-xl p-8 mb-12 border border-gray-200">
-      <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <ion-icon name="list-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
-        Tabla de Contenidos
-      </h3>
-      <div class="grid md:grid-cols-2 gap-3 text-sm">
-        <a [routerLink]="[]" fragment="intro" class="text-[#3FA6E8] hover:underline">1. Introducción y Alcance</a>
-        <a [routerLink]="[]" fragment="responsable" class="text-[#3FA6E8] hover:underline">2. Responsable del Tratamiento</a>
-        <a [routerLink]="[]" fragment="principios" class="text-[#3FA6E8] hover:underline">3. Principios Rectores</a>
-        <a [routerLink]="[]" fragment="datos" class="text-[#3FA6E8] hover:underline">4. Datos Personales Recopilados</a>
-        <a [routerLink]="[]" fragment="finalidades" class="text-[#3FA6E8] hover:underline">5. Finalidades del Tratamiento</a>
-        <a [routerLink]="[]" fragment="arco" class="text-[#3FA6E8] hover:underline">6. Derechos ARCO</a>
-        <a [routerLink]="[]" fragment="procedimiento" class="text-[#3FA6E8] hover:underline">7. Procedimiento para Ejercer Derechos</a>
-        <a [routerLink]="[]" fragment="transferencia" class="text-[#3FA6E8] hover:underline">8. Transferencia de Datos</a>
-        <a [routerLink]="[]" fragment="cookies" class="text-[#3FA6E8] hover:underline">9. Cookies y Tecnologías</a>
-        <a [routerLink]="[]" fragment="seguridad" class="text-[#3FA6E8] hover:underline">10. Medidas de Seguridad</a>
-        <a [routerLink]="[]" fragment="conservacion" class="text-[#3FA6E8] hover:underline">11. Conservación de Datos</a>
-        <a [routerLink]="[]" fragment="derechos-titular" class="text-[#3FA6E8] hover:underline">12. Derechos del Titular</a>
-        <a [routerLink]="[]" fragment="menores" class="text-[#3FA6E8] hover:underline">13. Usuarios Menores de Edad</a>
-        <a [routerLink]="[]" fragment="modificaciones" class="text-[#3FA6E8] hover:underline">14. Modificaciones</a>
-        <a [routerLink]="[]" fragment="legislacion" class="text-[#3FA6E8] hover:underline">15. Legislación Aplicable</a>
-        <a [routerLink]="[]" fragment="contacto" class="text-[#3FA6E8] hover:underline">16. Contacto y Atención</a>
-      </div>
-    </div>
-
-    <!-- Secciones de Contenido -->
-    
-    <!-- 1. INTRODUCCIÓN -->
-    <div id="intro" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">1. Introducción y Alcance</h2>
-      <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-        <p class="mb-4">
-          Las presentes Políticas de Privacidad establecen los términos y condiciones bajo los cuales el <strong>Instituto de Estudios Superiores Tiozihuatl</strong> (en adelante "el Instituto", "IEST" o "nosotros") recopila, utiliza, almacena, transfiere y protege la información personal de los usuarios del <strong>Sistema Integral Multiplataforma</strong>, que incluye:
-        </p>
-        <ul class="list-disc pl-6 space-y-2 mb-4">
-          <li>Portal Web Institucional</li>
-          <li>Módulo de Biblioteca Digital</li>
-          <li>Módulo de Venta de Revistas Digitales</li>
-          <li>Asistente Virtual</li>
-          <li>Foros Académicos</li>
-        </ul>
-        <p>
-          Estas políticas aplican a todos los usuarios del sistema, independientemente de su rol: <strong>Administrador, Bibliotecario, Docente, Estudiante, Visitante o Usuario Público</strong>.
-        </p>
-      </div>
-    </div>
-
-    <!-- 2. RESPONSABLE -->
-    <div id="responsable" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">2. Responsable del Tratamiento de Datos</h2>
-      <div class="bg-[#EAF6FF] rounded-lg p-6 border border-[#3FA6E8]/20">
-        <div class="space-y-3 text-gray-700">
-          <p><strong>Denominación:</strong> Instituto de Estudios Superiores Tiozihuatl</p>
-          <p><strong>Domicilio:</strong> Carretera Huejutla - Chalahuiyapa S/N, C.P. 43000, Huejutla de Reyes, Hidalgo, México</p>
-          <p><strong>Departamento de Datos Personales:</strong> Departamento de Control Escolar</p>
-        </div>
-        <div class="mt-4 p-4 bg-white rounded-lg border border-gray-200">
-          <p class="text-sm text-gray-600">
-            El Instituto actúa como responsable del tratamiento de datos personales conforme a la <strong>Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</strong> y su Reglamento.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. PRINCIPIOS RECTORES -->
-    <div id="principios" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">3. Principios Rectores</h2>
-      <p class="text-gray-700 mb-6">El tratamiento de datos personales se rige por los siguientes principios establecidos en la LFPDPPP:</p>
-      
-      <div class="grid md:grid-cols-2 gap-4">
-        <div class="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#3FA6E8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="checkmark-done-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Licitud</h4>
-              <p class="text-sm text-gray-600">Todos los datos se obtienen por medios lícitos y conforme a las disposiciones legales aplicables.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#2D8BE8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="hand-right-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Consentimiento</h4>
-              <p class="text-sm text-gray-600">El titular otorga su consentimiento expreso al registrarse y utilizar los servicios del sistema.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#3FA6E8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="information-circle-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Información</h4>
-              <p class="text-sm text-gray-600">Los usuarios tienen derecho a conocer qué datos se recopilan, con qué finalidad y quién tiene acceso.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#2D8BE8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="star-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Calidad</h4>
-              <p class="text-sm text-gray-600">Los datos serán exactos, completos, pertinentes, correctos y actualizados.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#3FA6E8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="flag-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Finalidad</h4>
-              <p class="text-sm text-gray-600">Los datos se utilizarán exclusivamente para los fines establecidos en estas políticas.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#2D8BE8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="shield-checkmark-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Responsabilidad</h4>
-              <p class="text-sm text-gray-600">El Instituto implementa medidas de seguridad físicas, técnicas y administrativas.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. DATOS RECOPILADOS -->
-    <div id="datos" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">4. Datos Personales Recopilados</h2>
-      
-      <div class="space-y-6">
-        <!-- Datos de Identificación -->
-        <div class="border border-gray-200 rounded-lg p-6 bg-white">
-          <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="person-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
-            4.1 Datos de Identificación
-          </h3>
-          <ul class="list-disc pl-6 space-y-1 text-gray-700">
-            <li>Nombre completo (nombre, apellido paterno, apellido materno)</li>
-            <li>Matrícula estudiantil o número de empleado</li>
-            <li>Fotografía (opcional, para perfil)</li>
-            <li>Rol institucional (Estudiante, Docente, Bibliotecario, Administrador, Visitante)</li>
-          </ul>
-        </div>
-
-        <!-- Datos de Contacto -->
-        <div class="border border-gray-200 rounded-lg p-6 bg-white">
-          <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="mail-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
-            4.2 Datos de Contacto
-          </h3>
-          <ul class="list-disc pl-6 space-y-1 text-gray-700">
-            <li>Correo electrónico (institucional o personal)</li>
-            <li>Número telefónico</li>
-            <li>Dirección (opcional, para envío de materiales físicos)</li>
-          </ul>
-        </div>
-
-        <!-- Datos Académicos -->
-        <div class="border border-gray-200 rounded-lg p-6 bg-white">
-          <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="school-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
-            4.3 Datos Académicos
-          </h3>
-          <ul class="list-disc pl-6 space-y-1 text-gray-700">
-            <li>Carrera o programa educativo</li>
-            <li>Semestre o grado académico</li>
-            <li>Grupo</li>
-            <li>Historial académico relacionado con el uso de la biblioteca</li>
-          </ul>
-        </div>
-
-        <!-- Datos de Uso -->
-        <div class="border border-gray-200 rounded-lg p-6 bg-white">
-          <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="analytics-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
-            4.4 Datos de Uso del Sistema
-          </h3>
-          <ul class="list-disc pl-6 space-y-1 text-gray-700">
-            <li>Historial de préstamos, reservas y devoluciones</li>
-            <li>Materiales consultados y descargados</li>
-            <li>Búsquedas realizadas en el catálogo</li>
-            <li>Participación en foros académicos</li>
-          </ul>
-        </div>
-
-        <!-- Datos Financieros -->
-        <div class="border border-gray-200 rounded-lg p-6 bg-white">
-          <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="card-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
-            4.5 Datos Financieros y Transaccionales
-          </h3>
-          <ul class="list-disc pl-6 space-y-1 text-gray-700">
-            <li>Información de pagos de revistas digitales</li>
-            <li>Número de transacción</li>
-            <li>Método de pago utilizado (sin almacenar datos sensibles de tarjetas)</li>
-            <li>Historial de compras</li>
-            <li>Comprobantes de pago generados</li>
-          </ul>
-        </div>
-
-        <!-- Datos NO Recopilados -->
-        <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6">
-          <h3 class="text-xl font-bold text-red-900 mb-3 flex items-center gap-2">
-            <ion-icon name="close-circle-outline" class="text-2xl"></ion-icon>
-            4.7 Datos NO Recopilados (Datos Sensibles)
-          </h3>
-          <p class="text-red-800 font-semibold mb-3">El Instituto NO recopila ni almacena:</p>
-          <ul class="list-disc pl-6 space-y-1 text-red-700">
-            <li>Origen racial o étnico</li>
-            <li>Estado de salud (presente o futuro)</li>
-            <li>Información genética</li>
-            <li>Creencias religiosas, filosóficas o morales</li>
-            <li>Afiliación sindical</li>
-            <li>Opiniones políticas</li>
-            <li>Preferencia sexual</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. FINALIDADES -->
-    <div id="finalidades" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">5. Finalidades del Tratamiento de Datos</h2>
-      
-      <div class="bg-gradient-to-br from-[#EAF6FF] to-white border border-[#3FA6E8]/30 rounded-lg p-6 mb-6">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4">5.1 Finalidades Primarias (Necesarias)</h3>
-        <p class="text-gray-700 mb-4">Los datos personales recopilados se utilizan para:</p>
-      </div>
-
-      <div class="space-y-5">
-        <div class="border border-gray-200 rounded-lg p-5 bg-white hover:shadow-md transition">
-          <h4 class="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
-            <ion-icon name="clipboard-outline" class="text-[#3FA6E8]"></ion-icon>
-            A) Gestión Académica y Administrativa
-          </h4>
-          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
-            <li>Crear y administrar cuentas de usuario con roles diferenciados</li>
-            <li>Verificar la identidad de estudiantes, docentes y personal autorizado</li>
-            <li>Gestionar el acceso a la Biblioteca Digital según el rol institucional</li>
-            <li>Controlar el acceso a materiales académicos restringidos</li>
-          </ul>
-        </div>
-
-        <div class="border border-gray-200 rounded-lg p-5 bg-white hover:shadow-md transition">
-          <h4 class="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
-            <ion-icon name="library-outline" class="text-[#3FA6E8]"></ion-icon>
-            B) Gestión Bibliotecaria
-          </h4>
-          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
-            <li>Administrar préstamos, devoluciones y reservas de materiales bibliográficos</li>
-            <li>Registrar el historial de uso de la biblioteca</li>
-            <li>Verificar disponibilidad de ejemplares en tiempo real</li>
-            <li>Aplicar penalizaciones por retrasos o daños en materiales</li>
-            <li>Enviar notificaciones y recordatorios de devolución</li>
-            <li>Generar estadísticas de uso para mejorar el servicio</li>
-          </ul>
-        </div>
-
-        <div class="border border-gray-200 rounded-lg p-5 bg-white hover:shadow-md transition">
-          <h4 class="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
-            <ion-icon name="trending-up-outline" class="text-[#3FA6E8]"></ion-icon>
-            C) Mejora de Servicios Académicos
-          </h4>
-          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
-            <li>Implementar sistema de recomendación personalizada de materiales</li>
-            <li>Analizar patrones de uso para optimizar el catálogo bibliográfico</li>
-            <li>Identificar materiales más consultados</li>
-            <li>Apoyar la toma de decisiones académicas e institucionales</li>
-          </ul>
-        </div>
-
-        <div class="border border-gray-200 rounded-lg p-5 bg-white hover:shadow-md transition">
-          <h4 class="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
-            <ion-icon name="cart-outline" class="text-[#3FA6E8]"></ion-icon>
-            D) Comercio Electrónico
-          </h4>
-          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
-            <li>Procesar pagos de revistas digitales de manera segura</li>
-            <li>Generar comprobantes de compra automáticos</li>
-            <li>Administrar el historial de compras de cada usuario</li>
-            <li>Habilitar el acceso inmediato a materiales adquiridos</li>
-          </ul>
-        </div>
-
-        <div class="border border-gray-200 rounded-lg p-5 bg-white hover:shadow-md transition">
-          <h4 class="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
-            <ion-icon name="notifications-outline" class="text-[#3FA6E8]"></ion-icon>
-            E) Comunicación Institucional
-          </h4>
-          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
-            <li>Enviar notificaciones sobre préstamos, devoluciones y reservas</li>
-            <li>Informar sobre eventos, noticias y convocatorias institucionales</li>
-            <li>Responder consultas y solicitudes de soporte técnico</li>
-            <li>Enviar alertas de seguridad o cambios en las políticas</li>
-          </ul>
-        </div>
-
-        <div class="border border-gray-200 rounded-lg p-5 bg-white hover:shadow-md transition">
-          <h4 class="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
-            <ion-icon name="shield-outline" class="text-[#3FA6E8]"></ion-icon>
-            F) Seguridad y Control de Acceso
-          </h4>
-          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
-            <li>Autenticar usuarios mediante credenciales seguras</li>
-            <li>Prevenir accesos no autorizados al sistema</li>
-            <li>Detectar y prevenir actividades fraudulentas</li>
-            <li>Mantener logs de auditoría para seguridad institucional</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mt-6">
-        <h3 class="text-xl font-bold text-blue-900 mb-2">5.2 Finalidades Secundarias (Opcionales)</h3>
-        <p class="text-blue-800 text-sm">
-          <strong>El Instituto NO utiliza datos personales para:</strong> fines publicitarios de terceros, estudios de mercado externos, marketing directo no relacionado con servicios institucionales, ni transferencia comercial a terceros.
-        </p>
-        <p class="text-blue-700 text-sm mt-2">
-          Si en el futuro se requiere utilizar datos para finalidades secundarias, se solicitará <strong>consentimiento expreso</strong> del titular.
-        </p>
-      </div>
-    </div>
-
-    <!-- 6. DERECHOS ARCO -->
-    <div id="arco" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">6. Derechos ARCO</h2>
-      <p class="text-gray-700 mb-6">Los usuarios tienen derecho a ejercer los <strong>Derechos ARCO</strong> sobre sus datos personales:</p>
-      
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] text-white rounded-xl p-6 shadow-lg">
-          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
-            <ion-icon name="eye-outline" class="text-3xl"></ion-icon>
-          </div>
-          <h3 class="text-xl font-bold mb-2">Acceso</h3>
-          <p class="text-white/90 text-sm">
-            Conocer qué datos personales tiene el Instituto, para qué los utiliza y las condiciones de uso.
-          </p>
-        </div>
-
-        <div class="bg-gradient-to-br from-[#2D8BE8] to-[#1D63F5] text-white rounded-xl p-6 shadow-lg">
-          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
-            <ion-icon name="create-outline" class="text-3xl"></ion-icon>
-          </div>
-          <h3 class="text-xl font-bold mb-2">Rectificación</h3>
-          <p class="text-white/90 text-sm">
-            Solicitar la corrección de datos inexactos, incompletos o desactualizados.
-          </p>
-        </div>
-
-        <div class="bg-gradient-to-br from-[#1D63F5] to-[#3FA6E8] text-white rounded-xl p-6 shadow-lg">
-          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
-            <ion-icon name="trash-outline" class="text-3xl"></ion-icon>
-          </div>
-          <h3 class="text-xl font-bold mb-2">Cancelación</h3>
-          <p class="text-white/90 text-sm">
-            Solicitar la eliminación de datos cuando no sean necesarios, haya concluido la relación o exista revocación del consentimiento.
-          </p>
-        </div>
-
-        <div class="bg-gradient-to-br from-[#3FA6E8] to-[#14B8EB] text-white rounded-xl p-6 shadow-lg">
-          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
-            <ion-icon name="hand-left-outline" class="text-3xl"></ion-icon>
-          </div>
-          <h3 class="text-xl font-bold mb-2">Oposición</h3>
-          <p class="text-white/90 text-sm">
-            Oponerse al tratamiento de datos personales para fines específicos o solicitar que se cese su uso.
-          </p>
-        </div>
-      </div>
-
-      <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-6 mt-6">
-        <h4 class="font-bold text-amber-900 mb-2 flex items-center gap-2">
-          <ion-icon name="warning-outline" class="text-xl"></ion-icon>
-          Excepciones a la Cancelación
-        </h4>
-        <p class="text-amber-800 text-sm mb-2">No procede la cancelación cuando:</p>
-        <ul class="list-disc pl-6 space-y-1 text-sm text-amber-700">
-          <li>Exista obligación legal de conservar los datos</li>
-          <li>Sea necesario para el cumplimiento de obligaciones contractuales</li>
-          <li>Se requiera para la defensa de derechos del Instituto</li>
-          <li>Existan procedimientos administrativos o judiciales pendientes</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- 7. PROCEDIMIENTO -->
-    <div id="procedimiento" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">7. Procedimiento para Ejercer Derechos ARCO</h2>
-      
-      <div class="bg-white border border-[#3FA6E8] rounded-xl p-8 mb-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <ion-icon name="call-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
-          7.1 Medios de Contacto
-        </h3>
-        <div class="space-y-3 text-gray-700">
-          <p><strong>Correo Electrónico:</strong> [pendiente]</p>
-          <p><strong>Teléfono:</strong> [pendiente]</p>
-          <p><strong>Dirección Física:</strong> Carretera Huejutla - Chalahuiyapa S/N, C.P. 43000, Huejutla de Reyes, Hidalgo, México</p>
-          <p><strong>Departamento:</strong> Control Escolar / Departamento de Protección de Datos</p>
-        </div>
-      </div>
-
-      <div class="bg-[#EAF6FF] rounded-lg p-6 mb-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-4">7.2 Requisitos de la Solicitud</h3>
-        <p class="text-gray-700 mb-3">La solicitud debe contener:</p>
-        <ol class="list-decimal pl-6 space-y-2 text-gray-700">
-          <li>Nombre completo del titular</li>
-          <li>Correo electrónico registrado en el sistema</li>
-          <li>Matrícula (en caso de estudiantes) o número de empleado</li>
-          <li>Descripción clara del derecho que desea ejercer (Acceso, Rectificación, Cancelación u Oposición)</li>
-          <li>Documentos que acrediten la identidad del solicitante</li>
-          <li>Descripción de los datos personales respecto de los cuales busca ejercer el derecho</li>
-          <li>Domicilio o correo electrónico para recibir notificaciones</li>
-        </ol>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-white border-2 border-[#3FA6E8] rounded-lg p-6">
-          <div class="text-center mb-3">
-            <div class="text-4xl font-black text-[#3FA6E8]">20</div>
-            <div class="text-sm text-gray-600">días hábiles</div>
-          </div>
-          <p class="text-sm text-gray-700 text-center">Para comunicar la determinación adoptada</p>
-        </div>
-
-        <div class="bg-white border-2 border-[#2D8BE8] rounded-lg p-6">
-          <div class="text-center mb-3">
-            <div class="text-4xl font-black text-[#2D8BE8]">15</div>
-            <div class="text-sm text-gray-600">días hábiles adicionales</div>
-          </div>
-          <p class="text-sm text-gray-700 text-center">Para hacer efectiva la solicitud</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 8. TRANSFERENCIA -->
-    <div id="transferencia" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">8. Transferencia de Datos Personales</h2>
-      
-      <div class="space-y-5">
-        <div class="border border-gray-200 rounded-lg p-5 bg-white">
-          <h4 class="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="server-outline" class="text-[#3FA6E8]"></ion-icon>
-            A) Servicios Técnicos
-          </h4>
-          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
-            <li>Proveedores de servicios de hospedaje (AWS, Azure)</li>
-            <li>Empresas de soporte técnico y mantenimiento</li>
-            <li>Proveedores de respaldo y seguridad informática</li>
-          </ul>
-        </div>
-
-        <div class="border border-gray-200 rounded-lg p-5 bg-white">
-          <h4 class="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="card-outline" class="text-[#3FA6E8]"></ion-icon>
-            B) Procesamiento de Pagos
-          </h4>
-          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
-            <li>Pasarelas de pago autorizadas y certificadas (PCI-DSS)</li>
-            <li>Instituciones bancarias para procesamiento de transacciones</li>
-            <li>Procesadores de pagos electrónicos</li>
-          </ul>
-        </div>
-
-        <div class="border border-gray-200 rounded-lg p-5 bg-white">
-          <h4 class="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="hammer-outline" class="text-[#3FA6E8]"></ion-icon>
-            C) Autoridades y Obligaciones Legales
-          </h4>
-          <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
-            <li>Autoridades competentes cuando exista orden judicial</li>
-            <li>Dependencias gubernamentales en cumplimiento de obligaciones fiscales</li>
-            <li>Instituto Nacional de Transparencia (INAI)</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="bg-green-50 border-l-4 border-green-500 rounded-lg p-6 mt-6">
-        <h4 class="font-bold text-green-900 mb-2 flex items-center gap-2">
-          <ion-icon name="shield-checkmark-outline" class="text-xl"></ion-icon>
-          Medidas de Protección en Transferencias
-        </h4>
-        <p class="text-green-800 text-sm mb-2">Toda transferencia de datos se realiza mediante:</p>
-        <ul class="list-disc pl-6 space-y-1 text-sm text-green-700">
-          <li>Contratos de confidencialidad con terceros</li>
-          <li>Cláusulas de protección de datos</li>
-          <li>Cifrado en tránsito (SSL/TLS)</li>
-          <li>Validación de certificaciones de seguridad</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- 9. COOKIES -->
-    <div id="cookies" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">9. Cookies y Tecnologías de Rastreo</h2>
-      
-      <div class="bg-gradient-to-br from-[#EAF6FF] to-white border border-[#3FA6E8]/30 rounded-lg p-6 mb-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-3">9.1 Uso de Cookies</h3>
-        <p class="text-gray-700 mb-3">El sistema utiliza cookies y tecnologías similares para:</p>
-        <ul class="list-disc pl-6 space-y-1 text-gray-700">
-          <li>Mantener la sesión activa del usuario</li>
-          <li>Recordar preferencias de navegación</li>
-          <li>Generar estadísticas de uso de la plataforma</li>
-          <li>Mejorar la experiencia de usuario</li>
-          <li>Implementar funciones de seguridad (tokens de autenticación)</li>
-        </ul>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white border border-gray-200 rounded-lg p-5">
-          <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
-            <ion-icon name="key-outline" class="text-[#3FA6E8]"></ion-icon>
-            Esenciales
-          </h4>
-          <p class="text-sm text-gray-600">Necesarias para autenticación y sesión activa</p>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-5">
-          <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
-            <ion-icon name="speedometer-outline" class="text-[#3FA6E8]"></ion-icon>
-            Rendimiento
-          </h4>
-          <p class="text-sm text-gray-600">Mejoran el servicio analizando interacciones</p>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-5">
-          <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
-            <ion-icon name="settings-outline" class="text-[#3FA6E8]"></ion-icon>
-            Funcionalidad
-          </h4>
-          <p class="text-sm text-gray-600">Recuerdan preferencias del usuario</p>
-        </div>
-      </div>
-
-      <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6">
-        <h4 class="font-bold text-blue-900 mb-2">Gestión de Cookies</h4>
-        <p class="text-blue-800 text-sm mb-2">Los usuarios pueden deshabilitar cookies desde la configuración de su navegador.</p>
-        <p class="text-blue-700 text-sm"><strong>Nota:</strong> Deshabilitar cookies puede limitar algunas funcionalidades del sistema.</p>
-      </div>
-    </div>
-
-    <!-- 10. SEGURIDAD -->
-    <div id="seguridad" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">10. Medidas de Seguridad</h2>
-      <p class="text-gray-700 mb-6">El Instituto implementa medidas de seguridad físicas, técnicas y administrativas para proteger los datos personales:</p>
-      
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] text-white rounded-xl p-6">
-          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
-            <ion-icon name="hardware-chip-outline" class="text-3xl"></ion-icon>
-          </div>
-          <h3 class="text-lg font-bold mb-3">Seguridad Técnica</h3>
-          <ul class="space-y-2 text-sm text-white/90">
-            <li>• Cifrado SSL/TLS (HTTPS)</li>
-            <li>• Autenticación JWT</li>
-            <li>• Control de Acceso (RBAC)</li>
-            <li>• Autenticación Multifactor</li>
-            <li>• Firewall de Aplicaciones</li>
-            <li>• Logs de Auditoría</li>
-          </ul>
-        </div>
-
-        <div class="bg-gradient-to-br from-[#2D8BE8] to-[#1D63F5] text-white rounded-xl p-6">
-          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
-            <ion-icon name="business-outline" class="text-3xl"></ion-icon>
-          </div>
-          <h3 class="text-lg font-bold mb-3">Seguridad Física</h3>
-          <ul class="space-y-2 text-sm text-white/90">
-            <li>• Servidores certificados</li>
-            <li>• Control de acceso físico</li>
-            <li>• Videovigilancia</li>
-            <li>• Respaldo de energía (UPS)</li>
-          </ul>
-        </div>
-
-        <div class="bg-gradient-to-br from-[#1D63F5] to-[#3FA6E8] text-white rounded-xl p-6">
-          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
-            <ion-icon name="people-outline" class="text-3xl"></ion-icon>
-          </div>
-          <h3 class="text-lg font-bold mb-3">Seguridad Administrativa</h3>
-          <ul class="space-y-2 text-sm text-white/90">
-            <li>• Contraseñas seguras</li>
-            <li>• Capacitación del personal</li>
-            <li>• Contratos de confidencialidad</li>
-            <li>• Revisión periódica de permisos</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-6 mt-6">
-        <h4 class="font-bold text-purple-900 mb-2 flex items-center gap-2">
-          <ion-icon name="refresh-outline" class="text-xl"></ion-icon>
-          Respaldos y Recuperación
-        </h4>
-        <ul class="list-disc pl-6 space-y-1 text-sm text-purple-700">
-          <li>Copias de seguridad automáticas cada 24 horas</li>
-          <li>Almacenamiento redundante en múltiples ubicaciones</li>
-          <li>Plan de recuperación ante desastres (DRP)</li>
-          <li>Tiempo de recuperación: menos de 10 minutos</li>
-        </ul>
-      </div>
-
-      <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6 mt-6">
-        <h4 class="font-bold text-red-900 mb-2 flex items-center gap-2">
-          <ion-icon name="alert-circle-outline" class="text-xl"></ion-icon>
-          Gestión de Incidentes
-        </h4>
-        <p class="text-red-800 text-sm mb-2">En caso de violación de seguridad:</p>
-        <ol class="list-decimal pl-6 space-y-1 text-sm text-red-700">
-          <li>Notificación al INAI dentro de 72 horas</li>
-          <li>Información oportuna a los titulares afectados</li>
-          <li>Medidas correctivas inmediatas</li>
-          <li>Documentación del incidente</li>
-        </ol>
-      </div>
-    </div>
-
-    <!-- 11. CONSERVACIÓN -->
-    <div id="conservacion" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">11. Conservación de Datos</h2>
-      
-      <div class="space-y-6">
-        <div class="border border-[#3FA6E8] rounded-lg p-6 bg-white">
-          <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="checkmark-circle-outline" class="text-[#3FA6E8] text-2xl"></ion-icon>
-            Usuarios Activos
-          </h3>
-          <p class="text-gray-700">Los datos se conservan mientras:</p>
-          <ul class="list-disc pl-6 mt-2 space-y-1 text-gray-700">
-            <li>El usuario mantenga una cuenta activa</li>
-            <li>Exista una relación académica o laboral vigente</li>
-            <li>Sea necesario para el cumplimiento de finalidades autorizadas</li>
-          </ul>
-        </div>
-
-        <div class="border border-[#2D8BE8] rounded-lg p-6 bg-white">
-          <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="pause-circle-outline" class="text-[#2D8BE8] text-2xl"></ion-icon>
-            Usuarios Inactivos Institucionales
-          </h3>
-          <ul class="list-disc pl-6 space-y-1 text-gray-700">
-            <li>Estudiantes egresados, personal dado de baja conservan acceso limitado al módulo de revistas</li>
-            <li>Su cuenta cambia a estado "inactivo institucional"</li>
-            <li>No tienen acceso a servicios de biblioteca ni funciones administrativas</li>
-            <li>Los datos se conservan por razones de integridad histórica y auditoría</li>
-          </ul>
-        </div>
-
-        <div class="bg-gradient-to-br from-[#EAF6FF] to-white border border-[#3FA6E8]/30 rounded-lg p-6">
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Períodos de Conservación Posterior</h3>
-          <div class="grid md:grid-cols-3 gap-4">
-            <div class="text-center p-4 bg-white rounded-lg border border-gray-200">
-              <div class="text-3xl font-black text-[#3FA6E8] mb-1">5 años</div>
-              <p class="text-sm text-gray-600">Obligaciones fiscales</p>
-            </div>
-            <div class="text-center p-4 bg-white rounded-lg border border-gray-200">
-              <div class="text-3xl font-black text-[#2D8BE8] mb-1">10 años</div>
-              <p class="text-sm text-gray-600">Expedientes académicos</p>
-            </div>
-            <div class="text-center p-4 bg-white rounded-lg border border-gray-200">
-              <div class="text-3xl font-black text-[#1D63F5] mb-1">∞</div>
-              <p class="text-sm text-gray-600">Registros anonimizados</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 12. DERECHOS DEL TITULAR -->
-    <div id="derechos-titular" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">12. Derechos del Titular</h2>
-      <p class="text-gray-700 mb-6">Además de los derechos ARCO, los titulares tienen:</p>
-      
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#3FA6E8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="download-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Portabilidad</h4>
-              <p class="text-sm text-gray-600">Solicitar copia de sus datos en formato estructurado y de uso común</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#2D8BE8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="pause-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Limitación del Tratamiento</h4>
-              <p class="text-sm text-gray-600">Solicitar suspensión temporal del tratamiento en casos específicos</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#3FA6E8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="person-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Decisiones Automatizadas</h4>
-              <p class="text-sm text-gray-600">Solicitar revisión humana de decisiones automatizadas</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-[#2D8BE8] rounded-lg flex items-center justify-center flex-shrink-0">
-              <ion-icon name="chatbubbles-outline" class="text-white text-xl"></ion-icon>
-            </div>
-            <div>
-              <h4 class="font-bold text-gray-900 mb-1">Presentar Quejas</h4>
-              <p class="text-sm text-gray-600">Ante el INAI si considera vulnerados sus derechos</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-[#EAF6FF] border-l-4 border-[#3FA6E8] rounded-lg p-6 mt-6">
-        <h4 class="font-bold text-gray-900 mb-2">Instituto Nacional de Transparencia (INAI)</h4>
-        <p class="text-gray-700 text-sm mb-2">Sitio web: <a href="https://home.inai.org.mx" class="text-[#3FA6E8] hover:underline" target="_blank">https://home.inai.org.mx</a></p>
-        <p class="text-gray-700 text-sm">Teléfono: <strong>800 835 4324</strong></p>
-      </div>
-    </div>
-
-    <!-- 13. MENORES DE EDAD -->
-    <div id="menores" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">13. Usuarios Menores de Edad</h2>
-      
-      <div class="bg-gradient-to-br from-yellow-50 to-amber-50 border-l-4 border-yellow-500 rounded-lg p-6">
-        <h3 class="text-xl font-bold text-amber-900 mb-3 flex items-center gap-2">
-          <ion-icon name="people-circle-outline" class="text-2xl"></ion-icon>
-          Tratamiento de Datos de Menores
-        </h3>
-        <p class="text-amber-800 mb-3">Si el usuario es menor de 18 años:</p>
-        <ul class="list-disc pl-6 space-y-2 text-amber-700">
-          <li>Se requiere <strong>consentimiento expreso</strong> de padre, madre o tutor legal</li>
-          <li>El Instituto puede solicitar documentación que acredite la autorización</li>
-          <li>Los menores tienen los mismos derechos de protección de datos</li>
-        </ul>
-        <div class="mt-4 p-4 bg-white rounded-lg">
-          <p class="text-sm text-gray-700">
-            <strong>Verificación de Edad:</strong> El sistema puede implementar mecanismos de verificación de edad para ciertos servicios.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 14. MODIFICACIONES -->
-    <div id="modificaciones" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">14. Modificaciones a las Políticas</h2>
-      
-      <div class="space-y-6">
-        <div class="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="create-outline" class="text-[#3FA6E8]"></ion-icon>
-            Derecho de Modificación
-          </h3>
-          <p class="text-gray-700 mb-2">El Instituto se reserva el derecho de modificar estas Políticas para:</p>
-          <ul class="list-disc pl-6 space-y-1 text-gray-600 text-sm">
-            <li>Adaptarse a cambios en la legislación</li>
-            <li>Mejorar servicios del sistema</li>
-            <li>Implementar mejores prácticas de seguridad</li>
-            <li>Actualizar procedimientos institucionales</li>
-          </ul>
-        </div>
-
-        <div class="bg-[#EAF6FF] rounded-lg p-6">
-          <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <ion-icon name="notifications-outline" class="text-[#3FA6E8]"></ion-icon>
-            Notificación de Cambios
-          </h3>
-          <p class="text-gray-700 mb-2">Los cambios se comunicarán mediante:</p>
-          <ul class="list-disc pl-6 space-y-1 text-gray-600 text-sm">
-            <li>Publicación en el sitio web institucional</li>
-            <li>Notificación por correo electrónico a usuarios registrados</li>
-            <li>Aviso dentro de la plataforma al iniciar sesión</li>
-          </ul>
-        </div>
-
-        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6">
-          <h4 class="font-bold text-blue-900 mb-2">Aceptación de Cambios</h4>
-          <p class="text-blue-800 text-sm mb-3">
-            El uso continuado del sistema después de la publicación de cambios constituye la aceptación de las nuevas políticas.
-          </p>
-          <p class="text-blue-700 text-sm">
-            Si no está de acuerdo, puede ejercer su derecho de cancelación, revocar su consentimiento o dejar de utilizar los servicios.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 15. LEGISLACIÓN -->
-    <div id="legislacion" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">15. Legislación Aplicable</h2>
-      
-      <div class="bg-gradient-to-br from-[#EAF6FF] to-white border border-[#3FA6E8]/30 rounded-lg p-6 mb-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-4">Estas Políticas se rigen por:</h3>
-        <ul class="space-y-2 text-gray-700">
-          <li class="flex items-start gap-2">
-            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
-            <span><strong>Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</strong></span>
-          </li>
-          <li class="flex items-start gap-2">
-            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
-            <span>Reglamento de la LFPDPPP</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
-            <span>Lineamientos del Aviso de Privacidad</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
-            <span>Ley Federal de Protección al Consumidor (LFPC)</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
-            <span>Ley Federal del Derecho de Autor</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
-            <span>Código Civil Federal y Código de Comercio</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <ion-icon name="checkmark-circle" class="text-[#3FA6E8] flex-shrink-0 mt-1"></ion-icon>
-            <span>Normativa aplicable del Estado de Hidalgo</span>
-          </li>
-        </ul>
-      </div>
-
-      <div class="bg-gray-900 text-white rounded-lg p-6">
-        <h4 class="font-bold mb-2 flex items-center gap-2">
-          <ion-icon name="location-outline" class="text-xl"></ion-icon>
-          Jurisdicción
-        </h4>
-        <p class="text-white/90 text-sm">
-          Para la interpretación y cumplimiento de estas políticas, las partes se someten expresamente a la jurisdicción de los tribunales competentes de <strong>Huejutla de Reyes, Hidalgo, México</strong>, renunciando a cualquier otra que pudiera corresponderles.
-        </p>
-      </div>
-    </div>
-
-    <!-- 16. CONTACTO -->
-    <div id="contacto" class="content-section mb-12">
-      <h2 class="section-title text-3xl font-bold text-gray-900 mb-6">16. Contacto y Atención al Usuario</h2>
-      
-      <div class="bg-gradient-to-br from-[#3FA6E8] to-[#2D8BE8] text-white rounded-xl p-8 mb-6">
-        <h3 class="text-2xl font-bold mb-6">Información de Contacto</h3>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div>
-            <div class="flex items-center gap-3 mb-3">
-              <ion-icon name="business-outline" class="text-3xl"></ion-icon>
-              <div>
-                <div class="font-semibold">Instituto de Estudios Superiores Tiozihuatl</div>
-                <div class="text-sm text-white/80">Control Escolar / Protección de Datos</div>
-              </div>
-            </div>
-            <div class="flex items-start gap-3 mb-3">
-              <ion-icon name="location-outline" class="text-2xl flex-shrink-0 mt-1"></ion-icon>
-              <div class="text-sm text-white/90">
-                Carretera Huejutla - Chalahuiyapa S/N<br/>
-                C.P. 43000, Huejutla de Reyes, Hidalgo, México
-              </div>
-            </div>
-          </div>
-          <div>
-            <div class="flex items-center gap-3 mb-3">
-              <ion-icon name="mail-outline" class="text-2xl"></ion-icon>
-              <div>
-                <div class="font-semibold">Correo Electrónico</div>
-                <div class="text-sm text-white/80">[pendiente]</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-3 mb-3">
-              <ion-icon name="call-outline" class="text-2xl"></ion-icon>
-              <div>
-                <div class="font-semibold">Teléfono</div>
-                <div class="text-sm text-white/80">[pendiente]</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-3">
-              <ion-icon name="time-outline" class="text-2xl"></ion-icon>
-              <div>
-                <div class="font-semibold">Horario</div>
-                <div class="text-sm text-white/80">Lunes a Viernes, 10:00 - 18:00 hrs</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-4">
-        <div class="bg-white border-2 border-[#3FA6E8] rounded-lg p-5 text-center">
-          <div class="text-3xl font-black text-[#3FA6E8] mb-1">5</div>
-          <div class="text-sm text-gray-600 mb-1">días hábiles</div>
-          <div class="text-xs text-gray-500">Consultas generales</div>
-        </div>
-        <div class="bg-white border-2 border-[#2D8BE8] rounded-lg p-5 text-center">
-          <div class="text-3xl font-black text-[#2D8BE8] mb-1">20</div>
-          <div class="text-sm text-gray-600 mb-1">días hábiles</div>
-          <div class="text-xs text-gray-500">Solicitudes ARCO</div>
-        </div>
-        <div class="bg-white border-2 border-[#1D63F5] rounded-lg p-5 text-center">
-          <div class="text-3xl font-black text-[#1D63F5] mb-1">10</div>
-          <div class="text-sm text-gray-600 mb-1">días hábiles</div>
-          <div class="text-xs text-gray-500">Quejas</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ACEPTACIÓN Y CONSENTIMIENTO -->
-    <div class="bg-gradient-to-br from-[#EAF6FF] via-white to-[#EAF6FF] border-2 border-[#3FA6E8] rounded-2xl p-8 mb-12">
-      <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">17. Aceptación y Consentimiento</h2>
-      <p class="text-gray-700 mb-6 text-center max-w-4xl mx-auto">
-        Al registrarse, acceder o utilizar el Sistema Integral Multiplataforma del Instituto de Estudios Superiores Tiozihuatl, el usuario:
-      </p>
-      
-      <div class="grid md:grid-cols-2 gap-4 max-w-5xl mx-auto">
-        <div class="flex items-start gap-3 bg-white p-4 rounded-lg border border-gray-200">
-          <ion-icon name="checkmark-circle" class="text-[#3FA6E8] text-2xl flex-shrink-0 mt-1"></ion-icon>
-          <p class="text-sm text-gray-700">Declara haber leído, entendido y aceptado íntegramente estas Políticas de Privacidad</p>
-        </div>
-        <div class="flex items-start gap-3 bg-white p-4 rounded-lg border border-gray-200">
-          <ion-icon name="checkmark-circle" class="text-[#3FA6E8] text-2xl flex-shrink-0 mt-1"></ion-icon>
-          <p class="text-sm text-gray-700">Otorga su consentimiento libre, específico e informado para el tratamiento de sus datos personales</p>
-        </div>
-        <div class="flex items-start gap-3 bg-white p-4 rounded-lg border border-gray-200">
-          <ion-icon name="checkmark-circle" class="text-[#3FA6E8] text-2xl flex-shrink-0 mt-1"></ion-icon>
-          <p class="text-sm text-gray-700">Autoriza las transferencias de datos descritas en este documento</p>
-        </div>
-        <div class="flex items-start gap-3 bg-white p-4 rounded-lg border border-gray-200">
-          <ion-icon name="checkmark-circle" class="text-[#3FA6E8] text-2xl flex-shrink-0 mt-1"></ion-icon>
-          <p class="text-sm text-gray-700">Acepta el uso de cookies y tecnologías similares</p>
-        </div>
-        <div class="flex items-start gap-3 bg-white p-4 rounded-lg border border-gray-200">
-          <ion-icon name="checkmark-circle" class="text-[#3FA6E8] text-2xl flex-shrink-0 mt-1"></ion-icon>
-          <p class="text-sm text-gray-700">Reconoce su derecho a ejercer los derechos ARCO en cualquier momento</p>
-        </div>
-        <div class="flex items-start gap-3 bg-white p-4 rounded-lg border border-gray-200">
-          <ion-icon name="checkmark-circle" class="text-[#3FA6E8] text-2xl flex-shrink-0 mt-1"></ion-icon>
-          <p class="text-sm text-gray-700">Acepta los términos de conservación y eliminación de datos establecidos</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- VERSIÓN Y VIGENCIA -->
-    <div class="bg-gray-50 rounded-lg p-6 mb-12 border border-gray-200">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">18. Versión y Vigencia</h2>
-      <div class="grid md:grid-cols-3 gap-4 text-sm">
-        <div>
-          <div class="font-semibold text-gray-700 mb-1">Versión</div>
-          <div class="text-gray-600">1.0</div>
-        </div>
-        <div>
-          <div class="font-semibold text-gray-700 mb-1">Última Actualización</div>
-          <div class="text-gray-600">Noviembre 2025</div>
-        </div>
-        <div>
-          <div class="font-semibold text-gray-700 mb-1">Documento Anterior</div>
-          <div class="text-gray-600">No aplica (primera versión)</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- DECLARACIÓN FINAL -->
-    <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-xl p-8 mb-12">
-      <h2 class="text-2xl font-bold mb-4">19. Declaración Final</h2>
-      <p class="text-white/90 leading-relaxed">
-        El Instituto de Estudios Superiores Tiozihuatl se compromete a proteger la privacidad de sus usuarios y a tratar sus datos personales con la máxima diligencia, transparencia y seguridad, en estricto apego a la legislación mexicana vigente en materia de protección de datos personales.
-      </p>
-      <p class="text-white/90 mt-4 leading-relaxed">
-    </div>
-</div>
-</section>
-
-<!-- ================= FOOTER ================= -->
-<footer class="bg-white border-t-2 border-gray-100 py-10 ">
+<!-- ═══════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════ -->
+<footer class="bg-white border-t-2 border-gray-100 py-10">
   <div class="max-w-7xl mx-auto px-6">
     <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-      
+
       <div class="flex items-center gap-4">
-           <img 
-            src="logo1.png" 
-            alt="Logo del Instituto Tiozihuatl" 
-            class="w-10 h-10 rounded-lg border border-gray-200 object-contain"
-          />
+        <img
+          src="logo1.png"
+          alt="Logo del Instituto Tiozihuatl"
+          class="w-10 h-10 rounded-lg border border-gray-200 object-contain"
+        />
         <div class="text-sm">
-          <div class="font-bold text-gray-900 text-base">Instituto de Estudios Superiores Tiozihuatl</div>
+          <div class="font-bold text-gray-900 text-base">
+            Instituto de Estudios Superiores Tiozihuatl
+          </div>
           <div class="text-gray-600">Sistema Integral Multiplataforma</div>
         </div>
       </div>
@@ -1073,7 +141,7 @@
       <div class="text-sm text-gray-600 text-center md:text-right">
         <div class="font-semibold text-gray-800">© 2025 Todos los derechos reservados</div>
       </div>
+
     </div>
   </div>
 </footer>
-

@@ -1,0 +1,430 @@
+<section class="pol-admin">
+
+  <div class="header-principal">
+    <h2 class="titulo-principal">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      Gestión de Políticas de Privacidad
+    </h2>
+    <button class="btn-nuevo" type="button" (click)="abrirModal()">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      Nueva Sección
+    </button>
+  </div>
+
+  <div class="filtros-container">
+    <input
+      type="text"
+      class="filtro-input buscar-input"
+      placeholder="Buscar por título o contenido..."
+      [(ngModel)]="filtros.search"
+      (input)="buscar()"
+    />
+    <select class="filtro-select" [(ngModel)]="filtros.activo" (change)="aplicar()">
+      <option value="">Todas</option>
+      <option value="1">Activas</option>
+      <option value="0">Inactivas</option>
+    </select>
+    <button class="btn-limpiar" (click)="limpiar()">Limpiar</button>
+  </div>
+
+  <!-- CONTADOR -->
+  <div class="contador-bar">
+    Mostrando {{ secciones.length }} sección{{ secciones.length === 1 ? '' : 'es' }}
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="cargandoTabla" class="loading-wrapper">
+    <div class="loading-spinner"></div>
+    <p style="margin-top:1rem;color:#64748B;font-weight:500;font-size:.875rem;">
+      Cargando secciones...
+    </p>
+  </div>
+
+  <!-- TABLA DESKTOP -->
+  <div *ngIf="!cargandoTabla" class="tabla-wrapper">
+    <div class="tabla-scroll">
+      <table class="tabla-pol">
+        <thead>
+          <tr>
+            <th style="width:70px;">
+              <ion-icon name="list-outline"></ion-icon> #
+            </th>
+            <th style="width:70px;">ORDEN</th>
+            <th>
+              <ion-icon name="document-text-outline"></ion-icon> TÍTULO
+            </th>
+            <th style="width:140px;">
+              <ion-icon name="power-outline"></ion-icon> ESTADO
+            </th>
+            <th style="width:140px;text-align:center;">
+              <ion-icon name="settings-outline"></ion-icon> ACCIONES
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of seccionesPaginadas">
+            <td style="text-align:center;font-weight:700;color:#2D8BE8;font-size:1rem;">
+              {{ s.seccion_numero }}
+            </td>
+            <td style="text-align:center;color:#64748B;">{{ s.orden }}</td>
+            <td>
+              <div class="titulo-cell">
+                <span class="icono-preview">
+                  <ion-icon [name]="s.icono || 'document-text-outline'"></ion-icon>
+                </span>
+                <span>{{ s.titulo }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="s.activo === 1 ? 'badge-activo' : 'badge-inactivo'">
+                <ion-icon [name]="s.activo === 1 ? 'checkmark-circle-outline' : 'close-circle-outline'"></ion-icon>
+                {{ s.activo === 1 ? 'Activa' : 'Inactiva' }}
+              </span>
+            </td>
+            <td>
+              <div class="acciones-cell">
+                <button class="btn-icon btn-icon-primary" title="Editar sección" (click)="editar(s)">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button
+                  class="btn-icon"
+                  [class.btn-icon-danger]="s.activo === 1"
+                  [class.btn-icon-success]="s.activo !== 1"
+                  [title]="s.activo === 1 ? 'Desactivar sección' : 'Activar sección'"
+                  (click)="cambiarEstado(s)">
+                  <ion-icon [name]="s.activo === 1 ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+                </button>
+                <button class="btn-icon btn-icon-danger" title="Eliminar sección" (click)="eliminar(s)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="secciones.length === 0">
+            <td colspan="5" style="text-align:center;padding:3rem;color:#94A3B8;">
+              <ion-icon name="document-outline"
+                style="font-size:2.5rem;display:block;margin:0 auto .75rem;color:#CBD5E1;">
+              </ion-icon>
+              <span style="font-size:.9rem;">No hay secciones registradas</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CARDS MOBILE -->
+  <div *ngIf="!cargandoTabla && secciones.length > 0" class="cards-mobile-wrapper">
+    <div *ngFor="let s of seccionesPaginadas" class="pol-card">
+      <div class="pol-card-header">
+        <div class="pol-card-badges">
+          <span class="badge" [ngClass]="s.activo === 1 ? 'badge-activo' : 'badge-inactivo'">
+            <ion-icon [name]="s.activo === 1 ? 'checkmark-circle-outline' : 'close-circle-outline'"></ion-icon>
+            {{ s.activo === 1 ? 'Activa' : 'Inactiva' }}
+          </span>
+          <span class="badge badge-seccion">
+            <ion-icon name="list-outline"></ion-icon>
+            Sección {{ s.seccion_numero }}
+          </span>
+        </div>
+        <div class="titulo-cell" style="margin-top:.625rem;">
+          <span class="icono-preview">
+            <ion-icon [name]="s.icono || 'document-text-outline'"></ion-icon>
+          </span>
+          <strong style="font-size:.9375rem;">{{ s.titulo }}</strong>
+        </div>
+      </div>
+      <div class="pol-card-acciones">
+        <button class="libro-card-btn libro-card-btn-primary" (click)="editar(s)">
+          <ion-icon name="create-outline"></ion-icon> Editar
+        </button>
+        <button
+          class="libro-card-btn"
+          [class.libro-card-btn-danger]="s.activo === 1"
+          [class.libro-card-btn-success]="s.activo !== 1"
+          (click)="cambiarEstado(s)">
+          <ion-icon [name]="s.activo === 1 ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+          {{ s.activo === 1 ? 'Desactivar' : 'Activar' }}
+        </button>
+        <button class="libro-card-btn libro-card-btn-danger" (click)="eliminar(s)">
+          <ion-icon name="trash-outline"></ion-icon> Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGINACIÓN -->
+  <div *ngIf="!cargandoTabla && secciones.length > 0" class="paginacion-bar">
+
+    <span class="pag-info">
+      <ion-icon name="shield-checkmark-outline" style="color:var(--azul);"></ion-icon>
+      Mostrando
+      <strong style="color:var(--azul);">{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
+      &nbsp;a&nbsp;
+      <strong style="color:var(--azul);">{{ Math.min(paginaActual * itemsPorPagina, secciones.length) }}</strong>
+      &nbsp;de&nbsp;
+      <strong style="color:var(--azul);">{{ secciones.length }}</strong>
+      &nbsp;sección{{ secciones.length !== 1 ? 'es' : '' }}
+    </span>
+
+    <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+      <select [(ngModel)]="itemsPorPagina" (change)="cambiarItems()" class="pag-select">
+        <option [value]="10">10 por página</option>
+        <option [value]="20">20 por página</option>
+        <option [value]="50">50 por página</option>
+      </select>
+
+      <div style="display:flex;align-items:center;gap:.375rem;flex-wrap:wrap;">
+        <button (click)="anterior()" [disabled]="paginaActual === 1" class="pag-btn"
+          [style.opacity]="paginaActual === 1 ? '0.4' : '1'">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <ng-container *ngFor="let p of paginas">
+          <button *ngIf="p !== '...'" (click)="irAPagina(p)"
+            [style.background]="paginaActual === p ? 'var(--azul)' : 'white'"
+            [style.color]="paginaActual === p ? '#fff' : '#64748B'"
+            [style.border]="paginaActual === p ? '1px solid var(--azul)' : '1px solid #E2E8F0'"
+            class="pag-btn">{{ p }}</button>
+          <span *ngIf="p === '...'" style="color:#64748B;padding:0 .25rem;">...</span>
+        </ng-container>
+        <button (click)="siguiente()" [disabled]="paginaActual === totalPaginas" class="pag-btn"
+          [style.opacity]="paginaActual === totalPaginas ? '0.4' : '1'">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+      MODAL
+      ═══════════════════════════════════════════════ -->
+  <div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrar()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+      <!-- Loading overlay -->
+      <div *ngIf="cargando" class="upload-loading-overlay">
+        <div class="upload-loading-content">
+          <div class="loading-spinner"
+            style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:4rem;height:4rem;margin:0 auto;"></div>
+          <p style="margin-top:1rem;color:white;font-weight:600;font-size:1rem;">Guardando sección...</p>
+          <p style="color:rgba(255,255,255,.8);font-size:.8125rem;margin-top:.375rem;">Por favor espere...</p>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="modal-header">
+        <h3>
+          <ion-icon [name]="modoEdicion ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+          {{ modoEdicion ? 'Editar Sección' : 'Nueva Sección' }}
+        </h3>
+        <button class="btn-cerrar-modal" type="button" (click)="cerrar()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+
+        <!-- Fila: número, orden, título (sin cambios) -->
+        <div class="form-grid-top">
+          <div class="form-group">
+            <label><ion-icon name="list-outline"></ion-icon> N° sección</label>
+            <input type="number" min="1" [(ngModel)]="form.seccion_numero" placeholder="1" />
+          </div>
+          <div class="form-group">
+            <label><ion-icon name="swap-vertical-outline"></ion-icon> Orden</label>
+            <input type="number" min="0" [(ngModel)]="form.orden" placeholder="0" />
+            <small>Menor número = primero</small>
+          </div>
+          <div class="form-group form-group-titulo">
+            <label><ion-icon name="text-outline"></ion-icon> Título de la sección *</label>
+            <input type="text" [(ngModel)]="form.titulo" placeholder="Ej: Introducción y Alcance" />
+          </div>
+        </div>
+
+        <!-- ═══ EDITOR RICO ═══ -->
+        <div class="rich-editor-container">
+
+          <!-- Etiqueta -->
+          <div class="editor-label">
+            <ion-icon name="document-text-outline"></ion-icon>
+            Contenido de la sección *
+          </div>
+
+          <!-- Barra de herramientas -->
+          <div class="editor-toolbar" role="toolbar" aria-label="Formato de texto">
+
+            <!-- Grupo: texto -->
+            <!-- Grupo: texto -->
+<div class="tb-group">
+
+  <button
+    type="button"
+    class="tb-btn"
+    (click)="execFormat('bold')"
+    title="Negrita (Ctrl+B)">
+    <strong>B</strong>
+  </button>
+
+  <button
+    type="button"
+    class="tb-btn"
+    (click)="execFormat('italic')"
+    title="Cursiva (Ctrl+I)">
+    <em style="font-style:italic;">I</em>
+  </button>
+
+  <button
+    type="button"
+    class="tb-btn"
+    (click)="execFormat('strikeThrough')"
+    title="Tachado">
+    <span style="text-decoration:line-through;font-size:.8rem;">S</span>
+  </button>
+
+</div>
+
+<div class="tb-divider"></div>
+
+<!-- Grupo: subtítulo -->
+<div class="tb-group">
+
+  <button
+    type="button"
+    class="tb-btn"
+    (click)="formatHeading()"
+    title="Subtítulo H3 (alterna párrafo)">
+    <span style="font-size:.72rem;font-weight:800;letter-spacing:-.03em;">
+      H<sub>3</sub>
+    </span>
+  </button>
+
+</div>
+
+<div class="tb-divider"></div>
+
+<!-- Grupo: listas -->
+  <div class="tb-group">
+    <!-- Lista con viñetas -->
+      <button
+        type="button"
+        class="tb-btn"
+        (click)="toggleList(false)"
+        title="Lista con viñetas">
+
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <circle cx="2" cy="4" r="1.5"/>
+          <rect x="5" y="3" width="9" height="2" rx="1"/>
+
+          <circle cx="2" cy="8" r="1.5"/>
+          <rect x="5" y="7" width="9" height="2" rx="1"/>
+
+          <circle cx="2" cy="12" r="1.5"/>
+          <rect x="5" y="11" width="9" height="2" rx="1"/>
+        </svg>
+
+      </button>
+
+    <!-- Lista numerada -->
+      <button
+        type="button"
+        class="tb-btn"
+        (click)="toggleList(true)"
+        title="Lista numerada">
+
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+
+          <text
+            x="0"
+            y="5"
+            font-size="5"
+            font-weight="700"
+            font-family="sans-serif">
+            1.
+          </text>
+
+          <rect x="5" y="3" width="9" height="2" rx="1"/>
+
+          <text
+            x="0"
+            y="9"
+            font-size="5"
+            font-weight="700"
+            font-family="sans-serif">
+            2.
+          </text>
+
+          <rect x="5" y="7" width="9" height="2" rx="1"/>
+
+          <text
+            x="0"
+            y="13"
+            font-size="5"
+            font-weight="700"
+            font-family="sans-serif">
+            3.
+          </text>
+
+          <rect x="5" y="11" width="9" height="2" rx="1"/>
+
+        </svg>
+
+      </button>
+
+    </div>
+
+    <div class="tb-divider"></div>
+
+    <!-- Grupo: limpiar formato -->
+    <div class="tb-group">
+
+      <button
+        type="button"
+        class="tb-btn"
+        (click)="execFormat('removeFormat')"
+        title="Quitar formato">
+
+        <ion-icon name="close-circle-outline"></ion-icon>
+
+      </button>
+
+    </div>
+  </div>
+          <!-- /toolbar -->
+
+          <!-- Área editable WYSIWYG -->
+          <div
+            #richEditor
+            class="rich-editor"
+            contenteditable="true"
+            (input)="onEditorInput()"
+            (keydown)="onEditorKeydown($event)"
+            data-placeholder="Escribe aquí el contenido de esta sección...">
+          </div>
+
+          <!-- Contador de caracteres -->
+          <div class="chars-counter">{{ form.contenido?.length || 0 }} caracteres</div>
+
+        </div>
+        <!-- /rich-editor-container -->
+
+      </div>
+      <!-- /modal-body -->
+
+      <!-- Footer (sin cambios) -->
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" [disabled]="cargando" (click)="cerrar()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+          Cancelar
+        </button>
+        <button type="button" class="btn-primary-modal" [disabled]="cargando" (click)="guardar()">
+          <ion-icon [name]="modoEdicion ? 'checkmark-circle-outline' : 'add-circle-outline'"></ion-icon>
+          {{ modoEdicion ? 'Actualizar' : 'Crear sección' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</section>
