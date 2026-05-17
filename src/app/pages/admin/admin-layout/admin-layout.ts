@@ -56,6 +56,8 @@ export class AdminLayoutComponent implements OnInit {
     { label: 'Prediccion',     icon: 'ph-chart-line-up',   route: '/admin/prediction' },
     { label: 'Periodos',      icon: 'ph-calendar-check',   route: '/admin/periodos' },
     { label: 'Materias',      icon: 'ph-graduation-cap',   route: '/admin/materias' },
+    { label: 'Privacidad',     icon: 'ph-shield-check',     route: '/admin/privacidad'},
+    { label: 'Terminos',      icon: 'ph-file-doc',         route: '/admin/terminos'},
   ];
 
   constructor(private router: Router) {}
