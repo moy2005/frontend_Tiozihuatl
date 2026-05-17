@@ -1,0 +1,146 @@
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in-up { animation: fadeInUp 0.8s ease-out; }
+
+  .content-card {
+    background: white; border-radius: 20px; padding: 2.5rem;
+    margin-bottom: 1rem; transition: all 0.4s ease;
+    border: 1px solid rgba(4,22,33,0.1);
+  }
+  .content-card:hover {
+    box-shadow: 0 12px 40px rgba(63,166,232,0.15);
+    transform: translateY(-4px);
+  }
+  .section-title {
+    display: flex; align-items: center; gap: 1.5rem;
+    margin-bottom: 2rem; padding-bottom: 1.5rem;
+    border-bottom: 3px solid #E8F3FA;
+  }
+  .section-number {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #3FA6E8 0%, #2D8BE8 100%);
+    border-radius: 16px; display: flex; align-items: center;
+    justify-content: center; color: white; font-weight: 800;
+    font-size: 1.5rem; flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(63,166,232,0.3);
+  }
+
+  /* ── ESTILOS DEL CONTENIDO RICO (renderizado HTML) ── */
+  .termino-contenido {
+    color: #374151;
+    line-height: 1.8;
+    font-size: 1rem;
+  }
+  .termino-contenido p {
+    margin-bottom: 0.875rem;
+    color: #374151;
+    line-height: 1.75;
+  }
+  .termino-contenido p:last-child { margin-bottom: 0; }
+
+  .termino-contenido strong { font-weight: 700; color: #0F172A; }
+  .termino-contenido em { font-style: italic; }
+  .termino-contenido s { text-decoration: line-through; color: #94A3B8; }
+
+  .termino-contenido h3 {
+    font-size: 1.05rem; font-weight: 700; color: #1E293B;
+    border-left: 4px solid #3FA6E8; padding-left: 0.75rem;
+    margin: 1.25rem 0 0.625rem;
+  }
+
+  /* Listas con viñetas */
+  .termino-contenido ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .termino-contenido ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.5rem 0.875rem;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    color: #374151;
+    line-height: 1.65;
+    font-size: 0.9375rem;
+  }
+  .termino-contenido ul li::before {
+    content: '';
+    display: inline-block;
+    width: 8px; min-width: 8px; height: 8px;
+    background: #3FA6E8;
+    border-radius: 50%;
+    margin-top: 0.45rem;
+    flex-shrink: 0;
+  }
+
+  /* Listas numeradas */
+  .termino-contenido ol {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    counter-reset: termino-counter;
+  }
+  .termino-contenido ol li {
+    counter-increment: termino-counter;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 0.75rem 0.875rem;
+    color: #374151;
+    line-height: 1.65;
+    font-size: 0.9375rem;
+  }
+  .termino-contenido ol li::before {
+    content: counter(termino-counter);
+    min-width: 26px; height: 26px;
+    background: #3FA6E8; color: #fff;
+    border-radius: 50%;
+    font-size: 0.75rem; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Header ola animada */
+  .header-wave {
+    position: absolute; bottom: -1px; left: 0;
+    width: 100%; overflow: hidden; line-height: 0; z-index: 3;
+  }
+  .header-wave svg {
+    display: block; width: 100%; height: 90px;
+    animation: ola-subir 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    transform-origin: bottom center;
+  }
+  @keyframes ola-subir {
+    0%   { transform: translateY(150%); opacity: 0; }
+    100% { transform: translateY(0);    opacity: 1; }
+  }
+
+  /* Skeleton fecha */
+  .fecha-skeleton {
+    display: inline-block; width: 160px; height: 18px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer-fecha 1.4s infinite linear;
+    border-radius: 6px; vertical-align: middle;
+  }
+  @keyframes shimmer-fecha {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @media (max-width: 768px) { .header-wave svg { height: 65px; } }
+  @media (max-width: 540px) { .header-wave svg { height: 50px; } .header-wave { bottom: -2px; overflow: visible; } }
