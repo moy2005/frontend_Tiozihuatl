@@ -51,6 +51,8 @@ import { MaterialesDocComponent } from './pages/materiales-doc/materiales-doc.co
 import { MaterialesComponent } from './pages/materiales/materiales.component';
 import { GestionMateriasComponent } from './pages/admin/gestion-materias/gestion-materias.component';
 import { GestionMaterialesComponent } from './pages/admin/gestion-materiales/gestion-materiales.component';
+import { GestionPrivacidadComponent } from './pages/admin/gestion-privacidad/gestion-privacidad.component';
+import { GestionTerminosComponent} from './pages/admin/gestion-terminos/gestion-terminos.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -110,6 +112,8 @@ export const routes: Routes = [
       { path: 'periodos', component: GestionPeriodosComponent},
       { path: 'materias', component: GestionMateriasComponent},
       { path: 'materiales', component: GestionMaterialesComponent },
+      { path: 'privacidad', component: GestionPrivacidadComponent},
+      { path: 'terminos', component: GestionTerminosComponent},
     ]
   },
   
