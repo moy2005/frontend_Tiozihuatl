@@ -32,7 +32,7 @@
     <button
       class="nav-btn"
       (click)="prevPage()"
-      [disabled]="currentPage <= 1">
+      [disabled]="currentPage <= 1 || rendering">
       &#9664;
     </button>
 
@@ -48,7 +48,7 @@
     <button
       class="nav-btn"
       (click)="nextPage()"
-      [disabled]="currentPage >= totalPages">
+      [disabled]="currentPage >= totalPages || rendering">
       &#9654;
     </button>
 
@@ -61,7 +61,7 @@
 
     <button class="toolbar-btn"
       (click)="zoomOut()"
-      [disabled]="zoomLevel <= 0.6">
+      [disabled]="zoomLevel <= minZoom || rendering">
       &#8722;
     </button>
 
@@ -71,7 +71,7 @@
 
     <button class="toolbar-btn"
       (click)="zoomIn()"
-      [disabled]="zoomLevel >= 3.0">
+      [disabled]="zoomLevel >= maxZoom || rendering">
       &#43;
     </button>
 
@@ -83,12 +83,19 @@
 <!-- ══ PDF AREA ══ -->
 <div class="pdf-wrapper">
 
-  <div class="loading-state" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Cargando documento…</p>
+  <div class="loading-state" *ngIf="loading && !errorMessage" aria-live="polite" aria-busy="true">
+    <div class="reader-loader"></div>
+    <p>{{ loadingMessage }}</p>
   </div>
 
-  <div id="pdfContainer" *ngIf="!loading"></div>
+  <div class="loading-state" *ngIf="!loading && errorMessage">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <div
+    id="pdfContainer"
+    [class.pdf-hidden]="loading || errorMessage">
+  </div>
 
 </div>
 
@@ -99,7 +106,7 @@
   <button
     class="nav-btn"
     (click)="prevPage()"
-    [disabled]="currentPage <= 1">
+    [disabled]="currentPage <= 1 || rendering">
     &#9664;
   </button>
 
@@ -110,7 +117,7 @@
   <button
     class="nav-btn"
     (click)="nextPage()"
-    [disabled]="currentPage >= totalPages">
+    [disabled]="currentPage >= totalPages || rendering">
     &#9654;
   </button>
 

@@ -160,7 +160,7 @@ export class GestionRevistasComponent implements OnInit {
     this.loading = true;
     this.magazinesService.getAll().subscribe({
       next: (data) => {
-        this.magazines = data;
+        this.magazines = data.filter(m => m.estado === 'Activa');
         this.aplicarFiltrosRevistas();
         this.loading = false;
       },

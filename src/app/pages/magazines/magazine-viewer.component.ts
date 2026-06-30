@@ -1,13 +1,10 @@
-import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, inject } from '@angular/core';
-import { ActivatedRoute, RouterModule  } from '@angular/router';
-import { MagazinesService } from '../../api/services/magazines.service';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, inject } from '@angular/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import * as pdfjsLib from 'pdfjs-dist';
+import { MagazinesService } from '../../api/services/magazines.service';
 
-/*pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';*/
-/*pdfjsLib.GlobalWorkerOptions.workerSrc =
-  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${(pdfjsLib as any).version}/pdf.worker.min.js`;*/
- pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.mjs'; 
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.mjs';
 
 @Component({
   selector: 'app-magazine-viewer',
@@ -19,245 +16,196 @@ import * as pdfjsLib from 'pdfjs-dist';
   encapsulation: ViewEncapsulation.None
 })
 export class MagazineViewerComponent implements OnInit, OnDestroy {
-
-    private magazineService = inject(MagazinesService);
-    private route = inject(ActivatedRoute);
+  private magazineService = inject(MagazinesService);
+  private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
 
   magazineId!: number;
   magazine: any;
 
   pdfDoc: any;
-  pdfUrl!: string;
+  pdfUrl = '';
 
-  zoomLevel = 0.5;
-  darkMode = true;
+  zoomLevel = 1;
+  readonly minZoom = 0.5;
+  readonly maxZoom = 2.5;
+  readonly zoomStep = 0.1;
 
   loading = false;
+  loadingMessage = 'Cargando revista...';
+  rendering = false;
   errorMessage: string | null = null;
 
   currentPage = 1;
   totalPages = 0;
 
-  constructor(
-   
-  ) {}
+  private scrollHandler = () => this.updateCurrentPageFromScroll();
+  private resizeHandler = () => this.updateCurrentPageFromScroll();
 
   ngOnInit(): void {
-    if (typeof window === 'undefined') return; //guard SSR
-       this.zoomLevel = window.innerWidth < 600 ? 1.0 : 0.6;
+    if (typeof window === 'undefined') return;
+
     const id = this.route.snapshot.paramMap.get('id');
 
     if (!id || isNaN(Number(id))) {
-      this.errorMessage = 'ID inválido';
+      this.errorMessage = 'ID invalido';
       return;
     }
 
     this.magazineId = Number(id);
-
     this.loadMagazineInfo();
     this.loadPdf();
   }
 
-  loadMagazineInfo() {
-    this.magazineService.getById(this.magazineId)
-      .subscribe({
-        next: (res: any) => {
-          this.magazine = res.data;
-        },
-        error: () => {
-          this.errorMessage = 'Error al cargar la revista';
-        }
-      });
+  loadMagazineInfo(): void {
+    this.magazineService.getById(this.magazineId).subscribe({
+      next: (res: any) => {
+        this.magazine = res.data;
+      },
+      error: () => {
+        this.errorMessage = 'Error al cargar la revista';
+      }
+    });
   }
 
   loadPdf(): void {
-
     this.loading = true;
+    this.loadingMessage = 'Cargando revista...';
     this.errorMessage = null;
 
-    this.magazineService.getSecurePdf(this.magazineId)
-      .subscribe({
-        next: async (res: { url: string }) => {
-          this.pdfUrl = res.url;
-          this.loading = false; // 👈 mover aquí
-          requestAnimationFrame(async () => {
-            await this.initializePdf(this.pdfUrl);
-          });
-        },
-        error: (err) => {
+    this.magazineService.getSecurePdf(this.magazineId).subscribe({
+      next: async (res: { url: string }) => {
+        this.pdfUrl = res.url;
+
+        try {
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+          await this.initializePdf(this.pdfUrl);
+        } catch (error) {
           this.loading = false;
-          this.errorMessage =
-            err.status === 403
-              ? 'Debes comprar esta revista.'
-              : 'Error al cargar el PDF.';
+          this.rendering = false;
+          this.errorMessage = 'No se pudo abrir el PDF de esta revista.';
+          console.error('Error renderizando PDF:', error);
         }
-      });
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = err.status === 403
+          ? 'Debes comprar esta revista.'
+          : 'Error al cargar el PDF.';
+      }
+    });
   }
 
- async initializePdf(url: string) {
+  async initializePdf(url: string): Promise<void> {
+    this.errorMessage = null;
+    this.rendering = true;
+    this.loading = true;
+    this.loadingMessage = 'Preparando revista...';
+    this.cdr.detectChanges();
 
-  this.pdfDoc = await pdfjsLib.getDocument({
-    url,
-    withCredentials: false
-  }).promise;
-
-  this.totalPages = this.pdfDoc.numPages;
-
-  const container = document.getElementById('pdfContainer')!;
-  container.innerHTML = '';
-
-  // 🔥 Esperar a que el DOM tenga tamaño real
-  await new Promise(resolve => requestAnimationFrame(resolve));
-
-  for (let pageNum = 1; pageNum <= this.totalPages; pageNum++) {
-
-    const page = await this.pdfDoc.getPage(pageNum);
-
-    // 🔥 Obtener ancho real del contenedor
-    let containerWidth = container.clientWidth;
-
-    // Si aún es 0 (muy raro pero puede pasar)
-    if (!containerWidth || containerWidth < 100) {
-      containerWidth = window.innerWidth * 0.9;
+    if (!this.pdfDoc) {
+      this.pdfDoc = await pdfjsLib.getDocument({
+        url,
+        withCredentials: false
+      }).promise;
     }
 
-    const baseViewport = page.getViewport({ scale: 1 });
+    this.totalPages = this.pdfDoc.numPages;
 
-    // 🔥 Scale responsivo seguro
-    const responsiveScale = containerWidth / baseViewport.width;
-    const finalScale = responsiveScale * this.zoomLevel;
-
-    const viewport = page.getViewport({ scale: finalScale });
-
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d', { willReadFrequently: true })!;
-
-    canvas.setAttribute('data-page', pageNum.toString());
-
-    const dpr = window.devicePixelRatio || 1;
-
-    // 🔥 Canvas interno a alta resolución
-    canvas.width = viewport.width * dpr;
-    canvas.height = viewport.height * dpr;
-
-    // 🔥 Tamaño visual en pantalla
-    canvas.style.width = viewport.width + 'px';
-    canvas.style.height = viewport.height + 'px';
-
-    canvas.style.display = "block";
-    canvas.style.margin = "0 auto";
-
-    canvas.style.borderRadius = '8px';
-    canvas.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
-    canvas.style.background = 'white';
-
-    container.appendChild(canvas);
-
-    // 🔥 Escalar contexto para dpr
-    context.scale(dpr, dpr);
-
-    await page.render({
-      canvasContext: context,
-      viewport
-    }).promise;
-
-    this.drawWatermark(canvas, context);
-  }
-
-  this.setupScrollTracking();
-  this.loading = false;
-}
-
-  prevPage() {
-  const container = document.getElementById('pdfContainer');
-  const page = document.querySelector(`[data-page="${this.currentPage - 1}"]`);
-  page?.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  nextPage() {
     const container = document.getElementById('pdfContainer');
-    const page = document.querySelector(`[data-page="${this.currentPage + 1}"]`);
-    page?.scrollIntoView({ behavior: 'smooth' });
-  }
-
-      setupScrollTracking() {
-      // Esperar a que el DOM estabilice las posiciones de los canvas
-      setTimeout(() => {
-        const container = document.getElementById('pdfContainer')!;
-        const canvases = container.querySelectorAll('canvas');
-
-        if ((this as any)._pageObserver) {
-          (this as any)._pageObserver.disconnect();
-        }
-
-        const observer = new IntersectionObserver(
-          (entries) => {
-            const visible = entries
-              .filter(e => e.isIntersecting)
-              .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-
-            if (visible.length > 0) {
-              const page = Number(visible[0].target.getAttribute('data-page'));
-              if (page) this.currentPage = page;
-            }
-          },
-          { root: null, threshold: 0.1, rootMargin: '0px' }
-        );
-
-        canvases.forEach(canvas => observer.observe(canvas));
-        (this as any)._pageObserver = observer;
-
-        // 🔥 Forzar detección inmediata de la página visible actual
-        const firstVisible = Array.from(canvases).find(canvas => {
-          const rect = canvas.getBoundingClientRect();
-          return rect.top < window.innerHeight && rect.bottom > 0;
-        });
-
-        if (firstVisible) {
-          const page = Number(firstVisible.getAttribute('data-page'));
-          if (page) this.currentPage = page;
-        }
-
-      }, 300); // pequeño delay para que el DOM esté listo
+    if (!container) {
+      this.rendering = false;
+      return;
     }
- drawWatermark(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
-  let user: any = {};
-  if (typeof window !== 'undefined') { 
-    user = JSON.parse(localStorage.getItem('user') || '{}'); // sin const/let
-  }
-  ctx.save();
-  ctx.font = "22px Arial";
-  ctx.fillStyle = "rgba(150,150,150,0.12)";
-  ctx.textAlign = "center";
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate(-0.5);
-  ctx.fillText(
-    `${user?.nombre || 'Usuario'} - ${new Date().toLocaleString()}`,
-    0,
-    0
-  );
-  ctx.restore();
-}
 
-  async zoomIn() {
-    this.zoomLevel += 0.2;
+    container.innerHTML = '';
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    for (let pageNum = 1; pageNum <= this.totalPages; pageNum++) {
+      if (pageNum === 1) {
+        this.loadingMessage = 'Renderizando primera pagina...';
+        this.cdr.detectChanges();
+      }
+
+      const page = await this.pdfDoc.getPage(pageNum);
+      const baseViewport = page.getViewport({ scale: 1 });
+      const viewport = page.getViewport({
+        scale: this.getFitScale(baseViewport.width) * this.zoomLevel
+      });
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      if (!context) continue;
+
+      const dpr = window.devicePixelRatio || 1;
+
+      canvas.setAttribute('data-page', String(pageNum));
+      canvas.width = Math.floor(viewport.width * dpr);
+      canvas.height = Math.floor(viewport.height * dpr);
+      canvas.style.width = `${viewport.width}px`;
+      canvas.style.height = `${viewport.height}px`;
+      canvas.style.display = 'block';
+      canvas.style.margin = '0 auto';
+      canvas.style.borderRadius = '8px';
+      canvas.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
+      canvas.style.background = 'white';
+
+      container.appendChild(canvas);
+
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      await page.render({
+        canvasContext: context,
+        viewport
+      }).promise;
+
+      this.drawWatermark(canvas, context, dpr);
+
+      if (pageNum === 1) {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    }
+
+    this.loading = false;
+    this.rendering = false;
+    this.setupScrollTracking();
+    this.scrollToPage(this.currentPage, 'auto');
+  }
+
+  prevPage(): void {
+    this.goToPage(this.currentPage - 1);
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage + 1);
+  }
+
+  async zoomIn(): Promise<void> {
+    if (this.rendering || this.zoomLevel >= this.maxZoom) return;
+    this.zoomLevel = Math.min(this.maxZoom, Number((this.zoomLevel + this.zoomStep).toFixed(2)));
     await this.reloadPdf();
   }
 
-  async zoomOut() {
-    if (this.zoomLevel > 0.4) {
-      this.zoomLevel -= 0.2;
-      await this.reloadPdf();
-    }
+  async zoomOut(): Promise<void> {
+    if (this.rendering || this.zoomLevel <= this.minZoom) return;
+    this.zoomLevel = Math.max(this.minZoom, Number((this.zoomLevel - this.zoomStep).toFixed(2)));
+    await this.reloadPdf();
   }
 
-  async reloadPdf() {
+  async reloadPdf(): Promise<void> {
+    if (!this.pdfUrl || !this.pdfDoc) return;
+
+    const pageToKeep = this.currentPage;
     const container = document.getElementById('pdfContainer');
     if (container) container.innerHTML = '';
+
+    this.currentPage = pageToKeep;
+    this.loadingMessage = 'Ajustando vista...';
     await this.initializePdf(this.pdfUrl);
   }
 
-  toggleFullscreen() {
+  toggleFullscreen(): void {
     const elem = document.documentElement;
 
     if (!document.fullscreenElement) {
@@ -267,17 +215,96 @@ export class MagazineViewerComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleTheme() {
-    this.darkMode = !this.darkMode;
-    document.body.classList.toggle('light-mode');
+  private getFitScale(pageWidth: number): number {
+    const horizontalPadding = window.innerWidth < 600 ? 16 : 32;
+    const maxReaderWidth = 900;
+    const availableWidth = Math.max(
+      280,
+      Math.min(window.innerWidth - horizontalPadding, maxReaderWidth)
+    );
+
+    return availableWidth / pageWidth;
+  }
+
+  private setupScrollTracking(): void {
+    window.removeEventListener('scroll', this.scrollHandler);
+    window.removeEventListener('resize', this.resizeHandler);
+    window.addEventListener('scroll', this.scrollHandler, { passive: true });
+    window.addEventListener('resize', this.resizeHandler, { passive: true });
+    requestAnimationFrame(() => this.updateCurrentPageFromScroll());
+  }
+
+  private goToPage(pageNumber: number): void {
+    const targetPage = Math.min(Math.max(pageNumber, 1), this.totalPages || 1);
+    this.currentPage = targetPage;
+    this.scrollToPage(targetPage);
+  }
+
+  private scrollToPage(pageNumber: number, behavior: ScrollBehavior = 'smooth'): void {
+    const page = document.querySelector(`[data-page="${pageNumber}"]`);
+    if (!page) return;
+
+    const rect = page.getBoundingClientRect();
+    const toolbarOffset = 120;
+    const top = window.scrollY + rect.top - toolbarOffset;
+
+    window.scrollTo({
+      top: Math.max(0, top),
+      behavior
+    });
+  }
+
+  private updateCurrentPageFromScroll(): void {
+    if (this.rendering) return;
+
+    const container = document.getElementById('pdfContainer');
+    if (!container) return;
+
+    const pages = Array.from(container.querySelectorAll('canvas'));
+    if (!pages.length) return;
+
+    const viewportCenter = window.innerHeight / 2;
+    let closestPage = this.currentPage;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    for (const page of pages) {
+      const rect = page.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > window.innerHeight) continue;
+
+      const pageCenter = rect.top + rect.height / 2;
+      const distance = Math.abs(pageCenter - viewportCenter);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestPage = Number(page.getAttribute('data-page')) || closestPage;
+      }
+    }
+
+    this.currentPage = closestPage;
+  }
+
+  private drawWatermark(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, dpr: number): void {
+    let user: any = {};
+
+    if (typeof window !== 'undefined') {
+      user = JSON.parse(localStorage.getItem('user') || '{}');
+    }
+
+    ctx.save();
+    ctx.font = '22px Arial';
+    ctx.fillStyle = 'rgba(150,150,150,0.12)';
+    ctx.textAlign = 'center';
+    ctx.translate(canvas.width / (2 * dpr), canvas.height / (2 * dpr));
+    ctx.rotate(-0.5);
+    ctx.fillText(`${user?.nombre || 'Usuario'} - ${new Date().toLocaleString()}`, 0, 0);
+    ctx.restore();
   }
 
   ngOnDestroy(): void {
-      if ((this as any)._pageObserver) {
-      (this as any)._pageObserver.disconnect();
-    }
+    window.removeEventListener('scroll', this.scrollHandler);
+    window.removeEventListener('resize', this.resizeHandler);
+
     const container = document.getElementById('pdfContainer');
     if (container) container.innerHTML = '';
   }
 }
-

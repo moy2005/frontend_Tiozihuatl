@@ -48,6 +48,8 @@ export class AdminLayoutComponent implements OnInit {
     { label: 'Libros',        icon: 'ph-books',           route: '/admin/libros' },
     { label: 'Calendarios',    icon: 'ph-calendar',        route: '/admin/calendario-admin' },
     { label: 'Revistas',      icon: 'ph-newspaper',       route: '/admin/revistas' },
+    { label: 'Pagos',         icon: 'ph-credit-card',      route: '/admin/pagos' },
+    { label: 'Descuentos',    icon: 'ph-tag',              route: '/admin/descuentos' },
     { label: 'Préstamos',     icon: 'ph-book-bookmark',   route: '/admin/prestamos' },
     { label: 'Materiales',    icon: 'ph-folder-open',     route: '/admin/materiales' },
     { label: 'Respaldos',     icon: 'ph-download-simple', route: '/admin/backups' },

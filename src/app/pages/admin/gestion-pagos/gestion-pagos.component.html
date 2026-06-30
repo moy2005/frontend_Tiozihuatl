@@ -1,0 +1,229 @@
+<div class="admin-content pagos-admin">
+  <div class="max-w-[95%] mx-auto">
+
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="page-title">Gestion de Pagos</h2>
+          <p class="page-subtitle">Stripe, compras y estados guardados en MySQL</p>
+        </div>
+        <button class="btn-primary flex items-center gap-2" (click)="loadPayments()" [disabled]="loading">
+          <ion-icon name="refresh-outline"></ion-icon>
+          {{ loading ? 'Actualizando...' : 'Actualizar' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-grid mb-6">
+      <div class="stat-card stat-card-blue">
+        <div class="stat-icon"><ion-icon name="cash-outline"></ion-icon></div>
+        <div>
+          <span class="stat-label">Ingresos aprobados</span>
+          <strong class="stat-value">{{ money(stats.ingresos) }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon"><ion-icon name="receipt-outline"></ion-icon></div>
+        <div>
+          <span class="stat-label">Compras</span>
+          <strong class="stat-value">{{ stats.total_compras || 0 }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-green">
+        <div class="stat-icon"><ion-icon name="checkmark-circle-outline"></ion-icon></div>
+        <div>
+          <span class="stat-label">Aprobadas</span>
+          <strong class="stat-value">{{ stats.aprobadas || 0 }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-amber">
+        <div class="stat-icon"><ion-icon name="time-outline"></ion-icon></div>
+        <div>
+          <span class="stat-label">Pendientes</span>
+          <strong class="stat-value">{{ stats.pendientes || 0 }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-red">
+        <div class="stat-icon"><ion-icon name="close-circle-outline"></ion-icon></div>
+        <div>
+          <span class="stat-label">Canceladas</span>
+          <strong class="stat-value">{{ stats.canceladas || 0 }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="filtros-section">
+      <div class="filtros-header">
+        <div class="filtros-titulo">
+          <ion-icon name="funnel-outline"></ion-icon>
+          <span>Filtrar pagos</span>
+          <span *ngIf="filtrosActivos" class="filtros-badge-count">{{ payments.length }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button *ngIf="filtrosActivos" (click)="limpiarFiltros()" class="filtros-limpiar">
+            <ion-icon name="close-circle-outline"></ion-icon>
+            <span class="hidden sm:inline">Limpiar filtros</span>
+          </button>
+          <button (click)="toggleFiltros()" class="btn-filter" [ngClass]="{'btn-filter-active': filtrosExpandidos}">
+            <ion-icon [name]="filtrosExpandidos ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+            <span class="hidden sm:inline">{{ filtrosExpandidos ? 'Ocultar' : 'Mostrar' }} filtros</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="filtrosExpandidos" class="filtros-body">
+        <div class="filtros-grid">
+          <div class="filtro-item">
+            <label class="filtro-label"><ion-icon name="checkmark-circle-outline"></ion-icon> Estado</label>
+            <select [(ngModel)]="filtros.estado" class="filtro-select">
+              <option value="">Todos los estados</option>
+              <option value="aprobado">Aprobado</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div class="filtro-item">
+            <label class="filtro-label"><ion-icon name="person-outline"></ion-icon> Usuario o referencia</label>
+            <input type="text"
+                   [(ngModel)]="filtros.usuario"
+                   placeholder="Nombre, correo, compra o Stripe"
+                   class="filtro-input" />
+          </div>
+
+          <div class="filtro-item">
+            <label class="filtro-label"><ion-icon name="calendar-outline"></ion-icon> Fecha inicio</label>
+            <input type="date" [(ngModel)]="filtros.fecha_inicio" class="filtro-input" />
+          </div>
+
+          <div class="filtro-item">
+            <label class="filtro-label"><ion-icon name="calendar-outline"></ion-icon> Fecha fin</label>
+            <input type="date" [(ngModel)]="filtros.fecha_fin" class="filtro-input" />
+          </div>
+
+          <div class="filtro-item filtro-actions">
+            <button class="btn-primary" (click)="loadPayments()" [disabled]="loading">
+              <ion-icon name="search-outline"></ion-icon>
+              Aplicar
+            </button>
+            <button class="btn-secondary" (click)="limpiarFiltros()" [disabled]="loading || !filtrosActivos">
+              <ion-icon name="close-outline"></ion-icon>
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="filtrosActivos && !filtrosExpandidos" class="filter-banner">
+        <ion-icon name="funnel-outline"></ion-icon>
+        <span>Mostrando <strong>{{ payments.length }}</strong> compra(s) con filtros activos</span>
+        <button (click)="limpiarFiltros()" class="btn-ghost ml-auto">
+          <ion-icon name="close-outline"></ion-icon> Limpiar
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="loading && payments.length === 0" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 text-gray-600 font-medium">Cargando pagos...</p>
+    </div>
+
+    <div *ngIf="!loading || payments.length > 0" class="content-card overflow-hidden">
+      <div class="table-summary">
+        Total registros: <strong>{{ payments.length }}</strong>
+      </div>
+
+      <div *ngIf="!loading && payments.length === 0" class="empty-state">
+        <ion-icon name="receipt-outline"></ion-icon>
+        <p>No se encontraron pagos</p>
+        <span>Prueba cambiando los filtros o actualiza la informacion.</span>
+      </div>
+
+      <div *ngIf="payments.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell">Compra</th>
+              <th class="th-cell">Usuario</th>
+              <th class="th-cell">Revista(s)</th>
+              <th class="th-cell">Monto</th>
+              <th class="th-cell">Estado</th>
+              <th class="th-cell">Referencia Stripe</th>
+              <th class="th-cell">Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let payment of payments; trackBy: trackByCompra" class="table-row">
+              <td class="td-cell font-medium text-gray-900">#{{ payment.id_compra }}</td>
+              <td class="td-cell">
+                <div class="user-cell">
+                  <strong>{{ payment.usuario || 'Usuario eliminado' }}</strong>
+                  <span>{{ payment.correo || 'Sin correo' }}</span>
+                </div>
+              </td>
+              <td class="td-cell text-gray-600 td-revistas">{{ payment.revistas }}</td>
+              <td class="td-cell">
+                <div class="amount-cell">
+                  <strong>{{ money(payment.monto_pagado) }}</strong>
+                  <span *ngIf="+payment.descuento_total > 0">Desc. {{ money(payment.descuento_total) }}</span>
+                </div>
+              </td>
+              <td class="td-cell">
+                <span class="badge-estado" [ngClass]="estadoClass(payment.estado)">
+                  {{ estadoLabel(payment.estado) }}
+                </span>
+                <div class="state-detail">
+                  pago: {{ payment.estado_pago }} / compra: {{ payment.estado_compra }}
+                </div>
+              </td>
+              <td class="td-cell">
+                <span class="reference-cell" [title]="payment.referencia || ''">
+                  {{ shortReference(payment.referencia) }}
+                </span>
+              </td>
+              <td class="td-cell text-gray-500 text-sm">{{ payment.fecha | date:'short' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="payments.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let payment of payments; trackBy: trackByCompra" class="payment-card">
+          <div class="payment-card-head">
+            <div>
+              <span class="payment-id">Compra #{{ payment.id_compra }}</span>
+              <h4>{{ payment.usuario || 'Usuario eliminado' }}</h4>
+              <p>{{ payment.correo || 'Sin correo' }}</p>
+            </div>
+            <span class="badge-estado" [ngClass]="estadoClass(payment.estado)">
+              {{ estadoLabel(payment.estado) }}
+            </span>
+          </div>
+          <div class="payment-card-body">
+            <div>
+              <span>Revista(s)</span>
+              <strong>{{ payment.revistas }}</strong>
+            </div>
+            <div>
+              <span>Monto</span>
+              <strong>{{ money(payment.monto_pagado) }}</strong>
+            </div>
+            <div>
+              <span>Stripe</span>
+              <strong class="reference-cell">{{ shortReference(payment.referencia) }}</strong>
+            </div>
+            <div>
+              <span>Fecha</span>
+              <strong>{{ payment.fecha | date:'short' }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
