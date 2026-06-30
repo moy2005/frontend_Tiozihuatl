@@ -64,7 +64,7 @@
             <button class="tab-btn" [class.tab-active]="activeTab === 'purchased'" (click)="setTab('purchased')">
               <ion-icon name="bag-check-outline"></ion-icon>
               Mis revistas
-              <span class="tab-count">{{ purchasedIds.length }}</span>
+              <span class="tab-count">{{ purchasedVisibleCount }}</span>
             </button>
           </div>
 
@@ -108,7 +108,7 @@
 
       <!-- Contador -->
       <span class="resultados-count" *ngIf="!loading">
-        {{ magazines.length }} revista{{ magazines.length !== 1 ? 's' : '' }}
+        {{ displayedMagazines.length }} revista{{ displayedMagazines.length !== 1 ? 's' : '' }}
       </span>
 
     </div>
@@ -122,7 +122,7 @@
     </div>
 
     <!-- dentro del <div class="catalog-content">, antes del grid -->
-    <div *ngIf="activeTab === 'purchased' && purchasedIds.length === 0" class="empty-purchased">
+    <div *ngIf="activeTab === 'purchased' && displayedMagazines.length === 0" class="empty-purchased">
       <ion-icon name="bag-handle-outline"></ion-icon>
       <h3>Aún no tienes revistas</h3>
       <p>Explora el catálogo y adquiere tus primeras revistas</p>
@@ -138,11 +138,8 @@
         <div class="card-cover-wrap">
           <img [src]="getPdfCover(m.pdf_public_id)" class="cover" [alt]="m.titulo" />
           <span *ngIf="m.descuento_activo" class="card-badge card-badge-sale">OFERTA</span>
-          <span *ngIf="isPurchased(m.id_magazine)" class="card-badge card-badge-owned">
+          <span *ngIf="isPurchased(getMagazineId(m))" class="card-badge card-badge-owned">
             <ion-icon name="checkmark-circle-outline"></ion-icon> Adquirida
-          </span>
-          <span class="resultados-count" *ngIf="!loading">
-            {{ displayedMagazines.length }} revista{{ displayedMagazines.length !== 1 ? 's' : '' }}
           </span>
         </div>
 
@@ -156,18 +153,19 @@
           </p>
           <div class="card-footer">
             <div class="card-price-wrap">
-              <span class="card-price">${{ m.precio }}</span>
+              <span *ngIf="hasDiscount(m)" class="card-price-old">${{ m.precio }}</span>
+              <span class="card-price">${{ getFinalPrice(m) }}</span>
             </div>
             <div class="card-actions">
-              <a [routerLink]="['/magazines', m.id_magazine]" class="btn-view" title="Ver detalle">
+              <a [routerLink]="['/magazines', getMagazineId(m)]" class="btn-view" title="Ver detalle">
                 <ion-icon name="eye-outline"></ion-icon>
               </a>
-              <button *ngIf="!isPurchased(m.id_magazine)"
+              <button *ngIf="!isPurchased(getMagazineId(m))"
                 (click)="addToCart(m)" class="btn-cart" title="Agregar al carrito">
                 <ion-icon name="cart-outline"></ion-icon>
               </button>
-              <a *ngIf="isPurchased(m.id_magazine)"
-                [routerLink]="['/magazines', m.id_magazine]" class="btn-owned" title="Leer ahora">
+              <a *ngIf="isPurchased(getMagazineId(m))"
+                [routerLink]="['/magazines/view', getMagazineId(m)]" class="btn-owned" title="Leer ahora">
                 <ion-icon name="book-outline"></ion-icon>
               </a>
             </div>
@@ -227,7 +225,12 @@
       <span>Total</span>
       <span class="cart-total-amount">${{ total }}</span>
     </div>
-    <button (click)="simulatePayment()" [disabled]="processingPayment" class="btn-pay">
+    <button
+      type="button"
+      (click)="simulatePayment()"
+      [disabled]="processingPayment"
+      class="btn-pay"
+      [class.btn-pay-processing]="processingPayment">
       <span *ngIf="!processingPayment">
         <ion-icon name="card-outline"></ion-icon>
         Pagar ahora
@@ -265,8 +268,8 @@
     <div class="modal-pay-icon modal-pay-icon-error">
       <ion-icon name="close-circle-outline"></ion-icon>
     </div>
-    <h2>Pago rechazado</h2>
-    <p>No se pudo procesar tu pago. Por favor intenta nuevamente.</p>
+    <h2>No se pudo iniciar el pago</h2>
+    <p>{{ paymentErrorMessage }}</p>
     <button (click)="paymentRejected = false" class="modal-pay-btn modal-pay-btn-error">
       Intentar de nuevo
     </button>
@@ -287,7 +290,7 @@
     <p>"<strong>{{ cartAddedMagazine?.titulo }}</strong>" se agregó correctamente.</p>
 
     <div class="modal-cart-price">
-      ${{ cartAddedMagazine?.precio }}
+      ${{ getFinalPrice(cartAddedMagazine) }}
     </div>
 
     <div class="modal-cart-btns">

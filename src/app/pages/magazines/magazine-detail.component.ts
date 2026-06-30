@@ -2,7 +2,7 @@ import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation,inject } f
 import { ActivatedRoute,Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
-import { environment } from '../../api/environments/environment.prod';
+import { environment } from '../../api/environments/environment';
 import { CartService } from '../../api/services/cart.service';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -29,6 +29,8 @@ export class MagazineDetailComponent implements OnInit {
   magazineId!: number;
 
   hasPurchased = false;
+  loading = false;
+  errorMessage: string | null = null;
 
   showReader = false;
   safePdfUrl: any;
@@ -59,15 +61,20 @@ export class MagazineDetailComponent implements OnInit {
      CARGAR INFORMACIÓN REVISTA
   ============================== */
   loadMagazine() {
+    this.loading = true;
+    this.errorMessage = null;
 
     this.http.get<any>(
       `${environment.apiUrl}/magazines/${this.magazineId}`
     ).subscribe({
       next: (res) => {
         this.magazine = res.data || res;
+        this.loading = false;
         this.checkIfPurchased();
       },
       error: (err) => {
+        this.loading = false;
+        this.errorMessage = 'No se pudo cargar la revista.';
         console.error("Error cargando revista", err);
       }
     });

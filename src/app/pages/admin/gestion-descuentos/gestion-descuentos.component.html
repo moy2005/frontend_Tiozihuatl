@@ -1,0 +1,208 @@
+<div class="admin-content descuentos-admin">
+  <div class="max-w-[95%] mx-auto">
+
+    <div class="header-section mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="page-title">Gestion de Descuentos</h2>
+          <p class="page-subtitle">Promociones conectadas al precio final de Stripe</p>
+        </div>
+        <button class="btn-primary flex items-center gap-2" (click)="openCreate()">
+          <ion-icon name="pricetag-outline"></ion-icon>
+          Nuevo Descuento
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-grid mb-6">
+      <div class="stat-card">
+        <div class="stat-icon"><ion-icon name="ticket-outline"></ion-icon></div>
+        <div>
+          <span class="stat-label">Descuentos</span>
+          <strong class="stat-value">{{ discounts.length }}</strong>
+        </div>
+      </div>
+      <div class="stat-card stat-card-green">
+        <div class="stat-icon"><ion-icon name="checkmark-circle-outline"></ion-icon></div>
+        <div>
+          <span class="stat-label">Activos</span>
+          <strong class="stat-value">{{ activeDiscounts }}</strong>
+        </div>
+      </div>
+      <div class="stat-card stat-card-blue">
+        <div class="stat-icon"><ion-icon name="book-outline"></ion-icon></div>
+        <div>
+          <span class="stat-label">Revistas disponibles</span>
+          <strong class="stat-value">{{ magazines.length }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="content-card text-center py-12">
+      <div class="loading-spinner inline-block"></div>
+      <p class="mt-4 text-gray-600 font-medium">Cargando descuentos...</p>
+    </div>
+
+    <div *ngIf="!loading" class="content-card overflow-hidden">
+      <div *ngIf="discounts.length === 0" class="empty-state">
+        <ion-icon name="pricetag-outline"></ion-icon>
+        <p>No hay descuentos registrados</p>
+        <span>Crea una promocion para aplicarla al precio final de Stripe.</span>
+      </div>
+
+      <div *ngIf="discounts.length > 0" class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="table-header">
+            <tr>
+              <th class="th-cell">Nombre</th>
+              <th class="th-cell">Valor</th>
+              <th class="th-cell">Vigencia</th>
+              <th class="th-cell">Revistas</th>
+              <th class="th-cell">Estado</th>
+              <th class="th-cell text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let discount of discounts; trackBy: trackById" class="table-row">
+              <td class="td-cell font-medium text-gray-900">{{ discount.nombre }}</td>
+              <td class="td-cell">
+                <span class="value-pill">{{ discountLabel(discount) }}</span>
+              </td>
+              <td class="td-cell text-gray-600">
+                {{ discount.fecha_inicio | date:'shortDate' }} - {{ discount.fecha_fin | date:'shortDate' }}
+                <div class="state-detail">{{ discount.vigente ? 'Vigente hoy' : 'Fuera de vigencia' }}</div>
+              </td>
+              <td class="td-cell text-gray-600 td-revistas">
+                {{ discount.revistas || 'Sin revistas' }}
+              </td>
+              <td class="td-cell">
+                <span class="badge-estado" [ngClass]="discount.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
+                  {{ discount.estado }}
+                </span>
+              </td>
+              <td class="td-cell">
+                <div class="flex justify-center gap-2">
+                  <button class="btn-icon btn-icon-primary" (click)="openEdit(discount)" title="Editar">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                  <button class="btn-icon"
+                          [ngClass]="discount.estado === 'Activo' ? 'btn-icon-danger' : 'btn-icon-success'"
+                          (click)="toggleStatus(discount)"
+                          [title]="discount.estado === 'Activo' ? 'Desactivar' : 'Activar'">
+                    <ion-icon [name]="discount.estado === 'Activo' ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="discounts.length > 0" class="lg:hidden p-4 space-y-4">
+        <div *ngFor="let discount of discounts; trackBy: trackById" class="discount-card">
+          <div class="discount-card-head">
+            <div>
+              <h4>{{ discount.nombre }}</h4>
+              <p>{{ discountLabel(discount) }} - {{ discount.fecha_inicio | date:'shortDate' }} a {{ discount.fecha_fin | date:'shortDate' }}</p>
+            </div>
+            <span class="badge-estado" [ngClass]="discount.estado === 'Activo' ? 'badge-activo' : 'badge-inactivo'">
+              {{ discount.estado }}
+            </span>
+          </div>
+          <p class="discount-card-revistas">{{ discount.revistas || 'Sin revistas' }}</p>
+          <div class="discount-card-actions">
+            <button class="btn-secondary" (click)="openEdit(discount)">
+              <ion-icon name="create-outline"></ion-icon> Editar
+            </button>
+            <button class="btn-secondary" (click)="toggleStatus(discount)">
+              <ion-icon [name]="discount.estado === 'Activo' ? 'close-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+              {{ discount.estado === 'Activo' ? 'Desactivar' : 'Activar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-icon-wrapper">
+            <ion-icon name="pricetag-outline"></ion-icon>
+          </div>
+          <div>
+            <h3 class="modal-title">{{ editingId ? 'Editar Descuento' : 'Nuevo Descuento' }}</h3>
+            <p class="modal-subtitle">El precio final se recalcula en backend antes de crear Checkout.</p>
+          </div>
+        </div>
+        <button (click)="closeModal()" class="btn-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label class="form-label">Nombre</label>
+            <input class="form-input" [(ngModel)]="form.nombre" placeholder="Ej. Promo enfermeria" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select class="form-input" [(ngModel)]="form.tipo">
+              <option value="porcentaje">Porcentaje</option>
+              <option value="monto">Monto fijo</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Valor</label>
+            <input class="form-input" type="number" min="0" step="0.01" [(ngModel)]="form.valor" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fecha inicio</label>
+            <input class="form-input" type="date" [(ngModel)]="form.fecha_inicio" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fecha fin</label>
+            <input class="form-input" type="date" [(ngModel)]="form.fecha_fin" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select class="form-input" [(ngModel)]="form.estado">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="form-group form-full">
+            <label class="form-label">Revistas</label>
+            <div class="magazine-picker">
+              <label *ngFor="let magazine of magazines" class="magazine-option">
+                <input type="checkbox"
+                       [checked]="isMagazineSelected(magazine.id_revista)"
+                       (change)="toggleMagazine(magazine.id_revista, $any($event.target).checked)" />
+                <span>{{ magazine.titulo }}</span>
+                <small>{{ money(magazine.precio) }}</small>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()" [disabled]="saving">
+          <ion-icon name="close-outline"></ion-icon> Cancelar
+        </button>
+        <button class="btn-primary" (click)="save()" [disabled]="saving">
+          <ion-icon name="checkmark-outline"></ion-icon>
+          {{ saving ? 'Guardando...' : 'Guardar descuento' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

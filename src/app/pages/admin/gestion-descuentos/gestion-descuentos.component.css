@@ -1,0 +1,403 @@
+.descuentos-admin {
+  --color-fondo: #E3F2FD;
+  --color-contenedor: #FFFFFF;
+  --color-borde: #BBDEFB;
+  --color-primario: #2196F3;
+  --color-primario-hover: #1976D2;
+  --color-primario-dark: #1565C0;
+  --color-info: #03A9F4;
+  --color-exito: #4CAF50;
+  --color-peligro: #F44336;
+  --color-texto: #1E293B;
+  --color-texto-secundario: #64748B;
+
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.descuentos-admin * { box-sizing: border-box; }
+.descuentos-admin ion-icon { pointer-events: none; }
+
+.descuentos-admin .header-section {
+  background: linear-gradient(var(--color-info));
+  border: 1px solid var(--color-borde);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.descuentos-admin .page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.descuentos-admin .page-subtitle {
+  margin: 0.25rem 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+}
+
+.descuentos-admin .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.descuentos-admin .stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  background: white;
+  border: 1px solid var(--color-borde);
+  border-top: 3px solid var(--color-primario);
+  padding: 1rem;
+  min-height: 92px;
+}
+
+.descuentos-admin .stat-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #E3F2FD;
+  color: var(--color-primario-dark);
+  border-radius: 8px;
+}
+
+.descuentos-admin .stat-icon ion-icon { font-size: 1.4rem; }
+.descuentos-admin .stat-card-green { border-top-color: var(--color-exito); }
+.descuentos-admin .stat-card-green .stat-icon { background: #F0FDF4; color: #16A34A; }
+
+.descuentos-admin .stat-label {
+  display: block;
+  color: var(--color-texto-secundario);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.descuentos-admin .stat-value {
+  display: block;
+  color: #0F172A;
+  font-size: 1.25rem;
+}
+
+.descuentos-admin .content-card {
+  background: white;
+  border: 1px solid var(--color-borde);
+  overflow: hidden;
+}
+
+.descuentos-admin table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.descuentos-admin .table-header {
+  background: linear-gradient(var(--color-info));
+  border-bottom: 2px solid var(--color-primario);
+}
+
+.descuentos-admin .th-cell {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.descuentos-admin .td-cell {
+  padding: 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: top;
+}
+
+.descuentos-admin .table-row:hover { background: #E3F2FD; }
+.descuentos-admin .td-revistas { max-width: 420px; line-height: 1.45; }
+.descuentos-admin .state-detail { margin-top: 0.35rem; color: #64748B; font-size: 0.76rem; }
+
+.descuentos-admin .badge-estado,
+.descuentos-admin .value-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.descuentos-admin .badge-activo {
+  color: #16A34A;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid #4CAF50;
+}
+
+.descuentos-admin .badge-inactivo {
+  color: #DC2626;
+  background: #FFF1F2;
+  border: 1px solid #F44336;
+}
+
+.descuentos-admin .value-pill {
+  color: #1565C0;
+  background: #E3F2FD;
+  border: 1px solid #90CAF9;
+}
+
+.descuentos-admin .btn-primary,
+.descuentos-admin .btn-secondary {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.descuentos-admin .btn-primary {
+  background: var(--color-info);
+  color: white;
+  padding: 0.65rem 1.25rem;
+  border: none;
+}
+
+.descuentos-admin .btn-primary:hover:not(:disabled) {
+  background: var(--color-primario-hover);
+  transform: translateY(-1px);
+}
+
+.descuentos-admin .btn-secondary {
+  background: white;
+  color: #475569;
+  padding: 0.6rem 1rem;
+  border: 1px solid #CBD5E1;
+}
+
+.descuentos-admin button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.descuentos-admin .btn-icon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  background: white;
+  cursor: pointer;
+}
+
+.descuentos-admin .btn-icon-primary { color: var(--color-primario); border-color: var(--color-primario); }
+.descuentos-admin .btn-icon-success { color: var(--color-exito); border-color: var(--color-exito); }
+.descuentos-admin .btn-icon-danger { color: var(--color-peligro); border-color: var(--color-peligro); }
+
+.descuentos-admin .btn-icon-primary:hover { background: var(--color-primario); color: white; }
+.descuentos-admin .btn-icon-success:hover { background: var(--color-exito); color: white; }
+.descuentos-admin .btn-icon-danger:hover { background: var(--color-peligro); color: white; }
+
+.descuentos-admin .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 1rem;
+  color: #64748B;
+  text-align: center;
+}
+
+.descuentos-admin .empty-state ion-icon {
+  font-size: 3rem;
+  color: #BBDEFB;
+  margin-bottom: 0.75rem;
+}
+
+.descuentos-admin .empty-state p { margin: 0; font-weight: 700; }
+.descuentos-admin .empty-state span { margin-top: 0.25rem; font-size: 0.875rem; color: #94A3B8; }
+
+.descuentos-admin .loading-spinner {
+  border: 4px solid var(--color-borde);
+  border-top-color: var(--color-primario);
+  width: 3rem;
+  height: 3rem;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.descuentos-admin .discount-card {
+  background: white;
+  border: 1px solid var(--color-borde);
+  padding: 1rem;
+}
+
+.descuentos-admin .discount-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 0.875rem;
+  margin-bottom: 0.875rem;
+}
+
+.descuentos-admin .discount-card h4,
+.descuentos-admin .discount-card p {
+  margin: 0;
+}
+
+.descuentos-admin .discount-card h4 { color: #0F172A; font-size: 1rem; }
+.descuentos-admin .discount-card p { margin-top: 0.2rem; color: #64748B; font-size: 0.8rem; }
+.descuentos-admin .discount-card-revistas { line-height: 1.45; }
+.descuentos-admin .discount-card-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+
+.descuentos-admin .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 41, 59, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 70;
+  padding: 5rem 1rem 1rem;
+  overflow-y: auto;
+}
+
+.descuentos-admin .modal-container {
+  background: white;
+  width: 100%;
+  max-width: 58rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.12);
+}
+
+.descuentos-admin .modal-header,
+.descuentos-admin .modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.75rem;
+  background: white;
+}
+
+.descuentos-admin .modal-header { border-bottom: 1px solid #E5E7EB; }
+.descuentos-admin .modal-footer { justify-content: flex-end; border-top: 1px solid #E5E7EB; }
+.descuentos-admin .modal-body { padding: 1.75rem; background: #F8FAFC; }
+.descuentos-admin .modal-header-left { display: flex; align-items: center; gap: 0.875rem; }
+
+.descuentos-admin .modal-icon-wrapper {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #E3F2FD;
+  color: #1565C0;
+  border: 1px solid #90CAF9;
+  border-radius: 8px;
+}
+
+.descuentos-admin .modal-title { margin: 0; font-size: 1.25rem; font-weight: 700; color: #1E293B; }
+.descuentos-admin .modal-subtitle { margin: 0.125rem 0 0; font-size: 0.8rem; color: #64748B; }
+
+.descuentos-admin .btn-close {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F1F5F9;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.descuentos-admin .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.descuentos-admin .form-full { grid-column: 1 / -1; }
+.descuentos-admin .form-group { display: flex; flex-direction: column; gap: 0.45rem; }
+.descuentos-admin .form-label { font-size: 0.875rem; font-weight: 700; color: #334155; }
+
+.descuentos-admin .form-input {
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #1E293B;
+  background: white;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.descuentos-admin .form-input:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
+}
+
+.descuentos-admin .magazine-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  max-height: 18rem;
+  overflow-y: auto;
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+}
+
+.descuentos-admin .magazine-option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.55rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.descuentos-admin .magazine-option:hover { background: #F0F8FF; border-color: #90CAF9; }
+.descuentos-admin .magazine-option span { font-weight: 600; color: #1E293B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.descuentos-admin .magazine-option small { color: #1565C0; font-weight: 700; }
+
+@media (max-width: 900px) {
+  .descuentos-admin .stats-grid,
+  .descuentos-admin .form-grid,
+  .descuentos-admin .magazine-picker {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .descuentos-admin { padding: 1rem; }
+  .descuentos-admin .modal-overlay { padding-top: 3rem; }
+  .descuentos-admin .modal-header,
+  .descuentos-admin .modal-body,
+  .descuentos-admin .modal-footer { padding: 1.125rem; }
+  .descuentos-admin .modal-footer { flex-direction: column; }
+  .descuentos-admin .btn-primary,
+  .descuentos-admin .btn-secondary { width: 100%; }
+}

@@ -1,4 +1,20 @@
 <div class="mag-overlay" (click)="cerrarModal($event)">
+  <div class="mag-modal" *ngIf="loading">
+    <div class="mag-info">
+      <h1 class="mag-titulo">Cargando revista...</h1>
+    </div>
+  </div>
+
+  <div class="mag-modal" *ngIf="!loading && errorMessage">
+    <button class="mag-close" (click)="goBack()">
+      <i class="ph ph-x"></i>
+    </button>
+    <div class="mag-info">
+      <h1 class="mag-titulo">No disponible</h1>
+      <p class="mag-descripcion">{{ errorMessage }}</p>
+    </div>
+  </div>
+
   <div class="mag-modal" *ngIf="magazine">
 
     <button class="mag-close" (click)="goBack()">

@@ -1,6 +1,6 @@
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MagazinesService } from '../../api/services/magazines.service';
 import { CartService } from '../../api/services/cart.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -31,6 +31,8 @@ export class MagazinesComponent implements OnInit {
   private magazineService = inject(MagazinesService);
   private cartService     = inject(CartService);
   private http            = inject(HttpClient);
+  private route           = inject(ActivatedRoute);
+  private router          = inject(Router);
 
   magazines: any[]         = [];
   loading                  = true;
@@ -40,6 +42,7 @@ export class MagazinesComponent implements OnInit {
   total                    = 0;
   paymentSuccess           = false;
   paymentRejected          = false;
+  paymentErrorMessage      = 'No se pudo iniciar el pago';
   processingPayment        = false;
   purchasedIds: number[]   = [];
   purchasedMagazines: any[]= [];
@@ -68,6 +71,7 @@ export class MagazinesComponent implements OnInit {
     this.cartService.cart$.subscribe(() => this.updateCart());
     this.cartService.cart$.subscribe(cart => this.cartCount = cart.length);
     this.loadPurchasedIds();
+    this.handlePaymentReturn();
   }
 
   loadPurchasedIds(): void {
@@ -81,9 +85,9 @@ export class MagazinesComponent implements OnInit {
       next: (data) => {
         console.log('Compras:', data); // 👈 DEBUG
 
-        this.purchasedIds = data.map(m => 
-          m.id_magazine ?? m.id_revista ?? m.magazine_id
-        );
+        this.purchasedIds = data
+          .map(m => this.getMagazineId(m))
+          .filter((id): id is number => Number.isInteger(id));
       },
       error: (err) => console.error('Error cargando compras', err)
     });
@@ -107,7 +111,7 @@ export class MagazinesComponent implements OnInit {
 
   loadMagazines(): void {
     this.magazineService.getCatalog().subscribe((res: any) => {
-      this.magazines = res.data;
+      this.magazines = this.sortMagazines(res.data || []);
       this.loading   = false;
     });
   }
@@ -123,17 +127,27 @@ export class MagazinesComponent implements OnInit {
   }
 
   addToCart(magazine: any): void {
-    const yaEnCarrito = this.cartItems.some(i => i.id === magazine.id_magazine);
+    const magazineId = this.getMagazineId(magazine);
+
+    if (!magazineId) return;
+
+    if (this.isPurchased(magazineId)) {
+      this.showToast('info', 'Ya adquirida', `"${magazine.titulo}" ya esta en tus revistas.`, 'checkmark-circle-outline');
+      return;
+    }
+
+    const yaEnCarrito = this.cartItems.some(i => i.id === magazineId);
     if (yaEnCarrito) {
       this.showToast('warning', 'Ya en el carrito', `"${magazine.titulo}" ya fue agregado.`, 'cart-outline');
       return;
     }
 
     this.cartService.add({
-      id:       magazine.id_magazine,
-      titulo:   magazine.titulo,
-      precio:   Number(magazine.precio),
-      quantity: 1
+      id:          magazineId,
+      titulo:      magazine.titulo,
+      precio:      this.getFinalPrice(magazine),
+      precio_base: Number(magazine.precio),
+      quantity:    1
     });
     this.updateCart();
 
@@ -158,9 +172,13 @@ export class MagazinesComponent implements OnInit {
   }
   get displayedMagazines(): any[] {
     if (this.activeTab === 'purchased') {
-      return this.magazines.filter(m => this.isPurchased(m.id_magazine));
+      return this.magazines.filter(m => this.isPurchased(this.getMagazineId(m)));
     }
     return this.magazines;
+  }
+
+  get purchasedVisibleCount(): number {
+    return this.magazines.filter(m => this.isPurchased(this.getMagazineId(m))).length;
   }
 
   setTab(tab: 'all' | 'purchased') {
@@ -178,47 +196,127 @@ export class MagazinesComponent implements OnInit {
       search: this.searchTerm,
       sort:   this.sortOrder || this.sortAlpha || this.sortPrice,
       letter: this.selectedLetter
-    }).subscribe((res: any) => this.magazines = res.data);
+    }).subscribe((res: any) => this.magazines = this.sortMagazines(res.data || []));
   }
   
 
   /* ── Pago ── */
-  simulatePayment(): void {
-    if (this.cartItems.length === 0) return;
+simulatePayment(): void {
+   if (this.cartItems.length === 0) return;
+  this.processingPayment = true;
 
-    this.processingPayment = true;
-    const aprobado = Math.random() > 0.2;
+  this.magazineService.createCheckoutSession({
+    items: this.cartItems.map(cartItem => ({
+      id_revista: cartItem.id
+    }))
+  }).subscribe({
+    next: (res: any) => {
+      // 🔥 Redirige a Stripe
+      window.location.href = res.url;
+    },
+    error: (err) => {
+      console.error('Error Stripe:', err);
+      const message = err?.error?.error || err?.error?.message || 'No se pudo iniciar el pago';
+      this.processingPayment = false;
+      this.paymentRejected = true;
+      this.paymentErrorMessage = message;
+      this.showToast(
+        'error',
+        'Error en pago',
+        message,
+        'alert-circle-outline'
+      );
+    }
+  });
+}
 
-    setTimeout(() => {
-      if (!aprobado) {
-        this.processingPayment = false;
-        this.paymentRejected   = true;
-        this.showToast('error', 'Pago rechazado', 'No se pudo procesar tu pago. Intenta de nuevo.', 'close-circle-outline');
-        return;
+  private handlePaymentReturn(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const success = params.get('success') === 'true';
+    const cancel = params.get('cancel') === 'true';
+    const sessionId = params.get('session_id');
+
+    if (!success && !cancel) return;
+
+    if (success) {
+      this.cartService.clear();
+      this.updateCart();
+      this.paymentSuccess = true;
+      this.paymentRejected = false;
+      this.showToast(
+        'success',
+        'Pago confirmado',
+        'Estamos actualizando tus revistas adquiridas.',
+        'checkmark-circle-outline'
+      );
+      this.loadPurchasedIds();
+      if (sessionId) {
+        this.refreshPaymentStatus(sessionId);
+      } else {
+        setTimeout(() => this.loadPurchasedIds(), 2500);
       }
+    }
 
-      this.magazineService.savePurchase(this.cartItems).subscribe({
-        next: () => {
-          this.processingPayment = false;
-          this.paymentSuccess    = true;
-          this.cartService.clear();
-          this.updateCart();
-          this.closeCart();
-          this.showToast('success', '¡Compra exitosa!', 'Tus revistas están listas para leer.', 'bag-check-outline');
-        },
-        error: (err) => {
-          console.error('Error backend:', err);
-          this.processingPayment = false;
-          this.paymentRejected   = true;
-          this.showToast('error', 'Error en compra', 'Ocurrió un error al procesar tu compra.', 'alert-circle-outline');
+    if (cancel) {
+      this.processingPayment = false;
+      this.paymentRejected = true;
+      this.paymentErrorMessage = 'El pago fue cancelado. No se realizo ningun cargo.';
+      this.showToast(
+        'info',
+        'Pago cancelado',
+        'Puedes intentarlo de nuevo cuando quieras.',
+        'close-circle-outline'
+      );
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true
+    });
+  }
+
+  private refreshPaymentStatus(sessionId: string, attempt = 1): void {
+    this.magazineService.getCheckoutSessionStatus(sessionId).subscribe({
+      next: (status) => {
+        if (status?.paid) {
+          this.loadPurchasedIds();
+          this.loadMagazines();
+          return;
         }
-      });
-    }, 1500);
+
+        if (attempt < 5) {
+          setTimeout(() => this.refreshPaymentStatus(sessionId, attempt + 1), 1500);
+        }
+      },
+      error: () => {
+        if (attempt < 3) {
+          setTimeout(() => this.refreshPaymentStatus(sessionId, attempt + 1), 1500);
+          return;
+        }
+
+        this.loadPurchasedIds();
+      }
+    });
   }
 
   /* ── Helpers ── */
+  getMagazineId(magazine: any): number {
+    return Number(magazine?.id_magazine ?? magazine?.id_revista ?? magazine?.magazine_id ?? magazine?.id);
+  }
+
   isPurchased(id: number): boolean {
-    return this.purchasedIds.includes(id);
+    return Number.isInteger(id) && this.purchasedIds.includes(id);
+  }
+
+  getFinalPrice(magazine: any): number {
+    const finalPrice = Number(magazine?.precio_final);
+    return Number.isFinite(finalPrice) ? finalPrice : Number(magazine?.precio || 0);
+  }
+
+  hasDiscount(magazine: any): boolean {
+    return Boolean(Number(magazine?.descuento_activo)) &&
+      this.getFinalPrice(magazine) < Number(magazine?.precio || 0);
   }
 
   getPdfCover(publicId: string): string {
@@ -230,6 +328,15 @@ export class MagazinesComponent implements OnInit {
   private getAuthHeaders(): HttpHeaders {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
+  }
+
+  private sortMagazines(items: any[]): any[] {
+    return [...items].sort((a, b) =>
+      String(a?.titulo || '').localeCompare(String(b?.titulo || ''), 'es-MX', {
+        numeric: true,
+        sensitivity: 'base'
+      })
+    );
   }
 
   get paginatedMagazines() {
@@ -244,5 +351,4 @@ export class MagazinesComponent implements OnInit {
     this.currentPage = page;
   }
 
-  
 }

@@ -1,0 +1,579 @@
+.pagos-admin {
+  --color-fondo: #E3F2FD;
+  --color-contenedor: #FFFFFF;
+  --color-borde: #BBDEFB;
+  --color-primario: #2196F3;
+  --color-primario-hover: #1976D2;
+  --color-primario-dark: #1565C0;
+  --color-info: #03A9F4;
+  --color-exito: #4CAF50;
+  --color-peligro: #F44336;
+  --color-advertencia: #F59E0B;
+  --color-texto: #1E293B;
+  --color-texto-secundario: #64748B;
+
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.pagos-admin * {
+  box-sizing: border-box;
+}
+
+.pagos-admin ion-icon {
+  pointer-events: none;
+}
+
+.pagos-admin .header-section {
+  background: linear-gradient(var(--color-info));
+  border: 1px solid var(--color-borde);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pagos-admin .page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.pagos-admin .page-subtitle {
+  margin: 0.25rem 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.pagos-admin .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.pagos-admin .stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  background: white;
+  border: 1px solid var(--color-borde);
+  border-top: 3px solid var(--color-primario);
+  padding: 1rem;
+  min-height: 92px;
+}
+
+.pagos-admin .stat-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #E3F2FD;
+  color: var(--color-primario-dark);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.pagos-admin .stat-icon ion-icon {
+  font-size: 1.4rem;
+}
+
+.pagos-admin .stat-label {
+  display: block;
+  color: var(--color-texto-secundario);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.pagos-admin .stat-value {
+  display: block;
+  color: #0F172A;
+  font-size: 1.25rem;
+  line-height: 1.15;
+}
+
+.pagos-admin .stat-card-green {
+  border-top-color: var(--color-exito);
+}
+
+.pagos-admin .stat-card-green .stat-icon {
+  background: #F0FDF4;
+  color: #16A34A;
+}
+
+.pagos-admin .stat-card-amber {
+  border-top-color: var(--color-advertencia);
+}
+
+.pagos-admin .stat-card-amber .stat-icon {
+  background: #FFFBEB;
+  color: #D97706;
+}
+
+.pagos-admin .stat-card-red {
+  border-top-color: var(--color-peligro);
+}
+
+.pagos-admin .stat-card-red .stat-icon {
+  background: #FFF1F2;
+  color: #DC2626;
+}
+
+.pagos-admin .content-card {
+  background: var(--color-contenedor);
+  border: 1px solid var(--color-borde);
+  overflow: hidden;
+}
+
+.pagos-admin .table-summary {
+  padding: 0.8rem 1.25rem;
+  border-bottom: 1px solid var(--color-borde);
+  background: #F0F8FF;
+  color: #64748B;
+  font-size: 0.85rem;
+}
+
+.pagos-admin .table-summary strong {
+  color: var(--color-primario-dark);
+}
+
+.pagos-admin table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pagos-admin .table-header {
+  background: linear-gradient(var(--color-info));
+  border-bottom: 2px solid var(--color-primario);
+}
+
+.pagos-admin .th-cell {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.pagos-admin .td-cell {
+  padding: 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: top;
+}
+
+.pagos-admin .table-row:hover {
+  background: #E3F2FD;
+}
+
+.pagos-admin .td-revistas {
+  max-width: 300px;
+  line-height: 1.45;
+}
+
+.pagos-admin .user-cell,
+.pagos-admin .amount-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pagos-admin .user-cell strong,
+.pagos-admin .amount-cell strong {
+  color: #0F172A;
+}
+
+.pagos-admin .user-cell span,
+.pagos-admin .amount-cell span,
+.pagos-admin .state-detail {
+  color: #64748B;
+  font-size: 0.76rem;
+}
+
+.pagos-admin .state-detail {
+  margin-top: 0.35rem;
+  white-space: nowrap;
+}
+
+.pagos-admin .reference-cell {
+  display: inline-block;
+  max-width: 220px;
+  color: #475569;
+  font-family: "Courier New", monospace;
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+
+.pagos-admin .badge-estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  border-radius: 0;
+}
+
+.pagos-admin .badge-aprobado {
+  color: #16A34A;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid #4CAF50;
+}
+
+.pagos-admin .badge-pendiente {
+  color: #D97706;
+  background: #FFFBEB;
+  border: 1px solid #F59E0B;
+}
+
+.pagos-admin .badge-cancelado {
+  color: #DC2626;
+  background: #FFF1F2;
+  border: 1px solid #F44336;
+}
+
+.pagos-admin .filtros-section {
+  background: var(--color-contenedor);
+  border: 1px solid var(--color-borde);
+  border-top: 3px solid var(--color-primario);
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.pagos-admin .filtros-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: #EBF5FB;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.pagos-admin .filtros-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-primario-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pagos-admin .filtros-badge-count {
+  background: var(--color-primario);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border-radius: 12px;
+}
+
+.pagos-admin .filtros-body {
+  padding: 1.25rem 1.5rem 1rem;
+  background: white;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.pagos-admin .filtros-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.5fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.pagos-admin .filtro-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.pagos-admin .filtro-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primario-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pagos-admin .filtro-input,
+.pagos-admin .filtro-select {
+  min-height: 38px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-texto);
+  background: #F0F8FF;
+  border: 1px solid var(--color-borde);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.pagos-admin .filtro-select {
+  padding-right: 2rem;
+}
+
+.pagos-admin .filtro-input:focus,
+.pagos-admin .filtro-select:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.pagos-admin .filtro-actions {
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.pagos-admin .btn-primary,
+.pagos-admin .btn-secondary,
+.pagos-admin .btn-filter,
+.pagos-admin .filtros-limpiar,
+.pagos-admin .btn-ghost {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.pagos-admin .btn-primary {
+  background: var(--color-info);
+  color: white;
+  padding: 0.65rem 1.25rem;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.pagos-admin .btn-primary:hover:not(:disabled) {
+  background: var(--color-primario-hover);
+  transform: translateY(-1px);
+}
+
+.pagos-admin .btn-secondary,
+.pagos-admin .btn-filter {
+  background: white;
+  color: #475569;
+  padding: 0.6rem 1rem;
+  border: 1px solid #CBD5E1;
+}
+
+.pagos-admin .btn-filter-active {
+  border-color: var(--color-primario);
+  color: var(--color-primario-dark);
+  background: #E3F2FD;
+}
+
+.pagos-admin .filtros-limpiar {
+  background: white;
+  color: var(--color-peligro);
+  border: 1px solid #FECACA;
+  padding: 0.5rem 0.85rem;
+}
+
+.pagos-admin button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pagos-admin .filter-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #DBEAFE;
+  border-top: 1px solid #93C5FD;
+  font-size: 0.875rem;
+  color: var(--color-primario-dark);
+  font-weight: 500;
+}
+
+.pagos-admin .btn-ghost {
+  background: transparent;
+  color: #64748B;
+  border: none;
+  padding: 0.5rem 0.75rem;
+}
+
+.pagos-admin .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 1rem;
+  color: #64748B;
+  text-align: center;
+}
+
+.pagos-admin .empty-state ion-icon {
+  font-size: 3rem;
+  color: #BBDEFB;
+  margin-bottom: 0.75rem;
+}
+
+.pagos-admin .empty-state p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.pagos-admin .empty-state span {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #94A3B8;
+}
+
+.pagos-admin .loading-spinner {
+  border: 4px solid var(--color-borde);
+  border-top-color: var(--color-primario);
+  width: 3rem;
+  height: 3rem;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.pagos-admin .payment-card {
+  background: white;
+  border: 1px solid var(--color-borde);
+  padding: 1rem;
+}
+
+.pagos-admin .payment-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 0.875rem;
+  margin-bottom: 0.875rem;
+}
+
+.pagos-admin .payment-id {
+  display: block;
+  color: var(--color-primario-dark);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.pagos-admin .payment-card h4,
+.pagos-admin .payment-card p {
+  margin: 0;
+}
+
+.pagos-admin .payment-card h4 {
+  font-size: 1rem;
+  color: #0F172A;
+}
+
+.pagos-admin .payment-card p {
+  margin-top: 0.2rem;
+  color: #64748B;
+  font-size: 0.8rem;
+}
+
+.pagos-admin .payment-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem;
+}
+
+.pagos-admin .payment-card-body div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.pagos-admin .payment-card-body span {
+  color: #64748B;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.pagos-admin .payment-card-body strong {
+  color: #0F172A;
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+
+.pagos-admin .overflow-x-auto::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.pagos-admin .overflow-x-auto::-webkit-scrollbar-track {
+  background: #F0F8FF;
+}
+
+.pagos-admin .overflow-x-auto::-webkit-scrollbar-thumb {
+  background: var(--color-borde);
+  border-radius: 3px;
+}
+
+@media (max-width: 1280px) {
+  .pagos-admin .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pagos-admin .filtros-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pagos-admin .filtro-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .pagos-admin {
+    padding: 1rem;
+  }
+
+  .pagos-admin .stats-grid,
+  .pagos-admin .filtros-grid,
+  .pagos-admin .payment-card-body {
+    grid-template-columns: 1fr;
+  }
+
+  .pagos-admin .filtros-header {
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex-direction: column;
+  }
+
+  .pagos-admin .filtro-actions {
+    flex-direction: column;
+  }
+
+  .pagos-admin .btn-primary,
+  .pagos-admin .btn-secondary {
+    width: 100%;
+  }
+}
