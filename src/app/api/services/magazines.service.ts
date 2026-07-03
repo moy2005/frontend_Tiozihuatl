@@ -100,14 +100,14 @@ export class MagazinesService {
     );
   }
 /* ===========================
-   💳 STRIPE CHECKOUT
+   💳 MERCADO PAGO
 =========================== */
 
-createCheckoutSession(data: any) {
+createPaymentPreference(data: any) {
   const token = localStorage.getItem('accessToken') || '';
 
   return this.http.post(
-    `${API_URL}/payments/create-checkout-session`, // 🔥 AQUÍ
+    `${API_URL}/payments/create-preference`, // 🔥 AQUÍ
     data,
     {
       headers: {
@@ -117,18 +117,6 @@ createCheckoutSession(data: any) {
   );
 }
 
-getCheckoutSessionStatus(sessionId: string) {
-  const token = localStorage.getItem('accessToken') || '';
-
-  return this.http.get<any>(
-    `${API_URL}/payments/checkout-session/${encodeURIComponent(sessionId)}/status`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
-  );
-}
 savePurchase(items: any[]) {
   return this.http.post(`${this.api}/complete-purchase`, {
     items  // el backend espera { items: [...] }

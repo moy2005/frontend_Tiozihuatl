@@ -653,6 +653,18 @@
   color: var(--text-dark);
 }
 
+.cart-minimum-warning {
+  margin: -0.35rem 0 0.85rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
 .cart-drawer-footer button.btn-pay,
 .cart-drawer-footer .btn-pay {
   width: 100%;

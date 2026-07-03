@@ -5,7 +5,7 @@
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h2 class="page-title">Gestion de Pagos</h2>
-          <p class="page-subtitle">Stripe, compras y estados guardados en MySQL</p>
+          <p class="page-subtitle">Mercado Pago, compras y estados guardados en MySQL</p>
         </div>
         <button class="btn-primary flex items-center gap-2" (click)="loadPayments()" [disabled]="loading">
           <ion-icon name="refresh-outline"></ion-icon>
@@ -91,7 +91,7 @@
             <label class="filtro-label"><ion-icon name="person-outline"></ion-icon> Usuario o referencia</label>
             <input type="text"
                    [(ngModel)]="filtros.usuario"
-                   placeholder="Nombre, correo, compra o Stripe"
+                   placeholder="Nombre, correo, compra o Mercado Pago"
                    class="filtro-input" />
           </div>
 
@@ -152,7 +152,7 @@
               <th class="th-cell">Revista(s)</th>
               <th class="th-cell">Monto</th>
               <th class="th-cell">Estado</th>
-              <th class="th-cell">Referencia Stripe</th>
+              <th class="th-cell">Referencia Mercado Pago</th>
               <th class="th-cell">Fecha</th>
             </tr>
           </thead>
@@ -213,7 +213,7 @@
               <strong>{{ money(payment.monto_pagado) }}</strong>
             </div>
             <div>
-              <span>Stripe</span>
+              <span>Mercado Pago</span>
               <strong class="reference-cell">{{ shortReference(payment.referencia) }}</strong>
             </div>
             <div>

@@ -5,7 +5,7 @@
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h2 class="page-title">Gestion de Descuentos</h2>
-          <p class="page-subtitle">Promociones conectadas al precio final de Stripe</p>
+          <p class="page-subtitle">Promociones conectadas al precio final de pago</p>
         </div>
         <button class="btn-primary flex items-center gap-2" (click)="openCreate()">
           <ion-icon name="pricetag-outline"></ion-icon>
@@ -47,7 +47,7 @@
       <div *ngIf="discounts.length === 0" class="empty-state">
         <ion-icon name="pricetag-outline"></ion-icon>
         <p>No hay descuentos registrados</p>
-        <span>Crea una promocion para aplicarla al precio final de Stripe.</span>
+        <span>Crea una promocion para aplicarla al precio final de pago.</span>
       </div>
 
       <div *ngIf="discounts.length > 0" class="hidden lg:block overflow-x-auto">
@@ -133,7 +133,7 @@
           </div>
           <div>
             <h3 class="modal-title">{{ editingId ? 'Editar Descuento' : 'Nuevo Descuento' }}</h3>
-            <p class="modal-subtitle">El precio final se recalcula en backend antes de crear Checkout.</p>
+            <p class="modal-subtitle">El precio final se recalcula en backend antes de crear la preferencia de pago.</p>
           </div>
         </div>
         <button (click)="closeModal()" class="btn-close">

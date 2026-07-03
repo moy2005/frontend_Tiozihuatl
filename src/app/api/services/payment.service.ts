@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { API_URL } from '../api.config';
 
@@ -11,11 +11,11 @@ export class PaymentService {
 
   constructor(private http: HttpClient) {}
 
-  createCheckoutSession(data: any) {
+  createPreference(data: any) {
     const token = localStorage.getItem('accessToken') || '';
 
     return this.http.post(
-      `${this.api}/create-checkout-session`,
+      `${this.api}/create-preference`,
       data,
       {
         headers: {

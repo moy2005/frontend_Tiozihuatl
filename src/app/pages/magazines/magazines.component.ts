@@ -123,7 +123,7 @@ export class MagazinesComponent implements OnInit {
   updateCart(): void {
     this.cartItems = this.cartService.getItems();
     this.cartCount = this.cartItems.length;
-    this.total     = this.cartItems.reduce((s, i) => s + (Number(i.precio) || 0), 0);
+    this.total     = Number(this.cartItems.reduce((s, i) => s + (Number(i.precio) || 0), 0).toFixed(2));
   }
 
   addToCart(magazine: any): void {
@@ -202,20 +202,28 @@ export class MagazinesComponent implements OnInit {
 
   /* ── Pago ── */
 simulatePayment(): void {
-   if (this.cartItems.length === 0) return;
+  if (this.cartItems.length === 0 || this.processingPayment) return;
+
   this.processingPayment = true;
 
-  this.magazineService.createCheckoutSession({
+  this.magazineService.createPaymentPreference({
     items: this.cartItems.map(cartItem => ({
       id_revista: cartItem.id
     }))
   }).subscribe({
     next: (res: any) => {
-      // 🔥 Redirige a Stripe
-      window.location.href = res.url;
+      const paymentUrl = res?.init_point || res?.sandbox_init_point;
+      if (!paymentUrl) {
+        this.processingPayment = false;
+        this.paymentRejected = true;
+        this.paymentErrorMessage = 'Mercado Pago no devolvio una URL de pago.';
+        this.showToast('error', 'Error en pago', this.paymentErrorMessage, 'alert-circle-outline');
+        return;
+      }
+      window.location.href = paymentUrl;
     },
     error: (err) => {
-      console.error('Error Stripe:', err);
+      console.error('Error Mercado Pago:', err);
       const message = err?.error?.error || err?.error?.message || 'No se pudo iniciar el pago';
       this.processingPayment = false;
       this.paymentRejected = true;
@@ -232,15 +240,18 @@ simulatePayment(): void {
 
   private handlePaymentReturn(): void {
     const params = this.route.snapshot.queryParamMap;
-    const success = params.get('success') === 'true';
-    const cancel = params.get('cancel') === 'true';
-    const sessionId = params.get('session_id');
+    const payment = params.get('payment');
+    const status = params.get('status');
+    const success = payment === 'success' || status === 'approved';
+    const failure = payment === 'failure' || status === 'rejected' || status === 'cancelled';
+    const pending = payment === 'pending' || status === 'pending' || status === 'in_process';
 
-    if (!success && !cancel) return;
+    if (!success && !failure && !pending) return;
 
     if (success) {
       this.cartService.clear();
       this.updateCart();
+      this.processingPayment = false;
       this.paymentSuccess = true;
       this.paymentRejected = false;
       this.showToast(
@@ -250,23 +261,36 @@ simulatePayment(): void {
         'checkmark-circle-outline'
       );
       this.loadPurchasedIds();
-      if (sessionId) {
-        this.refreshPaymentStatus(sessionId);
-      } else {
-        setTimeout(() => this.loadPurchasedIds(), 2500);
-      }
+      setTimeout(() => {
+        this.loadPurchasedIds();
+        this.loadMagazines();
+      }, 2500);
     }
 
-    if (cancel) {
+    if (failure) {
       this.processingPayment = false;
       this.paymentRejected = true;
-      this.paymentErrorMessage = 'El pago fue cancelado. No se realizo ningun cargo.';
+      this.paymentErrorMessage = 'El pago fue rechazado o cancelado. No se realizo ningun cargo.';
       this.showToast(
         'info',
-        'Pago cancelado',
+        'Pago no completado',
         'Puedes intentarlo de nuevo cuando quieras.',
         'close-circle-outline'
       );
+    }
+
+    if (pending) {
+      this.processingPayment = false;
+      this.showToast(
+        'info',
+        'Pago pendiente',
+        'Mercado Pago esta confirmando tu pago. Tus revistas apareceran cuando se apruebe.',
+        'time-outline'
+      );
+      setTimeout(() => {
+        this.loadPurchasedIds();
+        this.loadMagazines();
+      }, 3000);
     }
 
     this.router.navigate([], {
@@ -276,31 +300,7 @@ simulatePayment(): void {
     });
   }
 
-  private refreshPaymentStatus(sessionId: string, attempt = 1): void {
-    this.magazineService.getCheckoutSessionStatus(sessionId).subscribe({
-      next: (status) => {
-        if (status?.paid) {
-          this.loadPurchasedIds();
-          this.loadMagazines();
-          return;
-        }
-
-        if (attempt < 5) {
-          setTimeout(() => this.refreshPaymentStatus(sessionId, attempt + 1), 1500);
-        }
-      },
-      error: () => {
-        if (attempt < 3) {
-          setTimeout(() => this.refreshPaymentStatus(sessionId, attempt + 1), 1500);
-          return;
-        }
-
-        this.loadPurchasedIds();
-      }
-    });
-  }
-
-  /* ── Helpers ── */
+  /* Helpers */
   getMagazineId(magazine: any): number {
     return Number(magazine?.id_magazine ?? magazine?.id_revista ?? magazine?.magazine_id ?? magazine?.id);
   }
@@ -317,6 +317,9 @@ simulatePayment(): void {
   hasDiscount(magazine: any): boolean {
     return Boolean(Number(magazine?.descuento_activo)) &&
       this.getFinalPrice(magazine) < Number(magazine?.precio || 0);
+  }
+  get payDisabled(): boolean {
+    return this.processingPayment;
   }
 
   getPdfCover(publicId: string): string {

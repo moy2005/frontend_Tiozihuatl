@@ -228,7 +228,7 @@
     <button
       type="button"
       (click)="simulatePayment()"
-      [disabled]="processingPayment"
+      [disabled]="payDisabled"
       class="btn-pay"
       [class.btn-pay-processing]="processingPayment">
       <span *ngIf="!processingPayment">
