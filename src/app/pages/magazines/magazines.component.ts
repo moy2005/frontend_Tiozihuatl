@@ -88,6 +88,8 @@ export class MagazinesComponent implements OnInit {
         this.purchasedIds = data
           .map(m => this.getMagazineId(m))
           .filter((id): id is number => Number.isInteger(id));
+
+        this.removePurchasedItemsFromCart();
       },
       error: (err) => console.error('Error cargando compras', err)
     });
@@ -204,6 +206,16 @@ export class MagazinesComponent implements OnInit {
 simulatePayment(): void {
   if (this.cartItems.length === 0 || this.processingPayment) return;
 
+  if (this.removePurchasedItemsFromCart()) {
+    this.showToast(
+      'info',
+      'Carrito actualizado',
+      'Quitamos revistas que ya estaban adquiridas.',
+      'checkmark-circle-outline'
+    );
+    return;
+  }
+
   this.processingPayment = true;
 
   this.magazineService.createPaymentPreference({
@@ -307,6 +319,19 @@ simulatePayment(): void {
 
   isPurchased(id: number): boolean {
     return Number.isInteger(id) && this.purchasedIds.includes(id);
+  }
+
+  private removePurchasedItemsFromCart(): boolean {
+    const purchasedInCart = this.cartItems.filter(item => this.isPurchased(Number(item.id)));
+
+    if (purchasedInCart.length === 0) return false;
+
+    for (const item of purchasedInCart) {
+      this.cartService.remove(Number(item.id));
+    }
+
+    this.updateCart();
+    return true;
   }
 
   getFinalPrice(magazine: any): number {
