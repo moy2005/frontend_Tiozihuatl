@@ -188,7 +188,7 @@
           </div>
 
           <!-- Barra de herramientas -->
-          <div class="editor-toolbar" role="toolbar" aria-label="Formato de texto">
+          <div class="editor-toolbar" role="toolbar" aria-label="Formato de texto" (mousedown)="$event.preventDefault()">
 
             <!-- Grupo: texto -->
             <div class="tb-group">
@@ -203,9 +203,9 @@
                 <em style="font-style:italic;">I</em>
               </button>
               <button type="button" class="tb-btn"
-                      (click)="execFormat('strikeThrough')"
-                      title="Tachado">
-                <span style="text-decoration:line-through;font-size:.8rem;">S</span>
+                      (click)="execFormat('underline')"
+                      title="Subrayado">
+                <span style="text-decoration:underline;font-size:.8rem;font-weight:700;">U</span>
               </button>
             </div>
 
@@ -279,7 +279,7 @@
           </div>
 
           <!-- Contador de caracteres -->
-          <div class="chars-counter">{{ form.contenido?.length || 0 }} caracteres</div>
+          <div class="chars-counter">{{ form.contenido.length || 0 }} caracteres</div>
 
         </div>
         <!-- /rich-editor-container -->
