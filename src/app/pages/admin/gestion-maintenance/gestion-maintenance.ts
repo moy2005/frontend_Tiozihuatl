@@ -179,11 +179,15 @@ export class GestionMantenimientoComponent implements OnInit {
     }
     this.cargandoProgramar = true;
     try {
+      const tareasPrevias = this.tareas.map(t => t.id_tarea);
       await firstValueFrom(this.automationService.createBackupTask({
         nombre_tarea:    'Optimización automática de BD',
         tipo_tarea:      'maintenance_db',
         cron_expression: this.generarCron()
       }));
+      await Promise.all(
+        tareasPrevias.map(id => firstValueFrom(this.automationService.deleteTask(id)))
+      );
       Swal.fire('Programación guardada',
         'La optimización automática fue configurada correctamente.', 'success');
       await this.cargarTareas();
@@ -329,23 +333,56 @@ export class GestionMantenimientoComponent implements OnInit {
     if (partes.length < 5) return expr;
     const [min, hora, , , dias] = partes;
     if (hora.startsWith('*/')) return `Cada ${hora.replace('*/', '')} horas`;
-    const horaFmt = `${String(Number(hora)).padStart(2,'0')}:${String(Number(min)).padStart(2,'0')}`;
+    const horaFmt = this.formatTimeFromUtc(Number(hora), Number(min));
     if (dias !== '*') {
       const nombres: Record<string,string> = {
         '0':'Dom','1':'Lun','2':'Mar','3':'Mié','4':'Jue','5':'Vie','6':'Sáb'
       };
-      return `${dias.split(',').map(d => nombres[d]).join(', ')} a las ${horaFmt}`;
+      return `${dias.split(',').map(d => nombres[String(this.utcDayToLocalDay(Number(d), Number(hora), Number(min)))]).join(', ')} a las ${horaFmt}`;
     }
     return `Todos los días a las ${horaFmt}`;
   }
  
   private generarCron(): string {
     const [h, m] = this.horaInicio.split(':').map(Number);
-    if (this.tipoFrecuencia === 'weekly')   return `${m} ${h} * * 0`;
-    if (this.tipoFrecuencia === 'daily')    return `${m} ${h} * * *`;
+    const utc = this.localTimeToUtc(h, m);
+    if (this.tipoFrecuencia === 'weekly')   return `${utc.minute} ${utc.hour} * * ${this.localDaysToUtcDays([0], h, m).join(',')}`;
+    if (this.tipoFrecuencia === 'daily')    return `${utc.minute} ${utc.hour} * * *`;
     if (this.tipoFrecuencia === 'interval') return `0 */${this.intervaloHoras} * * *`;
-    if (this.tipoFrecuencia === 'days')     return `${m} ${h} * * ${this.diasSeleccionados.join(',')}`;
+    if (this.tipoFrecuencia === 'days')     return `${utc.minute} ${utc.hour} * * ${this.localDaysToUtcDays(this.diasSeleccionados, h, m).join(',')}`;
     throw new Error('Frecuencia inválida');
+  }
+
+  private localTimeToUtc(hour: number, minute: number): { hour: number; minute: number } {
+    const localDate = new Date();
+    localDate.setHours(hour, minute, 0, 0);
+    return {
+      hour: localDate.getUTCHours(),
+      minute: localDate.getUTCMinutes()
+    };
+  }
+
+  private localDaysToUtcDays(days: number[], hour: number, minute: number): number[] {
+    const sunday = 7;
+    return [...new Set(days.map(day => {
+      const localDate = new Date(2024, 0, sunday + day, hour, minute, 0, 0);
+      return localDate.getUTCDay();
+    }))].sort((a, b) => a - b);
+  }
+
+  private utcDayToLocalDay(day: number, hour: number, minute: number): number {
+    const sunday = 7;
+    const utcDate = new Date(Date.UTC(2024, 0, sunday + day, hour, minute, 0, 0));
+    return utcDate.getDay();
+  }
+
+  private formatTimeFromUtc(hour: number, minute: number): string {
+    const date = new Date(Date.UTC(2024, 0, 1, hour, minute, 0, 0));
+    return new Intl.DateTimeFormat('es-MX', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(date);
   }
   
   async limpiarLogsManual(): Promise<void> {
