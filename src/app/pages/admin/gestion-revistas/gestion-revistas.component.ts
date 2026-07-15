@@ -15,7 +15,7 @@ interface Magazine {
   titulo: string;
   descripcion?: string;
   precio: number;
-  stock: number;
+  stock?: number;
   estado?: string;
   portada_url?: string;
   descuento_activo?: boolean;
@@ -71,8 +71,7 @@ export class GestionRevistasComponent implements OnInit {
   form: Magazine = {
     titulo: '',
     descripcion: '',
-    precio: 0,
-    stock: 0
+    precio: 0
   };
 
   /* ===============================
@@ -117,9 +116,8 @@ export class GestionRevistasComponent implements OnInit {
     { key: 'titulo',          label: 'Título',       activo: true,  orden: 1 },
     { key: 'descripcion',     label: 'Descripción',  activo: true,  orden: 2 },
     { key: 'precio',          label: 'Precio',       activo: true,  orden: 3 },
-    { key: 'stock',           label: 'Stock',        activo: false, orden: 4 },
-    { key: 'estado',          label: 'Estado',       activo: true,  orden: 5 },
-    { key: 'descuento_activo',label: 'Descuento',    activo: true,  orden: 6 },
+    { key: 'estado',          label: 'Estado',       activo: true,  orden: 4 },
+    { key: 'descuento_activo',label: 'Descuento',    activo: true,  orden: 5 },
   ];
 
   opcionesExport = {
@@ -187,7 +185,7 @@ export class GestionRevistasComponent implements OnInit {
   }
 
   resetForm(): void {
-    this.form = { titulo: '', descripcion: '', precio: 0, stock: 0 };
+    this.form = { titulo: '', descripcion: '', precio: 0 };
     this.selectedFile = undefined;
     this.previewUrl = null;
   }
@@ -257,8 +255,8 @@ export class GestionRevistasComponent implements OnInit {
   }
 
   saveMagazine(): void {
-    if (!this.form.titulo || this.form.precio == null || this.form.stock == null) {
-      Swal.fire('Campos incompletos', 'Título, precio y stock son obligatorios.', 'info');
+    if (!this.form.titulo || this.form.precio == null) {
+      Swal.fire('Campos incompletos', 'Título y precio son obligatorios.', 'info');
       return;
     }
     if (!this.selectedFile && !this.form.id_revista) {
@@ -288,7 +286,6 @@ export class GestionRevistasComponent implements OnInit {
       formData.append('titulo',      this.form.titulo);
       formData.append('descripcion', this.form.descripcion || '');
       formData.append('precio',      String(this.form.precio));
-      formData.append('stock',       String(this.form.stock));
       if (this.selectedFile) {
         formData.append('pdf', this.selectedFile);
       }
@@ -381,7 +378,6 @@ export class GestionRevistasComponent implements OnInit {
           case 'titulo':           return mag.titulo || '';
           case 'descripcion':      return mag.descripcion || '';
           case 'precio':           return `$${mag.precio}`;
-          case 'stock':            return mag.stock;
           case 'estado':           return mag.estado || '';
           case 'descuento_activo': return mag.descuento_activo ? 'Sí' : 'No';
           default:                 return '';
@@ -452,7 +448,6 @@ export class GestionRevistasComponent implements OnInit {
         case 'titulo':           return { wch: 38 };
         case 'descripcion':      return { wch: 52 };
         case 'precio':           return { wch: 12 };
-        case 'stock':            return { wch: 10 };
         case 'estado':           return { wch: 12 };
         case 'descuento_activo': return { wch: 12 };
         default:                 return { wch: 16 };

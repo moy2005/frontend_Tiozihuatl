@@ -225,6 +225,13 @@
       <span>Total</span>
       <span class="cart-total-amount">${{ total }}</span>
     </div>
+    <div class="cart-fee-note">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <span>
+        Mercado Pago descuenta una comision estimada de
+        {{ formatCurrency(mercadoPagoFeeEstimate) }} al comercio. Tu pagas solo el total mostrado.
+      </span>
+    </div>
     <button
       type="button"
       (click)="simulatePayment()"

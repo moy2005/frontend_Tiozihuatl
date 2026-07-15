@@ -21,6 +21,7 @@ export interface AdminPayment {
   total_compra: number | string;
   monto_pagado: number | string;
   descuento_total: number | string;
+  comision_mp_estimada?: number | string;
   metodo: string;
   referencia: string | null;
   estado_compra: string;
@@ -35,6 +36,7 @@ export interface AdminPaymentStats {
   pendientes: number;
   canceladas: number;
   ingresos: number | string;
+  comisiones_mp?: number | string;
   descuentos: number | string;
 }
 

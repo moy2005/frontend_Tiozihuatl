@@ -355,10 +355,6 @@
             <label class="form-label">Precio</label>
             <input type="number" [(ngModel)]="form.precio" placeholder="0.00" class="form-input" />
           </div>
-          <div class="form-group">
-            <label class="form-label">Stock</label>
-            <input type="number" [(ngModel)]="form.stock" placeholder="0" class="form-input" />
-          </div>
           <div class="form-group" style="grid-column: 1 / -1;">
             <label class="form-label">Archivo PDF</label>
             <input type="file" (change)="onFileSelected($event)" class="form-input" />
@@ -518,7 +514,6 @@
                           <span *ngSwitchCase="'titulo'"           class="cell-titulo">{{ mag.titulo }}</span>
                           <span *ngSwitchCase="'descripcion'"      class="cell-desc">{{ (mag.descripcion || '—') | slice:0:25 }}...</span>
                           <span *ngSwitchCase="'precio'"           class="cell-precio">${{ mag.precio }}</span>
-                          <span *ngSwitchCase="'stock'"            class="cell-stock">{{ mag.stock }}</span>
                           <span *ngSwitchCase="'estado'"           class="cell-estado"
                                 [class.cell-activa]="mag.estado === 'Activa'"
                                 [class.cell-inactiva]="mag.estado !== 'Activa'">{{ mag.estado }}</span>

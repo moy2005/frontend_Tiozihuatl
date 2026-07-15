@@ -665,6 +665,28 @@
   font-weight: 700;
 }
 
+.cart-fee-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: -0.35rem 0 0.85rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  background: #f0f9ff;
+  color: #075985;
+  font-size: 0.76rem;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.cart-fee-note ion-icon {
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+  color: #0284c7;
+  font-size: 1rem;
+}
+
 .cart-drawer-footer button.btn-pay,
 .cart-drawer-footer .btn-pay {
   width: 100%;
@@ -780,8 +802,13 @@
 }
 
 .modal-pay-btn {
-  background: var(--primary);
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 180px;
+  background: linear-gradient(135deg, #3FA6E8 0%, #1E7FD8 100%) !important;
+  color: #ffffff !important;
   border: none;
   padding: 0.75rem 2rem;
   border-radius: 10px;
@@ -791,9 +818,18 @@
   transition: all 0.2s ease;
 }
 
-.modal-pay-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
-.modal-pay-btn-error { background: #ef4444; }
-.modal-pay-btn-error:hover { background: #dc2626; }
+.modal-pay-btn:hover {
+  background: linear-gradient(135deg, #1E96E8 0%, #1565C0 100%) !important;
+  transform: translateY(-1px);
+}
+
+.modal-pay-btn *,
+.modal-pay-btn ion-icon {
+  color: #ffffff !important;
+}
+
+.modal-pay-btn-error { background: #ef4444 !important; }
+.modal-pay-btn-error:hover { background: #dc2626 !important; }
 
 /* ===============================
    TOASTS

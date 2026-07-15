@@ -50,7 +50,7 @@
 
 .pagos-admin .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -197,6 +197,13 @@
 .pagos-admin .state-detail {
   color: #64748B;
   font-size: 0.76rem;
+}
+
+.pagos-admin .mp-fee-note {
+  color: #9A3412 !important;
+  font-size: 0.74rem !important;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .pagos-admin .state-detail {

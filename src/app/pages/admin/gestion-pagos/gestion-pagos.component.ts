@@ -23,6 +23,7 @@ export class GestionPagosComponent implements OnInit {
   stats: AdminPaymentStats = this.emptyStats();
   loading = false;
   filtrosExpandidos = true;
+  readonly mercadoPagoFeeEstimate = 5.25;
 
   filtros: AdminPaymentFilters = {
     estado: '',
@@ -109,6 +110,26 @@ export class GestionPagosComponent implements OnInit {
     return reference.length > 28 ? `${reference.slice(0, 28)}...` : reference;
   }
 
+  showMercadoPagoFee(payment: AdminPayment): boolean {
+    return payment.metodo === 'mercado_pago' &&
+      payment.estado === 'aprobado' &&
+      Number(payment.comision_mp_estimada || 0) > 0;
+  }
+
+  formatFechaPago(fecha: string | null): string {
+    if (!fecha) return 'Sin fecha';
+
+    const match = String(fecha).match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+    if (!match) return fecha;
+
+    const [, year, month, day, hourRaw, minute] = match;
+    const hour = Number(hourRaw);
+    const hour12 = hour % 12 || 12;
+    const suffix = hour >= 12 ? 'PM' : 'AM';
+
+    return `${Number(day)}/${Number(month)}/${year.slice(2)}, ${hour12}:${minute} ${suffix}`;
+  }
+
   trackByCompra(_index: number, payment: AdminPayment): number {
     return payment.id_pago || payment.id_compra;
   }
@@ -120,6 +141,7 @@ export class GestionPagosComponent implements OnInit {
       pendientes: 0,
       canceladas: 0,
       ingresos: 0,
+      comisiones_mp: 0,
       descuentos: 0,
     };
   }

@@ -23,6 +23,14 @@
         </div>
       </div>
 
+      <div class="stat-card stat-card-amber">
+        <div class="stat-icon"><ion-icon name="card-outline"></ion-icon></div>
+        <div>
+          <span class="stat-label">Comision MP est.</span>
+          <strong class="stat-value">{{ money(stats.comisiones_mp || 0) }}</strong>
+        </div>
+      </div>
+
       <div class="stat-card">
         <div class="stat-icon"><ion-icon name="receipt-outline"></ion-icon></div>
         <div>
@@ -170,6 +178,9 @@
                 <div class="amount-cell">
                   <strong>{{ money(payment.monto_pagado) }}</strong>
                   <span *ngIf="+payment.descuento_total > 0">Desc. {{ money(payment.descuento_total) }}</span>
+                  <span *ngIf="showMercadoPagoFee(payment)" class="mp-fee-note">
+                    Comision MP est. {{ money(payment.comision_mp_estimada) }}
+                  </span>
                 </div>
               </td>
               <td class="td-cell">
@@ -185,7 +196,7 @@
                   {{ shortReference(payment.referencia) }}
                 </span>
               </td>
-              <td class="td-cell text-gray-500 text-sm">{{ payment.fecha | date:'short' }}</td>
+              <td class="td-cell text-gray-500 text-sm">{{ formatFechaPago(payment.fecha) }}</td>
             </tr>
           </tbody>
         </table>
@@ -211,6 +222,9 @@
             <div>
               <span>Monto</span>
               <strong>{{ money(payment.monto_pagado) }}</strong>
+              <small *ngIf="showMercadoPagoFee(payment)" class="mp-fee-note">
+                Comision MP est. {{ money(payment.comision_mp_estimada) }}
+              </small>
             </div>
             <div>
               <span>Mercado Pago</span>
@@ -218,7 +232,7 @@
             </div>
             <div>
               <span>Fecha</span>
-              <strong>{{ payment.fecha | date:'short' }}</strong>
+              <strong>{{ formatFechaPago(payment.fecha) }}</strong>
             </div>
           </div>
         </div>

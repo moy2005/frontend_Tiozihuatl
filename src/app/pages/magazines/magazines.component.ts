@@ -58,6 +58,7 @@ export class MagazinesComponent implements OnInit {
   itemsPerPage: number = 9999;  
   activeTab: 'all' | 'purchased' = 'all';
   filterOpen = { orden: true, precio: true, letra: true };
+  readonly mercadoPagoFeeEstimate = 5.25;
 
   /* ── Toasts ── */
   toasts: Toast[]  = [];
@@ -343,6 +344,15 @@ simulatePayment(): void {
     return Boolean(Number(magazine?.descuento_activo)) &&
       this.getFinalPrice(magazine) < Number(magazine?.precio || 0);
   }
+
+  formatCurrency(value: number | string | null | undefined): string {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 2,
+    }).format(Number(value || 0));
+  }
+
   get payDisabled(): boolean {
     return this.processingPayment;
   }
