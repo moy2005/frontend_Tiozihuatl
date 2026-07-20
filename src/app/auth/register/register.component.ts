@@ -155,6 +155,7 @@ async nextStep() {
   if (this.step === 1) {
     if (!this.validarDatosPersonales()) return;
 
+    this.cargando = true;
     try {
       // 1️⃣ Crear pre-registro
       const res: any = await this.auth.preRegistro({
@@ -165,11 +166,11 @@ async nextStep() {
         telefono: this.form.telefono
       }).toPromise();
 
-      Swal.fire({
+      await Swal.fire({
         icon: 'info',
-        title: 'Verifica tu correo',
-        text: 'Te enviamos un enlace de verificación. Revisa tu bandeja de entrada.',
-        confirmButtonText: 'OK'
+        title: 'Revisa tu correo',
+        text: res?.message || 'Te enviamos un enlace para verificar tu correo y continuar con el registro como visitante.',
+        confirmButtonText: 'Entendido'
       });
 
       // Guardamos el correo por si el backend lo necesita al regresar
@@ -181,8 +182,14 @@ async nextStep() {
       return;
 
     } catch (error: any) {
-      Swal.fire('Error', error?.error?.error || 'No se pudo enviar el correo.', 'error');
+      await Swal.fire(
+        'No pudimos enviar el correo',
+        error?.error?.error || 'Intenta nuevamente en unos minutos.',
+        'error'
+      );
       return;
+    } finally {
+      this.cargando = false;
     }
   }
 

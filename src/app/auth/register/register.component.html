@@ -11,8 +11,11 @@
           <img src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png" class="w-40 sm:w-52 h-40 sm:h-52 object-contain drop-shadow-lg" alt="Logo Instituto" />
         </div>
         <h1 class="mt-3 sm:mt-4 text-2xl sm:text-3xl font-bold login-title">
-          Crear Nueva Cuenta
+          Registro de visitante
         </h1>
+        <p class="mt-2 text-xs sm:text-sm text-white/90 max-w-xl">
+          Crea tu cuenta personal y confirma tu correo para acceder a los servicios disponibles para visitantes.
+        </p>
       </div>
 
       <!-- CONTENEDOR INTERNO -->
@@ -154,6 +157,10 @@
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
                 Correo disponible
               </p>
+              <p class="text-xs text-[#5A6B8C] flex items-start gap-1">
+                <ion-icon name="information-circle-outline" class="text-base mt-0.5"></ion-icon>
+                <span>Enviaremos un enlace de verificación a este correo antes de continuar.</span>
+              </p>
             </div>
 
             <!-- Teléfono -->
@@ -201,10 +208,10 @@
           <div class="flex justify-center mt-4 sm:mt-6">
             <button
               (click)="nextStep(); addBounceEffect($event)"
-              [disabled]="!emailValid || emailExists || !phoneValid || phoneExists"
+              [disabled]="cargando || !emailValid || emailExists || !phoneValid || phoneExists"
               class="btn-primary flex items-center justify-center gap-2">
-              Continuar
-              <ion-icon name="arrow-forward-outline"></ion-icon>
+              <ion-icon [name]="cargando ? 'sync-outline' : 'mail-outline'" [class.animate-spin]="cargando"></ion-icon>
+              {{ cargando ? 'Enviando verificación...' : 'Verificar correo y continuar' }}
             </button>
           </div>
 

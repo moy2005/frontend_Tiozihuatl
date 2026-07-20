@@ -1,1 +1,33 @@
-<p>verificar-correo works!</p>
+<section class="verification-page" role="main" aria-live="polite">
+  <article class="verification-card">
+    <img
+      src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
+      alt="Instituto de Estudios Superiores Tiozihuatl"
+      class="verification-logo"
+    />
+
+    <div class="status-icon" [class.success]="estado === 'success'" [class.error]="estado === 'error'">
+      <ion-icon *ngIf="estado === 'loading'" name="sync-outline" class="spin"></ion-icon>
+      <ion-icon *ngIf="estado === 'success'" name="checkmark-circle-outline"></ion-icon>
+      <ion-icon *ngIf="estado === 'error'" name="alert-circle-outline"></ion-icon>
+    </div>
+
+    <h1>
+      {{ estado === 'loading' ? 'Verificando tu correo' : estado === 'success' ? 'Correo verificado' : 'No pudimos verificar el correo' }}
+    </h1>
+    <p>{{ mensaje }}</p>
+
+    <button *ngIf="estado === 'success'" type="button" class="primary-action" (click)="continuarRegistro()">
+      Completar registro de visitante
+      <ion-icon name="arrow-forward-outline"></ion-icon>
+    </button>
+
+    <button *ngIf="estado === 'error'" type="button" class="primary-action" (click)="volverARegistro()">
+      Solicitar un nuevo enlace
+    </button>
+
+    <button *ngIf="estado !== 'loading'" type="button" class="secondary-action" (click)="irALogin()">
+      Volver al inicio de sesión
+    </button>
+  </article>
+</section>

@@ -55,6 +55,7 @@ import { GestionPrivacidadComponent } from './pages/admin/gestion-privacidad/ges
 import { GestionTerminosComponent} from './pages/admin/gestion-terminos/gestion-terminos.component';
 import { GestionPagosComponent } from './pages/admin/gestion-pagos/gestion-pagos.component';
 import { GestionDescuentosComponent } from './pages/admin/gestion-descuentos/gestion-descuentos.component';
+import { ReportesComponent } from './pages/admin/reportes/reportes';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -111,6 +112,7 @@ export const routes: Routes = [
       { path: 'pagos', component: GestionPagosComponent },
       { path: 'descuentos', component: GestionDescuentosComponent },
       { path: 'monitoreo', component: MonitoreoComponent },
+      { path: 'reportes', component: ReportesComponent },
       { path: 'mantenimiento', component: GestionMantenimientoComponent},
       { path: 'prediction', component: PredictionComponent},
       { path: 'periodos', component: GestionPeriodosComponent},

@@ -24,6 +24,10 @@ export class ForgotPasswordComponent {
     this.router.navigate(['/login']);
   }
 
+  irARegistro() {
+    this.router.navigate(['/register']);
+  }
+
   async enviarCorreo() {
     if (!this.correo || !this.palabra_secreta) {
       Swal.fire(

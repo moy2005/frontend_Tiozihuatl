@@ -1,0 +1,152 @@
+<section class="rep-page">
+  <header class="rep-hero">
+    <div class="rep-hero-copy">
+      <h1>Reportes y Estadísticas</h1>
+      <p>Analiza el desempeño de usuarios, acervo, préstamos, ventas y actividad institucional desde una sola vista.</p>
+      <div class="rep-period" *ngIf="snapshot">
+        <i class="ph ph-calendar-blank"></i>
+        {{ periodLabel }}
+        <span></span>
+        {{ focusLabel }}
+      </div>
+    </div>
+    <div class="rep-hero-actions">
+      <button type="button" class="rep-btn rep-btn-light" (click)="requestExport('pdf')" [disabled]="!snapshot || loading || exporting">
+        <i class="ph ph-file-pdf"></i><span>Exportar PDF</span>
+      </button>
+      <button type="button" class="rep-btn rep-btn-accent" (click)="requestExport('excel')" [disabled]="!snapshot || loading || exporting">
+        <i class="ph ph-file-xls"></i><span>Exportar Excel</span>
+      </button>
+    </div>
+  </header>
+
+  <form class="rep-filter-card" (ngSubmit)="loadReport()">
+    <div class="rep-filter-heading">
+      <div class="rep-filter-icon"><i class="ph ph-funnel-simple"></i></div>
+      <div><h2>Filtros del reporte</h2><p>Los indicadores, gráficas y tablas se actualizan con el mismo criterio.</p></div>
+    </div>
+    <div class="rep-filter-grid">
+      <label class="rep-field">
+        <span>Fecha inicial</span>
+        <div class="rep-control"><i class="ph ph-calendar"></i><input type="date" name="fecha_inicio" [(ngModel)]="filters.fecha_inicio" [max]="filters.fecha_fin || today"></div>
+      </label>
+      <label class="rep-field">
+        <span>Fecha final</span>
+        <div class="rep-control"><i class="ph ph-calendar-check"></i><input type="date" name="fecha_fin" [(ngModel)]="filters.fecha_fin" [min]="filters.fecha_inicio" [max]="today"></div>
+      </label>
+      <label class="rep-field">
+        <span>Tipo de reporte</span>
+        <div class="rep-control"><i class="ph ph-chart-pie-slice"></i><select name="tipo_reporte" [(ngModel)]="filters.tipo_reporte"><option *ngFor="let type of reportTypes" [value]="type.value">{{ type.label }}</option></select><i class="ph ph-caret-down rep-select-arrow"></i></div>
+      </label>
+      <label class="rep-field">
+        <span>Estado</span>
+        <div class="rep-control"><i class="ph ph-check-circle"></i><select name="estado" [(ngModel)]="filters.estado"><option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</option></select><i class="ph ph-caret-down rep-select-arrow"></i></div>
+      </label>
+      <div class="rep-filter-actions">
+        <button type="button" class="rep-btn rep-btn-ghost" (click)="clearFilters()" title="Restablecer filtros"><i class="ph ph-arrow-counter-clockwise"></i></button>
+        <button type="submit" class="rep-btn rep-btn-primary" [disabled]="loading"><i class="ph" [ngClass]="loading ? 'ph-spinner rep-spin' : 'ph-magnifying-glass'"></i><span>{{ loading ? 'Consultando…' : 'Aplicar filtros' }}</span></button>
+      </div>
+    </div>
+    <div class="rep-presets">
+      <span>Rangos rápidos:</span>
+      <button type="button" (click)="applyPreset(7)">7 días</button>
+      <button type="button" (click)="applyPreset(30)">30 días</button>
+      <button type="button" (click)="applyPreset(90)">90 días</button>
+    </div>
+  </form>
+
+  <div class="rep-error" *ngIf="errorMessage">
+    <div><i class="ph ph-warning-circle"></i><span><strong>No se pudo cargar el reporte.</strong>{{ errorMessage }}</span></div>
+    <button type="button" (click)="loadReport()"><i class="ph ph-arrow-clockwise"></i> Reintentar</button>
+  </div>
+
+  <ng-container *ngIf="snapshot; else initialLoading">
+    <div class="rep-kpi-grid" [class.rep-content-loading]="loading">
+      <article class="rep-kpi" *ngFor="let kpi of kpis; trackBy: trackByKpi" [style.--kpi-color]="kpi.color">
+        <div class="rep-kpi-top"><div class="rep-kpi-icon"><i class="ph" [ngClass]="kpi.icon"></i></div><span class="rep-kpi-menu"><i class="ph ph-dots-three"></i></span></div>
+        <div class="rep-kpi-value">{{ formatNumber(kpi.value) }}</div>
+        <div class="rep-kpi-label">{{ kpi.label }}</div>
+        <div class="rep-kpi-footer">
+          <span *ngIf="kpi.variation !== undefined" class="rep-kpi-trend" [ngClass]="variationClass(kpi.variation)"><i class="ph" [ngClass]="kpi.variation > 0 ? 'ph-trend-up' : kpi.variation < 0 ? 'ph-trend-down' : 'ph-minus'"></i>{{ kpi.variation > 0 ? '+' : '' }}{{ kpi.variation }}%</span>
+          <span class="rep-kpi-detail">{{ kpi.detail }}</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="rep-section-heading">
+      <div><span class="rep-section-kicker">ANÁLISIS VISUAL</span><h2>Tendencias y comportamiento</h2></div>
+      <span class="rep-live"><i></i> Datos actualizados {{ formatDate(snapshot.meta.generated_at, true) }}</span>
+    </div>
+
+    <div class="rep-charts-grid" [class.rep-content-loading]="loading">
+      <article class="rep-card rep-chart-large" *ngIf="showSection('prestamos')">
+        <div class="rep-card-header"><div><h3><i class="ph ph-chart-line"></i>Tendencia de préstamos</h3><p>Préstamos y devoluciones agrupados automáticamente</p></div><span class="rep-card-chip">{{ granularityLabel }}</span></div>
+        <div class="rep-chart-wrap"><canvas #loanTrendChart></canvas><div class="rep-chart-empty" *ngIf="!snapshot.charts.loan_trend.length"><i class="ph ph-chart-line"></i><span>Sin movimientos en este periodo</span></div></div>
+      </article>
+
+      <article class="rep-card rep-chart-small" *ngIf="showSection('usuarios')">
+        <div class="rep-card-header"><div><h3><i class="ph ph-users"></i>Usuarios por rol</h3><p>Distribución de perfiles registrados</p></div></div>
+        <div class="rep-chart-wrap rep-chart-donut"><canvas #usersRoleChart></canvas><div class="rep-donut-center" *ngIf="snapshot.charts.users_by_role.length"><strong>{{ formatNumber(snapshot.kpis.users.period || snapshot.kpis.users.value) }}</strong><span>usuarios</span></div><div class="rep-chart-empty" *ngIf="!snapshot.charts.users_by_role.length"><i class="ph ph-users"></i><span>Sin usuarios en el periodo</span></div></div>
+      </article>
+
+      <article class="rep-card" *ngIf="showSection('libros', 'prestamos')">
+        <div class="rep-card-header"><div><h3><i class="ph ph-books"></i>Libros más solicitados</h3><p>Ranking según movimientos de préstamo</p></div><span class="rep-card-chip">Top 7</span></div>
+        <div class="rep-chart-wrap"><canvas #topBooksChart></canvas><div class="rep-chart-empty" *ngIf="!snapshot.charts.top_books.length"><i class="ph ph-books"></i><span>Aún no hay solicitudes</span></div></div>
+      </article>
+
+      <article class="rep-card" *ngIf="showSection('ventas')">
+        <div class="rep-card-header"><div><h3><i class="ph ph-newspaper"></i>Ventas de revistas</h3><p>Unidades vendidas por publicación</p></div><span class="rep-card-chip rep-card-chip-orange">Ventas</span></div>
+        <div class="rep-chart-wrap"><canvas #magazineSalesChart></canvas><div class="rep-chart-empty" *ngIf="!snapshot.charts.magazine_sales.length"><i class="ph ph-shopping-bag"></i><span>Sin ventas completadas</span></div></div>
+      </article>
+
+      <article class="rep-card rep-chart-wide" *ngIf="showSection('usuarios', 'prestamos', 'ventas', 'eventos')">
+        <div class="rep-card-header"><div><h3><i class="ph ph-buildings"></i>Actividad institucional comparativa</h3><p>Usuarios, préstamos y ventas en periodos comparables</p></div><span class="rep-card-chip rep-card-chip-green">{{ granularityLabel }}</span></div>
+        <div class="rep-chart-wrap rep-chart-wide-wrap"><canvas #institutionalActivityChart></canvas><div class="rep-chart-empty" *ngIf="!snapshot.charts.institutional_activity.length"><i class="ph ph-activity"></i><span>Sin actividad dentro del rango</span></div></div>
+      </article>
+    </div>
+
+    <div class="rep-section-heading rep-table-heading">
+      <div><span class="rep-section-kicker">DETALLE OPERATIVO</span><h2>Supervisión de transacciones</h2></div>
+      <div class="rep-table-search"><i class="ph ph-magnifying-glass"></i><input type="search" placeholder="Buscar en la tabla…" [(ngModel)]="tableSearch" [ngModelOptions]="{standalone: true}" (ngModelChange)="onSearch()"></div>
+    </div>
+
+    <article class="rep-table-card" [class.rep-content-loading]="loading">
+      <nav class="rep-table-tabs" aria-label="Tablas estadísticas">
+        <button type="button" *ngFor="let tab of tableTabs" [class.active]="activeTable === tab.id" (click)="setTable(tab.id)"><i class="ph" [ngClass]="tab.icon"></i><span>{{ tab.label }}</span><b>{{ tab.id === 'loans' ? filteredLoans.length : tab.id === 'books' ? filteredBooks.length : tab.id === 'sales' ? filteredSales.length : filteredActivity.length }}</b></button>
+      </nav>
+
+      <div class="rep-table-scroll">
+        <table class="rep-table" *ngIf="activeTable === 'loans'">
+          <thead><tr><th>Folio</th><th>Usuario</th><th>Libro</th><th>Préstamo</th><th>Vencimiento</th><th>Estado</th></tr></thead>
+          <tbody><tr *ngFor="let row of pagedLoans"><td><span class="rep-folio">#{{ row.id_prestamo }}</span></td><td><div class="rep-user-cell"><span class="rep-avatar">{{ row.usuario.charAt(0) }}</span><div><strong>{{ row.usuario }}</strong><small>{{ row.matricula || 'Sin matrícula' }}</small></div></div></td><td><span class="rep-primary-cell">{{ row.titulo }}</span></td><td>{{ formatDate(row.fecha_prestamo, true) }}</td><td>{{ formatDate(row.fecha_vencimiento) }}</td><td><span class="rep-badge" [ngClass]="statusClass(row.estado)"><i></i>{{ row.estado }}</span></td></tr></tbody>
+        </table>
+
+        <table class="rep-table" *ngIf="activeTable === 'books'">
+          <thead><tr><th>Posición</th><th>Libro</th><th>Solicitudes</th><th>Devoluciones</th><th>Disponibles</th><th>Último movimiento</th></tr></thead>
+          <tbody><tr *ngFor="let row of pagedBooks; let i = index"><td><span class="rep-rank">{{ (page - 1) * pageSize + i + 1 }}</span></td><td><span class="rep-primary-cell">{{ row.titulo }}</span></td><td><strong>{{ formatNumber(row.solicitudes) }}</strong></td><td>{{ formatNumber(row.devoluciones) }}</td><td><span class="rep-stock"><i class="ph ph-books"></i>{{ formatNumber(row.disponibles) }}</span></td><td>{{ formatDate(row.ultima_solicitud, true) }}</td></tr></tbody>
+        </table>
+
+        <table class="rep-table" *ngIf="activeTable === 'sales'">
+          <thead><tr><th>Venta</th><th>Usuario</th><th>Revistas</th><th>Fecha</th><th>Total</th><th>Estado</th></tr></thead>
+          <tbody><tr *ngFor="let row of pagedSales"><td><span class="rep-folio">#{{ row.id_compra }}</span></td><td><div class="rep-user-cell"><span class="rep-avatar rep-avatar-orange">{{ (row.usuario || 'U').charAt(0) }}</span><div><strong>{{ row.usuario || 'Usuario no disponible' }}</strong><small>{{ row.correo || 'Sin correo' }}</small></div></div></td><td><span class="rep-primary-cell rep-clamp">{{ row.revistas }}</span></td><td>{{ formatDate(row.fecha, true) }}</td><td><strong class="rep-money">{{ money(row.total) }}</strong></td><td><span class="rep-badge" [ngClass]="statusClass(row.estado)"><i></i>{{ row.estado }}</span></td></tr></tbody>
+        </table>
+
+        <table class="rep-table" *ngIf="activeTable === 'activity'">
+          <thead><tr><th>Tipo</th><th>Descripción</th><th>Responsable / usuario</th><th>Fecha</th><th>Monto</th><th>Estado</th></tr></thead>
+          <tbody><tr *ngFor="let row of pagedActivity"><td><span class="rep-type" [attr.data-type]="row.tipo"><i class="ph" [ngClass]="row.tipo === 'Préstamo' ? 'ph-book-bookmark' : row.tipo === 'Venta' ? 'ph-shopping-cart' : row.tipo === 'Evento' ? 'ph-calendar-star' : 'ph-user-plus'"></i>{{ row.tipo }}</span></td><td><span class="rep-primary-cell rep-clamp">{{ row.descripcion }}</span></td><td>{{ row.usuario }}</td><td>{{ formatDate(row.fecha, true) }}</td><td>{{ row.monto === null ? '—' : money(row.monto) }}</td><td><span class="rep-badge" [ngClass]="statusClass(row.estado)"><i></i>{{ row.estado }}</span></td></tr></tbody>
+        </table>
+
+        <div class="rep-empty-table" *ngIf="currentTotal === 0"><div><i class="ph ph-magnifying-glass"></i></div><h3>No se encontraron registros</h3><p>Prueba con otro rango, estado o término de búsqueda.</p></div>
+      </div>
+
+      <footer class="rep-table-footer">
+        <span>Mostrando <strong>{{ pageStart }}–{{ pageEnd }}</strong> de <strong>{{ currentTotal }}</strong> registros</span>
+        <div class="rep-pagination"><button type="button" (click)="previousPage()" [disabled]="page === 1"><i class="ph ph-caret-left"></i></button><span>Página <strong>{{ page }}</strong> de {{ totalPages }}</span><button type="button" (click)="nextPage()" [disabled]="page === totalPages"><i class="ph ph-caret-right"></i></button></div>
+      </footer>
+    </article>
+  </ng-container>
+
+  <ng-template #initialLoading>
+    <div class="rep-loading" *ngIf="loading && !errorMessage"><div class="rep-loading-orbit"><i class="ph ph-chart-line-up"></i></div><h2>Preparando análisis institucional</h2><p>Consultando indicadores, tendencias y transacciones…</p><div class="rep-loading-line"><span></span></div></div>
+  </ng-template>
+</section>

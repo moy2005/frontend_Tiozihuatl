@@ -4,11 +4,12 @@ import { filter } from 'rxjs/operators';
 import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
 import { AuthService } from './api/services/auth';
+import { VirtualAssistantComponent } from './components/virtual-assistant/virtual-assistant';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Navbar, Footer],
+  imports: [RouterOutlet, Navbar, Footer, VirtualAssistantComponent],
   templateUrl: './app.html',
   styles: [`
     .app-shell {

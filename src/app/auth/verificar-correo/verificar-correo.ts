@@ -1,29 +1,41 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  Inject,
+  OnInit,
+  PLATFORM_ID,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../api/services/auth';
-import Swal from 'sweetalert2';
+
+type VerificationState = 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-verificar-correo',
-  templateUrl: './verificar-correo.html'
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './verificar-correo.html',
+  styleUrls: ['./verificar-correo.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class VerificarCorreoComponent implements OnInit {
+  estado: VerificationState = 'loading';
+  mensaje = 'Estamos validando tu enlace de verificación.';
+  correo = '';
 
   constructor(
     private route: ActivatedRoute,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
   ngOnInit() {
-    const token = this.route.snapshot.queryParams['token'];
+    const token = this.route.snapshot.queryParamMap.get('token');
 
     if (!token) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Enlace inválido',
-        text: 'No se encontró un token en el enlace.'
-      }).then(() => this.router.navigate(['/login']));
+      this.mostrarError('El enlace no contiene un token de verificación.');
       return;
     }
 
@@ -31,30 +43,45 @@ export class VerificarCorreoComponent implements OnInit {
   }
 
   verificar(token: string) {
- this.auth.verifyEmailLink(token).subscribe({
-  next: () => {
-    Swal.fire({
-      icon: 'success',
-      title: 'Correo verificado',
-      text: 'Ahora puedes continuar con tu registro.'
-    }).then(() =>
-      this.router.navigate(['/register'], {
-        queryParams: {
-          skip: '1',
-          correo: this.route.snapshot.queryParams['correo'] || ''
+    this.auth.verifyEmailLink(token).subscribe({
+      next: (response: any) => {
+        this.correo = String(response?.correo || '').trim();
+        if (this.correo && isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('correoPreRegistro', this.correo);
         }
-      })
-    );
-  },
-  error: () => {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'El enlace ya expiró o no es válido.'
-    }).then(() => this.router.navigate(['/login']));
+
+        this.estado = 'success';
+        this.mensaje =
+          'Tu correo quedó confirmado. Ya puedes completar la seguridad de tu cuenta de visitante.';
+      },
+      error: (error) => {
+        this.mostrarError(
+          error?.error?.error ||
+            'El enlace no es válido, ya fue utilizado o ha expirado.'
+        );
+      },
+    });
   }
-});
 
-}
+  continuarRegistro() {
+    this.router.navigate(['/register'], {
+      queryParams: {
+        skip: '1',
+        ...(this.correo ? { correo: this.correo } : {}),
+      },
+    });
+  }
 
+  volverARegistro() {
+    this.router.navigate(['/register']);
+  }
+
+  irALogin() {
+    this.router.navigate(['/login']);
+  }
+
+  private mostrarError(mensaje: string) {
+    this.estado = 'error';
+    this.mensaje = mensaje;
+  }
 }

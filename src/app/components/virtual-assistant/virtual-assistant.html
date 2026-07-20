@@ -1,0 +1,134 @@
+<section class="va-shell" [class.va-shell--open]="isOpen">
+  <button
+    type="button"
+    class="va-launcher"
+    [class.va-launcher--hidden]="isOpen"
+    (click)="toggleAssistant()"
+    title="Abrir asistente virtual"
+    aria-label="Abrir asistente virtual"
+    [attr.aria-expanded]="isOpen">
+    <i class="ph ph-chat-circle-dots"></i>
+  </button>
+
+  <div class="va-panel" *ngIf="isOpen" role="dialog" aria-label="Asistente virtual">
+    <header class="va-header">
+      <div class="va-header__mark">
+        <i class="ph ph-sparkle"></i>
+      </div>
+      <div class="va-header__copy">
+        <h2>Asistente Virtual</h2>
+        <span>En linea</span>
+      </div>
+      <div class="va-header__actions">
+        <button type="button" class="va-icon-btn" (click)="clearHistory()" title="Limpiar chat">
+          <i class="ph ph-broom"></i>
+        </button>
+        <button type="button" class="va-icon-btn" (click)="closeAssistant()" title="Cerrar">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="va-messages" #messagesPane>
+      <article
+        *ngFor="let message of messages; let last = last; trackBy: trackByMessage"
+        class="va-message"
+        [class.va-message--user]="message.sender === 'user'"
+        [class.va-message--assistant]="message.sender === 'assistant'">
+        <div class="va-avatar" *ngIf="message.sender === 'assistant'">
+          <i class="ph ph-chat-circle-text"></i>
+        </div>
+
+        <div class="va-bubble">
+          <div class="va-bubble__meta" *ngIf="message.sender === 'assistant' && message.intent">
+            <span>{{ message.intent.category }}</span>
+            <span>{{ message.intent.title }}</span>
+          </div>
+
+          <p *ngFor="let paragraph of getParagraphs(message.text)">{{ paragraph }}</p>
+
+          <div class="va-sections" *ngIf="message.sections?.length">
+            <section
+              class="va-section"
+              *ngFor="let section of message.sections; trackBy: trackBySection">
+              <h3>{{ section.title }}</h3>
+              <button
+                type="button"
+                class="va-section-item"
+                *ngFor="let item of section.items; trackBy: trackBySectionItem"
+                [class.va-section-item--clickable]="item.route || item.href"
+                (click)="runSectionItem(item)">
+                <span class="va-section-item__title">{{ item.title }}</span>
+                <span class="va-section-item__text" *ngIf="item.text">{{ item.text }}</span>
+                <span class="va-section-item__meta" *ngIf="item.meta">{{ item.meta }}</span>
+              </button>
+            </section>
+          </div>
+
+          <div class="va-actions" *ngIf="message.actions?.length">
+            <button
+              type="button"
+              class="va-action"
+              *ngFor="let action of message.actions; trackBy: trackByLabel"
+              (click)="runAction(action)">
+              <i [class]="'ph ' + (action.icon || 'ph-arrow-right')"></i>
+              <span>{{ action.label }}</span>
+            </button>
+          </div>
+
+          <div
+            class="va-suggestions"
+            *ngIf="last && message.sender === 'assistant' && message.suggestions?.length">
+            <button
+              type="button"
+              *ngFor="let suggestion of message.suggestions; trackBy: trackByLabel"
+              (click)="sendPrompt(suggestion.prompt)">
+              {{ suggestion.label }}
+            </button>
+          </div>
+
+          <time>{{ message.time }}</time>
+        </div>
+      </article>
+
+      <div class="va-typing" *ngIf="isLoading">
+        <div class="va-avatar">
+          <i class="ph ph-chat-circle-text"></i>
+        </div>
+        <div class="va-typing__bubble">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="va-starters" *ngIf="messages.length <= 1">
+      <button
+        type="button"
+        *ngFor="let prompt of starterPrompts"
+        (click)="sendPrompt(prompt)">
+        {{ prompt }}
+      </button>
+    </div>
+
+    <form class="va-compose" (ngSubmit)="sendMessage()">
+      <textarea
+        name="assistantMessage"
+        [(ngModel)]="draft"
+        rows="1"
+        maxlength="1000"
+        placeholder="Escribe tu pregunta"
+        (keydown.enter)="handleEnter($event)"
+        [disabled]="isLoading">
+      </textarea>
+      <button
+        type="submit"
+        class="va-send"
+        [disabled]="!draft.trim() || isLoading"
+        aria-label="Enviar mensaje">
+        <i class="ph ph-paper-plane-tilt"></i>
+      </button>
+    </form>
+  </div>
+</section>
