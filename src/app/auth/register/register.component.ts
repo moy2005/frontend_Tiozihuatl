@@ -1,4 +1,4 @@
-import { Component,CUSTOM_ELEMENTS_SCHEMA,ViewEncapsulation } from '@angular/core';
+import { Component,CUSTOM_ELEMENTS_SCHEMA,OnDestroy,ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -30,7 +30,7 @@ interface PublicKeyCredential {
    schemas: [CUSTOM_ELEMENTS_SCHEMA],
     encapsulation: ViewEncapsulation.None
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy {
   step: 1 | 2 | 3 = 1;
   cargando = false;
   oauthLoading: 'google' | 'facebook' | null = null;
@@ -68,6 +68,8 @@ export class RegisterComponent {
   // Agregar después de las otras propiedades (línea ~50)
 mostrarContrasena = false;
 mostrarConfirmPassword = false;
+reenvioDisponibleEn = 0;
+private reenvioTimer?: ReturnType<typeof setInterval>;
 
 
 
@@ -166,22 +168,40 @@ async nextStep() {
         telefono: this.form.telefono
       }).toPromise();
 
+      // El tiempo de espera comienza en cuanto el backend acepta el envio,
+      // aunque el aviso permanezca abierto en pantalla.
+      this.correoPreRegistro = this.form.correo;
+      localStorage.setItem('correoPreRegistro', this.form.correo);
+      this.iniciarEsperaReenvio(Number(res?.retryAfterSeconds) || 300);
+
       await Swal.fire({
         icon: 'info',
         title: 'Revisa tu correo',
-        text: res?.message || 'Te enviamos un enlace para verificar tu correo y continuar con el registro como visitante.',
+        text: res?.message || 'Te enviamos un enlace para verificar tu correo. Puede tardar unos minutos; no es necesario solicitarlo nuevamente.',
         confirmButtonText: 'Entendido'
       });
-
-      // Guardamos el correo por si el backend lo necesita al regresar
-      this.correoPreRegistro = this.form.correo;
-
-      localStorage.setItem('correoPreRegistro', this.form.correo);
 
       // NO cambiar de paso aquí
       return;
 
     } catch (error: any) {
+      if (error?.status === 429) {
+        const retryAfterSeconds = Number(
+          error?.error?.retryAfterSeconds || error?.headers?.get?.('Retry-After')
+        );
+        this.correoPreRegistro = this.form.correo;
+        localStorage.setItem('correoPreRegistro', this.form.correo);
+        this.iniciarEsperaReenvio(retryAfterSeconds || 300);
+
+        await Swal.fire({
+          icon: 'info',
+          title: 'El enlace ya fue solicitado',
+          text: error?.error?.error || 'Espera unos minutos antes de solicitar otro correo.',
+          confirmButtonText: 'Entendido'
+        });
+        return;
+      }
+
       await Swal.fire(
         'No pudimos enviar el correo',
         error?.error?.error || 'Intenta nuevamente en unos minutos.',
@@ -196,6 +216,32 @@ async nextStep() {
   // Paso 2
   if (this.step === 2 && !this.validarPasswordFuerte()) return;
   this.step = 3;
+}
+
+get textoBotonVerificacion(): string {
+  if (this.cargando) return 'Enviando verificación...';
+  if (this.reenvioDisponibleEn <= 0) return 'Verificar correo y continuar';
+
+  const minutos = Math.floor(this.reenvioDisponibleEn / 60);
+  const segundos = String(this.reenvioDisponibleEn % 60).padStart(2, '0');
+  return `Reenviar en ${minutos}:${segundos}`;
+}
+
+private iniciarEsperaReenvio(seconds: number) {
+  if (this.reenvioTimer) clearInterval(this.reenvioTimer);
+  this.reenvioDisponibleEn = Math.max(1, Math.ceil(seconds));
+
+  this.reenvioTimer = setInterval(() => {
+    this.reenvioDisponibleEn = Math.max(0, this.reenvioDisponibleEn - 1);
+    if (this.reenvioDisponibleEn === 0 && this.reenvioTimer) {
+      clearInterval(this.reenvioTimer);
+      this.reenvioTimer = undefined;
+    }
+  }, 1000);
+}
+
+ngOnDestroy() {
+  if (this.reenvioTimer) clearInterval(this.reenvioTimer);
 }
 
 

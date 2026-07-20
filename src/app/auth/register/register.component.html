@@ -208,10 +208,10 @@
           <div class="flex justify-center mt-4 sm:mt-6">
             <button
               (click)="nextStep(); addBounceEffect($event)"
-              [disabled]="cargando || !emailValid || emailExists || !phoneValid || phoneExists"
+              [disabled]="cargando || reenvioDisponibleEn > 0 || !emailValid || emailExists || !phoneValid || phoneExists"
               class="btn-primary flex items-center justify-center gap-2">
               <ion-icon [name]="cargando ? 'sync-outline' : 'mail-outline'" [class.animate-spin]="cargando"></ion-icon>
-              {{ cargando ? 'Enviando verificación...' : 'Verificar correo y continuar' }}
+              {{ textoBotonVerificacion }}
             </button>
           </div>
 
