@@ -64,6 +64,60 @@
 </div>
 
 <!-- Navegación flotante -->
+<!-- La recomendación forma parte del final del documento y solo se habilita
+     cuando el lector alcanzó la última página. -->
+<section
+  class="recommendations-section"
+  *ngIf="lecturaTerminada && recomendacion as libro"
+  aria-labelledby="recommendations-title">
+  <div class="recommendations-inner">
+    <header class="rec-title">
+      <span class="rec-title-icon" aria-hidden="true">✦</span>
+      <div>
+        <h2 id="recommendations-title">Te recomendamos leer</h2>
+        <p>Seleccionado mediante reglas de asociación a partir de tu lectura actual.</p>
+      </div>
+    </header>
+
+    <article class="rec-single-card">
+      <div class="rec-single-cover">
+        <img
+          *ngIf="libro.previewUrl; else portadaAlternativa"
+          [src]="libro.previewUrl"
+          [alt]="'Portada de ' + libro.titulo"
+          loading="lazy">
+        <ng-template #portadaAlternativa>
+          <div class="cover-fallback" aria-hidden="true">
+            <span>LIBRO</span>
+            <strong>{{ libro.titulo }}</strong>
+          </div>
+        </ng-template>
+      </div>
+
+      <div class="rec-single-info">
+        <span class="rule-badge" [class.consolidated]="libro.nivel_evidencia === 'CONSOLIDADA'">
+          {{ libro.nivel_evidencia === 'CONSOLIDADA' ? 'Coincidencia consolidada' : 'Coincidencia relacionada' }}
+        </span>
+        <h3>{{ libro.titulo }}</h3>
+        <p class="rec-author">{{ libro.autores }}</p>
+        <p class="rec-desc">{{ libro.motivo }}</p>
+
+        <div class="rec-single-meta">
+          <span>{{ libro.materias }}</span>
+          <span *ngIf="libro.tiene_digital">Digital</span>
+          <span *ngIf="libro.tiene_fisico">Físico</span>
+          <span>{{ libro.confianza * 100 | number:'1.0-0' }}% de confianza</span>
+        </div>
+
+        <button type="button" (click)="abrirRecomendacion(libro)">
+          {{ libro.tiene_digital ? 'Leer ahora' : 'Consultar en biblioteca' }}
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </article>
+  </div>
+</section>
+
 <div class="bottom-nav" *ngIf="totalPages > 1">
   <button class="nav-btn" (click)="prevPage()" [disabled]="pageNum <= 1">&#9664;</button>
   <span class="page-info">{{ pageNum }} / {{ totalPages }}</span>

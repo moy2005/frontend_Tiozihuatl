@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../api/environments/environment.prod';
+import { BookRecommendation, CatalogService } from '../../../api/services/catalog.service';
+import { Subscription } from 'rxjs';
 import * as pdfjsLib from 'pdfjs-dist';
 
 @Component({
@@ -23,24 +25,35 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
   libroId!: string;
   tituloLibro = '';
   cargando = true;
+  recomendacion: BookRecommendation | null = null;
+  cargandoRecomendacion = false;
 
   private scrollHandler: any;
+  private resizeHandler: any;
   private resizeTimeout: any;
+  private routeSubscription?: Subscription;
   private renderTasks: Map<number, any> = new Map();
   private renderVersion = 0;
   private platformId = inject(PLATFORM_ID);
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private catalogService: CatalogService
+  ) {}
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
     pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.mjs';
 
-    this.libroId = this.route.snapshot.paramMap.get('id')!;
-    this.cargarPdf();
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (!id) return;
+      this.prepararLibro(id);
+    });
 
-    window.addEventListener('resize', () => {
+    this.resizeHandler = () => {
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
         if (this.pdfDoc) {
@@ -49,7 +62,8 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
           this.renderTodasLasPaginas();
         }
       }, 300);
-    });
+    };
+    window.addEventListener('resize', this.resizeHandler);
   }
 
   ngOnDestroy(): void {
@@ -58,7 +72,30 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
       try { task.cancel(); } catch (e) {}
     });
     this.renderTasks.clear();
+    this.routeSubscription?.unsubscribe();
+    this.pdfDoc?.destroy?.();
+    if (isPlatformBrowser(this.platformId)) {
+      window.removeEventListener('scroll', this.scrollHandler);
+      window.removeEventListener('resize', this.resizeHandler);
+    }
+  }
+
+  prepararLibro(id: string) {
+    this.cancelarRenderActual();
+    this.pdfDoc?.destroy?.();
+    this.pdfDoc = null;
+    this.libroId = id;
+    this.pageNum = 1;
+    this.totalPages = 0;
+    this.paginas = [];
+    this.scale = 1;
+    this.tituloLibro = '';
+    this.cargando = true;
+    this.recomendacion = null;
+    this.cargandoRecomendacion = false;
     window.removeEventListener('scroll', this.scrollHandler);
+    window.scrollTo({ top: 0 });
+    this.cargarPdf();
   }
 
   cargarPdf() {
@@ -67,7 +104,10 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
     fetch(`${environment.apiUrl}/catalog/libros/${this.libroId}/pdf-url`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error('No se pudo obtener el PDF.');
+      return r.json();
+    })
     .then(({ url, titulo }) => {
       this.tituloLibro = titulo || `Libro ${this.libroId}`;
       const loadingTask = pdfjsLib.getDocument({ url });
@@ -76,6 +116,7 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
         this.totalPages = pdf.numPages;
         this.paginas = Array.from({ length: this.totalPages }, (_, i) => i + 1);
         this.cargando = false;
+        this.cargarRecomendacion();
         setTimeout(() => {
           this.ajustarScale();
           this.renderTodasLasPaginas();
@@ -87,6 +128,37 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
       console.error('Error:', err);
       this.cargando = false;
     });
+  }
+
+  cargarRecomendacion() {
+    const id = Number(this.libroId);
+    if (!Number.isInteger(id) || this.cargandoRecomendacion) return;
+
+    this.cargandoRecomendacion = true;
+    this.catalogService.obtenerRecomendaciones(id, 1).subscribe({
+      next: (response) => {
+        this.recomendacion = response.recomendaciones[0] || null;
+        this.cargandoRecomendacion = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar la recomendación:', error);
+        this.recomendacion = null;
+        this.cargandoRecomendacion = false;
+      }
+    });
+  }
+
+  get lecturaTerminada(): boolean {
+    return this.totalPages > 0 && this.pageNum === this.totalPages;
+  }
+
+  abrirRecomendacion(libro: BookRecommendation) {
+    if (libro.tiene_digital) {
+      this.router.navigate(['/biblioteca/libro', libro.id]);
+      return;
+    }
+
+    this.router.navigate(['/catalogo'], { queryParams: { search: libro.titulo } });
   }
 
   ajustarScale() {
@@ -302,6 +374,8 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
 
  escucharScroll() {
   let ticking = false;
+
+  window.removeEventListener('scroll', this.scrollHandler);
 
   this.scrollHandler = () => {
     if (!ticking) {
