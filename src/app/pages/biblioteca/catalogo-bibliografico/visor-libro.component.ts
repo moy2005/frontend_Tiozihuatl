@@ -152,6 +152,12 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
     return this.totalPages > 0 && this.pageNum === this.totalPages;
   }
 
+  etiquetaRecomendacion(libro: BookRecommendation): string {
+    return libro.nivel_evidencia === 'CONSOLIDADA'
+      ? 'Coincidencia consolidada'
+      : 'Patrón de lectura relacionado';
+  }
+
   abrirRecomendacion(libro: BookRecommendation) {
     if (libro.tiene_digital) {
       this.router.navigate(['/biblioteca/libro', libro.id]);

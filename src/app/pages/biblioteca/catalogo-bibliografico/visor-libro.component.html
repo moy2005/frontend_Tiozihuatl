@@ -75,7 +75,7 @@
       <span class="rec-title-icon" aria-hidden="true">✦</span>
       <div>
         <h2 id="recommendations-title">Te recomendamos leer</h2>
-        <p>Seleccionado mediante reglas de asociación a partir de tu lectura actual.</p>
+        <p>Seleccionado exclusivamente mediante reglas de asociación Apriori.</p>
       </div>
     </header>
 
@@ -95,8 +95,10 @@
       </div>
 
       <div class="rec-single-info">
-        <span class="rule-badge" [class.consolidated]="libro.nivel_evidencia === 'CONSOLIDADA'">
-          {{ libro.nivel_evidencia === 'CONSOLIDADA' ? 'Coincidencia consolidada' : 'Coincidencia relacionada' }}
+        <span
+          class="rule-badge"
+          [class.consolidated]="libro.nivel_evidencia === 'CONSOLIDADA'">
+          {{ etiquetaRecomendacion(libro) }}
         </span>
         <h3>{{ libro.titulo }}</h3>
         <p class="rec-author">{{ libro.autores }}</p>

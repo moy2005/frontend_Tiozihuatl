@@ -40,7 +40,7 @@ export interface BookRecommendation {
 
 export interface BookRecommendationsResponse {
   libro_origen: { id: number; titulo: string };
-  modelo: { tipo: string; version: number; reglas_evaluadas: number };
+  modelo: { tipo: string; reglas_evaluadas: number };
   recomendaciones: BookRecommendation[];
 }
 
