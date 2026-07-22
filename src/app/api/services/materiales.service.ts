@@ -10,7 +10,7 @@ export interface MaterialesResponse {
   limit:      number;
   totalPages: number;
 }
-
+ 
 export interface MaterialRecommendationResponse {
   material: { id_material: number; titulo: string };
   recommendations: Array<any>;

@@ -16,7 +16,7 @@ import { AuthService } from '../../api/services/auth';
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class MaterialesComponent implements OnInit {
-
+  
   materiales: any[] = [];
   docentes:   any[] = [];
   materias:   any[] = [];
