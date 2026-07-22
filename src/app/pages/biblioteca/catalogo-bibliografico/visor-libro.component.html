@@ -75,7 +75,7 @@
       <span class="rec-title-icon" aria-hidden="true">✦</span>
       <div>
         <h2 id="recommendations-title">Te recomendamos leer</h2>
-        <p>Seleccionado exclusivamente mediante reglas de asociación Apriori.</p>
+      
       </div>
     </header>
 
@@ -108,7 +108,7 @@
           <span>{{ libro.materias }}</span>
           <span *ngIf="libro.tiene_digital">Digital</span>
           <span *ngIf="libro.tiene_fisico">Físico</span>
-          <span>{{ libro.confianza * 100 | number:'1.0-0' }}% de confianza</span>
+        4
         </div>
 
         <button type="button" (click)="abrirRecomendacion(libro)">
