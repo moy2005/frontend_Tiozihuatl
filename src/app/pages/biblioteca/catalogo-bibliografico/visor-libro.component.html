@@ -102,13 +102,13 @@
         </span>
         <h3>{{ libro.titulo }}</h3>
         <p class="rec-author">{{ libro.autores }}</p>
-        <p class="rec-desc">{{ libro.motivo }}</p>
+       
 
         <div class="rec-single-meta">
           <span>{{ libro.materias }}</span>
           <span *ngIf="libro.tiene_digital">Digital</span>
           <span *ngIf="libro.tiene_fisico">Físico</span>
-        4
+        
         </div>
 
         <button type="button" (click)="abrirRecomendacion(libro)">
