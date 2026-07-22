@@ -1,5 +1,5 @@
       @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap');
-
+      
 /* ============================================================
    VARIABLES
    ============================================================ */
@@ -24,6 +24,188 @@
   background: var(--surface);
   font-family: var(--ff);
   color: var(--ink);
+}
+
+/* ── Materiales recomendados ─────────────────────────────────── */
+.recomendaciones-materiales {
+  position: relative;
+  margin-top: 1.35rem;
+  padding: 1.35rem;
+  border: 1px solid #d8e7f3;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #f8fcff 0%, #f4fbf8 100%);
+  box-shadow: 0 10px 28px rgba(39, 89, 122, .08);
+}
+
+.recomendaciones-materiales::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 28px;
+  width: 76px; height: 4px;
+  border-radius: 0 0 5px 5px;
+  background: linear-gradient(90deg, #3fa6e8, #46b27a);
+}
+
+.recomendaciones-encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.recomendaciones-eyebrow {
+  display: block;
+  margin-bottom: .25rem;
+  color: #24744f;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.recomendaciones-encabezado h3 {
+  margin: 0;
+  color: #18324a;
+  font-size: 1.15rem;
+}
+
+.recomendaciones-intro {
+  margin: .32rem 0 0;
+  color: #6a7b8b;
+  font-size: .8rem;
+}
+
+.recomendaciones-badge {
+  padding: .35rem .65rem;
+  border-radius: 999px;
+  background: #e4f4eb;
+  color: #17613e;
+  font-size: .75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.recomendaciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: .85rem;
+}
+
+.recomendacion-card {
+  display: flex;
+  gap: .8rem;
+  padding: 1rem;
+  border: 1px solid #d9e4ef;
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.recomendacion-card:hover,
+.recomendacion-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: #78b79a;
+  box-shadow: 0 10px 24px rgba(31, 72, 102, .11);
+  outline: none;
+}
+
+.recomendacion-icono {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #edf4fb;
+  color: #245b85;
+  font-size: 1.25rem;
+}
+
+.recomendacion-contenido {
+  min-width: 0;
+  flex: 1;
+}
+
+.recomendacion-meta,
+.recomendacion-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.recomendacion-meta {
+  color: #66798a;
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.recomendacion-meta span:last-child {
+  color: #34845e;
+}
+
+.recomendacion-contenido h4 {
+  margin: .35rem 0;
+  color: #18324a;
+  font-size: .92rem;
+  line-height: 1.3;
+}
+
+.recomendacion-contenido p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0 0 .65rem;
+  color: #607184;
+  font-size: .76rem;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.recomendacion-pie span {
+  overflow: hidden;
+  color: #597082;
+  font-size: .68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recomendacion-pie button {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  border: 0;
+  background: transparent;
+  color: #1b7048;
+  font-size: .72rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.recomendaciones-cargando,
+.recomendaciones-vacio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  min-height: 76px;
+  border: 1px dashed #bfd0df;
+  border-radius: 12px;
+  color: #607184;
+  font-size: .85rem;
+}
+
+.recomendaciones-cargando i { animation: spin 1s linear infinite; }
+.recomendaciones-error { color: #a33a3a; border-color: #e5b7b7; }
+
+@media (max-width: 720px) {
+  .recomendaciones-materiales { padding: .9rem; }
+  .recomendaciones-grid { grid-template-columns: 1fr; }
+  .recomendaciones-encabezado { align-items: center; }
 }
 
 /* ============================================================
@@ -526,12 +708,13 @@
 
 /* Body */
 .modal-body {
-  flex: 1; display: flex;
-  gap: 0; padding: 0; overflow: hidden;
+  flex: 1; display: flex; flex-direction: column;
+  gap: 0; padding: 0 1rem 1rem; overflow-y: auto;
 }
 
 .layout-preview {
-  display: flex; width: 100%; height: 100%;
+  display: flex; width: 100%;
+  min-height: 540px; height: 62vh; flex-shrink: 0;
 }
 
 /* Visor — ocupa todo el espacio */
