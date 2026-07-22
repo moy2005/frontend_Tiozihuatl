@@ -44,6 +44,21 @@ export interface BookRecommendationsResponse {
   recomendaciones: BookRecommendation[];
 }
 
+export interface ClusterBook {
+  id: number; titulo: string; autores: string; editorial: string; materias: string | null;
+  disponibles: number | null; tiene_digital: boolean; tiene_fisico: boolean; previewUrl: string | null;
+}
+
+export interface ReadingProfileShelf {
+  cluster: number; label: string; profileName: string; description: string; icon: string;
+  totalBooks: number; books: ClusterBook[];
+}
+
+export interface ReadingProfilesResponse {
+  model: { type: string; k: number; generatedAt: string };
+  shelves: ReadingProfileShelf[];
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -96,6 +111,12 @@ export class CatalogService {
     return this.http.get<BookRecommendationsResponse>(
       `${API_URL}/recommendations/books/${id}`,
       { params: { limit } }
+    );
+  }
+
+  obtenerPerfilesLectura(limit = 12) {
+    return this.http.get<ReadingProfilesResponse>(
+      `${API_URL}/recommendations/clusters/student`, { params: { limit } }
     );
   }
 

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
-import { CatalogService, Libro } from '../../../api/services/catalog.service';
+import { CatalogService, ClusterBook, Libro, ReadingProfileShelf } from '../../../api/services/catalog.service';
 import { PrestamoService } from '../../../api/services/prestamo.service';
 import { SafeUrlPipe } from '../../../pipes/safe-url.pipe';
 import { Router } from '@angular/router';
@@ -39,6 +39,9 @@ export class CatalogoComponent implements OnInit, OnDestroy {
 
   filtroSemestre = '';
   semestres: any[] = [];
+  perfilesLectura: ReadingProfileShelf[] = [];
+  perfilActivo = 0;
+  cargandoPerfiles = true;
 
   private searchSubject = new Subject<string>();
   private destroy$      = new Subject<void>();
@@ -53,6 +56,7 @@ export class CatalogoComponent implements OnInit, OnDestroy {
     this.cargarMaterias();
     this._ejecutarCarga();
     this.cargarSemestres();
+    this.cargarPerfilesLectura();
 
     this.searchSubject.pipe(
       debounceTime(400),
@@ -61,6 +65,29 @@ export class CatalogoComponent implements OnInit, OnDestroy {
       this.search = valor;
       this._ejecutarCarga();
     });
+  }
+
+  cargarPerfilesLectura(): void {
+    this.catalogService.obtenerPerfilesLectura(24).subscribe({
+      next: (res) => {
+        this.perfilesLectura = res.shelves;
+        this.perfilActivo = res.shelves[0]?.cluster ?? 0;
+        this.cargandoPerfiles = false;
+      },
+      error: () => { this.cargandoPerfiles = false; }
+    });
+  }
+
+  get perfilSeleccionado(): ReadingProfileShelf | undefined {
+    return this.perfilesLectura.find((perfil) => perfil.cluster === this.perfilActivo);
+  }
+
+  abrirLibroCluster(libro: ClusterBook): void {
+    if (libro.tiene_digital) this.router.navigate(['/biblioteca/libro', libro.id]);
+  }
+
+  desplazarLibros(contenedor: HTMLElement, direccion: number): void {
+    contenedor.scrollBy({ left: direccion * Math.min(contenedor.clientWidth * 0.8, 760), behavior: 'smooth' });
   }
 
   ngOnDestroy(): void {

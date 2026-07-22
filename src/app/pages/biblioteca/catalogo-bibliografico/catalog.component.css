@@ -671,3 +671,49 @@ body {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 *:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Rutas de lectura generadas por el modelo de clustering. */
+.reading-profiles { max-width:1680px; margin:1.25rem auto .5rem; padding:1.35rem 2rem 1.5rem; background:linear-gradient(135deg,#f7fbff,#fff); border:1px solid #cfe6f8; border-radius:18px; box-shadow:0 12px 35px rgba(20,99,153,.09); }
+.reading-profiles-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
+.reading-profiles-title { display:flex; gap:.9rem; align-items:center; }
+.reading-profiles-icon { display:grid; place-items:center; width:48px; height:48px; flex:0 0 48px; border-radius:14px; background:linear-gradient(145deg,#42aae5,#218ed2); color:#fff; font-size:1.55rem; }
+.reading-profiles-eyebrow { color:#1682c3; font-size:.72rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
+.reading-profiles h2 { margin:.12rem 0 .15rem; color:#123b5a; font-size:1.35rem; }
+.reading-profiles-heading p { margin:0; color:#5c7487; font-size:.86rem; }
+.profile-tabs { display:flex; gap:.55rem; margin:1.1rem 0 .8rem 3.9rem; flex-wrap:wrap; }
+.profile-tabs button { display:flex; align-items:center; gap:.4rem; padding:.55rem .9rem; border:1px solid #c7ddeb; border-radius:999px; background:#fff; color:#41647b; font-weight:700; cursor:pointer; }
+.profile-tabs button.active { border-color:#2799dd; background:#2799dd; color:#fff; box-shadow:0 5px 14px rgba(39,153,221,.24); }
+.profile-count { display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 5px; border-radius:999px; background:#e4f3fc; color:#177ebc; font-size:.65rem; }
+.profile-tabs button.active .profile-count { background:rgba(255,255,255,.22); color:#fff; }
+.profile-context { display:flex; gap:.5rem; align-items:baseline; margin:0 0 .9rem 3.9rem; font-size:.82rem; color:#617a8c; }
+.profile-context strong { color:#173f5c; }
+.profile-total { margin-left:auto; color:#1884c4; font-size:.72rem; font-weight:800; }
+.profile-carousel { position:relative; }
+.profile-books { display:flex; gap:.85rem; overflow-x:auto; padding:.15rem 2.4rem .75rem; scroll-behavior:smooth; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:#8cc9ec #eaf5fb; }
+.profile-book { display:flex; min-width:390px; width:390px; height:142px; overflow:hidden; border:1px solid #dce9f2; border-radius:13px; background:#fff; transition:.2s ease; scroll-snap-align:start; }
+.carousel-button { position:absolute; z-index:2; top:50%; display:grid; place-items:center; width:34px; height:48px; padding:0; transform:translateY(-55%); border:1px solid #b9dcef; border-radius:10px; background:rgba(255,255,255,.96); color:#188fd2; box-shadow:0 5px 14px rgba(25,98,145,.16); cursor:pointer; }
+.carousel-button.previous { left:-.35rem; }
+.carousel-button.next { right:-.35rem; }
+.profile-book.clickable { cursor:pointer; }
+.profile-book.clickable:hover { transform:translateY(-3px); border-color:#75bce8; box-shadow:0 9px 20px rgba(33,108,158,.13); }
+.profile-cover { display:grid; place-items:center; width:92px; flex:0 0 92px; overflow:hidden; background:linear-gradient(150deg,#dff1fc,#bcdff4); color:#4c98c5; font-size:2rem; }
+.profile-cover img { width:100%; height:100%; object-fit:cover; }
+.profile-book-copy { display:flex; flex-direction:column; min-width:0; padding:.75rem; }
+.profile-type { overflow:hidden; color:#2a8bc5; font-size:.62rem; font-weight:800; white-space:nowrap; text-overflow:ellipsis; text-transform:uppercase; }
+.profile-book h3 { display:-webkit-box; overflow:hidden; margin:.3rem 0; color:#173b55; font-size:.86rem; line-height:1.25; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+.profile-book p { overflow:hidden; margin:0; color:#6b7f8d; font-size:.68rem; white-space:nowrap; text-overflow:ellipsis; }
+.profile-access { display:flex; align-items:center; gap:.25rem; margin-top:auto; color:#1587ca; font-size:.68rem; font-weight:800; }
+.profile-access.physical { color:#668090; }
+.profiles-loading { display:flex; gap:.75rem; margin-top:1rem; }
+.profiles-loading span { height:130px; flex:1; border-radius:12px; background:linear-gradient(90deg,#edf5fa,#f8fbfd,#edf5fa); background-size:200% 100%; animation:cluster-loading 1.4s infinite; }
+@keyframes cluster-loading { to { background-position:-200% 0; } }
+@media (max-width:700px) {
+  .reading-profiles { margin:.8rem .85rem; padding:1rem; }
+  .profile-tabs,.profile-context { margin-left:0; }
+  .profile-context { display:block; }
+  .profile-context strong { display:block; margin-bottom:.2rem; }
+  .profile-total { display:block; margin:.25rem 0 0; }
+  .profile-books { padding:.1rem 0 .5rem; }
+  .profile-book { min-width:280px; scroll-snap-align:start; }
+  .carousel-button { display:none; }
+}

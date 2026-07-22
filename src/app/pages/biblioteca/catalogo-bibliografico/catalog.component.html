@@ -127,6 +127,59 @@
 <!-- ═══════════════════════════════════════
      CONTENIDO
      ═══════════════════════════════════════ -->
+<section class="reading-profiles" *ngIf="cargandoPerfiles || perfilesLectura.length">
+  <div class="reading-profiles-heading">
+    <div class="reading-profiles-title">
+      <span class="reading-profiles-icon"><ion-icon name="analytics-outline"></ion-icon></span>
+      <div>
+        <span class="reading-profiles-eyebrow">Explora según tu forma de estudiar</span>
+        <h2>Rutas de lectura</h2>
+        <p>Libros agrupados según el comportamiento de lectura de la comunidad estudiantil.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="profiles-loading" *ngIf="cargandoPerfiles"><span></span><span></span><span></span></div>
+
+  <ng-container *ngIf="!cargandoPerfiles && perfilSeleccionado as perfil">
+    <div class="profile-tabs" role="tablist" aria-label="Perfiles de lectura">
+      <button *ngFor="let opcion of perfilesLectura" type="button" role="tab"
+        [attr.aria-selected]="opcion.cluster === perfilActivo"
+        [class.active]="opcion.cluster === perfilActivo" (click)="perfilActivo = opcion.cluster">
+        <ion-icon [name]="opcion.icon"></ion-icon>
+        {{ opcion.label }}
+        <span class="profile-count">{{ opcion.totalBooks }}</span>
+      </button>
+    </div>
+    <div class="profile-context">
+      <strong>{{ perfil.label }}</strong>
+      <span>{{ perfil.description }}</span>
+      <span class="profile-total">Mostrando {{ perfil.books.length }} de {{ perfil.totalBooks }} libros</span>
+    </div>
+    <div class="profile-carousel">
+      <button class="carousel-button previous" type="button" aria-label="Ver libros anteriores"
+        (click)="desplazarLibros(profileTrack, -1)"><ion-icon name="chevron-back-outline"></ion-icon></button>
+      <div class="profile-books" #profileTrack>
+      <article class="profile-book" *ngFor="let libro of perfil.books"
+        [class.clickable]="libro.tiene_digital" (click)="abrirLibroCluster(libro)">
+        <div class="profile-cover">
+          <img *ngIf="libro.previewUrl" [src]="libro.previewUrl" [alt]="libro.titulo" loading="lazy">
+          <ion-icon *ngIf="!libro.previewUrl" name="book-outline"></ion-icon>
+        </div>
+        <div class="profile-book-copy">
+          <span class="profile-type">{{ libro.materias || 'Biblioteca digital' }}</span>
+          <h3>{{ libro.titulo }}</h3><p>{{ libro.autores }}</p>
+          <span class="profile-access" *ngIf="libro.tiene_digital"><ion-icon name="open-outline"></ion-icon>Abrir lectura</span>
+          <span class="profile-access physical" *ngIf="!libro.tiene_digital"><ion-icon name="library-outline"></ion-icon>Disponible en biblioteca</span>
+        </div>
+      </article>
+      </div>
+      <button class="carousel-button next" type="button" aria-label="Ver más libros"
+        (click)="desplazarLibros(profileTrack, 1)"><ion-icon name="chevron-forward-outline"></ion-icon></button>
+    </div>
+  </ng-container>
+</section>
+
 <div class="biblioteca-layout">
 
   <!-- Spinner solo en la carga inicial -->
