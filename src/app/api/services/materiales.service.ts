@@ -11,6 +11,18 @@ export interface MaterialesResponse {
   totalPages: number;
 }
 
+export interface MaterialRecommendationResponse {
+  material: { id_material: number; titulo: string };
+  recommendations: Array<any>;
+  model: {
+    transactions: number;
+    uniqueMaterials: number;
+    periodStart: string;
+    periodEnd: string;
+    catalogCoverage: number;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class MaterialesService {
 
@@ -88,6 +100,16 @@ export class MaterialesService {
 
   getSemestres() {
     return this.http.get(`${this.api}/semestres`);
+  }
+
+  getRecommendations(idMaterial: number, historyIds: number[] = [], limit = 3): Observable<MaterialRecommendationResponse> {
+    const params = new HttpParams()
+      .set('limit', String(limit))
+      .set('history', historyIds.slice(-10).join(','));
+    return this.http.get<MaterialRecommendationResponse>(
+      `${this.api}/recomendaciones/${idMaterial}`,
+      { params }
+    );
   }
 
   changeStatus(id: number, estado: number) {

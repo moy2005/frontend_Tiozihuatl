@@ -47,6 +47,10 @@ export class MaterialesComponent implements OnInit {
   materialSeleccionado: any = null;
   zoomActivo           = false;
   iframeLoading        = true;
+  recomendaciones: any[] = [];
+  cargandoRecomendaciones = false;
+  errorRecomendaciones = false;
+  materialesConsultados = new Set<number>();
 
   constructor(
     private service:     MaterialesService,
@@ -146,12 +150,45 @@ export class MaterialesComponent implements OnInit {
     this.modalAbierto         = true;
     this.iframeLoading        = true;
     this.zoomActivo           = false;
+    this.materialesConsultados = new Set<number>();
+    if (material?.id_material) this.materialesConsultados.add(Number(material.id_material));
+    this.cargarRecomendaciones(material?.id_material);
   }
 
   cerrarModal() {
     this.modalAbierto         = false;
     this.materialSeleccionado = null;
     this.zoomActivo           = false;
+    this.recomendaciones      = [];
+    this.cargandoRecomendaciones = false;
+    this.errorRecomendaciones = false;
+    this.materialesConsultados.clear();
+  }
+
+  cargarRecomendaciones(idMaterial: number) {
+    this.recomendaciones = [];
+    this.errorRecomendaciones = false;
+    if (!idMaterial) return;
+
+    this.cargandoRecomendaciones = true;
+    this.service.getRecommendations(idMaterial, [...this.materialesConsultados], 3).subscribe({
+      next: (res) => {
+        this.recomendaciones = res.recommendations ?? [];
+        this.cargandoRecomendaciones = false;
+      },
+      error: () => {
+        this.errorRecomendaciones = true;
+        this.cargandoRecomendaciones = false;
+      }
+    });
+  }
+
+  abrirRecomendacion(material: any) {
+    if (material?.id_material) this.materialesConsultados.add(Number(material.id_material));
+    this.materialSeleccionado = material;
+    this.iframeLoading = true;
+    this.zoomActivo = false;
+    this.cargarRecomendaciones(material?.id_material);
   }
 
   toggleZoom() { this.zoomActivo = !this.zoomActivo; }

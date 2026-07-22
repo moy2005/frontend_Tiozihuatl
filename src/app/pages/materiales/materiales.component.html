@@ -27,6 +27,7 @@
           <i class="ph ph-magnifying-glass"></i>
         </button>
       </div>
+
     </div>
 
     <div class="hero-wave">
@@ -105,6 +106,7 @@
           <span class="sk sk-line w-55"></span>
         </div>
       </div>
+
     </div>
 
     <!-- EMPTY STATE -->
@@ -153,6 +155,7 @@
         </div>
 
       </div>
+
     </div>
 
     <!-- ── PAGINACIÓN ─────────────────────── -->
@@ -307,6 +310,58 @@
         </div>
 
       </div>
+
+      <section class="recomendaciones-materiales" aria-labelledby="titulo-recomendaciones">
+        <div class="recomendaciones-encabezado">
+          <div>
+            <span class="recomendaciones-eyebrow">Continúa aprendiendo</span>
+            <h3 id="titulo-recomendaciones">También te puede ayudar</h3>
+            <p class="recomendaciones-intro">Recursos relacionados con los materiales que has consultado.</p>
+          </div>
+          <span class="recomendaciones-badge" *ngIf="recomendaciones.length">
+            {{ recomendaciones.length }} sugerencia{{ recomendaciones.length === 1 ? '' : 's' }}
+          </span>
+        </div>
+
+        <div class="recomendaciones-cargando" *ngIf="cargandoRecomendaciones">
+          <i class="ph ph-spinner"></i>
+          <span>Buscando materiales relacionados...</span>
+        </div>
+
+        <div class="recomendaciones-grid" *ngIf="!cargandoRecomendaciones && recomendaciones.length">
+          <article class="recomendacion-card" *ngFor="let recomendado of recomendaciones"
+            (click)="abrirRecomendacion(recomendado)" tabindex="0"
+            (keydown.enter)="abrirRecomendacion(recomendado)">
+            <div class="recomendacion-icono" [ngClass]="getClaseTipo(recomendado.tipo)">
+              <i [class]="'ph ' + getIconoTipo(recomendado.tipo)"></i>
+            </div>
+            <div class="recomendacion-contenido">
+              <div class="recomendacion-meta">
+                <span>{{ recomendado.tipo }}</span>
+                <span>Contenido relacionado</span>
+              </div>
+              <h4>{{ recomendado.titulo }}</h4>
+              <p>{{ recomendado.descripcion || 'Material complementario relacionado con tu consulta.' }}</p>
+              <div class="recomendacion-pie">
+                <span *ngIf="recomendado.materias">{{ recomendado.materias }}</span>
+                <button type="button" (click)="$event.stopPropagation(); abrirRecomendacion(recomendado)">
+                  Ver material <i class="ph ph-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="recomendaciones-vacio" *ngIf="!cargandoRecomendaciones && !recomendaciones.length && !errorRecomendaciones">
+          <i class="ph ph-books"></i>
+          <span>No hay más materiales relacionados por el momento.</span>
+        </div>
+
+        <div class="recomendaciones-vacio recomendaciones-error" *ngIf="errorRecomendaciones">
+          <i class="ph ph-warning-circle"></i>
+          <span>No fue posible cargar las recomendaciones.</span>
+        </div>
+      </section>
     </div>
 
   </div>
