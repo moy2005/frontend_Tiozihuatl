@@ -1,5 +1,6 @@
 * { font-family: 'Montserrat', sans-serif; }
 body { padding-top: 150px; }
+body.home-navbar-route { padding-top: 0; }
 
 .fade-in {
   animation: fadeIn 1s ease-in-out forwards;
@@ -71,8 +72,22 @@ body { padding-top: 150px; }
   pointer-events: none;
 }
 
+.navbar-desktop.home-route .navbar-top {
+  max-height: 0;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .navbar-desktop.scrolled .navbar-bottom {
   padding: 0.5rem 0;
+  background: rgba(63, 166, 232, 0.88);
+  backdrop-filter: blur(14px) saturate(1.6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+}
+
+.navbar-desktop.home-route.home-scrolled .navbar-bottom,
+.navbar-mobile.home-route.home-scrolled {
   background: rgba(63, 166, 232, 0.88);
   backdrop-filter: blur(14px) saturate(1.6);
   -webkit-backdrop-filter: blur(14px) saturate(1.6);
@@ -100,6 +115,12 @@ body { padding-top: 150px; }
   width: 44px;
 }
 
+.navbar-desktop.home-route .navbar-compact-logo {
+  opacity: var(--home-brand-progress, 0);
+  width: calc(44px * var(--home-brand-progress, 0));
+  transition: none;
+}
+
 .navbar-compact-sep {
   display: none;
   width: 1px;
@@ -111,6 +132,32 @@ body { padding-top: 150px; }
 
 .navbar-desktop.scrolled .navbar-compact-sep {
   display: block;
+}
+
+.navbar-desktop.home-route .navbar-compact-sep {
+  display: block;
+  opacity: var(--home-brand-progress, 0);
+  width: calc(1px * var(--home-brand-progress, 0));
+  margin-left: calc(2px * var(--home-brand-progress, 0));
+  margin-right: calc(6px * var(--home-brand-progress, 0));
+}
+
+.navbar-mobile-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.navbar-mobile.home-route .navbar-mobile-brand-logo {
+  width: calc(48px * var(--home-brand-progress, 0));
+  height: 48px;
+  opacity: var(--home-brand-progress, 0);
+}
+
+.navbar-mobile.home-route .navbar-mobile-institution-name {
+  display: none;
 }
 
 /* ========== MENÚ HAMBURGUESA ========== */
@@ -726,18 +773,74 @@ body { padding-top: 150px; }
 }
 
 @media (max-width: 1023px) {
-    body { padding-top: 70px; }
+  body { padding-top: 70px; }
   .navbar-desktop { display: none !important; }
   .navbar-mobile { display: block !important; }
   .hamburger-btn { display: flex; }
   .mobile-menu { top: 68px; }
   #menu-toggle:checked ~ .mobile-menu { max-height: calc(100vh - 68px); }
+  .navbar-mobile.home-route .mobile-menu {
+    top: 72px;
+  }
+  .navbar-mobile.home-route #menu-toggle:checked ~ .mobile-menu {
+    max-height: calc(100dvh - 72px);
+  }
   .user-name { display: none; }
   .institution-name { font-size: 0.875rem; }
 }
 
 @media (max-width: 640px) {
   .institution-name { font-size: 0.75rem; }
+}
+
+@media (max-width: 360px) {
+  .navbar-mobile > .px-4 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .navbar-mobile.home-route .navbar-mobile-brand-logo {
+    width: calc(42px * var(--home-brand-progress, 0));
+    height: 42px;
+  }
+
+  .navbar-mobile.home-route .navbar-mobile-brand-logo img {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .navbar-mobile.home-route .mobile-menu {
+    top: 66px;
+  }
+
+  .navbar-mobile.home-route #menu-toggle:checked ~ .mobile-menu {
+    max-height: calc(100dvh - 66px);
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) and (max-width: 1023px) {
+  .navbar-mobile.home-route .navbar-mobile-brand-logo {
+    width: calc(38px * var(--home-brand-progress, 0)) !important;
+    height: 38px !important;
+  }
+
+  .navbar-mobile.home-route .navbar-mobile-brand-logo img {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .navbar-mobile.home-route > .px-4 {
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+  }
+
+  .navbar-mobile.home-route .mobile-menu {
+    top: 52px;
+  }
+
+  .navbar-mobile.home-route #menu-toggle:checked ~ .mobile-menu {
+    max-height: calc(100dvh - 52px);
+  }
 }
 
 /* ========== USER NAME SKELETON ========== */

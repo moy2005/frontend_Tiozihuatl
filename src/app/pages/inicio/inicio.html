@@ -1,27 +1,56 @@
-<section id="inicio" class="relative pt-32 pb-24 bg-[#3FA6E8] text-white overflow-hidden">
-  <div
-    class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581092919535-7146e93e06f8?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center">
-  </div>
-  <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-16 items-center fade-in">
-    <div>
-      <span class="inline-block mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold tracking-wide border border-white/20">
-        Centro de formacion profesional
-      </span>
-      <h1 class="texto text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-md">
-        Vocacion, <br> <span class="text-white/90">Fe y Esperanza</span>
+<div
+  class="home-brand-sentinel"
+  data-home-brand-sentinel
+  #brandSentinel>
+  <div class="home-brand-sticky">
+    <section id="inicio" class="relative bg-[#3FA6E8] text-white overflow-hidden">
+      <div
+        #heroBackdrop
+        class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581092919535-7146e93e06f8?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center">
+      </div>
+      <div
+        #heroContent
+        class="home-main-hero-content relative z-10 max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <span class="inline-block mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold tracking-wide border border-white/20">
+            Centro de formacion profesional
+          </span>
+          <h1 class="texto text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-md">
+            Vocacion, <br> <span class="text-white/90">Fe y Esperanza</span>
+          </h1>
+          <p class="text-lg text-white/85 mb-8 leading-relaxed max-w-lg">
+            La enfermeria es una mezcla de ciencia, servicio, amor y compromiso, celebramos con gratitud y admiracion a
+            quienes, con manos calidas y corazones fuertes cada dia dan su amor y cuidado.
+          </p>
+        </div>
+      </div>
+      <svg
+        #heroWave
+        class="home-main-hero-wave absolute bottom-0 left-0 w-full"
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none">
+        <path fill="#ffffff" fill-opacity="1"
+          d="M0,256L80,229.3C160,203,320,149,480,138.7C640,128,800,160,960,176C1120,192,1280,192,1360,192L1440,192L1440,320L0,320Z"/>
+      </svg>
+    </section>
+
+    <div class="home-brand-overlay" #brandOverlay>
+      <div class="home-brand-logo-wrap" #brandLogo>
+        <img
+          src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
+          alt="Logo del Instituto de Estudios Superiores Tiozihuatl"
+          class="home-brand-logo"
+        />
+      </div>
+      <h1 class="home-brand-name" #brandName>
+        Instituto de Estudios Superiores
       </h1>
-      <p class="text-lg text-white/85 mb-8 leading-relaxed max-w-lg">
-        La enfermeria es una mezcla de ciencia, servicio, amor y compromiso, celebramos con gratitud y admiracion a
-        quienes, con manos calidas y corazones fuertes cada dia dan su amor y cuidado.
-      </p>
-      <br><br><br>
+      <h1 class="home-brand-name-sub" #brandNameSub>
+        Tiozihuatl
+      </h1>
     </div>
   </div>
-  <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 320" preserveAspectRatio="none">
-    <path fill="#ffffff" fill-opacity="1"
-      d="M0,256L80,229.3C160,203,320,149,480,138.7C640,128,800,160,960,176C1120,192,1280,192,1360,192L1440,192L1440,320L0,320Z"/>
-  </svg>
-</section>
+</div>
 
 <section id="noticias" class="home-news-section">
   <div *ngIf="cargandoNoticias" class="home-news-skeleton-list" aria-label="Cargando noticias..." aria-busy="true">
@@ -87,11 +116,13 @@
   </div>
 
   <div *ngIf="!cargandoNoticias && noticiasRender.length > 0" class="home-news-list">
-    <ng-container *ngFor="let group of noticiasRender">
+    <ng-container *ngFor="let group of noticiasRender; let groupIndex = index">
       <ng-container *ngIf="group.layout === 'landscape'">
         <article
           *ngIf="group.item as noticia"
-          class="home-news-card home-news-card--landscape">
+          #revealItem
+          class="home-news-card home-news-card--landscape home-scroll-reveal"
+          [style.--reveal-index]="groupIndex % 3">
           <div
             class="home-news-media home-news-media--landscape"
             *ngIf="noticia.imagen_url || noticia.video_url"
@@ -118,8 +149,10 @@
       <ng-container *ngIf="group.layout === 'grid'">
         <div class="home-news-grid-row" [class.home-news-grid-row--single]="(group.items?.length || 0) === 1">
           <article
-            *ngFor="let noticia of group.items"
-            class="home-news-card home-news-card--grid"
+            *ngFor="let noticia of group.items; let cardIndex = index"
+            #revealItem
+            class="home-news-card home-news-card--grid home-scroll-reveal"
+            [style.--reveal-index]="cardIndex"
             [ngClass]="obtenerClaseGrid(noticia)">
             <div
               class="home-news-media home-news-media--grid"
@@ -152,9 +185,11 @@
   <div class="events-home-inner">
     <div class="events-home-grid">
       <a
-        *ngFor="let evento of eventosPreview"
+        *ngFor="let evento of eventosPreview; let eventIndex = index"
+        #revealItem
+        [style.--reveal-index]="eventIndex"
         [routerLink]="['/eventos', evento.id_evento]"
-        class="events-home-card">
+        class="events-home-card home-scroll-reveal">
         <div
           class="events-home-media"
           [style.aspect-ratio]="obtenerAspectRatioEventoCss(evento)">

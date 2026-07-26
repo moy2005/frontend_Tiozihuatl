@@ -1,4 +1,9 @@
-<nav class="navbar-desktop fixed top-0 left-0 right-0 z-50" [class.scrolled]="isScrolled">
+<nav
+  class="navbar-desktop fixed top-0 left-0 right-0 z-50"
+  [class.scrolled]="isScrolled && !isInicioRoute"
+  [class.home-route]="isInicioRoute"
+  [class.home-scrolled]="isInicioRoute && homeIntroProgress > 0.02"
+  [style.--home-brand-progress]="homeBrandReveal">
   <div class="navbar-top">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-center gap-4">
@@ -274,18 +279,24 @@
   </div>
 </nav>
 
-<nav class="navbar-mobile fixed top-0 left-0 right-0 z-50 bg-[#3FA6E8]">
+<nav
+  class="navbar-mobile fixed top-0 left-0 right-0 z-50 bg-[#3FA6E8]"
+  [class.home-route]="isInicioRoute"
+  [class.home-scrolled]="isInicioRoute && homeIntroProgress > 0.02"
+  [style.--home-brand-progress]="homeBrandReveal">
   <input type="checkbox" id="menu-toggle" [checked]="isMobileMenuOpen" (change)="toggleMobileMenu($event)" />
 
   <div class="px-4 py-3">
     <div class="flex items-center justify-between">
-      <div class="flex items-center justify-center gap-2 flex-1">
-        <img
-          src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
-          alt="Logo del Instituto Tiozihuatl"
-          class="w-12 h-12 rounded-lg shadow-sm"
-        />
-        <div class="institution-name text-center">
+      <div class="navbar-mobile-brand flex items-center justify-center gap-2 flex-1">
+        <span class="navbar-mobile-brand-logo">
+          <img
+            src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
+            alt="Logo del Instituto Tiozihuatl"
+            class="w-12 h-12 rounded-lg shadow-sm"
+          />
+        </span>
+        <div class="institution-name navbar-mobile-institution-name text-center">
           Instituto de Estudios Superiores Tiozihuatl
         </div>
       </div>

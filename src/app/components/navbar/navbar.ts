@@ -20,6 +20,8 @@ export class Navbar implements OnInit, OnDestroy {
   isAuthenticated = false;
   userName = '';
   userRole = '';
+  isInicioRoute = false;
+  homeIntroProgress = 0;
 
   /** Indica que los datos del usuario aún están cargando */
   loadingUser = false;
@@ -51,19 +53,23 @@ export class Navbar implements OnInit, OnDestroy {
   ) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
+      .subscribe((event) => {
+        this.actualizarRutaInicio((event as NavigationEnd).urlAfterRedirects);
         this.verificarAutenticacion();
         this.panelInstitucionalActivo = null;
         this.isMobileMenuOpen = false;
+        this.onScroll();
       });
   }
 
   ngOnInit() {
+    this.actualizarRutaInicio(this.router.url);
     this.verificarAutenticacion();
     this.cargarNoticiasMenu();
     this.cargarEventosMenu();
 
     this.isScrolled = window.scrollY > this.SCROLL_THRESHOLD;
+    this.homeIntroProgress = this.calcularProgresoInicio();
 
     this.ngZone.runOutsideAngular(() => {
       window.addEventListener('scroll', this.onScroll, { passive: true });
@@ -75,17 +81,61 @@ export class Navbar implements OnInit, OnDestroy {
     clearTimeout(this.panelHideTimeout);
     window.removeEventListener('scroll', this.onScroll);
     cancelAnimationFrame(this.scrollRafId);
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('home-navbar-route');
+    }
   }
 
   private onScroll = (): void => {
     cancelAnimationFrame(this.scrollRafId);
     this.scrollRafId = requestAnimationFrame(() => {
       const shouldBeScrolled = window.scrollY > this.SCROLL_THRESHOLD;
-      if (shouldBeScrolled !== this.isScrolled) {
-        this.ngZone.run(() => { this.isScrolled = shouldBeScrolled; });
+      const nextHomeProgress = this.isInicioRoute ? this.calcularProgresoInicio() : 0;
+
+      if (
+        shouldBeScrolled !== this.isScrolled ||
+        Math.abs(nextHomeProgress - this.homeIntroProgress) > 0.001
+      ) {
+        this.ngZone.run(() => {
+          this.isScrolled = shouldBeScrolled;
+          this.homeIntroProgress = nextHomeProgress;
+        });
       }
     });
   };
+
+  get homeBrandReveal(): number {
+    if (!this.isInicioRoute) return 1;
+    return Math.min(1, Math.max(0, (this.homeIntroProgress - 0.8) / 0.16));
+  }
+
+  private actualizarRutaInicio(url: string): void {
+    const cleanUrl = (url || '').split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
+    this.isInicioRoute = cleanUrl === '/' || cleanUrl === '/inicio';
+    if (!this.isInicioRoute) {
+      this.homeIntroProgress = 0;
+    }
+
+    if (typeof document !== 'undefined') {
+      document.body.classList.toggle('home-navbar-route', this.isInicioRoute);
+    }
+  }
+
+  private calcularProgresoInicio(): number {
+    if (typeof document === 'undefined' || typeof window === 'undefined') return 0;
+
+    const sentinel = document.querySelector('[data-home-brand-sentinel]') as HTMLElement | null;
+    if (!sentinel) return 0;
+
+    const scrollY = window.scrollY;
+    const sentinelTop = sentinel.getBoundingClientRect().top + scrollY;
+    const sticky = sentinel.querySelector('.home-brand-sticky') as HTMLElement | null;
+    const visibleHeight = sticky?.clientHeight || window.innerHeight;
+    const scrollEnd = sentinelTop + sentinel.offsetHeight - visibleHeight;
+
+    if (scrollEnd <= sentinelTop) return scrollY > sentinelTop ? 1 : 0;
+    return Math.min(1, Math.max(0, (scrollY - sentinelTop) / (scrollEnd - sentinelTop)));
+  }
 
   // ── Auth ────────────────────────────────────────────────────────────
 
