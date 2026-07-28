@@ -4,14 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { CatalogService, ClusterBook, Libro, ReadingProfileShelf } from '../../../api/services/catalog.service';
-import { PrestamoService } from '../../../api/services/prestamo.service';
-import { SafeUrlPipe } from '../../../pipes/safe-url.pipe';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [CommonModule, FormsModule, SafeUrlPipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -28,11 +26,8 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   cargando        = false; 
   cargandoInicial = true;  
 
-  modalPrestamo     = false;
   libroSeleccionado: Libro | null = null;
-  prestamoCargando  = false;
-  prestamoExitoso   = false;
-  prestamoError     = '';
+  modalDetalle = false;
 
   paginaActual    = 1;
   librosPorPagina = 15;
@@ -48,8 +43,7 @@ export class CatalogoComponent implements OnInit, OnDestroy {
 
   constructor(
     private catalogService: CatalogService,
-    private router: Router,
-    private prestamoService: PrestamoService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -183,6 +177,16 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   }
   cerrarPdf(): void { this.pdfSeleccionado = null; }
 
+  abrirDetalle(libro: Libro): void {
+    this.libroSeleccionado = libro;
+    this.modalDetalle = true;
+  }
+
+  cerrarDetalle(): void {
+    this.modalDetalle = false;
+    this.libroSeleccionado = null;
+  }
+
   get librosFiltrados(): Libro[] { return this.libros; }
 
   get librosPaginados(): Libro[] {
@@ -205,43 +209,4 @@ export class CatalogoComponent implements OnInit, OnDestroy {
     this._cargarPreviewsPagina();
   }
 
-  abrirModalPrestamo(libro: Libro): void {
-    this.libroSeleccionado = libro;
-    this.modalPrestamo     = true;
-    this.prestamoExitoso   = false;
-    this.prestamoError     = '';
-  }
-
-  cerrarModalPrestamo(): void {
-    if (this.prestamoCargando) return;
-    this.modalPrestamo     = false;
-    this.libroSeleccionado = null;
-    this.prestamoExitoso   = false;
-    this.prestamoError     = '';
-  }
-
-  confirmarPrestamo(): void {
-    if (!this.libroSeleccionado?.id || this.prestamoCargando) return;
-    this.prestamoCargando = true;
-    this.prestamoError    = '';
-
-    this.prestamoService.solicitarPrestamo(this.libroSeleccionado.id).subscribe({
-      next: () => {
-        this.prestamoCargando = false;
-        this.prestamoExitoso  = true;
-        if (this.libroSeleccionado)
-          this.libroSeleccionado.disponibles = (this.libroSeleccionado.disponibles ?? 1) - 1;
-      },
-      error: (err) => {
-        this.prestamoCargando = false;
-        this.prestamoError    = err.error?.message || 'Error al solicitar el préstamo';
-      }
-    });
-  }
-
-  get fechaVencimiento(): string {
-    return new Date().toLocaleDateString('es-MX', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    }) + ' antes de las 16:00 hrs';
-  }
 }
