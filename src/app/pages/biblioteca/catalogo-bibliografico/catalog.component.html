@@ -192,11 +192,11 @@
 
     <article
       *ngFor="let libro of librosPaginados"
-      class="libro-card"
-      [class.solo-fisico]="libro.tiene_fisico && !libro.tiene_digital">
+      class="libro-card">
 
-     <!-- <div class="book-cover clickable" *ngIf="libro.tiene_digital" (click)="abrirPdf(libro)"> -->
-      <div class="book-cover" [class.clickable]="libro.tiene_digital" (click)="libro.tiene_digital ? abrirPdf(libro) : null">
+      <button class="book-cover clickable" type="button"
+        (click)="abrirDetalle(libro)"
+        [attr.aria-label]="'Ver detalles de ' + libro.titulo">
         <ng-container *ngIf="libro.tiene_digital">
           <div class="cover-loading" *ngIf="!libro.previewUrl"></div>
           <img
@@ -210,45 +210,18 @@
           <ion-icon name="book-outline" class="placeholder-icon"></ion-icon>
           <span>Solo físico</span>
         </div>
-      </div>
+      </button>
 
       <div class="libro-content">
-        <h3>{{ libro.titulo }}</h3>
-        <div class="libro-info">
-          <div class="autor-lista">
-            <span class="autor-label">Autor:</span>
-            <div class="autores-nombres">
-              <span *ngFor="let a of libro.autores?.split(';'); let last = last" class="autor-nombre">
-                {{ a.trim() }}<span *ngIf="!last"> · </span>
-              </span>
-            </div>
-          </div>
-          <p><strong>Editorial:</strong> {{ libro.editorial }}</p>
-        </div>
-
-        <div class="badge-container">
-          <span *ngIf="libro.tiene_fisico" class="badge fisico">
-            <ion-icon name="cube-outline"></ion-icon>
-            Físico ({{ libro.disponibles || 0 }})
+        <button class="libro-titulo-btn" type="button"
+          (click)="abrirDetalle(libro)"
+          [attr.aria-label]="'Ver detalles de ' + libro.titulo">
+          <h3>{{ libro.titulo }}</h3>
+          <span class="titulo-ver-detalles">
+            <ion-icon name="eye-outline"></ion-icon>
+            Ver detalles
           </span>
-          <span *ngIf="libro.tiene_digital" class="badge digital">
-            <ion-icon name="laptop-outline"></ion-icon>
-            Digital
-          </span>
-        </div>
-        <div class="acciones">
-          <button *ngIf="libro.tiene_digital" class="btn" (click)="abrirPdf(libro)">
-            Ver PDF
-          </button>
-          <button
-            *ngIf="libro.tiene_fisico"
-            class="btn prestamo-btn"
-            [disabled]="(libro.disponibles ?? 0) === 0"
-            [class.agotado]="(libro.disponibles ?? 0) === 0"
-            (click)="abrirModalPrestamo(libro)">
-            {{ (libro.disponibles ?? 0) === 0 ? 'Sin stock' : 'Solicitar préstamo' }}
-          </button>
-        </div>
+        </button>
       </div>
 
     </article>
@@ -270,59 +243,78 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════
-     MODAL PRÉSTAMO
-     ═══════════════════════════════════════ -->
-<div class="prestamo-overlay" *ngIf="modalPrestamo" (click)="cerrarModalPrestamo()">
-  <div class="prestamo-modal" (click)="$event.stopPropagation()">
-    <div class="prestamo-modal-header">
-      <h3><ion-icon name="book-outline"></ion-icon> Solicitar Préstamo</h3>
-      <button class="cerrar-prestamo" (click)="cerrarModalPrestamo()" [disabled]="prestamoCargando">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
+<!-- Detalle del libro -->
+<div class="detalle-overlay" *ngIf="modalDetalle && libroSeleccionado as libro"
+  (click)="cerrarDetalle()" role="presentation">
+  <section class="detalle-modal" (click)="$event.stopPropagation()"
+    role="dialog" aria-modal="true" [attr.aria-label]="'Detalles de ' + libro.titulo">
+    <button class="detalle-cerrar" type="button" (click)="cerrarDetalle()" aria-label="Cerrar detalles">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+
+    <div class="detalle-portada">
+      <img *ngIf="libro.previewUrl"
+        [src]="libro.previewUrl"
+        [alt]="'Portada de ' + libro.titulo">
+      <div class="placeholder-cover" *ngIf="!libro.previewUrl">
+        <ion-icon name="book-outline" class="placeholder-icon"></ion-icon>
+        <span>{{ libro.tiene_fisico && !libro.tiene_digital ? 'Solo físico' : 'Portada no disponible' }}</span>
+      </div>
     </div>
-    <div *ngIf="prestamoExitoso" class="prestamo-exito">
-      <div class="exito-icono"><ion-icon name="checkmark-circle-outline"></ion-icon></div>
-      <h4>¡Préstamo registrado!</h4>
-      <p>Tu préstamo de <strong>{{ libroSeleccionado?.titulo }}</strong> ha sido registrado exitosamente.</p>
-      <p class="vencimiento"><ion-icon name="calendar-outline"></ion-icon> Debes devolver el libro <strong>hoy antes de las 16:00 hrs</strong></p>
-      <p class="nota-horario"><ion-icon name="time-outline"></ion-icon> Recoge tu libro de 10:00 a 15:30 hrs.</p>
-      <button class="btn-cerrar-exito" (click)="cerrarModalPrestamo()">Entendido</button>
-    </div>
-    <div *ngIf="!prestamoExitoso" class="prestamo-body">
-      <div class="prestamo-libro-info">
-        <div class="libro-icon"><ion-icon name="book-outline"></ion-icon></div>
+
+    <div class="detalle-contenido">
+      <span class="detalle-etiqueta">Detalles del libro</span>
+      <h2>{{ libro.titulo }}</h2>
+
+      <dl class="detalle-lista">
         <div>
-          <p class="libro-titulo">{{ libroSeleccionado?.titulo }}</p>
-          <div class="libro-autor">
-            <span *ngFor="let autor of libroSeleccionado?.autores?.split(';')">{{ autor.trim() }}</span>
-          </div>
+          <dt>Autor</dt>
+          <dd class="detalle-valores-lista" *ngIf="libro.autores; else autorNoEspecificado">
+            <span *ngFor="let autor of libro.autores.split(';')">
+              {{ autor.trim() }}
+            </span>
+          </dd>
+          <ng-template #autorNoEspecificado>
+            <dd>No especificado</dd>
+          </ng-template>
         </div>
-      </div>
-      <div class="prestamo-detalles">
-        <div class="detalle-item">
-          <ion-icon name="calendar-outline"></ion-icon>
-          <div><span class="detalle-label">Fecha de devolución</span><span class="detalle-valor">Hoy antes de las 16:00 hrs</span></div>
+        <div>
+          <dt>Materia</dt>
+          <dd class="detalle-materias" *ngIf="libro.materias; else materiaNoEspecificada">
+            <span *ngFor="let materia of libro.materias.split(',')">{{ materia.trim() }}</span>
+          </dd>
+          <ng-template #materiaNoEspecificada>
+            <dd>No especificada</dd>
+          </ng-template>
         </div>
-        <div class="detalle-item">
-          <ion-icon name="cube-outline"></ion-icon>
-          <div><span class="detalle-label">Ejemplares disponibles</span><span class="detalle-valor">{{ libroSeleccionado?.disponibles ?? 0 }}</span></div>
+        <div>
+          <dt>Editorial</dt>
+          <dd>{{ libro.editorial || 'No especificada' }}</dd>
         </div>
-        <div class="detalle-item">
-          <ion-icon name="time-outline"></ion-icon>
-          <div><span class="detalle-label">Horario de atención</span><span class="detalle-valor">Lunes a viernes · 10:00 – 16:00</span></div>
+        <div>
+          <dt>Formato</dt>
+          <dd class="detalle-formatos">
+            <span class="detalle-formato fisico" *ngIf="libro.tiene_fisico">
+              <ion-icon name="cube-outline"></ion-icon>
+              Físico
+            </span>
+            <span class="detalle-formato digital" *ngIf="libro.tiene_digital">
+              <ion-icon name="laptop-outline"></ion-icon>
+              Digital
+            </span>
+          </dd>
         </div>
-      </div>
-      <div class="prestamo-error" *ngIf="prestamoError">
-        <ion-icon name="alert-circle-outline"></ion-icon>{{ prestamoError }}
-      </div>
-      <div class="prestamo-footer">
-        <button class="btn-cancelar-prestamo" (click)="cerrarModalPrestamo()" [disabled]="prestamoCargando">Cancelar</button>
-        <button class="btn-confirmar-prestamo" (click)="confirmarPrestamo()" [disabled]="prestamoCargando">
-          <span *ngIf="!prestamoCargando"><ion-icon name="checkmark-outline"></ion-icon> Confirmar préstamo</span>
-          <span *ngIf="prestamoCargando"><ion-icon name="hourglass-outline"></ion-icon> Procesando...</span>
-        </button>
-      </div>
+      </dl>
+
+      <button *ngIf="libro.tiene_digital" class="detalle-ver-libro" type="button"
+        (click)="abrirPdf(libro)">
+        Ver libro
+        <ion-icon name="arrow-forward-outline"></ion-icon>
+      </button>
+      <p class="detalle-solo-fisico" *ngIf="!libro.tiene_digital">
+        <ion-icon name="library-outline"></ion-icon>
+        Disponible para consulta en biblioteca
+      </p>
     </div>
-  </div>
+  </section>
 </div>
