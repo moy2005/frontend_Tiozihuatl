@@ -90,7 +90,7 @@ export const routes: Routes = [
   { path: 'my-purchases', component: MyPurchases, canActivate: [AuthGuard] },
   { path: 'my-loans', component: MyLoans, canActivate: [AuthGuard] },
   { path: 'biblioteca/libro/:id', component: VisorLibroComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador', 'Docente', 'Bibliotecario'] }},
-  { path: 'materiales', component: MaterialesComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante'] }},
+  { path: 'materiales', component: MaterialesComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador'] }},
   { path: 'materiales-doc', component: MaterialesDocComponent, canActivate: [AuthGuard], data: { roles: ['Docente'] }},
 
   // Panel de administrador con rutas anidadas
