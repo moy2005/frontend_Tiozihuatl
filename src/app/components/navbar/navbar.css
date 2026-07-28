@@ -81,7 +81,7 @@ body.home-navbar-route { padding-top: 0; }
 
 .navbar-desktop.scrolled .navbar-bottom {
   padding: 0.5rem 0;
-  background: rgba(63, 166, 232, 0.88);
+  background: #3FA6E8;
   backdrop-filter: blur(14px) saturate(1.6);
   -webkit-backdrop-filter: blur(14px) saturate(1.6);
 }
