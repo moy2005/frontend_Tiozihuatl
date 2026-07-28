@@ -8,8 +8,8 @@ export interface Libro {
   id: number;
   titulo: string;
   autores: string;
-  editorial: string;
-  materia: string;
+  editorial: string | null;
+  materias: string | null;
   semestres?: string;
   semestres_ids?: string;
   total: number | null;
