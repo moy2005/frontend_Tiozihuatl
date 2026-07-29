@@ -252,146 +252,118 @@
       <ion-icon name="close-outline"></ion-icon>
     </button>
 
-    <div class="detalle-portada">
-      <img *ngIf="libro.previewUrl"
-        [src]="libro.previewUrl"
-        [alt]="'Portada de ' + libro.titulo">
-      <div class="placeholder-cover" *ngIf="!libro.previewUrl">
-        <ion-icon name="book-outline" class="placeholder-icon"></ion-icon>
-        <span>{{ libro.tiene_fisico && !libro.tiene_digital ? 'Solo físico' : 'Portada no disponible' }}</span>
+    <div class="detalle-principal">
+      <div class="detalle-portada">
+        <img *ngIf="libro.previewUrl"
+          [src]="libro.previewUrl"
+          [alt]="'Portada de ' + libro.titulo">
+        <div class="placeholder-cover" *ngIf="!libro.previewUrl">
+          <ion-icon name="book-outline" class="placeholder-icon"></ion-icon>
+          <span>{{ libro.tiene_fisico && !libro.tiene_digital ? 'Solo físico' : 'Portada no disponible' }}</span>
+        </div>
+      </div>
+
+      <div class="detalle-contenido">
+        <h2>{{ libro.titulo }}</h2>
+
+        <dl class="detalle-lista">
+          <div>
+            <dt>Autor</dt>
+            <dd class="detalle-valores-lista" *ngIf="libro.autores; else autorNoEspecificado">
+              <span *ngFor="let autor of libro.autores.split(';')">
+                {{ autor.trim() }}
+              </span>
+            </dd>
+            <ng-template #autorNoEspecificado>
+              <dd>No especificado</dd>
+            </ng-template>
+          </div>
+          <div>
+            <dt>Materia</dt>
+            <dd class="detalle-materias" *ngIf="libro.materias; else materiaNoEspecificada">
+              <span *ngFor="let materia of libro.materias.split(',')">{{ materia.trim() }}</span>
+            </dd>
+            <ng-template #materiaNoEspecificada>
+              <dd>No especificada</dd>
+            </ng-template>
+          </div>
+          <div>
+            <dt>Editorial</dt>
+            <dd>{{ libro.editorial || 'No especificada' }}</dd>
+          </div>
+          <div>
+            <dt>Formato</dt>
+            <dd class="detalle-formatos">
+              <span class="detalle-formato fisico" *ngIf="libro.tiene_fisico">
+                <ion-icon name="cube-outline"></ion-icon>
+                Físico
+              </span>
+              <span class="detalle-formato digital" *ngIf="libro.tiene_digital">
+                <ion-icon name="laptop-outline"></ion-icon>
+                Digital
+              </span>
+            </dd>
+          </div>
+        </dl>
+
+        <button *ngIf="libro.tiene_digital" class="detalle-ver-libro" type="button"
+          (click)="abrirPdf(libro)">
+          Ver libro
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+        <p class="detalle-solo-fisico" *ngIf="!libro.tiene_digital">
+          <ion-icon name="library-outline"></ion-icon>
+          Disponible para consulta en biblioteca
+        </p>
       </div>
     </div>
 
-    <div class="detalle-contenido">
-      <span class="detalle-etiqueta">Detalles del libro</span>
-      <h2>{{ libro.titulo }}</h2>
+    <section class="detalle-recomendaciones" aria-labelledby="titulo-recomendaciones">
+      <h3 id="titulo-recomendaciones">También te puede interesar</h3>
 
-      <dl class="detalle-lista">
-        <div>
-          <dt>Autor</dt>
-          <dd class="detalle-valores-lista" *ngIf="libro.autores; else autorNoEspecificado">
-            <span *ngFor="let autor of libro.autores.split(';')">
-              {{ autor.trim() }}
-            </span>
-          </dd>
-          <ng-template #autorNoEspecificado>
-            <dd>No especificado</dd>
-          </ng-template>
-        </div>
-        <div>
-          <dt>Materia</dt>
-          <dd class="detalle-materias" *ngIf="libro.materias; else materiaNoEspecificada">
-            <span *ngFor="let materia of libro.materias.split(',')">{{ materia.trim() }}</span>
-          </dd>
-          <ng-template #materiaNoEspecificada>
-            <dd>No especificada</dd>
-          </ng-template>
-        </div>
-        <div>
-          <dt>Editorial</dt>
-          <dd>{{ libro.editorial || 'No especificada' }}</dd>
-        </div>
-        <div>
-          <dt>Formato</dt>
-          <dd class="detalle-formatos">
-            <span class="detalle-formato fisico" *ngIf="libro.tiene_fisico">
-              <ion-icon name="cube-outline"></ion-icon>
-              Físico
-            </span>
-            <span class="detalle-formato digital" *ngIf="libro.tiene_digital">
-              <ion-icon name="laptop-outline"></ion-icon>
-              Digital
-            </span>
-          </dd>
-        </div>
-      </dl>
+      <div class="detalle-recomendaciones-estado" *ngIf="cargandoRecomendaciones"
+        aria-live="polite">
+        <span class="detalle-recomendaciones-spinner" aria-hidden="true"></span>
+        Buscando recomendaciones para ti...
+      </div>
 
-      <button *ngIf="libro.tiene_digital" class="detalle-ver-libro" type="button"
-        (click)="abrirPdf(libro)">
-        Ver libro
-        <ion-icon name="arrow-forward-outline"></ion-icon>
-      </button>
-      <p class="detalle-solo-fisico" *ngIf="!libro.tiene_digital">
-        <ion-icon name="library-outline"></ion-icon>
-        Disponible para consulta en biblioteca
-      </p>
+      <div class="detalle-recomendaciones-estado detalle-recomendaciones-vacio"
+        *ngIf="!cargandoRecomendaciones && !errorRecomendaciones && recomendaciones.length === 0"
+        aria-live="polite">
+        <ion-icon name="book-outline"></ion-icon>
+        <div>
+          <strong>No encontramos recomendaciones por ahora.</strong>
+          <span>Puedes seguir explorando el catálogo.</span>
+        </div>
+      </div>
 
-      <section class="detalle-recomendaciones" aria-labelledby="titulo-recomendaciones">
-        <div class="detalle-recomendaciones-encabezado">
-          <div>
-            <span class="detalle-recomendaciones-etiqueta">Similitud coseno</span>
-            <h3 id="titulo-recomendaciones">Libros relacionados</h3>
-          </div>
-          <span class="detalle-recomendaciones-total" *ngIf="recomendaciones.length">
-            {{ recomendaciones.length }}
-            recomendación{{ recomendaciones.length === 1 ? '' : 'es' }}
+      <div class="detalle-recomendaciones-estado detalle-recomendaciones-error"
+        *ngIf="!cargandoRecomendaciones && errorRecomendaciones"
+        aria-live="polite">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <div>
+          <strong>No pudimos cargar las recomendaciones.</strong>
+          <span>Inténtalo nuevamente en unos momentos.</span>
+        </div>
+      </div>
+
+      <div class="detalle-recomendaciones-lista"
+        *ngIf="!cargandoRecomendaciones && !errorRecomendaciones && recomendaciones.length">
+        <button class="detalle-recomendacion" type="button"
+          *ngFor="let recomendado of recomendaciones"
+          (click)="abrirRecomendacion(recomendado)"
+          [attr.aria-label]="'Abrir ' + recomendado.titulo">
+          <span class="detalle-recomendacion-portada">
+            <img *ngIf="recomendado.previewUrl"
+              [src]="recomendado.previewUrl"
+              [alt]="'Portada de ' + recomendado.titulo">
+            <span class="detalle-recomendacion-placeholder" *ngIf="!recomendado.previewUrl">
+              <ion-icon name="book-outline"></ion-icon>
+            </span>
           </span>
-        </div>
-
-        <div class="detalle-recomendaciones-estado" *ngIf="cargandoRecomendaciones"
-          aria-live="polite">
-          <span class="detalle-recomendaciones-spinner" aria-hidden="true"></span>
-          Calculando libros similares...
-        </div>
-
-        <div class="detalle-recomendaciones-estado detalle-recomendaciones-vacio"
-          *ngIf="!cargandoRecomendaciones && !errorRecomendaciones && recomendaciones.length === 0"
-          aria-live="polite">
-          <ion-icon name="information-circle-outline"></ion-icon>
-          <div>
-            <strong>No hay recomendaciones para este libro.</strong>
-            <span>No comparte materias ni autores con otros libros activos del catálogo.</span>
-          </div>
-        </div>
-
-        <div class="detalle-recomendaciones-estado detalle-recomendaciones-error"
-          *ngIf="!cargandoRecomendaciones && errorRecomendaciones"
-          aria-live="polite">
-          <ion-icon name="alert-circle-outline"></ion-icon>
-          <div>
-            <strong>No fue posible cargar las recomendaciones.</strong>
-            <span>Intenta nuevamente al abrir el detalle del libro.</span>
-          </div>
-        </div>
-
-        <div class="detalle-recomendaciones-lista"
-          *ngIf="!cargandoRecomendaciones && !errorRecomendaciones && recomendaciones.length">
-          <article class="detalle-recomendacion"
-            *ngFor="let recomendado of recomendaciones; let posicion = index">
-            <div class="detalle-recomendacion-posicion" aria-hidden="true">
-              {{ posicion + 1 }}
-            </div>
-
-            <div class="detalle-recomendacion-contenido">
-              <div class="detalle-recomendacion-superior">
-                <h4>{{ recomendado.titulo }}</h4>
-                <span class="detalle-recomendacion-similitud">
-                  {{ recomendado.similitud_coseno | percent:'1.0-0' }}
-                </span>
-              </div>
-
-              <p class="detalle-recomendacion-autor">{{ recomendado.autores }}</p>
-
-              <div class="detalle-recomendacion-razones">
-                <span *ngFor="let caracteristica of recomendado.caracteristicas_compartidas">
-                  {{ caracteristica }}
-                </span>
-              </div>
-
-              <div class="detalle-recomendacion-pie">
-                <div class="detalle-recomendacion-formatos">
-                  <span *ngIf="recomendado.tiene_digital">Digital</span>
-                  <span *ngIf="recomendado.tiene_fisico">Físico</span>
-                </div>
-                <button type="button" (click)="abrirRecomendacion(recomendado)">
-                  {{ recomendado.tiene_digital ? 'Leer libro' : 'Buscar en catálogo' }}
-                  <ion-icon name="arrow-forward-outline"></ion-icon>
-                </button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-    </div>
+          <span class="detalle-recomendacion-titulo">{{ recomendado.titulo }}</span>
+        </button>
+      </div>
+    </section>
   </section>
 </div>
