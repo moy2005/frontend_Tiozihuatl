@@ -23,6 +23,7 @@ export interface Libro {
 export interface BookRecommendation {
   id: number;
   titulo: string;
+  editorial: string | null;
   autores: string;
   materias: string;
   semestres: string | null;
@@ -30,17 +31,21 @@ export interface BookRecommendation {
   tiene_digital: boolean;
   tiene_fisico: boolean;
   previewUrl: string | null;
-  score: number;
-  reglas_coincidentes: number;
-  nivel_evidencia: 'CONSOLIDADA' | 'EXPLORATORIA';
-  confianza: number;
-  lift: number;
+  similitud_coseno: number;
+  angulo_grados: number;
+  caracteristicas_compartidas: string[];
+  cantidad_caracteristicas_compartidas: number;
   motivo: string;
 }
 
 export interface BookRecommendationsResponse {
   libro_origen: { id: number; titulo: string };
-  modelo: { tipo: string; reglas_evaluadas: number };
+  modelo: {
+    tipo: 'recomendacion_basada_en_contenido';
+    medida: 'similitud_coseno';
+    version_artefacto: number;
+    generado_en: string;
+  };
   recomendaciones: BookRecommendation[];
 }
 
@@ -107,7 +112,7 @@ export class CatalogService {
   return this.http.get<any[]>(`${this.baseUrl}/semestres`);
 }
 
-  obtenerRecomendaciones(id: number, limit = 1) {
+  obtenerRecomendaciones(id: number, limit = 5) {
     return this.http.get<BookRecommendationsResponse>(
       `${API_URL}/recommendations/books/${id}`,
       { params: { limit } }

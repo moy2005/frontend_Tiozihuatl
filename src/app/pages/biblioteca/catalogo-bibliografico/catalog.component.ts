@@ -3,7 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
-import { CatalogService, ClusterBook, Libro, ReadingProfileShelf } from '../../../api/services/catalog.service';
+import {
+  BookRecommendation,
+  CatalogService,
+  ClusterBook,
+  Libro,
+  ReadingProfileShelf
+} from '../../../api/services/catalog.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -28,6 +34,9 @@ export class CatalogoComponent implements OnInit, OnDestroy {
 
   libroSeleccionado: Libro | null = null;
   modalDetalle = false;
+  recomendaciones: BookRecommendation[] = [];
+  cargandoRecomendaciones = false;
+  errorRecomendaciones = false;
 
   paginaActual    = 1;
   librosPorPagina = 15;
@@ -40,6 +49,7 @@ export class CatalogoComponent implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
   private destroy$      = new Subject<void>();
+  private solicitudRecomendacionesId = 0;
 
   constructor(
     private catalogService: CatalogService,
@@ -180,11 +190,59 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   abrirDetalle(libro: Libro): void {
     this.libroSeleccionado = libro;
     this.modalDetalle = true;
+    this.recomendaciones = [];
+    this.errorRecomendaciones = false;
+    this.cargarRecomendaciones(libro.id);
   }
 
   cerrarDetalle(): void {
+    this.solicitudRecomendacionesId++;
     this.modalDetalle = false;
     this.libroSeleccionado = null;
+    this.recomendaciones = [];
+    this.cargandoRecomendaciones = false;
+    this.errorRecomendaciones = false;
+  }
+
+  cargarRecomendaciones(libroId: number): void {
+    const solicitudId = ++this.solicitudRecomendacionesId;
+    this.cargandoRecomendaciones = true;
+
+    this.catalogService.obtenerRecomendaciones(libroId, 5).subscribe({
+      next: (response) => {
+        if (
+          solicitudId !== this.solicitudRecomendacionesId ||
+          this.libroSeleccionado?.id !== libroId
+        ) return;
+
+        this.recomendaciones = response.recomendaciones;
+        this.cargandoRecomendaciones = false;
+      },
+      error: (error) => {
+        if (solicitudId !== this.solicitudRecomendacionesId) return;
+
+        console.error('Error al cargar recomendaciones:', error);
+        this.recomendaciones = [];
+        this.cargandoRecomendaciones = false;
+        this.errorRecomendaciones = true;
+      }
+    });
+  }
+
+  abrirRecomendacion(libro: BookRecommendation): void {
+    if (libro.tiene_digital) {
+      this.cerrarDetalle();
+      this.router.navigate(['/biblioteca/libro', libro.id]);
+      return;
+    }
+
+    this.cerrarDetalle();
+    this.search = libro.titulo;
+    this.filtroMateria = '';
+    this.filtroFormato = '';
+    this.ordenAutor = '';
+    this.filtroSemestre = '';
+    this._ejecutarCarga();
   }
 
   get librosFiltrados(): Libro[] { return this.libros; }

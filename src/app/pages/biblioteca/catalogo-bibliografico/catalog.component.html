@@ -315,6 +315,83 @@
         <ion-icon name="library-outline"></ion-icon>
         Disponible para consulta en biblioteca
       </p>
+
+      <section class="detalle-recomendaciones" aria-labelledby="titulo-recomendaciones">
+        <div class="detalle-recomendaciones-encabezado">
+          <div>
+            <span class="detalle-recomendaciones-etiqueta">Similitud coseno</span>
+            <h3 id="titulo-recomendaciones">Libros relacionados</h3>
+          </div>
+          <span class="detalle-recomendaciones-total" *ngIf="recomendaciones.length">
+            {{ recomendaciones.length }}
+            recomendación{{ recomendaciones.length === 1 ? '' : 'es' }}
+          </span>
+        </div>
+
+        <div class="detalle-recomendaciones-estado" *ngIf="cargandoRecomendaciones"
+          aria-live="polite">
+          <span class="detalle-recomendaciones-spinner" aria-hidden="true"></span>
+          Calculando libros similares...
+        </div>
+
+        <div class="detalle-recomendaciones-estado detalle-recomendaciones-vacio"
+          *ngIf="!cargandoRecomendaciones && !errorRecomendaciones && recomendaciones.length === 0"
+          aria-live="polite">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <div>
+            <strong>No hay recomendaciones para este libro.</strong>
+            <span>No comparte materias ni autores con otros libros activos del catálogo.</span>
+          </div>
+        </div>
+
+        <div class="detalle-recomendaciones-estado detalle-recomendaciones-error"
+          *ngIf="!cargandoRecomendaciones && errorRecomendaciones"
+          aria-live="polite">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <div>
+            <strong>No fue posible cargar las recomendaciones.</strong>
+            <span>Intenta nuevamente al abrir el detalle del libro.</span>
+          </div>
+        </div>
+
+        <div class="detalle-recomendaciones-lista"
+          *ngIf="!cargandoRecomendaciones && !errorRecomendaciones && recomendaciones.length">
+          <article class="detalle-recomendacion"
+            *ngFor="let recomendado of recomendaciones; let posicion = index">
+            <div class="detalle-recomendacion-posicion" aria-hidden="true">
+              {{ posicion + 1 }}
+            </div>
+
+            <div class="detalle-recomendacion-contenido">
+              <div class="detalle-recomendacion-superior">
+                <h4>{{ recomendado.titulo }}</h4>
+                <span class="detalle-recomendacion-similitud">
+                  {{ recomendado.similitud_coseno | percent:'1.0-0' }}
+                </span>
+              </div>
+
+              <p class="detalle-recomendacion-autor">{{ recomendado.autores }}</p>
+
+              <div class="detalle-recomendacion-razones">
+                <span *ngFor="let caracteristica of recomendado.caracteristicas_compartidas">
+                  {{ caracteristica }}
+                </span>
+              </div>
+
+              <div class="detalle-recomendacion-pie">
+                <div class="detalle-recomendacion-formatos">
+                  <span *ngIf="recomendado.tiene_digital">Digital</span>
+                  <span *ngIf="recomendado.tiene_fisico">Físico</span>
+                </div>
+                <button type="button" (click)="abrirRecomendacion(recomendado)">
+                  {{ recomendado.tiene_digital ? 'Leer libro' : 'Buscar en catálogo' }}
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
     </div>
   </section>
 </div>

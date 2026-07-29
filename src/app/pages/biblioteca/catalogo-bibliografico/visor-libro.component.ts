@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../api/environments/environment.prod';
-import { BookRecommendation, CatalogService } from '../../../api/services/catalog.service';
 import { Subscription } from 'rxjs';
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -25,8 +24,6 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
   libroId!: string;
   tituloLibro = '';
   cargando = true;
-  recomendacion: BookRecommendation | null = null;
-  cargandoRecomendacion = false;
 
   private scrollHandler: any;
   private resizeHandler: any;
@@ -36,11 +33,7 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
   private renderVersion = 0;
   private platformId = inject(PLATFORM_ID);
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private catalogService: CatalogService
-  ) {}
+  constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -91,8 +84,6 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
     this.scale = 1;
     this.tituloLibro = '';
     this.cargando = true;
-    this.recomendacion = null;
-    this.cargandoRecomendacion = false;
     window.removeEventListener('scroll', this.scrollHandler);
     window.scrollTo({ top: 0 });
     this.cargarPdf();
@@ -116,7 +107,6 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
         this.totalPages = pdf.numPages;
         this.paginas = Array.from({ length: this.totalPages }, (_, i) => i + 1);
         this.cargando = false;
-        this.cargarRecomendacion();
         setTimeout(() => {
           this.ajustarScale();
           this.renderTodasLasPaginas();
@@ -128,43 +118,6 @@ export class VisorLibroComponent implements OnInit, OnDestroy {
       console.error('Error:', err);
       this.cargando = false;
     });
-  }
-
-  cargarRecomendacion() {
-    const id = Number(this.libroId);
-    if (!Number.isInteger(id) || this.cargandoRecomendacion) return;
-
-    this.cargandoRecomendacion = true;
-    this.catalogService.obtenerRecomendaciones(id, 1).subscribe({
-      next: (response) => {
-        this.recomendacion = response.recomendaciones[0] || null;
-        this.cargandoRecomendacion = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar la recomendación:', error);
-        this.recomendacion = null;
-        this.cargandoRecomendacion = false;
-      }
-    });
-  }
-
-  get lecturaTerminada(): boolean {
-    return this.totalPages > 0 && this.pageNum === this.totalPages;
-  }
-
-  etiquetaRecomendacion(libro: BookRecommendation): string {
-    return libro.nivel_evidencia === 'CONSOLIDADA'
-      ? 'Coincidencia consolidada'
-      : 'Patrón de lectura relacionado';
-  }
-
-  abrirRecomendacion(libro: BookRecommendation) {
-    if (libro.tiene_digital) {
-      this.router.navigate(['/biblioteca/libro', libro.id]);
-      return;
-    }
-
-    this.router.navigate(['/catalogo'], { queryParams: { search: libro.titulo } });
   }
 
   ajustarScale() {
