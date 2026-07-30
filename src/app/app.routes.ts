@@ -23,6 +23,7 @@ import { DetalleNoticiaComponent } from './pages/noticias/detalle-noticia';
 import { EventosComponent } from './pages/eventos/eventos';
 import { DetalleEventoComponent } from './pages/eventos/detalle-evento';
 import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
+import { DetalleLibroComponent } from './pages/biblioteca/catalogo-bibliografico/detalle-libro.component';
 import { VisorLibroComponent } from './pages/biblioteca/catalogo-bibliografico/visor-libro.component';
 import { CalendarioComponent } from './pages/calendario/calendario.component';
 import { GestionCatalogoComponent} from './pages/admin/gestion-catalogo/gestion-catalogo';
@@ -89,6 +90,7 @@ export const routes: Routes = [
   { path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard] },
   { path: 'my-purchases', component: MyPurchases, canActivate: [AuthGuard] },
   { path: 'my-loans', component: MyLoans, canActivate: [AuthGuard] },
+  { path: 'biblioteca/detalle/:id', component: DetalleLibroComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador', 'Docente', 'Bibliotecario'] }},
   { path: 'biblioteca/libro/:id', component: VisorLibroComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador', 'Docente', 'Bibliotecario'] }},
   { path: 'materiales', component: MaterialesComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador'] }},
   { path: 'materiales-doc', component: MaterialesDocComponent, canActivate: [AuthGuard], data: { roles: ['Docente'] }},
@@ -130,4 +132,3 @@ export const routes: Routes = [
 
   { path: '**', redirectTo: '/error-404' },
 ];
-
