@@ -1,0 +1,119 @@
+<main class="detalle-pagina">
+  <nav class="breadcrumb-bar" aria-label="Navegación">
+    <a routerLink="/inicio">Inicio</a>
+    <span class="sep">›</span>
+    <a routerLink="/catalogo">Biblioteca</a>
+    <span class="sep">›</span>
+    <span class="current">{{ libro?.titulo || 'Detalle del libro' }}</span>
+  </nav>
+
+  <div class="detalle-cargando" *ngIf="cargando">
+    <div class="cargando-spinner"></div>
+    <p>Cargando información del libro…</p>
+  </div>
+
+  <section class="detalle-interfaz" *ngIf="!cargando && libro as libro"
+    [attr.aria-label]="'Detalles de ' + libro.titulo">
+    <div class="detalle-principal">
+      <div class="detalle-portada">
+        <img *ngIf="libro.previewUrl"
+          [src]="libro.previewUrl"
+          [alt]="'Portada de ' + libro.titulo">
+        <div class="placeholder-cover" *ngIf="!libro.previewUrl">
+          <ion-icon name="book-outline" class="placeholder-icon"></ion-icon>
+          <span>{{ libro.tiene_fisico && !libro.tiene_digital ? 'Solo físico' : 'Portada no disponible' }}</span>
+        </div>
+      </div>
+
+      <div class="detalle-contenido">
+        <span class="detalle-etiqueta">Detalles del libro</span>
+        <h1>{{ libro.titulo }}</h1>
+
+        <dl class="detalle-lista">
+          <div>
+            <dt>Autor</dt>
+            <dd class="detalle-valores-lista" *ngIf="libro.autores; else autorNoEspecificado">
+              <span *ngFor="let autor of libro.autores.split(';')">{{ autor.trim() }}</span>
+            </dd>
+            <ng-template #autorNoEspecificado><dd>No especificado</dd></ng-template>
+          </div>
+          <div>
+            <dt>Materia</dt>
+            <dd class="detalle-materias" *ngIf="libro.materias; else materiaNoEspecificada">
+              <span *ngFor="let materia of libro.materias.split(',')">{{ materia.trim() }}</span>
+            </dd>
+            <ng-template #materiaNoEspecificada><dd>No especificada</dd></ng-template>
+          </div>
+          <div>
+            <dt>Editorial</dt>
+            <dd>{{ libro.editorial || 'No especificada' }}</dd>
+          </div>
+          <div>
+            <dt>Formato</dt>
+            <dd class="detalle-formatos">
+              <span class="detalle-formato fisico" *ngIf="libro.tiene_fisico">
+                <ion-icon name="cube-outline"></ion-icon>Físico
+              </span>
+              <span class="detalle-formato digital" *ngIf="libro.tiene_digital">
+                <ion-icon name="laptop-outline"></ion-icon>Digital
+              </span>
+            </dd>
+          </div>
+        </dl>
+
+        <button *ngIf="libro.tiene_digital" class="detalle-ver-libro" type="button"
+          (click)="verLibro()">
+          Ver libro
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+        <p class="detalle-solo-fisico" *ngIf="!libro.tiene_digital">
+          <ion-icon name="library-outline"></ion-icon>
+          Disponible para consulta en biblioteca
+        </p>
+      </div>
+    </div>
+
+    <section class="detalle-recomendaciones" aria-labelledby="titulo-recomendaciones">
+      <h2 id="titulo-recomendaciones">También te puede interesar</h2>
+
+      <div class="detalle-recomendaciones-estado" *ngIf="cargandoRecomendaciones">
+        <span class="detalle-recomendaciones-spinner"></span>
+        Buscando recomendaciones para ti...
+      </div>
+
+      <div class="detalle-recomendaciones-estado detalle-recomendaciones-vacio"
+        *ngIf="!cargandoRecomendaciones && !errorRecomendaciones && recomendaciones.length === 0">
+        No encontramos recomendaciones por ahora.
+      </div>
+
+      <div class="detalle-recomendaciones-estado detalle-recomendaciones-error"
+        *ngIf="!cargandoRecomendaciones && errorRecomendaciones">
+        No pudimos cargar las recomendaciones.
+      </div>
+
+      <div class="detalle-recomendaciones-lista"
+        *ngIf="!cargandoRecomendaciones && !errorRecomendaciones && recomendaciones.length">
+        <button class="detalle-recomendacion" type="button"
+          *ngFor="let recomendado of recomendaciones"
+          (click)="abrirRecomendacion(recomendado)">
+          <span class="detalle-recomendacion-portada">
+            <img *ngIf="recomendado.previewUrl"
+              [src]="recomendado.previewUrl"
+              [alt]="'Portada de ' + recomendado.titulo">
+            <span class="detalle-recomendacion-placeholder" *ngIf="!recomendado.previewUrl">
+              <ion-icon name="book-outline"></ion-icon>
+            </span>
+          </span>
+          <span class="detalle-recomendacion-titulo">{{ recomendado.titulo }}</span>
+        </button>
+      </div>
+    </section>
+  </section>
+
+  <section class="detalle-no-encontrado" *ngIf="!cargando && noEncontrado">
+    <ion-icon name="book-outline"></ion-icon>
+    <h1>Libro no encontrado</h1>
+    <p>No fue posible cargar la información solicitada.</p>
+    <a routerLink="/catalogo">Regresar al catálogo</a>
+  </section>
+</main>
