@@ -1,16 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
 :host {
+  /* ---- Paleta fija (sin degradados) ---- */
+  --va-ink: #172233;
+  --va-ink-soft: #5B6B80;
+  --va-ink-faint: #94A3B5;
+
+  --va-blue: #0F5FA3;      /* acción primaria, marca, burbuja usuario */
+  --va-blue-deep: #0A4A80; /* hover / texto sobre fondos claros */
+  --va-blue-tint: #EEF4FA; /* fondos planos, burbuja asistente */
+  --va-blue-tint-strong: #DEEAF5; /* hover sobre superficies tint */
+
+  --va-teal: #0E9B84;      /* estado en línea, enviar */
+  --va-teal-deep: #0B7E6A;
+
+  --va-violet: #7A73B8;    /* segundo acento suave: variedad en chips y etiquetas */
+  --va-violet-tint: #EFEEF8;
+
+  --va-header: #0288D1;
+  --va-header-clear: #B86818;
+  --va-header-expand: #6656B3;
+  --va-header-minimize: #16815F;
+  --va-header-close: #C43D4A;
+
+  --va-surface: #FFFFFF;
+  --va-surface-sunken: #E4EEF7; /* fondo con presencia de color para el área de mensajes */
+  --va-chat-grid: #C9DCEB;      /* líneas suaves del patrón del chat */
+  --va-compose-bg: #EEF4FA;     /* fondo del compositor, un tono más claro que los mensajes */
+
+  --va-radius-panel: 22px;
+  --va-radius-bubble: 16px;
+  --va-radius-chip: 12px;
+
   position: fixed;
   right: 18px;
   bottom: 18px;
   z-index: 2400;
-  font-family: 'Montserrat', 'Segoe UI', sans-serif;
-  color: #172033;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--va-ink);
 }
 
 .va-shell,
 .va-shell * {
   box-sizing: border-box;
 }
+
+/* ---------- Launcher ---------- */
 
 .va-launcher {
   position: relative;
@@ -19,7 +54,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: #087fbd;
+  color: var(--va-blue);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -28,12 +63,16 @@
 }
 
 .va-launcher:hover {
-  color: #075f90;
+  color: var(--va-blue-deep);
   transform: translateY(-1px);
 }
 
+.va-launcher:active {
+  transform: translateY(0);
+}
+
 .va-launcher:focus-visible {
-  outline: 2px solid #087fbd;
+  outline: 2px solid var(--va-blue);
   outline-offset: 3px;
   border-radius: 50%;
 }
@@ -45,46 +84,129 @@
 .va-launcher i {
   font-size: 2.25rem;
   line-height: 1;
-  filter: drop-shadow(0 3px 5px rgba(7, 95, 144, 0.2));
 }
+
+/* ---------- Panel ---------- */
 
 .va-panel {
   width: min(400px, calc(100vw - 28px));
   height: min(680px, calc(100dvh - 36px));
-  background: #f8fbfd;
-  border: 1px solid rgba(23, 32, 51, 0.1);
-  border-radius: 8px;
-  box-shadow: 0 24px 70px rgba(12, 31, 55, 0.28);
+  background: var(--va-surface);
+  border: none;
+  border-radius: var(--va-radius-panel);
+  box-shadow: 0 30px 60px rgba(15, 30, 55, 0.16);
   overflow: hidden;
   display: grid;
   grid-template-rows: auto 1fr auto auto;
   animation: vaPanelIn 180ms ease-out;
+  transition: width 220ms ease, height 220ms ease;
 }
 
+@media (min-width: 641px) {
+  .va-panel--expanded {
+    width: clamp(520px, 50vw, calc(100vw - 40px));
+    height: min(820px, calc(100dvh - 48px));
+  }
+
+  .va-panel--expanded .va-bubble {
+    max-width: min(72%, 620px);
+  }
+}
+
+/* ---------- Header ---------- */
+
 .va-header {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 72px;
-  padding: 14px;
-  background: #ffffff;
-  border-bottom: 1px solid rgba(23, 32, 51, 0.08);
+  padding: 16px 18px;
+  background: var(--va-header);
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+.va-header__color {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: clip-path 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.va-header__color--expand {
+  background: var(--va-header-expand);
+  clip-path: circle(0 at calc(100% - 107px) 50%);
+}
+
+.va-header__color--clear {
+  background: var(--va-header-clear);
+  clip-path: circle(0 at calc(100% - 143px) 50%);
+}
+
+.va-header__color--minimize {
+  background: var(--va-header-minimize);
+  clip-path: circle(0 at calc(100% - 71px) 50%);
+}
+
+.va-header__color--close {
+  background: var(--va-header-close);
+  clip-path: circle(0 at calc(100% - 35px) 50%);
+}
+
+.va-header:has(.va-icon-btn--expand:hover) .va-header__color--expand {
+  clip-path: circle(140vmax at calc(100% - 107px) 50%);
+  transition-duration: 720ms;
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.va-header:has(.va-icon-btn--clear:hover) .va-header__color--clear {
+  clip-path: circle(140vmax at calc(100% - 143px) 50%);
+  transition-duration: 720ms;
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.va-header:has(.va-icon-btn--minimize:hover) .va-header__color--minimize {
+  clip-path: circle(140vmax at calc(100% - 71px) 50%);
+  transition-duration: 720ms;
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.va-header:has(.va-icon-btn--close:hover) .va-header__color--close {
+  clip-path: circle(140vmax at calc(100% - 35px) 50%);
+  transition-duration: 720ms;
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
 .va-header__mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
-  background: #1178b8;
-  color: #ffffff;
+  position: relative;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--va-surface);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  cursor: pointer;
+}
+
+.va-header__mark--animated {
+  animation: vaRobotJump 620ms cubic-bezier(0.34, 1.56, 0.64, 1) 100ms both;
+}
+
+.va-header__mark:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 .va-header__mark i {
-  font-size: 1.35rem;
+  font-size: 1.85rem;
 }
 
 .va-header__copy {
@@ -94,72 +216,93 @@
 
 .va-header__copy h2 {
   margin: 0;
-  color: #172033;
-  font-size: 1rem;
-  font-weight: 850;
+  color: var(--va-surface);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.02rem;
+  font-weight: 700;
   line-height: 1.2;
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
 }
 
 .va-header__copy span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-  color: #0f8f7d;
-  font-size: 0.75rem;
-  font-weight: 750;
-}
-
-.va-header__copy span::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #12a386;
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.74rem;
+  font-weight: 500;
 }
 
 .va-header__actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
 }
 
 .va-icon-btn {
-  width: 36px;
-  height: 36px;
-  border: 1px solid rgba(23, 32, 51, 0.08);
-  border-radius: 8px;
-  background: #f2f6f8;
-  color: #314158;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
 }
 
 .va-icon-btn:hover {
-  background: #e8f1f6;
-  color: #1178b8;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--va-surface);
 }
 
 .va-icon-btn i {
-  font-size: 1.08rem;
+  font-size: 1.05rem;
 }
+
+/* ---------- Mensajes ---------- */
 
 .va-messages {
   min-height: 0;
   overflow-y: auto;
-  padding: 16px 14px 10px;
+  background-color: var(--va-surface-sunken);
+  background-image:
+    linear-gradient(
+      0deg,
+      transparent 24%,
+      var(--va-chat-grid) 25%,
+      var(--va-chat-grid) 26%,
+      transparent 27%,
+      transparent 74%,
+      var(--va-chat-grid) 75%,
+      var(--va-chat-grid) 76%,
+      transparent 77%,
+      transparent
+    ),
+    linear-gradient(
+      90deg,
+      transparent 24%,
+      var(--va-chat-grid) 25%,
+      var(--va-chat-grid) 26%,
+      transparent 27%,
+      transparent 74%,
+      var(--va-chat-grid) 75%,
+      var(--va-chat-grid) 76%,
+      transparent 77%,
+      transparent
+    );
+  background-size: 55px 55px;
+  padding: 18px 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   scrollbar-width: thin;
-  scrollbar-color: #a9bfd0 transparent;
+  scrollbar-color: var(--va-ink-faint) transparent;
 }
 
 .va-messages::-webkit-scrollbar {
-  width: 7px;
+  width: 6px;
 }
 
 .va-messages::-webkit-scrollbar-track {
@@ -167,7 +310,7 @@
 }
 
 .va-messages::-webkit-scrollbar-thumb {
-  background: #a9bfd0;
+  background: var(--va-ink-faint);
   border-radius: 999px;
 }
 
@@ -175,6 +318,7 @@
   display: flex;
   gap: 9px;
   max-width: 100%;
+  animation: vaMessageIn 260ms ease-out both;
 }
 
 .va-message--user {
@@ -184,9 +328,9 @@
 .va-avatar {
   width: 30px;
   height: 30px;
-  border-radius: 8px;
-  background: #e8f7f4;
-  color: #0f8f7d;
+  border-radius: 10px;
+  background: var(--va-blue-tint);
+  color: var(--va-blue);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,25 +338,22 @@
 }
 
 .va-avatar i {
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .va-bubble {
   width: fit-content;
-  max-width: min(318px, calc(100vw - 116px));
-  border-radius: 8px;
-  padding: 11px 12px;
-  background: #ffffff;
-  border: 1px solid rgba(23, 32, 51, 0.08);
-  box-shadow: 0 6px 18px rgba(23, 32, 51, 0.06);
+  max-width: min(310px, calc(100vw - 116px));
+  border-radius: var(--va-radius-bubble) var(--va-radius-bubble) var(--va-radius-bubble) 4px;
+  padding: 12px 14px;
+  background: var(--va-surface);
   overflow-wrap: anywhere;
 }
 
 .va-message--user .va-bubble {
-  background: #1178b8;
-  color: #ffffff;
-  border-color: #1178b8;
-  box-shadow: 0 8px 22px rgba(17, 120, 184, 0.22);
+  background: #0288D1;
+  color: var(--va-surface);
+  border-radius: var(--va-radius-bubble) var(--va-radius-bubble) 4px var(--va-radius-bubble);
 }
 
 .va-bubble__meta {
@@ -225,20 +366,25 @@
 
 .va-bubble__meta span {
   min-height: 20px;
-  padding: 3px 7px;
+  padding: 3px 8px;
   border-radius: 999px;
-  background: #eef5f8;
-  color: #476070;
-  font-size: 0.66rem;
-  font-weight: 800;
+  background: var(--va-blue-tint);
+  color: var(--va-blue-deep);
+  font-size: 0.65rem;
+  font-weight: 600;
   line-height: 1.2;
+}
+
+.va-bubble__meta span:first-child {
+  background: var(--va-violet-tint);
+  color: var(--va-violet);
 }
 
 .va-bubble p {
   margin: 0 0 9px;
-  font-size: 0.84rem;
+  font-size: 0.86rem;
+  font-weight: 400;
   line-height: 1.55;
-  letter-spacing: 0;
 }
 
 .va-bubble p:last-of-type {
@@ -248,14 +394,14 @@
 .va-bubble time {
   display: block;
   margin-top: 8px;
-  color: #7a8c9d;
-  font-size: 0.66rem;
-  font-weight: 700;
+  color: var(--va-ink-faint);
+  font-size: 0.65rem;
+  font-weight: 500;
   text-align: right;
 }
 
 .va-message--user .va-bubble time {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .va-sections {
@@ -271,25 +417,40 @@
 
 .va-section h3 {
   margin: 0;
-  color: #24364a;
-  font-size: 0.74rem;
-  font-weight: 850;
+  color: var(--va-ink-soft);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
 }
 
 .va-section-item {
+  position: relative;
   width: 100%;
   min-height: 44px;
-  padding: 9px;
-  border: 1px solid rgba(23, 32, 51, 0.08);
-  border-radius: 8px;
-  background: #f7fafb;
-  color: #172033;
+  padding: 10px 12px 10px 16px;
+  border: none;
+  border-radius: var(--va-radius-chip);
+  background: var(--va-blue-tint);
+  color: var(--va-ink);
   text-align: left;
   display: grid;
   gap: 3px;
   cursor: default;
+  transition: background-color 140ms ease;
+}
+
+.va-section-item::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--va-blue);
+  opacity: 0.45;
 }
 
 .va-section-item--clickable {
@@ -297,56 +458,60 @@
 }
 
 .va-section-item--clickable:hover {
-  border-color: rgba(17, 120, 184, 0.34);
-  background: #eef7fb;
+  background: var(--va-blue-tint-strong);
+}
+
+.va-section-item--clickable:hover::before {
+  opacity: 0.8;
 }
 
 .va-section-item__title {
-  color: #172033;
-  font-size: 0.78rem;
-  font-weight: 820;
+  color: var(--va-ink);
+  font-size: 0.8rem;
+  font-weight: 600;
   line-height: 1.25;
 }
 
 .va-section-item__text {
-  color: #53677a;
-  font-size: 0.74rem;
+  color: var(--va-ink-soft);
+  font-size: 0.75rem;
   line-height: 1.42;
 }
 
 .va-section-item__meta {
-  color: #0f8f7d;
+  color: var(--va-teal-deep);
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .va-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 11px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .va-action {
-  min-height: 34px;
+  min-height: 36px;
   max-width: 100%;
-  padding: 7px 9px;
-  border: 1px solid rgba(17, 120, 184, 0.24);
-  border-radius: 8px;
-  background: #eef7fb;
-  color: #0d5f94;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--va-radius-chip);
+  background: var(--va-blue-tint);
+  color: var(--va-blue-deep);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.74rem;
-  font-weight: 850;
+  gap: 7px;
+  font-size: 0.76rem;
+  font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
 }
 
 .va-action:hover {
-  background: #1178b8;
-  color: #ffffff;
+  background: var(--va-blue);
+  color: var(--va-surface);
 }
 
 .va-action i {
@@ -358,7 +523,7 @@
 .va-starters {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 8px;
 }
 
 .va-suggestions {
@@ -367,30 +532,35 @@
 
 .va-suggestions button,
 .va-starters button {
-  min-height: 30px;
+  min-height: 32px;
   max-width: 100%;
-  padding: 6px 9px;
-  border: 1px solid rgba(23, 32, 51, 0.1);
+  padding: 7px 12px;
+  border: none;
   border-radius: 999px;
-  background: #ffffff;
-  color: #314158;
-  font-size: 0.72rem;
-  font-weight: 780;
+  background: var(--va-surface);
+  color: var(--va-ink-soft);
+  font-size: 0.74rem;
+  font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
 }
 
 .va-suggestions button:hover,
 .va-starters button:hover {
-  border-color: rgba(15, 143, 125, 0.38);
-  color: #0f7468;
-  background: #eefaf7;
+  background: var(--va-blue-tint);
+  color: var(--va-blue-deep);
+}
+
+.va-suggestions button:nth-child(even):hover,
+.va-starters button:nth-child(even):hover {
+  background: var(--va-violet-tint);
+  color: var(--va-violet);
 }
 
 .va-starters {
-  padding: 10px 14px 0;
-  border-top: 1px solid rgba(23, 32, 51, 0.06);
-  background: #f8fbfd;
+  padding: 12px 16px 0;
+  background: var(--va-compose-bg);
 }
 
 .va-typing {
@@ -400,11 +570,11 @@
 }
 
 .va-typing__bubble {
-  width: 64px;
-  height: 34px;
-  border: 1px solid rgba(23, 32, 51, 0.08);
-  border-radius: 8px;
-  background: #ffffff;
+  width: 60px;
+  height: 32px;
+  border: none;
+  border-radius: var(--va-radius-chip);
+  background: var(--va-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -412,10 +582,10 @@
 }
 
 .va-typing__bubble span {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #1178b8;
+  background: var(--va-blue);
   animation: vaTyping 1s ease-in-out infinite;
 }
 
@@ -427,62 +597,90 @@
   animation-delay: 240ms;
 }
 
+/* ---------- Compositor ---------- */
+
 .va-compose {
   min-height: 68px;
-  padding: 10px 12px 12px;
-  background: #ffffff;
-  border-top: 1px solid rgba(23, 32, 51, 0.08);
+  padding: 12px 16px 16px;
+  background: var(--va-compose-bg);
   display: grid;
-  grid-template-columns: 1fr 42px;
+  grid-template-columns: 1fr 44px;
   gap: 8px;
   align-items: end;
 }
 
 .va-compose textarea {
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   max-height: 96px;
-  padding: 11px 12px;
-  border: 1px solid #cfdbe4;
-  border-radius: 8px;
-  background: #f8fbfd;
-  color: #172033;
-  font-family: inherit;
-  font-size: 0.84rem;
+  padding: 12px 14px;
+  border: none;
+  border-radius: var(--va-radius-chip);
+  background: var(--va-surface);
+  color: var(--va-ink);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 400;
   line-height: 1.35;
   resize: none;
   outline: none;
+  transition: background-color 140ms ease;
 }
 
 .va-compose textarea:focus {
-  border-color: #1178b8;
-  box-shadow: 0 0 0 3px rgba(17, 120, 184, 0.12);
+  background: var(--va-blue-tint);
 }
 
 .va-compose textarea::placeholder {
-  color: #8194a6;
+  color: var(--va-ink-faint);
 }
 
 .va-send {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: none;
-  border-radius: 8px;
-  background: #12a386;
-  color: #ffffff;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--va-teal);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: color 140ms ease, transform 140ms ease;
+}
+
+.va-send:hover:not(:disabled) {
+  background: transparent;
+  color: var(--va-teal-deep);
+}
+
+.va-send:hover:not(:disabled) i {
+  transform: translate(1px, -1px) rotate(-8deg);
+}
+
+.va-send:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.va-send i {
+  transition: transform 160ms ease;
+}
+
+.va-send:focus-visible {
+  outline: 2px solid var(--va-teal);
+  outline-offset: 2px;
 }
 
 .va-send:disabled {
   cursor: not-allowed;
-  opacity: 0.48;
+  opacity: 1;
+  color: var(--va-teal);
 }
 
 .va-send i {
-  font-size: 1.12rem;
+  font-size: 1.55rem;
+  font-weight: 700;
+  -webkit-text-stroke: 0.35px currentColor;
 }
 
 @keyframes vaPanelIn {
@@ -508,6 +706,32 @@
   }
 }
 
+@keyframes vaRobotJump {
+  0% {
+    transform: translateY(0) scale(0.9);
+  }
+  45% {
+    transform: translateY(-7px) scale(1.06);
+  }
+  70% {
+    transform: translateY(2px) scale(0.97);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes vaMessageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 640px) {
   :host {
     right: max(8px, env(safe-area-inset-right));
@@ -517,6 +741,7 @@
   .va-panel {
     width: calc(100vw - 16px);
     height: min(650px, calc(100dvh - 16px));
+    border-radius: 18px;
   }
 
   .va-bubble {
@@ -535,7 +760,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .va-panel,
-  .va-typing__bubble span {
+  .va-header__color,
+  .va-typing__bubble span,
+  .va-header__mark,
+  .va-message {
     animation: none;
   }
 }

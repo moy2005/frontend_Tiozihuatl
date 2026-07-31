@@ -44,7 +44,9 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
   @ViewChild('messagesPane') private messagesPane?: ElementRef<HTMLDivElement>;
 
   isOpen = false;
+  isExpanded = false;
   isLoading = false;
+  isHeaderRobotAnimating = true;
   draft = '';
   messages: ChatMessage[] = [];
   starterPrompts: string[] = [
@@ -58,6 +60,8 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
   private readonly storageKey = 'tiozihuatlVirtualAssistantHistory';
   private readonly sessionKey = 'tiozihuatlVirtualAssistantSession';
   private readonly maxHistory = 18;
+  private readonly welcomeText =
+    '¡Hola! Soy el asistente virtual del Instituto de Estudios Superiores Tiozihuatl. Cuéntame qué necesitas y te ayudo paso a paso. Puedo buscar libros y recursos, orientarte sobre préstamos, ayudarte con tu cuenta o llevarte a la sección correcta.';
   private sessionId = '';
   private currentPath = '/inicio';
   private subscriptions = new Subscription();
@@ -91,10 +95,36 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
 
   toggleAssistant(): void {
     this.isOpen = !this.isOpen;
-    if (this.isOpen) this.scheduleScroll();
+    if (this.isOpen) {
+      this.replayHeaderRobotAnimation();
+      this.scheduleScroll();
+    }
   }
 
-  closeAssistant(): void {
+  /** Oculta el panel pero conserva toda la conversación guardada. */
+  minimizeAssistant(): void {
+    this.isOpen = false;
+  }
+
+  /** Agranda o reduce el panel. Solo tiene efecto visual en pantallas grandes. */
+  toggleExpand(): void {
+    this.isExpanded = !this.isExpanded;
+  }
+
+  replayHeaderRobotAnimation(): void {
+    this.isHeaderRobotAnimating = false;
+    setTimeout(() => {
+      this.isHeaderRobotAnimating = true;
+    });
+  }
+
+  finishHeaderRobotAnimation(): void {
+    this.isHeaderRobotAnimating = false;
+  }
+
+  /** Cierra el panel y elimina por completo la conversación actual. */
+  endConversation(): void {
+    this.clearHistory();
     this.isOpen = false;
   }
 
@@ -223,7 +253,7 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
       path: this.currentPath,
       role: this.getStoredRole(),
       isAuthenticated: this.isAuthenticated(),
-      history: this.messages.slice(-8).map((message) => ({
+      history: this.messages.slice(-12).map((message) => ({
         sender: message.sender,
         text: message.text.slice(0, 300),
         intentId: message.intent?.id,
@@ -250,14 +280,12 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
       {
         id: this.createId('welcome'),
         sender: 'assistant',
-        text:
-          '¡Hola! Soy el asistente de Tiozihuatl. Cuéntame qué necesitas y te ayudo paso a paso. Puedo buscar libros y recursos, explicarte préstamos, orientarte con tu cuenta o llevarte a la sección correcta.',
+        text: this.welcomeText,
         time: this.formatTime(),
         actions: [
           { label: 'Biblioteca', route: '/catalogo', icon: 'ph-book-bookmark' },
           { label: 'Contacto', route: '/contactanos', icon: 'ph-envelope' },
         ],
-        suggestions: this.starterPrompts.slice(0, 4).map((prompt) => ({ label: prompt, prompt })),
       },
     ];
   }
@@ -272,6 +300,13 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
       const raw = localStorage.getItem(this.storageKey);
       const parsed = raw ? (JSON.parse(raw) as ChatMessage[]) : [];
       this.messages = Array.isArray(parsed) ? parsed.slice(-this.maxHistory) : [];
+
+      const welcome = this.messages.find((message) => message.id.startsWith('welcome-'));
+      if (welcome && (welcome.text !== this.welcomeText || welcome.suggestions?.length)) {
+        welcome.text = this.welcomeText;
+        delete welcome.suggestions;
+        this.persistHistory();
+      }
     } catch {
       this.messages = [];
     }

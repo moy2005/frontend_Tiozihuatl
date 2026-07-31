@@ -10,20 +10,57 @@
     <i class="ph ph-chat-circle-dots"></i>
   </button>
 
-  <div class="va-panel" *ngIf="isOpen" role="dialog" aria-label="Asistente virtual">
+  <div class="va-panel" [class.va-panel--expanded]="isExpanded" *ngIf="isOpen" role="dialog" aria-label="Asistente virtual">
     <header class="va-header">
-      <div class="va-header__mark">
-        <i class="ph ph-sparkle"></i>
-      </div>
+      <span class="va-header__color va-header__color--clear" aria-hidden="true"></span>
+      <span class="va-header__color va-header__color--expand" aria-hidden="true"></span>
+      <span class="va-header__color va-header__color--minimize" aria-hidden="true"></span>
+      <span class="va-header__color va-header__color--close" aria-hidden="true"></span>
+
+      <button
+        type="button"
+        class="va-header__mark"
+        [class.va-header__mark--animated]="isHeaderRobotAnimating"
+        (click)="replayHeaderRobotAnimation()"
+        (animationend)="finishHeaderRobotAnimation()"
+        title="Animar asistente"
+        aria-label="Animar icono del asistente">
+        <i class="ti ti-robot"></i>
+      </button>
       <div class="va-header__copy">
-        <h2>Asistente Virtual</h2>
-        <span>En linea</span>
+        <h2>Asistente</h2>
       </div>
       <div class="va-header__actions">
-        <button type="button" class="va-icon-btn" (click)="clearHistory()" title="Limpiar chat">
+        <button
+          type="button"
+          class="va-icon-btn va-icon-btn--clear"
+          (click)="clearHistory()"
+          title="Limpiar chat"
+          aria-label="Limpiar historial del chat">
           <i class="ph ph-broom"></i>
         </button>
-        <button type="button" class="va-icon-btn" (click)="closeAssistant()" title="Cerrar">
+        <button
+          type="button"
+          class="va-icon-btn va-icon-btn--expand"
+          (click)="toggleExpand()"
+          [title]="isExpanded ? 'Reducir' : 'Agrandar'"
+          [attr.aria-label]="isExpanded ? 'Reducir' : 'Agrandar'">
+          <i [class]="'ph ' + (isExpanded ? 'ph-arrows-in-simple' : 'ph-arrows-out-simple')"></i>
+        </button>
+        <button
+          type="button"
+          class="va-icon-btn va-icon-btn--minimize"
+          (click)="minimizeAssistant()"
+          title="Minimizar"
+          aria-label="Minimizar">
+          <i class="ph ph-minus"></i>
+        </button>
+        <button
+          type="button"
+          class="va-icon-btn va-icon-btn--close"
+          (click)="endConversation()"
+          title="Cerrar conversación"
+          aria-label="Cerrar conversación">
           <i class="ph ph-x"></i>
         </button>
       </div>
@@ -36,7 +73,7 @@
         [class.va-message--user]="message.sender === 'user'"
         [class.va-message--assistant]="message.sender === 'assistant'">
         <div class="va-avatar" *ngIf="message.sender === 'assistant'">
-          <i class="ph ph-chat-circle-text"></i>
+          <i class="ph ph-robot"></i>
         </div>
 
         <div class="va-bubble">
@@ -93,7 +130,7 @@
 
       <div class="va-typing" *ngIf="isLoading">
         <div class="va-avatar">
-          <i class="ph ph-chat-circle-text"></i>
+          <i class="ph ph-robot"></i>
         </div>
         <div class="va-typing__bubble">
           <span></span>
