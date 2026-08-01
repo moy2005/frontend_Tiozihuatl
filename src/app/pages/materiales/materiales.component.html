@@ -32,7 +32,7 @@
 
     <div class="hero-wave">
       <svg viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0,60 C360,100 1080,20 1440,55 L1440,90 L0,90 Z" fill="#fafbfc"/>
+        <path d="M0,60 C360,100 1080,20 1440,55 L1440,90 L0,90 Z" fill="#ffffff"/>
       </svg>
     </div>
   </header>
@@ -42,7 +42,7 @@
     <div class="filtros-bar">
 
       <span class="filtros-bar-label">
-        <i class="ph ph-funnel-simple"></i>
+        <ion-icon name="funnel-outline"></ion-icon>
         Filtrar
       </span>
       <div class="filtros-divider-v"></div>
@@ -54,7 +54,7 @@
           <option value="">Todos los docentes</option>
           <option *ngFor="let d of docentes" [value]="d.id_usuario">{{ d.nombre }}</option>
         </select>
-        <i class="ph ph-caret-down chip-arrow"></i>
+        <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
       </div>
 
       <!-- Tipo -->
@@ -63,7 +63,7 @@
                 [(ngModel)]="selectedTipo" (change)="cargarMateriales(true)">
           <option *ngFor="let t of tiposArchivo" [value]="t.value">{{ t.label }}</option>
         </select>
-        <i class="ph ph-caret-down chip-arrow"></i>
+        <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
       </div>
 
       <!-- Materia -->
@@ -73,7 +73,7 @@
           <option value="">Todas las materias</option>
           <option *ngFor="let m of materias" [value]="m.id">{{ m.nombre }}</option>
         </select>
-        <i class="ph ph-caret-down chip-arrow"></i>
+        <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
       </div>
 
       <!-- Borrar filtros -->
@@ -81,7 +81,7 @@
         class="btn-borrar-filtros"
         *ngIf="filtrosActivos.length > 0"
         (click)="limpiarFiltros()">
-        <i class="ph ph-x-circle"></i>
+        <ion-icon name="close-circle-outline"></ion-icon>
         Borrar filtros
       </button>
 

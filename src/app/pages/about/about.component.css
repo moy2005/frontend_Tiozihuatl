@@ -31,63 +31,64 @@
 .about-hero {
   position: relative;
   background: #3FA6E8;
-  padding: 5rem 2rem 3rem;
+  padding: 4rem 2rem 4.5rem;
   text-align: center;
   overflow: hidden;
 }
 .about-hero::before {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 300px; height: 300px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 50%;
+  display: none;
 }
 .about-hero::after {
-  content: '';
-  position: absolute;
-  bottom: 40px; left: -40px;
-  width: 200px; height: 200px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 50%;
+  display: none;
 }
 .hero-content {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 .about-hero h1 {
-  font-size: 3rem;
+  font-family: 'Nunito', sans-serif;
+  font-size: 3.25rem;
   font-weight: 800;
   color: white;
-  margin: 0 0 1rem;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.15);
-  letter-spacing: -0.02em;
+  margin: 0;
+  text-shadow: 0 2px 12px rgba(0,0,0,.2);
+  letter-spacing: -0.025em;
   line-height: 1.2;
 }
 .about-hero p {
-  font-size: 1.15rem;
+  font-size: 1.125rem;
   color: rgba(255,255,255,0.9);
-  line-height: 1.75;
-  margin: 0;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0 0 1.5rem;
+  text-shadow: 0 1px 4px rgba(0,0,0,.15);
 }
 
 /* OLA */
-.hero-wave-wrap {
-  background: #3FA6E8;
+.about-hero-wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
   line-height: 0;
-  margin-top: -1px;
+  z-index: 3;
 }
-.hero-wave-wrap svg {
+.about-hero-wave svg {
   display: block;
   width: 100%;
-  height: 80px;
+  height: 90px;
   animation: ola-subir 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transform-origin: bottom center;
 }
 @keyframes ola-subir {
-  0%   { transform: translateY(120%); opacity: 0; }
+  0%   { transform: translateY(150%); opacity: 0; }
   100% { transform: translateY(0);    opacity: 1; }
 }
 
@@ -416,6 +417,7 @@
   .about-valores-section  { padding: 4.5rem 4rem; }
 }
 @media (max-width: 1024px) {
+  .about-hero h1             { font-size: 2.5rem; }
   .about-split-copy-inner { padding: 3.5rem 3rem; }
   .about-valores-section  { padding: 3.5rem 3rem; }
 }
@@ -431,19 +433,19 @@
   .about-valores-grid        { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 768px) {
-  .about-hero                { padding: 3.5rem 1.5rem 2.5rem; }
-  .about-hero h1             { font-size: 2.2rem; }
+  .about-hero                { padding: 2.5rem 1.25rem 3rem; }
+  .about-hero h1             { font-size: 2rem; }
   .about-hero p              { font-size: 1rem; }
-  .hero-wave-wrap svg        { height: 65px; }
+  .about-hero-wave svg       { height: 65px; }
   .about-split-copy-inner    { padding: 2.5rem 2rem; }
   .about-valores-section     { padding: 3rem 2rem; }
   .about-valores-header      { flex-direction: column; align-items: flex-start; gap: 0; }
   .about-valores-count       { font-size: 3.5rem; }
 }
 @media (max-width: 640px) {
-  .about-hero                { padding: 2.5rem 1rem 2rem; }
-  .about-hero h1             { font-size: 1.75rem; }
-  .hero-wave-wrap svg        { height: 50px; }
+  .about-hero                { padding: 2.5rem 1.25rem 3rem; }
+  .about-hero h1             { font-size: 2rem; }
+  .about-hero-wave svg       { height: 65px; }
   .about-split-copy-inner    { padding: 2rem 1.5rem; }
   .about-valores-section     { padding: 2.5rem 1.5rem; }
   .about-valores-grid        { grid-template-columns: 1fr; }
@@ -451,6 +453,10 @@
   .about-body                { font-size: 0.9rem; }
 }
 @media (max-width: 480px) {
+  .about-hero              { padding: 2rem 1rem 2.5rem; }
+  .about-hero h1           { font-size: 1.75rem; }
+  .about-hero p            { font-size: 0.875rem; }
+  .about-hero-wave svg     { height: 50px; }
   .about-split-copy-inner  { padding: 1.75rem 1.25rem; }
   .about-valores-section   { padding: 2rem 1.25rem; }
   .about-headline          { font-size: 1.35rem; }

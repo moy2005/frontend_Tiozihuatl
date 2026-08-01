@@ -1,16 +1,26 @@
-<section class="login-page min-h-screen flex items-center justify-center px-4 py-16 pt-32" role="main" aria-label="Formulario de registro">
+<section class="auth-page register-page login-page" role="main" aria-label="Formulario de registro">
   <style>
 
   </style>
 
-  <div class="w-full max-w-4xl">
-    <div class="login-container">
+  <div class="auth-layout auth-layout--wide">
+    <aside class="auth-brand" aria-label="Instituto de Estudios Superiores Tiozihuatl">
+      <img
+        src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
+        class="auth-brand__logo"
+        alt="Logo del Instituto de Estudios Superiores Tiozihuatl"
+      />
+      <h1 class="auth-brand__name institution-display-title">
+        <span>Instituto de Estudios Superiores</span>
+        <span>Tiozihuatl</span>
+      </h1>
+    </aside>
+
+    <div class="auth-form-column auth-form-column--wide">
+    <div class="login-container auth-card auth-card--wide">
       <!-- HEADER -->
-      <div class="flex flex-col items-center mb-4 sm:mb-6 text-center">
-        <div class="w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center">
-          <img src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png" class="w-40 sm:w-52 h-40 sm:h-52 object-contain drop-shadow-lg" alt="Logo Instituto" />
-        </div>
-        <h1 class="mt-3 sm:mt-4 text-2xl sm:text-3xl font-bold login-title">
+      <div class="auth-card__header flex flex-col items-center mb-4 sm:mb-6 text-center">
+        <h1 class="text-2xl sm:text-3xl font-bold login-title">
           Registro de visitante
         </h1>
         <p class="mt-2 text-xs sm:text-sm text-white/90 max-w-xl">
@@ -574,5 +584,6 @@
         </p>
       </div>
     </div>
+  </div>
   </div>
 </section>

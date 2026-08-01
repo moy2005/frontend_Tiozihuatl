@@ -29,6 +29,12 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: bottom;
+  animation: eventosHeroWaveIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes eventosHeroWaveIn {
+  from { opacity: 0; transform: translateY(150%); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .eventos-page .hero-content {

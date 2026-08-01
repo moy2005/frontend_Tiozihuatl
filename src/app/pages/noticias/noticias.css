@@ -34,7 +34,7 @@
   text-align: center;
   position: relative;
   z-index: 2;
-  animation: fadeInDown 0.8s ease-out;
+  animation: none;
 }
 
 @keyframes fadeInDown {
@@ -149,13 +149,13 @@
   background-size: cover;
   background-position: bottom;
   z-index: 1;
-  animation: waveSlideIn 1.2s ease-out;
+  animation: noticiasHeroWaveIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-@keyframes waveSlideIn {
+@keyframes noticiasHeroWaveIn {
   from {
     opacity: 0;
-    transform: translateY(100px);
+    transform: translateY(150%);
   }
   to {
     opacity: 1;

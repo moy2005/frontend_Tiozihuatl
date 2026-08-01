@@ -18,7 +18,7 @@
   position: relative;
   overflow: hidden;
   text-align: center;
-  animation: fadeInDown 0.7s ease-out;
+  animation: none;
 }
 
 @keyframes fadeInDown {
@@ -38,11 +38,11 @@
   background-size: cover;
   background-position: bottom;
   z-index: 1;
-  animation: waveUp 1.1s ease-out;
+  animation: calendarioHeroWaveIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-@keyframes waveUp {
-  from { opacity: 0; transform: translateY(90px); }
+@keyframes calendarioHeroWaveIn {
+  from { opacity: 0; transform: translateY(150%); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -85,7 +85,7 @@
 }
 
 .cal-hero-title {
-  font-family: "Montserrat", sans-serif;
+  font-family: "Nunito", sans-serif;
   font-size: 2.6rem;
   font-weight: 800;
   color: #ffffff;

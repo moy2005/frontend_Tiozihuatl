@@ -534,3 +534,849 @@
     transition-duration: .01ms !important;
   }
 }
+
+/* ============================================
+   CONTACTO — COMPOSICIÓN AMPLIA Y COLORIDA
+   ============================================ */
+.contact-page {
+  background: #ffffff;
+}
+
+.contact-page .hero-content {
+  animation: none;
+}
+
+.contact-page .hero-section::after {
+  height: 90px;
+  animation: contactoHeroWaveIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes contactoHeroWaveIn {
+  from { opacity: 0; transform: translateY(150%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.contact-page .hero-title {
+  font-family: 'Nunito', sans-serif;
+}
+
+.contact-page .main-content {
+  max-width: 1200px;
+  padding: 3.25rem 2rem 5rem;
+  gap: 1.5rem;
+}
+
+.contact-page .info-row {
+  gap: 1.25rem;
+}
+
+.contact-page .info-chip {
+  min-height: 128px;
+  padding: 1.6rem 1.75rem;
+  border: 0;
+  border-radius: 22px;
+  background: #167fb9;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.contact-page .info-chip:nth-child(even) {
+  background: #3fa6e8;
+}
+
+.contact-page .info-chip:hover {
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.contact-page .chip-icon,
+.contact-page .info-chip:hover .chip-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 1.7rem;
+}
+
+.contact-page .chip-label {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.78rem;
+}
+
+.contact-page .chip-value {
+  color: #ffffff;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  line-height: 1.35;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.contact-page .center-block {
+  grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.75fr);
+  gap: 1.5rem;
+}
+
+.contact-page .map-panel,
+.contact-page .map-panel:hover {
+  min-height: 480px;
+  border: 0;
+  border-radius: 24px;
+  background: #dff2fc;
+  box-shadow: none;
+  transform: none;
+}
+
+.contact-page .map-container,
+.contact-page .map-container iframe,
+.contact-page .map-placeholder {
+  min-height: 480px;
+}
+
+.contact-page .directions-button,
+.contact-page .directions-button:hover {
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  background: #167fb9;
+  box-shadow: none;
+  transform: none;
+}
+
+.contact-page .side-panel {
+  gap: 1.25rem;
+  padding: 1.35rem;
+  border-radius: 24px;
+  background: #dff2fc;
+}
+
+.contact-page .address-card,
+.contact-page .address-card:hover {
+  padding: 1.5rem;
+  border: 0;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.contact-page .address-icon,
+.contact-page .address-card:hover .address-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #3fa6e8;
+  color: #ffffff;
+  font-size: 1.4rem;
+}
+
+.contact-page .address-value {
+  font-size: 1rem;
+}
+
+.contact-page .schedule-box {
+  padding: 1.1rem;
+  border: 0;
+  border-radius: 14px;
+  background: #eaf6fd;
+}
+
+.contact-page .schedule-row {
+  font-size: 0.86rem;
+}
+
+.contact-page .social-panel {
+  padding: 1.35rem;
+  border: 0;
+  border-radius: 18px;
+  background: #167fb9;
+  box-shadow: none;
+}
+
+.contact-page .social-title {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.contact-page .social-grid {
+  gap: 0.65rem;
+}
+
+.contact-page .social-btn {
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.contact-page .social-btn:hover {
+  box-shadow: none;
+}
+
+@media (max-width: 900px) {
+  .contact-page .center-block {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-page .side-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .contact-page .map-panel,
+  .contact-page .map-container,
+  .contact-page .map-container iframe,
+  .contact-page .map-placeholder {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 640px) {
+  .contact-page .hero-section::after {
+    height: 60px;
+  }
+
+  .contact-page .main-content {
+    padding: 2rem 1rem 3.5rem;
+  }
+
+  .contact-page .info-row,
+  .contact-page .side-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-page .info-chip {
+    min-height: 112px;
+    padding: 1.3rem;
+  }
+
+  .contact-page .chip-value {
+    font-size: 0.94rem;
+  }
+
+  .contact-page .info-chip:nth-child(even) .chip-value {
+    font-size: clamp(0.72rem, 3.2vw, 0.84rem);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .contact-page .map-panel,
+  .contact-page .map-container,
+  .contact-page .map-container iframe,
+  .contact-page .map-placeholder {
+    min-height: 320px;
+  }
+
+  .contact-page .side-panel {
+    padding: 1rem;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 420px) {
+  .contact-page .hero-section::after {
+    height: 50px;
+  }
+
+  .contact-page .social-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   CONTACTO — EXPERIENCIA EDITORIAL
+   ============================================ */
+.contact-page .hero-section::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,0 C150,50 350,50 600,30 C850,10 1050,30 1200,0 L1200,100 L0,100 Z' fill='%23FFFFFF'/%3E%3C/svg%3E");
+}
+
+.contact-page .main-content {
+  max-width: 1240px;
+  padding: 4.5rem 2rem 6rem;
+  gap: 4rem;
+  overflow: hidden;
+}
+
+.contact-page .contact-intro {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.3fr);
+  align-items: center;
+  gap: clamp(2rem, 6vw, 5.5rem);
+}
+
+.contact-page .contact-intro-copy {
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.contact-page .contact-intro-copy::before {
+  content: '';
+  position: absolute;
+  top: 0.3rem;
+  bottom: 0.35rem;
+  left: 0;
+  width: 4px;
+  border-radius: 999px;
+  background: #3fa6e8;
+}
+
+.contact-page .contact-eyebrow {
+  display: block;
+  margin-bottom: 0.65rem;
+  color: #167fb9;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.contact-page .contact-intro-copy h2 {
+  margin: 0 0 0.75rem;
+  color: #132f46;
+  font-family: 'Nunito', sans-serif;
+  font-size: clamp(2.25rem, 4vw, 3.65rem);
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+.contact-page .contact-intro-copy p {
+  max-width: 410px;
+  margin: 0;
+  color: #607487;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.contact-page .info-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+.contact-page .info-chip,
+.contact-page .info-chip:nth-child(even) {
+  position: relative;
+  min-height: 94px;
+  padding: 1.15rem 1.6rem 1.15rem 1.05rem;
+  border: 0;
+  border-radius: 999px 26px 26px 999px;
+  background: #e5f4fd;
+  color: #163c57;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.contact-page .info-chip:nth-child(even) {
+  background: #167fb9;
+  color: #ffffff;
+}
+
+.contact-page .info-chip::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -25px;
+  width: 110px;
+  height: 110px;
+  border: 22px solid rgba(63, 166, 232, 0.12);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.contact-page .info-chip:nth-child(even)::after {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.contact-page .chip-icon,
+.contact-page .info-chip:hover .chip-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #3fa6e8;
+  color: #ffffff;
+  font-size: 1.65rem;
+}
+
+.contact-page .info-chip:nth-child(even) .chip-icon,
+.contact-page .info-chip:nth-child(even):hover .chip-icon {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.contact-page .chip-label {
+  color: #4e7894;
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+}
+
+.contact-page .info-chip:nth-child(even) .chip-label {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.contact-page .chip-value {
+  position: relative;
+  z-index: 1;
+  color: #163c57;
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+}
+
+.contact-page .info-chip:nth-child(even) .chip-value {
+  color: #ffffff;
+}
+
+.contact-page .center-block {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  align-items: center;
+  gap: 0;
+  min-height: 590px;
+}
+
+.contact-page .center-block::before {
+  content: '';
+  position: absolute;
+  top: -46px;
+  right: 85px;
+  width: 150px;
+  height: 150px;
+  border: 28px solid #dff2fc;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.contact-page .center-block::after {
+  content: '';
+  position: absolute;
+  right: 24px;
+  bottom: -30px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #3fa6e8;
+  z-index: 0;
+}
+
+.contact-page .map-panel,
+.contact-page .map-panel:hover {
+  position: relative;
+  grid-column: 1 / 3;
+  grid-row: 1;
+  width: calc(100% - 245px);
+  height: 570px;
+  min-height: 570px;
+  border: 0;
+  border-radius: 38px 120px 38px 38px;
+  background: #dff2fc;
+  box-shadow: none;
+  transform: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.contact-page .map-container,
+.contact-page .map-placeholder {
+  height: 570px;
+  min-height: 570px;
+}
+
+.contact-page .map-container iframe {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+.contact-page .map-heading {
+  position: absolute;
+  top: 1.35rem;
+  left: 1.35rem;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  max-width: calc(100% - 2.7rem);
+  padding: 0.8rem 1.1rem;
+  border-radius: 18px 18px 18px 5px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #153b56;
+  backdrop-filter: blur(10px);
+}
+
+.contact-page .map-heading span {
+  color: #167fb9;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.contact-page .map-heading strong {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.contact-page .map-overlay {
+  right: auto;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  transform: none;
+}
+
+.contact-page .directions-button,
+.contact-page .directions-button:hover {
+  padding: 0.82rem 1.35rem;
+  border-radius: 999px;
+  background: #167fb9;
+  box-shadow: none;
+  transform: none;
+}
+
+.contact-page .side-panel {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  margin-left: -92px;
+  padding: 2.2rem;
+  border-radius: 34px 34px 92px 34px;
+  background: #106fa8;
+  color: #ffffff;
+}
+
+.contact-page .side-panel-heading span {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.contact-page .side-panel-heading h2 {
+  margin: 0;
+  color: #ffffff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+}
+
+.contact-page .address-card,
+.contact-page .address-card:hover {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.contact-page .address-header {
+  margin-bottom: 1.25rem;
+}
+
+.contact-page .address-icon,
+.contact-page .address-card:hover .address-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #167fb9;
+}
+
+.contact-page .address-label,
+.contact-page .schedule-title {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.contact-page .address-value {
+  color: #ffffff;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.contact-page .schedule-box {
+  padding: 1.1rem 1.2rem;
+  border: 0;
+  border-radius: 18px 18px 42px 18px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.contact-page .schedule-day,
+.contact-page .schedule-time {
+  color: #ffffff;
+}
+
+.contact-page .schedule-time.closed {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.contact-page .social-panel {
+  padding: 1.25rem 0 0;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.contact-page .social-title {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.contact-page .social-btn {
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+@media (max-width: 980px) {
+  .contact-page .main-content {
+    gap: 3.25rem;
+  }
+
+  .contact-page .contact-intro {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .contact-page .info-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contact-page .center-block {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .contact-page .map-panel,
+  .contact-page .map-panel:hover {
+    width: 100%;
+    height: 480px;
+    min-height: 480px;
+    border-radius: 34px 80px 34px 34px;
+  }
+
+  .contact-page .map-container,
+  .contact-page .map-placeholder {
+    height: 480px;
+    min-height: 480px;
+  }
+
+  .contact-page .side-panel {
+    width: calc(100% - 3rem);
+    margin: -72px 0 0;
+    padding: 2rem;
+    border-radius: 30px 30px 68px 30px;
+  }
+
+  .contact-page .address-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .contact-page .address-header {
+    margin-bottom: 0;
+  }
+
+  .contact-page .center-block::before {
+    right: -20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .contact-page .main-content {
+    padding: 2.75rem 1rem 4rem;
+    gap: 2.75rem;
+  }
+
+  .contact-page .contact-intro-copy {
+    padding-left: 1rem;
+  }
+
+  .contact-page .contact-intro-copy h2 {
+    font-size: 2.45rem;
+  }
+
+  .contact-page .info-row {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-page .info-chip,
+  .contact-page .info-chip:nth-child(even) {
+    min-height: 88px;
+    padding: 1rem 1.2rem 1rem 0.9rem;
+    border-radius: 999px 22px 22px 999px;
+  }
+
+  .contact-page .chip-icon,
+  .contact-page .info-chip:hover .chip-icon {
+    width: 58px;
+    height: 58px;
+  }
+
+  .contact-page .chip-value {
+    font-size: 0.94rem;
+  }
+
+  .contact-page .map-panel,
+  .contact-page .map-panel:hover,
+  .contact-page .map-container,
+  .contact-page .map-placeholder {
+    height: 390px;
+    min-height: 390px;
+  }
+
+  .contact-page .map-panel,
+  .contact-page .map-panel:hover {
+    border-radius: 28px 58px 28px 28px;
+  }
+
+  .contact-page .map-heading {
+    top: 1rem;
+    left: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+
+  .contact-page .map-overlay {
+    bottom: 1rem;
+    left: 1rem;
+  }
+
+  .contact-page .side-panel {
+    width: calc(100% - 1.5rem);
+    margin-top: -42px;
+    padding: 1.6rem;
+    border-radius: 26px 26px 56px 26px;
+  }
+
+  .contact-page .side-panel-heading h2 {
+    font-size: 1.7rem;
+  }
+
+  .contact-page .address-card {
+    display: block;
+  }
+
+  .contact-page .address-header {
+    margin-bottom: 1.1rem;
+  }
+
+  .contact-page .center-block::before,
+  .contact-page .center-block::after {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .contact-page .social-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Ajuste final: contenido esencial y canales al cierre */
+.contact-page .main-content {
+  gap: 2.75rem;
+}
+
+.contact-page .center-block {
+  order: 1;
+}
+
+.contact-page .info-row {
+  order: 2;
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.contact-page .info-chip::after,
+.contact-page .center-block::before,
+.contact-page .center-block::after {
+  display: none !important;
+  content: none !important;
+}
+
+.contact-page .facebook-btn:hover {
+  background: #1877f2 !important;
+  color: #ffffff !important;
+}
+
+.contact-page .instagram-btn:hover {
+  background: #e4405f !important;
+  color: #ffffff !important;
+}
+
+.contact-page .twitter-btn:hover {
+  background: #111111 !important;
+  color: #ffffff !important;
+}
+
+.contact-page .whatsapp-btn:hover {
+  background: #25d366 !important;
+  color: #ffffff !important;
+}
+
+/* Iconos limpios: el contraste depende del tono del bloque */
+.contact-page .chip-icon,
+.contact-page .info-chip:hover .chip-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 0;
+  background: transparent !important;
+  color: #167fb9;
+  font-size: 1.8rem;
+}
+
+.contact-page .info-chip:nth-child(even) .chip-icon,
+.contact-page .info-chip:nth-child(even):hover .chip-icon {
+  background: transparent !important;
+  color: #ffffff;
+}
+
+.contact-page .address-icon,
+.contact-page .address-card:hover .address-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 0;
+  background: transparent !important;
+  color: #ffffff;
+  font-size: 1.6rem;
+}
+
+@media (max-width: 980px) {
+  .contact-page .map-overlay {
+    bottom: 6rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .contact-page .main-content {
+    gap: 2.25rem;
+  }
+
+  .contact-page .info-row {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .contact-page .map-overlay {
+    right: 1rem;
+    bottom: 4.75rem;
+    left: auto;
+  }
+
+  .contact-page .directions-button,
+  .contact-page .directions-button:hover {
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+  }
+}

@@ -79,10 +79,9 @@ body {
 
 .home-brand-logo {
   display: block;
-  width: 110px;
-  height: 110px;
+  width: 140px;
+  height: 140px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.28));
 }
 
 .home-brand-name,
@@ -103,12 +102,12 @@ body {
 
 .home-brand-name {
   max-width: 1500px;
-  font-size: clamp(2.8rem, 9vw, 7rem);
+  font-size: clamp(2.7rem, 8.2vw, 6.4rem);
 }
 
 .home-brand-name-sub {
   max-width: 1200px;
-  font-size: clamp(2.2rem, 7vw, 5.6rem);
+  font-size: clamp(2.7rem, 8.2vw, 6.4rem);
   line-height: 1;
 }
 
@@ -562,8 +561,8 @@ section#inicio > .absolute.inset-0 {
 @media (max-width: 1024px) {
   .home-brand-sentinel { height: 205svh; }
   .home-brand-overlay { padding-inline: clamp(1.5rem, 6vw, 4rem); }
-  .home-brand-name { font-size: clamp(2.6rem, 8vw, 5rem); }
-  .home-brand-name-sub { font-size: clamp(2.1rem, 6.5vw, 4rem); }
+  .home-brand-name,
+  .home-brand-name-sub { font-size: clamp(2.45rem, 7.4vw, 4.6rem); }
   .home-brand-sticky > section#inicio > svg { height: 80px; }
   .home-brand-sticky > section#inicio { padding-top: 6rem !important; padding-bottom: 5rem !important; }
   .home-news-title {
@@ -590,7 +589,7 @@ section#inicio > .absolute.inset-0 {
 @media (max-width: 768px) {
   .home-brand-sentinel { height: 195svh; }
   .home-brand-overlay { padding-inline: max(1.25rem, env(safe-area-inset-left)); }
-  .home-brand-logo { width: 100px; height: 100px; }
+  .home-brand-logo { width: 110px; height: 110px; }
   .home-brand-name,
   .home-brand-name-sub {
     max-width: 92vw;
@@ -639,18 +638,19 @@ section#inicio > .absolute.inset-0 {
       max(1rem, env(safe-area-inset-left));
   }
   .home-brand-logo {
-    width: clamp(88px, 25vw, 104px);
-    height: clamp(88px, 25vw, 104px);
+    width: clamp(96px, 27vw, 112px);
+    height: clamp(96px, 27vw, 112px);
     margin-bottom: 6px;
   }
   .home-brand-name {
     max-width: 94vw;
-    font-size: clamp(1.9rem, 8.2vw, 2.5rem);
+    font-size: clamp(1.8rem, 7.6vw, 2.3rem);
     line-height: 1.08;
   }
+  .home-brand-name,
   .home-brand-name-sub {
     max-width: 94vw;
-    font-size: clamp(1.7rem, 7.2vw, 2.2rem);
+    font-size: clamp(1.8rem, 7.6vw, 2.3rem);
   }
   section#inicio h1 { font-size: 2.5rem !important; line-height: 1.1 !important; }
   section#inicio .home-main-hero-content p {
@@ -712,16 +712,17 @@ section#inicio > .absolute.inset-0 {
   .home-brand-sentinel { height: 180svh; }
   .home-brand-overlay { gap: 7px; }
   .home-brand-logo {
-    width: 84px;
-    height: 84px;
+    width: 90px;
+    height: 90px;
     margin-bottom: 3px;
   }
   .home-brand-name {
     max-width: calc(100vw - 1.5rem);
-    font-size: clamp(1.65rem, 8.4vw, 1.9rem);
+    font-size: clamp(1.55rem, 7.6vw, 1.75rem);
   }
+  .home-brand-name,
   .home-brand-name-sub {
-    font-size: clamp(1.48rem, 7.6vw, 1.7rem);
+    font-size: clamp(1.55rem, 7.6vw, 1.75rem);
   }
   .home-brand-sticky > section#inicio {
     padding: 4rem 1rem 3rem !important;
@@ -743,17 +744,18 @@ section#inicio > .absolute.inset-0 {
     padding: 3.25rem 1.5rem 1rem;
   }
   .home-brand-logo {
-    width: clamp(58px, 15vh, 78px);
-    height: clamp(58px, 15vh, 78px);
+    width: clamp(64px, 16vh, 84px);
+    height: clamp(64px, 16vh, 84px);
     margin-bottom: 2px;
   }
   .home-brand-name {
     max-width: 86vw;
-    font-size: clamp(1.5rem, 7vh, 2.4rem);
+    font-size: clamp(1.45rem, 6.4vh, 2.15rem);
     line-height: 1;
   }
+  .home-brand-name,
   .home-brand-name-sub {
-    font-size: clamp(1.35rem, 6vh, 2rem);
+    font-size: clamp(1.45rem, 6.4vh, 2.15rem);
   }
   .home-brand-sticky > section#inicio {
     padding: 3.25rem 1.5rem 2.25rem !important;

@@ -1,7 +1,8 @@
 <nav
   class="navbar-desktop fixed top-0 left-0 right-0 z-50"
-  [class.scrolled]="isScrolled && !isInicioRoute"
+  [class.scrolled]="(isScrolled && !isInicioRoute) || isAuthRoute"
   [class.home-route]="isInicioRoute"
+  [class.auth-route]="isAuthRoute"
   [class.home-scrolled]="isInicioRoute && homeIntroProgress > 0.02"
   [style.--home-brand-progress]="homeBrandReveal">
   <div class="navbar-top">
@@ -282,6 +283,7 @@
 <nav
   class="navbar-mobile fixed top-0 left-0 right-0 z-50 bg-[#3FA6E8]"
   [class.home-route]="isInicioRoute"
+  [class.auth-route]="isAuthRoute"
   [class.home-scrolled]="isInicioRoute && homeIntroProgress > 0.02"
   [style.--home-brand-progress]="homeBrandReveal">
   <input type="checkbox" id="menu-toggle" [checked]="isMobileMenuOpen" (change)="toggleMobileMenu($event)" />

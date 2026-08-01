@@ -1,145 +1,94 @@
-<!-- OLA SVG: justo antes del footer -->
-<div class="iest-wave-wrap" aria-hidden="true">
-  <svg class="iest-wave-svg" viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <path class="iest-wave-path--front"
-      fill="#ffffff"
-      d="M0,40L60,45.3C120,51,240,61,360,58.7C480,56,600,40,720,40
-         C840,40,960,56,1080,61.3C1200,67,1320,61,1380,58.7L1440,56
-         L1440,0L0,0Z"/>
-  </svg>
-</div>
+<footer class="iest-footer">
+  <div class="iest-content">
+    <div class="iest-badge">
+      <img
+        src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
+        alt="Logo IEST"
+        class="iest-badge__logo"
+      />
+      <span class="iest-badge__name">Instituto de Estudios Superiores Tiozihuatl</span>
+    </div>
 
-<footer class="iest-footer" #footerEl>
-
-  <!--
-    ESTRUCTURA:
-    El sentinel ocupa 220vh para dar recorrido al scroll.
-    El sticky tiene height:100vh y contiene DOS capas absolutas:
-
-    CAPA FONDO (.iest-content): el footer real, siempre visible,
-    ocupa todo el sticky. El usuario lo ve aparecer mientras el
-    logo se mueve porque el sticky NUNCA desaparece — siempre
-    está en pantalla durante los 220vh del sentinel.
-
-    CAPA HERO (.iest-hero-overlay): el logo+nombre encima,
-    con background azul que se desvanece progresivamente.
-
-    Cuando el sentinel termina, el sticky se despega y el
-    documento sigue con el contenido extra que desborda del sticky.
-  -->
-  <div class="iest-hero-sentinel" #heroSentinel>
-    <div class="iest-hero-sticky">
-
-      <!-- CAPA 1: contenido del footer, siempre presente -->
-      <div class="iest-content" #contentEl>
-
-        <div class="iest-badge" #badgeEl>
-          <img
-            src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
-            alt="Logo IEST"
-            class="iest-badge__logo"
-          />
-          <span class="iest-badge__name">Instituto de Estudios Superiores Tiozihuatl</span>
-        </div>
-
-        <div class="iest-grid">
-          <div class="iest-col">
-            <h3 class="iest-col__title">La Institución</h3>
-            <ul class="iest-col__list">
-              <li *ngFor="let link of publicRoutes.institucional">
-                <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
-              </li>
-            </ul>
-          </div>
-          <div class="iest-col">
-            <h3 class="iest-col__title">Servicios</h3>
-            <ul class="iest-col__list">
-              <li *ngFor="let link of publicRoutes.servicios">
-                <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
-              </li>
-            </ul>
-            <h3 class="iest-col__title" style="margin-top:24px">Legal</h3>
-            <ul class="iest-col__list">
-              <li *ngFor="let link of publicRoutes.legal">
-                <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
-              </li>
-            </ul>
-          </div>
-          <div class="iest-col">
-            <h3 class="iest-col__title">Acceso Rápido</h3>
-            <ul class="iest-col__list">
-              <li *ngFor="let link of publicRoutes.academico">
-                <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
-              </li>
-            </ul>
-          </div>
-          <div class="iest-col">
-            <h3 class="iest-col__title">Contáctanos</h3>
-            <div *ngIf="cargandoContacto" class="iest-dots">
-              <span></span><span></span><span></span>
-            </div>
-            <ng-container *ngIf="!cargandoContacto">
-              <p class="iest-col__body">¿Tienes dudas o necesitas orientación académica? Estamos para ayudarte.</p>
-              <a routerLink="/contactanos" class="iest-btn">Escríbenos</a>
-              <div class="iest-contacts">
-                <div class="iest-contact" *ngIf="contacto.telefono">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                  <span>{{ contacto.telefono }}</span>
-                </div>
-                <div class="iest-contact" *ngIf="contacto.correo">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                  <span>{{ contacto.correo }}</span>
-                </div>
-                <div class="iest-contact" *ngIf="contacto.horario">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
-                  <span>{{ contacto.horario }}</span>
-                </div>
-              </div>
-            </ng-container>
-          </div>
-        </div>
-
-        <div class="iest-bottom">
-          <p class="iest-bottom__copy">© {{ currentYear }} · Instituto de Estudios Superiores Tiozihuatl · Todos los derechos reservados.</p>
-          <div class="iest-social" *ngIf="!cargandoContacto">
-            <a *ngIf="contacto.facebook"  [href]="contacto.facebook"  target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="Facebook">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
-            </a>
-            <a *ngIf="contacto.instagram" [href]="contacto.instagram" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="Instagram">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
-              </svg>
-            </a>
-            <a *ngIf="contacto.twitter"   [href]="contacto.twitter"   target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="Twitter / X">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </a>
-            <a *ngIf="contacto.whatsapp"  [href]="'https://wa.me/'+normalizePhone(contacto.whatsapp)" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="WhatsApp">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            </a>
-          </div>
-        </div>
-
-      </div><!-- /iest-content -->
-
-      <!-- CAPA 2: overlay con logo+nombre, encima del contenido -->
-      <div class="iest-hero-overlay">
-        <div class="iest-hero__logo-wrap" #logoEl>
-          <img
-            src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
-            alt="Logo IEST"
-            class="iest-hero__logo"
-            loading="lazy"
-          />
-        </div>
-        <h2 class="iest-hero__name" #nameEl>
-          Instituto de Estudios Superiores
-        </h2>
-        <h2 class="iest-hero__name-sub" #nameSubEl>
-          Tiozihuatl
-        </h2>
+    <div class="iest-grid">
+      <div class="iest-col">
+        <h3 class="iest-col__title">La Institución</h3>
+        <ul class="iest-col__list">
+          <li *ngFor="let link of publicRoutes.institucional">
+            <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
+          </li>
+        </ul>
       </div>
 
+      <div class="iest-col">
+        <h3 class="iest-col__title">Servicios</h3>
+        <ul class="iest-col__list">
+          <li *ngFor="let link of publicRoutes.servicios">
+            <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
+          </li>
+        </ul>
+
+        <h3 class="iest-col__title iest-col__title--secondary">Legal</h3>
+        <ul class="iest-col__list">
+          <li *ngFor="let link of publicRoutes.legal">
+            <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="iest-col">
+        <h3 class="iest-col__title">Acceso rápido</h3>
+        <ul class="iest-col__list">
+          <li *ngFor="let link of publicRoutes.academico">
+            <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="iest-col">
+        <h3 class="iest-col__title">Contáctanos</h3>
+        <div *ngIf="cargandoContacto" class="iest-dots" aria-label="Cargando información de contacto">
+          <span></span><span></span><span></span>
+        </div>
+
+        <ng-container *ngIf="!cargandoContacto">
+          <p class="iest-col__body">¿Tienes dudas o necesitas orientación académica? Estamos para ayudarte.</p>
+          <a routerLink="/contactanos" class="iest-btn">Escríbenos</a>
+
+          <div class="iest-contacts">
+            <div class="iest-contact" *ngIf="contacto.telefono">
+              <ion-icon name="call-outline"></ion-icon>
+              <span>{{ contacto.telefono }}</span>
+            </div>
+            <div class="iest-contact" *ngIf="contacto.correo">
+              <ion-icon name="mail-outline"></ion-icon>
+              <span>{{ contacto.correo }}</span>
+            </div>
+            <div class="iest-contact" *ngIf="contacto.horario">
+              <ion-icon name="time-outline"></ion-icon>
+              <span>{{ contacto.horario }}</span>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="iest-bottom">
+      <p class="iest-bottom__copy">© {{ currentYear }} · Instituto de Estudios Superiores Tiozihuatl · Todos los derechos reservados.</p>
+
+      <div class="iest-social" *ngIf="!cargandoContacto">
+        <a *ngIf="contacto.facebook" [href]="contacto.facebook" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="Facebook">
+          <ion-icon name="logo-facebook"></ion-icon>
+        </a>
+        <a *ngIf="contacto.instagram" [href]="contacto.instagram" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="Instagram">
+          <ion-icon name="logo-instagram"></ion-icon>
+        </a>
+        <a *ngIf="contacto.twitter" [href]="contacto.twitter" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="Twitter / X">
+          <ion-icon name="logo-twitter"></ion-icon>
+        </a>
+        <a *ngIf="contacto.whatsapp" [href]="'https://wa.me/' + normalizePhone(contacto.whatsapp)" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="WhatsApp">
+          <ion-icon name="logo-whatsapp"></ion-icon>
+        </a>
+      </div>
     </div>
   </div>
-
 </footer>

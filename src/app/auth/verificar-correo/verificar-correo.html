@@ -1,10 +1,19 @@
-<section class="verification-page" role="main" aria-live="polite">
-  <article class="verification-card">
-    <img
-      src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
-      alt="Instituto de Estudios Superiores Tiozihuatl"
-      class="verification-logo"
-    />
+<section class="auth-page verification-page" role="main" aria-live="polite">
+  <div class="auth-layout">
+    <aside class="auth-brand" aria-label="Instituto de Estudios Superiores Tiozihuatl">
+      <img
+        src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
+        class="auth-brand__logo"
+        alt="Logo del Instituto de Estudios Superiores Tiozihuatl"
+      />
+      <h1 class="auth-brand__name institution-display-title">
+        <span>Instituto de Estudios Superiores</span>
+        <span>Tiozihuatl</span>
+      </h1>
+    </aside>
+
+    <div class="auth-form-column">
+    <article class="verification-card auth-card">
 
     <div class="status-icon" [class.success]="estado === 'success'" [class.error]="estado === 'error'">
       <ion-icon *ngIf="estado === 'loading'" name="sync-outline" class="spin"></ion-icon>
@@ -30,4 +39,6 @@
       Volver al inicio de sesión
     </button>
   </article>
+  </div>
+  </div>
 </section>

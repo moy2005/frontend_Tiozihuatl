@@ -21,6 +21,7 @@ export class Navbar implements OnInit, OnDestroy {
   userName = '';
   userRole = '';
   isInicioRoute = false;
+  isAuthRoute = false;
   homeIntroProgress = 0;
 
   /** Indica que los datos del usuario aún están cargando */
@@ -69,7 +70,7 @@ export class Navbar implements OnInit, OnDestroy {
     this.cargarEventosMenu();
 
     this.isScrolled = window.scrollY > this.SCROLL_THRESHOLD;
-    this.homeIntroProgress = this.calcularProgresoInicio();
+    this.homeIntroProgress = this.normalizarProgresoNavbar(this.calcularProgresoInicio());
 
     this.ngZone.runOutsideAngular(() => {
       window.addEventListener('scroll', this.onScroll, { passive: true });
@@ -83,6 +84,7 @@ export class Navbar implements OnInit, OnDestroy {
     cancelAnimationFrame(this.scrollRafId);
     if (typeof document !== 'undefined') {
       document.body.classList.remove('home-navbar-route');
+      document.body.classList.remove('auth-navbar-route');
     }
   }
 
@@ -90,7 +92,9 @@ export class Navbar implements OnInit, OnDestroy {
     cancelAnimationFrame(this.scrollRafId);
     this.scrollRafId = requestAnimationFrame(() => {
       const shouldBeScrolled = window.scrollY > this.SCROLL_THRESHOLD;
-      const nextHomeProgress = this.isInicioRoute ? this.calcularProgresoInicio() : 0;
+      const nextHomeProgress = this.isInicioRoute
+        ? this.normalizarProgresoNavbar(this.calcularProgresoInicio())
+        : 0;
 
       if (
         shouldBeScrolled !== this.isScrolled ||
@@ -109,15 +113,33 @@ export class Navbar implements OnInit, OnDestroy {
     return Math.min(1, Math.max(0, (this.homeIntroProgress - 0.8) / 0.16));
   }
 
+  private normalizarProgresoNavbar(progress: number): number {
+    if (typeof window === 'undefined' || window.innerWidth >= 1024) return progress;
+
+    // En móvil evitamos actualizar Angular en cada píxel de scroll. La marca
+    // conserva un espacio estable y CSS realiza una única transición ligera.
+    if (progress >= 0.9) return 1;
+    return progress > 0.02 ? 0.1 : 0;
+  }
+
   private actualizarRutaInicio(url: string): void {
     const cleanUrl = (url || '').split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
     this.isInicioRoute = cleanUrl === '/' || cleanUrl === '/inicio';
+    this.isAuthRoute = [
+      '/login',
+      '/register',
+      '/forgot-password',
+      '/reset-password',
+      '/verificar-correo',
+      '/activar',
+    ].includes(cleanUrl);
     if (!this.isInicioRoute) {
       this.homeIntroProgress = 0;
     }
 
     if (typeof document !== 'undefined') {
       document.body.classList.toggle('home-navbar-route', this.isInicioRoute);
+      document.body.classList.toggle('auth-navbar-route', this.isAuthRoute);
     }
   }
 

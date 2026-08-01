@@ -3,9 +3,7 @@
 
 .header-catalogo {
   position: relative;
-  background:
-    linear-gradient(135deg, rgba(63, 166, 232, 0.92) 0%, rgba(45, 139, 232, 0.95) 100%),
-    url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop&q=80') center/cover no-repeat;
+  background: #3FA6E8;
   color: white;
   padding: 4rem 2rem 5rem;
   text-align: center;
@@ -13,11 +11,7 @@
 }
 
 .header-catalogo::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.05));
-  z-index: 1;
+  display: none;
 }
 
 .header-content {
@@ -28,8 +22,9 @@
 }
 
 .header-catalogo h1 {
+  font-family: 'Nunito', sans-serif;
   font-size: 3rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.75rem;
   letter-spacing: -0.5px;
 }
