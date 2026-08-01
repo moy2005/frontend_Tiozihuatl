@@ -176,8 +176,8 @@ body.auth-navbar-route { padding-top: 52px; }
 }
 
 .navbar-mobile.home-route .navbar-mobile-brand-logo {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   opacity: var(--home-brand-progress, 0);
   transform: translateY(calc(5px - (5px * var(--home-brand-progress, 0))));
   transition: opacity 0.24s ease, transform 0.24s ease;
@@ -185,32 +185,20 @@ body.auth-navbar-route { padding-top: 52px; }
 }
 
 .navbar-mobile.home-route .navbar-mobile-brand-logo img {
-  width: 42px !important;
-  height: 42px !important;
+  width: 48px !important;
+  height: 48px !important;
 }
 
 .navbar-mobile.home-route .navbar-mobile-brand {
   min-width: 0;
-  justify-content: flex-start;
-  gap: 0.45rem;
 }
 
 .navbar-mobile.home-route .navbar-mobile-institution-name {
   display: block;
   min-width: 0;
   max-width: none;
-  flex: 1 1 auto;
   overflow: hidden;
   opacity: var(--home-brand-progress, 0);
-  color: #ffffff;
-  font-size: clamp(0.5rem, 2.3vw, 0.7rem);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.015em;
-  text-align: left;
-  text-wrap: nowrap;
-  white-space: nowrap;
-  text-overflow: clip;
   transform: translateY(calc(5px - (5px * var(--home-brand-progress, 0))));
   transition: opacity 0.24s ease, transform 0.24s ease;
   will-change: opacity, transform;
@@ -855,59 +843,6 @@ body.auth-navbar-route { padding-top: 52px; }
   .navbar-mobile > .px-4 {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
-  }
-
-  .navbar-mobile.home-route .navbar-mobile-brand-logo {
-    width: 38px;
-    height: 38px;
-  }
-
-  .navbar-mobile.home-route .navbar-mobile-brand-logo img {
-    width: 38px !important;
-    height: 38px !important;
-  }
-
-  .navbar-mobile.home-route .navbar-mobile-institution-name {
-    max-width: none;
-    font-size: clamp(0.48rem, 2.35vw, 0.56rem);
-  }
-
-  .navbar-mobile.home-route .mobile-menu {
-    top: 66px;
-  }
-
-  .navbar-mobile.home-route #menu-toggle:checked ~ .mobile-menu {
-    max-height: calc(100dvh - 66px);
-  }
-}
-
-@media (max-height: 520px) and (orientation: landscape) and (max-width: 1023px) {
-  .navbar-mobile.home-route .navbar-mobile-brand-logo {
-    width: 36px !important;
-    height: 36px !important;
-  }
-
-  .navbar-mobile.home-route .navbar-mobile-brand-logo img {
-    width: 36px !important;
-    height: 36px !important;
-  }
-
-  .navbar-mobile.home-route .navbar-mobile-institution-name {
-    max-width: none;
-    font-size: 0.62rem;
-  }
-
-  .navbar-mobile.home-route > .px-4 {
-    padding-top: 0.45rem;
-    padding-bottom: 0.45rem;
-  }
-
-  .navbar-mobile.home-route .mobile-menu {
-    top: 52px;
-  }
-
-  .navbar-mobile.home-route #menu-toggle:checked ~ .mobile-menu {
-    max-height: calc(100dvh - 52px);
   }
 }
 

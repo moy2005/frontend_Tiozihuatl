@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
       !!this.auth.getAccessToken() || this.auth.hasUsableRefreshToken();
 
     if (!hasSession) {
-      return this.redirectToLogin('Inicia sesion para continuar.');
+      return this.redirectToLogin('Inicia sesión para continuar.');
     }
 
     try {
@@ -67,7 +67,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private redirectToLogin(message: string): UrlTree {
-    Swal.fire('Autenticacion requerida', message, 'info');
+    Swal.fire('Autenticación requerida', message, 'info');
     this.auth.clearSession();
     return this.router.createUrlTree(['/login']);
   }
