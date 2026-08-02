@@ -1,0 +1,84 @@
+<section class="seg-page">
+  <div class="seg-inner">
+    <header class="seg-header">
+      <div class="seg-header-copy">
+        <span class="seg-header-icon"><i class="ph ph-books"></i></span>
+        <div>
+          <h1>Uso del catálogo</h1>
+          <p>Conoce cómo se consultan los libros y qué acción conviene aplicar a cada forma de uso.</p>
+        </div>
+      </div>
+      <button type="button" class="seg-refresh" (click)="load()" [disabled]="loading">
+        <i class="ph ph-arrows-clockwise"></i> Actualizar
+      </button>
+    </header>
+
+    <div class="seg-state" *ngIf="loading">
+      <span class="seg-spinner"></span><strong>Analizando el uso reciente del catálogo…</strong>
+      <p>La información se obtiene directamente de los registros de la biblioteca.</p>
+    </div>
+    <div class="seg-state seg-error" *ngIf="!loading && error">
+      <i class="ph ph-warning-circle"></i><strong>No pudimos cargar la segmentación</strong><p>{{ error }}</p>
+      <button type="button" (click)="load()">Intentar nuevamente</button>
+    </div>
+
+    <ng-container *ngIf="!loading && data as result">
+      <section class="seg-intro">
+        <div class="seg-intro-icon"><i class="ph ph-info"></i></div>
+        <div>
+          <h2>¿Qué representa esta información?</h2>
+          <p>Los <strong>{{ result.totalBooks }} libros activos</strong> se organizan en tres segmentos según su uso físico y digital reciente. Los segmentos no califican la calidad de un libro: ayudan a decidir cómo mantenerlo disponible, presentarlo y darle seguimiento.</p>
+        </div>
+        <span class="seg-live"><i></i> Datos actuales de la biblioteca</span>
+      </section>
+
+      <div class="seg-section-heading">
+        <div><span>INTERPRETACIÓN</span><h2>Formas de uso identificadas</h2></div>
+        <p>Selecciona una tarjeta para consultar sus libros.</p>
+      </div>
+
+      <div class="seg-profile-grid">
+        <button type="button" class="seg-profile" *ngFor="let profile of result.profiles"
+          [class.active]="selectedCluster === profile.cluster" [attr.data-profile]="profile.cluster"
+          (click)="selectProfile(profile)">
+          <div class="seg-profile-top">
+            <span class="seg-profile-icon"><i [class]="'ph ph-' + (profile.cluster === 0 ? 'book-bookmark' : profile.cluster === 1 ? 'devices' : 'trend-up')"></i></span>
+            <span class="seg-profile-count"><strong>{{ profile.totalBooks }}</strong> libros</span>
+          </div>
+          <h3>{{ profile.profileName }}</h3>
+          <div class="seg-meaning"><span>Qué representa</span><p>{{ profile.description }}</p></div>
+          <div class="seg-evidence">
+            <span><i class="ph ph-monitor-play"></i><b>{{ profile.averages.sesiones_mes_1 | number:'1.1-1' }}</b> sesiones recientes</span>
+            <span><i class="ph ph-book-open-text"></i><b>{{ profile.averages.prestamos_mes_1 | number:'1.1-1' }}</b> préstamos recientes</span>
+          </div>
+          <div class="seg-action"><i class="ph ph-lightbulb"></i><div><span>Acción recomendada</span><p>{{ profile.action }}</p></div></div>
+        </button>
+      </div>
+
+      <section class="seg-books">
+        <div class="seg-books-header">
+          <div><span class="seg-kicker">SEGUIMIENTO DEL CATÁLOGO</span><h2>Libros por forma de uso</h2><p>Consulta el segmento vigente y la acción sugerida para cada libro.</p></div>
+          <div class="seg-tools">
+            <button type="button" [class.active]="selectedCluster === 'all'" (click)="selectProfile()"><i class="ph ph-squares-four"></i> Todos</button>
+            <label><i class="ph ph-magnifying-glass"></i><input type="search" [(ngModel)]="search" placeholder="Buscar libro"></label>
+          </div>
+        </div>
+        <div class="seg-table-wrap"><table class="seg-table">
+          <thead><tr><th>Libro</th><th>Forma de uso</th><th>Actividad digital reciente</th><th>Préstamos recientes</th><th>Comportamiento</th><th>Acción recomendada</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let book of books">
+              <td><small>#{{ book.id }}</small><strong>{{ book.titulo }}</strong></td>
+              <td><span class="seg-pill" [attr.data-profile]="book.cluster">{{ book.profileName }}</span></td>
+              <td><b class="seg-number">{{ book.metrics.sesiones_mes_1 }}</b><span class="seg-cell-help"> sesiones</span></td>
+              <td><b class="seg-number">{{ book.metrics.prestamos_mes_1 }}</b><span class="seg-cell-help"> préstamos</span></td>
+              <td><span class="seg-trend" [class]="'seg-trend ' + trendClass(book.metrics.tendencia_sesiones)"><i class="ph ph-circle"></i>{{ trendLabel(book.metrics.tendencia_sesiones) }}</span></td>
+              <td class="seg-action-cell">{{ book.action }}</td>
+            </tr>
+            <tr *ngIf="!books.length"><td colspan="6" class="seg-empty"><i class="ph ph-books"></i><strong>No encontramos libros</strong><span>Prueba con otro título o selecciona todos los segmentos.</span></td></tr>
+          </tbody>
+        </table></div>
+        <footer class="seg-table-footer">Mostrando <strong>{{ books.length }}</strong> de <strong>{{ result.totalBooks }}</strong> libros activos.</footer>
+      </section>
+    </ng-container>
+  </div>
+</section>

@@ -57,6 +57,7 @@ import { GestionTerminosComponent} from './pages/admin/gestion-terminos/gestion-
 import { GestionPagosComponent } from './pages/admin/gestion-pagos/gestion-pagos.component';
 import { GestionDescuentosComponent } from './pages/admin/gestion-descuentos/gestion-descuentos.component';
 import { ReportesComponent } from './pages/admin/reportes/reportes';
+import { ClusteringLibrosComponent } from './pages/admin/clustering-libros/clustering-libros';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
@@ -106,6 +107,7 @@ export const routes: Routes = [
       { path:'noticias',component:GestionNoticiasComponent},
       { path: 'eventos', component: GestionEventosComponent },
       { path: 'libros', component: GestionCatalogoComponent },
+      { path: 'segmentacion-libros', component: ClusteringLibrosComponent },
       { path : 'calendario-admin', component: GestionCalendarioComponent },
       { path : 'prestamos', component:GestionPrestamosComponent },
       { path : 'backups', component:GestionBackupsComponent },
