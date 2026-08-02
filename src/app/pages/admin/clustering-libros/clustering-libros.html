@@ -47,10 +47,6 @@
           </div>
           <h3>{{ profile.profileName }}</h3>
           <div class="seg-meaning"><span>Qué representa</span><p>{{ profile.description }}</p></div>
-          <div class="seg-evidence">
-            <span><i class="ph ph-monitor-play"></i><b>{{ profile.averages.sesiones_mes_1 | number:'1.1-1' }}</b> sesiones recientes</span>
-            <span><i class="ph ph-book-open-text"></i><b>{{ profile.averages.prestamos_mes_1 | number:'1.1-1' }}</b> préstamos recientes</span>
-          </div>
           <div class="seg-action"><i class="ph ph-lightbulb"></i><div><span>Acción recomendada</span><p>{{ profile.action }}</p></div></div>
         </button>
       </div>
@@ -64,13 +60,25 @@
           </div>
         </div>
         <div class="seg-table-wrap"><table class="seg-table">
-          <thead><tr><th>Libro</th><th>Forma de uso</th><th>Actividad digital reciente</th><th>Préstamos recientes</th><th>Comportamiento</th><th>Acción recomendada</th></tr></thead>
+          <thead><tr><th>Libro</th><th>Forma de uso</th><th>Actividad digital de los últimos 3 meses</th><th>Préstamos de los últimos 3 meses</th><th>Comportamiento</th><th>Acción recomendada</th></tr></thead>
           <tbody>
             <tr *ngFor="let book of books">
               <td><small>#{{ book.id }}</small><strong>{{ book.titulo }}</strong></td>
               <td><span class="seg-pill" [attr.data-profile]="book.cluster">{{ book.profileName }}</span></td>
-              <td><b class="seg-number">{{ book.metrics.sesiones_mes_1 }}</b><span class="seg-cell-help"> sesiones</span></td>
-              <td><b class="seg-number">{{ book.metrics.prestamos_mes_1 }}</b><span class="seg-cell-help"> préstamos</span></td>
+              <td>
+                <div class="seg-month-values">
+                  <span><small>Hace 3 meses</small><b>{{ book.metrics.sesiones_mes_3 }}</b></span>
+                  <span><small>Hace 2 meses</small><b>{{ book.metrics.sesiones_mes_2 }}</b></span>
+                  <span class="current"><small>Mes reciente</small><b>{{ book.metrics.sesiones_mes_1 }}</b></span>
+                </div>
+              </td>
+              <td>
+                <div class="seg-month-values">
+                  <span><small>Hace 3 meses</small><b>{{ book.metrics.prestamos_mes_3 }}</b></span>
+                  <span><small>Hace 2 meses</small><b>{{ book.metrics.prestamos_mes_2 }}</b></span>
+                  <span class="current"><small>Mes reciente</small><b>{{ book.metrics.prestamos_mes_1 }}</b></span>
+                </div>
+              </td>
               <td><span class="seg-trend" [class]="'seg-trend ' + trendClass(book.metrics.tendencia_sesiones)"><i class="ph ph-circle"></i>{{ trendLabel(book.metrics.tendencia_sesiones) }}</span></td>
               <td class="seg-action-cell">{{ book.action }}</td>
             </tr>
