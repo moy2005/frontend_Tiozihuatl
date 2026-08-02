@@ -74,7 +74,11 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   }
 
   abrirLibroCluster(libro: ClusterBook): void {
-    if (libro.tiene_digital) this.router.navigate(['/biblioteca/libro', libro.id]);
+    if (libro.tiene_digital) {
+      this.router.navigate(['/biblioteca/libro', libro.id]);
+      return;
+    }
+    this.router.navigate(['/biblioteca/detalle', libro.id]);
   }
 
   desplazarLibros(contenedor: HTMLElement, direccion: number): void {
