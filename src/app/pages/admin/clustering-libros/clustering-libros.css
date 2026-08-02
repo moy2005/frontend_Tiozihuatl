@@ -63,11 +63,7 @@
 .seg-profile-count strong { color: var(--accent); font-size: .95rem; }
 .seg-profile h3 { margin: .9rem 0 .65rem; color: #1e3a5f; font-size: 1rem; }
 .seg-meaning > span, .seg-action span { color: #78909c; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-.seg-meaning p { min-height: 64px; margin: .25rem 0 0; color: var(--muted); font-size: .85rem; line-height: 1.5; }
-.seg-evidence { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; margin: .85rem 0; }
-.seg-evidence span { padding: .65rem; border: 1px solid #e5edf2; border-radius: 6px; background: #f8fafc; color: #64748b; font-size: .7rem; }
-.seg-evidence i { margin-right: .25rem; color: var(--accent); }
-.seg-evidence b { display: block; margin-top: .25rem; color: #334155; font-size: 1rem; }
+.seg-meaning p { min-height: 64px; margin: .25rem 0 .9rem; color: var(--muted); font-size: .85rem; line-height: 1.5; }
 .seg-action { display: flex; gap: .6rem; padding: .8rem; border-left: 4px solid var(--accent); background: var(--soft); }
 .seg-action > i { color: var(--accent); font-size: 1.2rem; }
 .seg-action p { margin: .2rem 0 0; color: #475569; font-size: .78rem; line-height: 1.45; }
@@ -83,16 +79,20 @@
 .seg-tools label { width: 250px; padding: 0 .75rem; }
 .seg-tools input { width: 100%; border: 0; outline: 0; background: transparent; font: inherit; font-size: .8rem; }
 .seg-table-wrap { overflow-x: auto; }
-.seg-table { width: 100%; min-width: 1050px; border-collapse: collapse; }
+.seg-table { width: 100%; min-width: 1260px; border-collapse: collapse; }
 .seg-table th { padding: 1rem; border-bottom: 2px solid var(--primary); background: var(--header); color: #fff; text-align: left; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .025em; white-space: nowrap; }
 .seg-table td { padding: 1rem; border-bottom: 1px solid var(--border); color: #475569; font-size: .875rem; }
 .seg-table tbody tr:hover { background: #e3f2fd; }
 .seg-table td:first-child small { display: block; color: #2196f3; font-size: .7rem; }
-.seg-table td:first-child strong { display: block; max-width: 270px; overflow: hidden; color: #1e293b; font-size: .875rem; text-overflow: ellipsis; white-space: nowrap; }
+.seg-table td:first-child strong { display: block; width: 270px; color: #1e293b; font-size: .875rem; line-height: 1.35; overflow-wrap: anywhere; white-space: normal; }
 .seg-pill { display: inline-block; padding: .38rem .7rem; border: 1px solid #1976d2; border-radius: 999px; background: rgba(25,118,210,.1); color: #1976d2; font-size: .72rem; font-weight: 600; white-space: nowrap; }
 .seg-pill[data-profile="0"] { border-color: #f59e0b; background: rgba(245,158,11,.1); color: #92400e; }
 .seg-pill[data-profile="2"] { border-color: #7e57c2; background: rgba(126,87,194,.1); color: #6941a5; }
-.seg-number { color: #334155; font-size: .95rem; }.seg-cell-help { color: #94a3b8; font-size: .72rem; }
+.seg-month-values { min-width: 270px; display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; }
+.seg-month-values span { padding: .42rem .5rem; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; text-align: center; }
+.seg-month-values span.current { border-color: #90caf9; background: #eaf6fe; }
+.seg-month-values small { display: block; margin-bottom: .2rem; color: #78909c; font-size: .6rem; white-space: nowrap; }
+.seg-month-values b { color: #334155; font-size: .9rem; }
 .seg-trend { display: inline-flex; align-items: center; gap: .35rem; font-size: .75rem; font-weight: 600; white-space: nowrap; }
 .seg-trend i { font-size: .45rem; }.trend-up { color: #2e7d32; }.trend-down { color: #d32f2f; }.trend-stable { color: #607d8b; }
 .seg-action-cell { max-width: 260px; font-size: .78rem !important; line-height: 1.45; }
