@@ -46,7 +46,6 @@ import { MonitoreoComponent } from './pages/admin/monitoreo/monitoreo';
 import { MyLoans } from './pages/my-loans/my-loans';
 import { ActivateAccountComponent } from './auth/activate-account/activate-account';
 import { GestionMantenimientoComponent } from './pages/admin/gestion-maintenance/gestion-maintenance';
-import { PredictionComponent } from './pages/admin/prediction/prediction';
 import { GestionPeriodosComponent } from './pages/admin/gestion-periodos/gestion-periodos.component';
 import { MaterialesDocComponent } from './pages/materiales-doc/materiales-doc.component';
 import { MaterialesComponent } from './pages/materiales/materiales.component';
@@ -118,7 +117,6 @@ export const routes: Routes = [
       { path: 'monitoreo', component: MonitoreoComponent },
       { path: 'reportes', component: ReportesComponent },
       { path: 'mantenimiento', component: GestionMantenimientoComponent},
-      { path: 'prediction', component: PredictionComponent},
       { path: 'periodos', component: GestionPeriodosComponent},
       { path: 'materias', component: GestionMateriasComponent},
       { path: 'materiales', component: GestionMaterialesComponent },
