@@ -2,6 +2,8 @@ import { inject } from '@angular/core';
 import { HttpEvent, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { AuthService } from '../api/services/auth';
 import { Observable, catchError, switchMap, throwError, timer } from 'rxjs';
+import { ConnectivityService } from '../pwa/connectivity.service';
+import { apiPath } from '../pwa/pwa-policy';
 
 const isRefreshRequest = (url: string) => url.includes('/auth/refresh');
 
@@ -43,13 +45,15 @@ const shouldRetryTransientRequest = (req: HttpRequest<unknown>, err: any) => {
 };
 
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
+  if (apiPath(req.url) === null) return next(req);
+  const connection = inject(ConnectivityService);
   const authService = inject(AuthService);
   const isBootstrapRequest = isSessionBootstrapRequest(req.url);
 
   const sendRequest = (allowTransientRetry = true): Observable<HttpEvent<unknown>> =>
     next(attachAccessToken(req, authService.getAccessToken())).pipe(
       catchError((err) => {
-        if (allowTransientRetry && shouldRetryTransientRequest(req, err)) {
+        if (connection.available() && allowTransientRetry && shouldRetryTransientRequest(req, err)) {
           return timer(450).pipe(
             switchMap(() => sendRequest(false)),
           );

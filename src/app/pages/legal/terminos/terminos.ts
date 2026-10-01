@@ -2,7 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { environment } from '../../../../app/api/environments/environment.prod';
+import { environment } from '../../../../app/api/environments/environment';
 
 interface SeccionTermino {
   id: number;
@@ -30,6 +30,7 @@ export class Terminos implements OnInit {
 
   secciones: SeccionTermino[] = [];
   cargando = true;
+  error = false;
   ultimaActualizacion = '';
 
   constructor(
@@ -45,7 +46,7 @@ export class Terminos implements OnInit {
           this.ultimaActualizacion = this.formatearFecha(res.ultima_actualizacion);
           this.cargando = false;
         },
-        error: () => { this.cargando = false; }
+        error: () => { this.cargando = false; this.error = true; }
       });
   }
 

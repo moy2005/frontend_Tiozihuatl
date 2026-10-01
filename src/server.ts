@@ -5,12 +5,16 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+app.use((_req, res, next) => {
+  res.setHeader('Permissions-Policy', 'microphone=(self)');
+  next();
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.
@@ -32,6 +36,11 @@ app.use(
     maxAge: '1y',
     index: false,
     redirect: false,
+    setHeaders: (res, filePath) => {
+      if (!/-[A-Z0-9]{8,}\.(?:js|css|woff2?|ttf)$/i.test(basename(filePath))) {
+        res.setHeader('Cache-Control', 'no-cache');
+      }
+    },
   }),
 );
 
@@ -39,6 +48,11 @@ app.use(
  * Handle all other requests by rendering the Angular application.
  */
 app.use((req, res, next) => {
+  if (['/ngsw-worker.js', '/ngsw.json', '/manifest.webmanifest'].includes(req.path)) {
+    res.sendStatus(404);
+    return;
+  }
+  res.setHeader('Cache-Control', 'no-cache');
   angularApp
     .handle(req)
     .then((response) =>

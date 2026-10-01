@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "Instituto de Estudios Superiores Tiozihuatl",
+  "short_name": "IEST",
+  "description": "Portal institucional y servicios de la biblioteca del Instituto de Estudios Superiores Tiozihuatl.",
+  "lang": "es-MX",
+  "dir": "ltr",
+  "start_url": "/inicio",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3fa6e8",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

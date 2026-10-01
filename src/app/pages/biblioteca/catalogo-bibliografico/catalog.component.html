@@ -9,6 +9,8 @@
     <div class="search-container">
       <input
         type="text"
+        aria-label="Buscar libros por título o autor"
+        maxlength="200"
         class="search-box"
         [class.con-texto]="search !== ''"
         placeholder="Buscar por título o autor..."
@@ -26,10 +28,12 @@
       </button>
 
       <!-- Lupa: siempre visible -->
-      <button class="search-icon" type="button">
+      <button class="search-icon" type="button" aria-label="Buscar libros" (click)="cargarCatalogo()">
         <ion-icon name="search-outline"></ion-icon>
       </button>
     </div>
+    <app-voice-search (recognized)="actualizarBusqueda($event)" />
+    @if (errorCarga) { <p role="alert">No se pudo actualizar el catálogo. Comprueba tu conexión y vuelve a buscar.</p> }
   </div>
 
 <!-- OLA ANIMADA -->

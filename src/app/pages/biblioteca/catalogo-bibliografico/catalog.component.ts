@@ -1,15 +1,16 @@
 import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { CatalogService, Libro } from '../../../api/services/catalog.service';
 import { Router } from '@angular/router';
+import { VoiceSearchComponent } from '../../../pwa/voice-search.component';
 
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, VoiceSearchComponent],
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -34,6 +35,9 @@ export class CatalogoComponent implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
   private destroy$      = new Subject<void>();
+  private catalogRequest?: Subscription;
+  private requestVersion = 0;
+  errorCarga = false;
 
   constructor(
     private catalogService: CatalogService,
@@ -55,19 +59,24 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.catalogRequest?.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   onSearchInput(event: Event): void {
-    const valor = (event.target as HTMLInputElement).value;
+    this.actualizarBusqueda((event.target as HTMLInputElement).value);
+  }
+
+  actualizarBusqueda(valor: string): void {
+    this.search = valor.slice(0, 200);
     this.paginaActual = 1;
-    this.searchSubject.next(valor);
+    this.catalogRequest?.unsubscribe();
+    this.searchSubject.next(this.search);
   }
 
   limpiarBusqueda(): void {
-    this.search = '';
-    this._ejecutarCarga();
+    this.actualizarBusqueda('');
   }
 
   cargarCatalogo(): void {
@@ -97,25 +106,32 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   }
 
   private _ejecutarCarga(): void {
+    this.catalogRequest?.unsubscribe();
+    const version = ++this.requestVersion;
+    this.errorCarga = false;
     if (this.cargandoInicial) {
       this.cargando = true;
     }
     this.paginaActual = 1;
 
-    this.catalogService.obtenerCatalogo(
+    this.catalogRequest = this.catalogService.obtenerCatalogo(
       this.search,
       this.filtroMateria,
       this.filtroFormato,
       this.ordenAutor,
       this.filtroSemestre
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
+        if (version !== this.requestVersion) return;
         this.libros          = res;
         this.cargando        = false;
         this.cargandoInicial = false; 
         this._cargarPreviewsPagina();
       },
       error: (err) => {
+        if (version !== this.requestVersion) return;
+        this.libros = [];
+        this.errorCarga = true;
         console.error(err);
         this.cargando        = false;
         this.cargandoInicial = false;
@@ -127,7 +143,7 @@ export class CatalogoComponent implements OnInit, OnDestroy {
     this.librosPaginados
       .filter(l => l.tiene_digital && l.id && !l.previewUrl)
       .forEach(libro => {
-        this.catalogService.obtenerPreview(libro.id!).subscribe({
+        this.catalogService.obtenerPreview(libro.id!).pipe(takeUntil(this.destroy$)).subscribe({
           next: (p) => { libro.previewUrl = p.previewUrl; },
           error: () => {}
         });

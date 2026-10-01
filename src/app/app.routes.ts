@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { onlineGuard } from './pwa/online.guard';
+import { OfflinePageComponent } from './pwa/offline-page.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password';
@@ -57,7 +59,8 @@ import { GestionPagosComponent } from './pages/admin/gestion-pagos/gestion-pagos
 import { GestionDescuentosComponent } from './pages/admin/gestion-descuentos/gestion-descuentos.component';
 import { ReportesComponent } from './pages/admin/reportes/reportes';
 
-export const routes: Routes = [
+const applicationRoutes: Routes = [
+  { path: 'sin-conexion', component: OfflinePageComponent },
   { path: '', redirectTo: '/inicio', pathMatch: 'full' },
 
   // Públicas
@@ -130,3 +133,5 @@ export const routes: Routes = [
 
   { path: '**', redirectTo: '/error-404' },
 ];
+
+export const routes: Routes = [{ path: '', canActivateChild: [onlineGuard], children: applicationRoutes }];

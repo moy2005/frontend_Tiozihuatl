@@ -2,6 +2,14 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4.
 
+## PWA
+
+La PWA está preparada para producción HTTPS, con información institucional offline,
+avisos de conexión y actualización, servicios dinámicos protegidos y búsqueda por voz.
+Ejecuta `npm run test:pwa` y `npm run build:pwa` para validar y compilar.
+Consulta [funcionamiento y configuración de producción](docs/pwa.md), especialmente
+el endpoint de salud del backend, CORS y los encabezados del hosting. No se ha desplegado.
+
 ## Development server
 
 To start a local development server, run:

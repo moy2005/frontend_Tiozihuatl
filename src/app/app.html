@@ -10,4 +10,7 @@
   <app-footer></app-footer>
 }
 
-<app-virtual-assistant></app-virtual-assistant>
+@if (connection.available()) {
+  <app-virtual-assistant></app-virtual-assistant>
+}
+<app-pwa-status />

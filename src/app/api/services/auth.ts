@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError, timer } from 'rxjs';
 import { catchError, finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { API_URL } from '../api.config';
+import { ConnectivityService } from '../../pwa/connectivity.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly connection = inject(ConnectivityService);
   private readonly api = `${API_URL}`;
   private readonly refreshSkewMs = 5 * 60_000;
   private readonly refreshRetryMs = 60_000;
@@ -24,6 +26,7 @@ export class AuthService {
   }
 
   registerSessionActivity() {
+    if (!this.connection.available()) return;
     if (!this.hasStoredSession()) return;
 
     if (this.isSessionInactiveExpired()) {
@@ -84,6 +87,7 @@ export class AuthService {
   }
 
   private bootstrapSessionRecovery() {
+    if (!this.connection.available()) return;
     if (!this.hasStoredSession()) return;
 
     this.ensureSessionActivityTimestamp();
@@ -190,6 +194,7 @@ export class AuthService {
   }
 
   private runProactiveRefresh() {
+    if (!this.connection.available()) { this.stopProactiveRefresh(); return; }
     if (!this.hasUsableRefreshToken()) {
       this.stopProactiveRefresh();
       return;
@@ -223,6 +228,7 @@ export class AuthService {
   }
 
   private touchServerActivity(force = false) {
+    if (!this.connection.available()) return;
     if (!this.hasStoredSession() || !this.hasUsableRefreshToken() || !this.shouldTouchServerActivity(force)) {
       return;
     }
@@ -345,7 +351,7 @@ export class AuthService {
     const performRefreshRequest = (allowRetry = true): Observable<any> =>
       this.http.post(`${this.api}/auth/refresh`, payload).pipe(
         catchError((err) => {
-          if (allowRetry && this.isRecoverableSessionError(err)) {
+          if (this.connection.available() && allowRetry && this.isRecoverableSessionError(err)) {
             return timer(this.refreshImmediateRetryMs).pipe(
               switchMap(() => performRefreshRequest(false)),
             );

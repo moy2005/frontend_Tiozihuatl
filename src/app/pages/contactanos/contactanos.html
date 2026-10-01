@@ -75,7 +75,7 @@
 
       <!-- MAPA -->
       <div class="map-panel" #mapSection>
-        <div class="map-container" *ngIf="hasMapCoordinates()">
+        <div class="map-container" *ngIf="hasMapCoordinates() && connection.available()">
           <iframe
             [src]="getMapUrl()"
             width="100%"
@@ -94,9 +94,9 @@
             </a>
           </div>
         </div>
-        <div class="map-placeholder" *ngIf="!hasMapCoordinates()">
+        <div class="map-placeholder" *ngIf="!hasMapCoordinates() || !connection.available()">
           <i class="ph ph-map-pin-line"></i>
-          <span>Mapa no configurado</span>
+          <span>{{ connection.available() ? 'Mapa no configurado' : 'El mapa requiere conexión. Puedes consultar la dirección guardada.' }}</span>
         </div>
       </div>
 

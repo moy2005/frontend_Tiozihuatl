@@ -44,6 +44,7 @@ export class Footer implements OnInit {
     institucional: [
       { label: 'Inicio', path: '/inicio' },
       { label: 'Quiénes somos', path: '/about' },
+      { label: 'Uso sin conexión', path: '/sin-conexion' },
       { label: 'Noticias', path: '/noticias' },
       { label: 'Contáctanos', path: '/contactanos' },
       { label: 'Calendario', path: '/calendario' },

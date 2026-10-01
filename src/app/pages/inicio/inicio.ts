@@ -10,7 +10,11 @@ import {
   ViewChild,
   ViewChildren,
   ViewEncapsulation,
+  inject,
+  effect,
+  untracked,
 } from '@angular/core';
+import { ConnectivityService } from '../../pwa/connectivity.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { firstValueFrom, Subscription } from 'rxjs';
@@ -67,6 +71,7 @@ interface EventoHomeDetectado extends EventoHome {
   encapsulation: ViewEncapsulation.None,
 })
 export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
+  readonly connection = inject(ConnectivityService);
   @ViewChild('brandSentinel') brandSentinel!: ElementRef<HTMLElement>;
   @ViewChild('brandLogo') brandLogo!: ElementRef<HTMLElement>;
   @ViewChild('brandName') brandName!: ElementRef<HTMLElement>;
@@ -93,10 +98,17 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     private newsService: NewsService,
     private eventsService: EventsService,
     private ngZone: NgZone
-  ) {}
+  ) {
+    effect(() => {
+      const available = this.connection.available();
+      untracked(() => {
+        if (available) void Promise.all([this.cargarNoticias(), this.cargarEventos()]);
+        else { this.noticias = []; this.noticiasRender = []; this.eventosPreview = []; this.cargandoNoticias = false; this.cargandoEventos = false; }
+      });
+    });
+  }
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.cargarNoticias(), this.cargarEventos()]);
   }
 
   ngAfterViewInit(): void {
@@ -304,6 +316,7 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
         listaNoticias.map((noticia) => this.detectarMediaNoticia(noticia))
       );
 
+      if (!this.connection.available()) return;
       this.noticias = noticiasDetectadas;
       this.noticiasRender = this.construirGruposNoticias(noticiasDetectadas);
     } catch (error) {
@@ -325,6 +338,7 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
         listaEventos.map((evento) => this.detectarMediaEvento(evento))
       );
 
+      if (!this.connection.available()) return;
       this.eventosPreview = eventosDetectados
         .filter((evento) => this.normalizarBooleano(evento?.destacado))
         .slice(0, 3);

@@ -9,11 +9,18 @@ import { provideHttpClient, withFetch,withInterceptors } from '@angular/common/h
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { environment } from './api/environments/environment';
+import { provideServiceWorker } from '@angular/service-worker';
+import { pwaInterceptor } from './pwa/pwa.interceptor';
 
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(withFetch(),withInterceptors([AuthInterceptor])),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: environment.production,
+      registrationStrategy: 'registerWhenStable:30000',
+      updateViaCache: 'none',
+    }),
+    provideHttpClient(withFetch(),withInterceptors([pwaInterceptor, AuthInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
       provideRouter(

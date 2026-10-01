@@ -347,3 +347,6 @@ input[type="password"]::-webkit-textfield-decoration-container {
   visibility: hidden;
   pointer-events: none;
 }
+
+.public-content-error { margin:2rem auto; padding:1.5rem; max-width:960px; border:1px solid #b6d6e9; border-radius:12px; color:#25324a; background:#f0f8ff; line-height:1.6; }
+.public-content-error a { text-decoration:underline; color:#12638f; }

@@ -3,7 +3,7 @@ import { CommonModule }           from '@angular/common';
 import { RouterModule }           from '@angular/router';
 import { HttpClient }             from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { environment }            from '../../../../app/api/environments/environment.prod';
+import { environment }            from '../../../../app/api/environments/environment';
 
 interface SeccionPolitica {
   id:             number;

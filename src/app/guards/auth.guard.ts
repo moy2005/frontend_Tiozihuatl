@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 import { AuthService } from '../api/services/auth';
@@ -11,7 +11,7 @@ export class AuthGuard implements CanActivate {
     private readonly router: Router,
   ) {}
 
-  async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
+  async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> {
     const hasSession =
       !!this.auth.getAccessToken() || this.auth.hasUsableRefreshToken();
 
@@ -25,6 +25,7 @@ export class AuthGuard implements CanActivate {
       if (!this.auth.isRecoverableSessionError(error)) {
         return this.redirectToLogin('Tu sesion expiro. Inicia sesion nuevamente.');
       }
+      return this.router.createUrlTree(['/sin-conexion'], { queryParams: { volver: state.url } });
     }
 
     const storedUser = this.auth.getStoredUser();

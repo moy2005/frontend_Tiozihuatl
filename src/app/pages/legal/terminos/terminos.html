@@ -4,7 +4,7 @@
   <section class="relative pt-12 pb-10 bg-[#3FA6E8] text-white"
            style="overflow: visible; position: relative;">
 
-    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center"></div>
+    <div class="absolute inset-0 bg-[url('/offline/terminos.jpg')] opacity-10 bg-cover bg-center"></div>
 
     <div class="text-center mb-16 fade-in-up" style="position:relative; z-index:2;">
 
@@ -78,7 +78,7 @@
     </section>
 
     <!-- Sin secciones -->
-    <div *ngIf="!cargando && secciones.length === 0"
+    <div *ngIf="!cargando && !error && secciones.length === 0"
          class="content-card text-center py-16">
       <ion-icon name="document-outline"
                 style="font-size:3rem; color:#CBD5E1; display:block; margin:0 auto 1rem;">
@@ -192,3 +192,6 @@
     </div>
   </div>
 </footer>
+@if (error) {
+  <p role="alert" class="public-content-error">No se pudieron obtener los términos y no hay una copia vigente guardada. Conéctate y vuelve a abrir esta página.</p>
+}

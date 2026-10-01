@@ -14,6 +14,7 @@ import { AboutService, AboutItem } from '../../api/services/about.service';
 export class AboutComponent implements OnInit {
 
   cargando = true;
+  error = false;
 
   mision?: AboutItem;
   vision?: AboutItem;
@@ -30,6 +31,7 @@ export class AboutComponent implements OnInit {
         this.cargando = false;
       },
       error: () => {
+        this.error = true;
         this.cargando = false;
       }
     });

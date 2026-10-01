@@ -6,7 +6,7 @@
     <section id="inicio" class="relative bg-[#3FA6E8] text-white overflow-hidden">
       <div
         #heroBackdrop
-        class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581092919535-7146e93e06f8?auto=format&fit=crop&w=1500&q=80')] opacity-10 bg-cover bg-center">
+        class="absolute inset-0 bg-gradient-to-br from-white to-sky-700 opacity-10 bg-cover bg-center">
       </div>
       <div
         #heroContent
@@ -37,7 +37,7 @@
     <div class="home-brand-overlay" #brandOverlay>
       <div class="home-brand-logo-wrap" #brandLogo>
         <img
-          src="https://res.cloudinary.com/dazzy4wzq/image/upload/v1772194846/BackgroundEraser_20260227_061324945_bqx6yv.png"
+          src="/offline/logo.png"
           alt="Logo del Instituto de Estudios Superiores Tiozihuatl"
           class="home-brand-logo"
         />
@@ -52,7 +52,10 @@
   </div>
 </div>
 
-<section id="noticias" class="home-news-section">
+@if (!connection.available()) {
+  <section class="public-content-error" role="status">Las noticias y los eventos requieren conexión para mostrar información actualizada. <a routerLink="/sin-conexion">Consultar páginas descargadas</a></section>
+}
+<section id="noticias" class="home-news-section" *ngIf="connection.available()">
   <div *ngIf="cargandoNoticias" class="home-news-skeleton-list" aria-label="Cargando noticias..." aria-busy="true">
     <div class="home-news-skeleton-item">
       <div class="home-news-skeleton-media"></div>
@@ -181,7 +184,7 @@
   </div>
 </section>
 
-<section class="events-home-section" *ngIf="!cargandoEventos && eventosPreview.length > 0">
+<section class="events-home-section" *ngIf="connection.available() && !cargandoEventos && eventosPreview.length > 0">
   <div class="events-home-inner">
     <div class="events-home-grid">
       <a

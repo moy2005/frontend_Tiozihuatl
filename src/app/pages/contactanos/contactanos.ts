@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { ConnectivityService } from '../../pwa/connectivity.service';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ContactService } from '../../api/services/contact.service';
@@ -28,6 +29,7 @@ interface ContactInfo {
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ContactanosComponent implements OnInit {
+  readonly connection = inject(ConnectivityService);
   @ViewChild('mapSection') mapSection!: ElementRef;
 
   cargando = false;

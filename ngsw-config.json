@@ -1,0 +1,130 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app-shell",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css$",
+          "/*.js$",
+          "/icons/*.png$"
+        ]
+      }
+    },
+    {
+      "name": "institutional-assets",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/offline/**",
+          "/assets/ionicons/*.js$",
+          "/assets/ionicons/svg/alert-circle-outline.svg",
+          "/assets/ionicons/svg/alert-outline.svg",
+          "/assets/ionicons/svg/analytics-outline.svg",
+          "/assets/ionicons/svg/apps-outline.svg",
+          "/assets/ionicons/svg/arrow-forward.svg",
+          "/assets/ionicons/svg/briefcase-outline.svg",
+          "/assets/ionicons/svg/bug-outline.svg",
+          "/assets/ionicons/svg/bulb-outline.svg",
+          "/assets/ionicons/svg/business-outline.svg",
+          "/assets/ionicons/svg/calendar-outline.svg",
+          "/assets/ionicons/svg/call.svg",
+          "/assets/ionicons/svg/call-outline.svg",
+          "/assets/ionicons/svg/chatbox-outline.svg",
+          "/assets/ionicons/svg/checkmark-circle.svg",
+          "/assets/ionicons/svg/checkmark-circle-outline.svg",
+          "/assets/ionicons/svg/checkmark-done-outline.svg",
+          "/assets/ionicons/svg/chevron-forward-outline.svg",
+          "/assets/ionicons/svg/close-circle-outline.svg",
+          "/assets/ionicons/svg/cloud-done-outline.svg",
+          "/assets/ionicons/svg/code-outline.svg",
+          "/assets/ionicons/svg/code-slash-outline.svg",
+          "/assets/ionicons/svg/construct-outline.svg",
+          "/assets/ionicons/svg/desktop-outline.svg",
+          "/assets/ionicons/svg/document-outline.svg",
+          "/assets/ionicons/svg/document-text-outline.svg",
+          "/assets/ionicons/svg/documents-outline.svg",
+          "/assets/ionicons/svg/eye-off-outline.svg",
+          "/assets/ionicons/svg/finger-print-outline.svg",
+          "/assets/ionicons/svg/flag-outline.svg",
+          "/assets/ionicons/svg/git-branch-outline.svg",
+          "/assets/ionicons/svg/git-network-outline.svg",
+          "/assets/ionicons/svg/globe-outline.svg",
+          "/assets/ionicons/svg/hardware-chip-outline.svg",
+          "/assets/ionicons/svg/information-circle-outline.svg",
+          "/assets/ionicons/svg/key-outline.svg",
+          "/assets/ionicons/svg/library-outline.svg",
+          "/assets/ionicons/svg/list-outline.svg",
+          "/assets/ionicons/svg/location.svg",
+          "/assets/ionicons/svg/location-outline.svg",
+          "/assets/ionicons/svg/lock-closed-outline.svg",
+          "/assets/ionicons/svg/logo-facebook.svg",
+          "/assets/ionicons/svg/logo-instagram.svg",
+          "/assets/ionicons/svg/logo-twitter.svg",
+          "/assets/ionicons/svg/logo-whatsapp.svg",
+          "/assets/ionicons/svg/mail.svg",
+          "/assets/ionicons/svg/mail-open.svg",
+          "/assets/ionicons/svg/mail-outline.svg",
+          "/assets/ionicons/svg/notifications-outline.svg",
+          "/assets/ionicons/svg/people-circle-outline.svg",
+          "/assets/ionicons/svg/people-outline.svg",
+          "/assets/ionicons/svg/person-outline.svg",
+          "/assets/ionicons/svg/phone-portrait-outline.svg",
+          "/assets/ionicons/svg/receipt-outline.svg",
+          "/assets/ionicons/svg/refresh-outline.svg",
+          "/assets/ionicons/svg/save-outline.svg",
+          "/assets/ionicons/svg/school-outline.svg",
+          "/assets/ionicons/svg/server-outline.svg",
+          "/assets/ionicons/svg/shield-checkmark-outline.svg",
+          "/assets/ionicons/svg/shield-outline.svg",
+          "/assets/ionicons/svg/thermometer-outline.svg",
+          "/assets/ionicons/svg/time-outline.svg",
+          "/assets/ionicons/svg/trail-sign-outline.svg",
+          "/assets/ionicons/svg/warning-outline.svg"
+        ]
+      },
+      "cacheQueryOptions": {
+        "ignoreSearch": true
+      }
+    },
+    {
+      "name": "local-fonts",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/media/*.woff2$",
+          "/assets/fonts/**/*.woff2$"
+        ]
+      }
+    },
+    {
+      "name": "additional-icons",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/ionicons/svg/*.svg$"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**",
+    "!/api",
+    "!/api/**",
+    "!/uploads",
+    "!/uploads/**"
+  ],
+  "navigationRequestStrategy": "performance"
+}
