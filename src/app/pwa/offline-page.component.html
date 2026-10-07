@@ -1,0 +1,59 @@
+<section class="offline-hub">
+  <header class="offline-hero">
+    <div class="offline-hero__content">
+      <span class="offline-eyebrow"><span aria-hidden="true">◌</span> CONTIGO, TAMBIÉN SIN CONEXIÓN</span>
+      <h1>{{ connection.available() ? 'Tu instituto, siempre cerca' : 'Seguimos aquí para ti' }}</h1>
+      <p>{{ connection.available() ? 'Prepara la información del instituto para consultarla cuando la necesites.' : 'Mientras vuelve la conexión, puedes consultar la información que guardaste en este dispositivo.' }}</p>
+    </div>
+    <svg class="offline-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 35C300 85 480 0 760 25s450 50 680 5v30H0Z" fill="currentColor"/></svg>
+  </header>
+  <div class="offline-content">
+    <section class="download-card" aria-labelledby="download-title">
+      <span class="download-card__icon" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 18H5a4 4 0 0 1-.6-7.95A7 7 0 0 1 18 8a5 5 0 0 1 1 9.9M12 11v10m-4-4 4 4 4-4"/></svg>
+      </span>
+      <div class="download-card__copy" role="status">
+        <span class="download-label">{{ downloaded() ? 'LISTO PARA CONSULTAR' : 'EN ESTE DISPOSITIVO' }}</span>
+        <h2 id="download-title">{{ downloaded() ? 'Tu información está descargada' : content.preparing() ? 'Estamos preparando tu descarga' : 'Aún faltan páginas por guardar' }}</h2>
+        @if (downloaded()) {
+          <p>Copia más antigua: {{ content.oldestCopy() | date:'dd/MM/yyyy HH:mm' }}. Se renueva cuando tienes conexión y vence a los 30 días.</p>
+        } @else {
+          <p>{{ content.preparing() ? 'Mantén la página abierta mientras guardamos el contenido institucional.' : 'Conéctate y vuelve a comprobar. Solo las páginas marcadas como guardadas están preparadas para consultarse sin internet.' }}</p>
+        }
+        @if (retryFailed()) { <p class="retry-error">Todavía no podemos conectar con el servicio. Puedes intentarlo de nuevo en unos momentos.</p> }
+      </div>
+      <button class="offline-primary" type="button" (click)="retry()" [disabled]="retrying() || connection.checking() || content.preparing()">
+        <span [class.offline-spinning]="retrying() || connection.checking()" aria-hidden="true">↻</span>
+        {{ retrying() || connection.checking() ? 'Comprobando…' : connection.available() ? 'Comprobar descarga' : 'Reintentar conexión' }}
+      </button>
+    </section>
+    <div class="offline-section-heading">
+      <div><span class="offline-kicker">EXPLORA EL INSTITUTO</span><h2>Información a tu alcance</h2></div>
+      <p>El estado de cada página indica si ya está guardada.</p>
+    </div>
+    <nav class="offline-grid" aria-label="Información institucional">
+      @for (page of pages; track page.route) {
+        @if (availableOffline(page.path) || connection.available()) {
+          <a class="offline-page-card" [routerLink]="page.route">
+            <span class="offline-page-card__top"><span class="offline-page-card__icon" aria-hidden="true">{{ page.icon }}</span><span class="offline-page-card__arrow" aria-hidden="true">↗</span></span>
+            <h3>{{ page.title }}</h3><p>{{ page.description }}</p>
+            <span class="offline-page-card__state" [class.offline-page-card__state--saved]="availableOffline(page.path)">{{ availableOffline(page.path) ? '✓ Guardada en este dispositivo' : 'Requiere conexión' }}</span>
+          </a>
+        } @else {
+          <div class="offline-page-card offline-page-card--disabled" aria-disabled="true">
+            <span class="offline-page-card__icon" aria-hidden="true">{{ page.icon }}</span><h3>{{ page.title }}</h3><p>{{ page.description }}</p>
+            <span class="offline-page-card__state">Pendiente de descarga</span>
+          </div>
+        }
+      }
+    </nav>
+    <aside class="offline-information">
+      <span class="offline-information__icon" aria-hidden="true">ⓘ</span>
+      <div><h2>Algunos servicios necesitan conexión</h2>
+        <p>El catálogo, los documentos, tu cuenta y los trámites consultan información actualizada. Volverán a estar disponibles cuando el servicio responda.</p>
+        <p>No enviamos operaciones pendientes automáticamente. Si estabas realizando un pago o una solicitud, revisa su estado antes de repetirlo.</p>
+      </div>
+    </aside>
+    <p class="offline-footnote">Las copias se guardan en este navegador. Si borras sus datos o el dispositivo libera espacio, necesitarás descargarlas otra vez.</p>
+  </div>
+</section>

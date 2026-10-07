@@ -1,0 +1,27 @@
+:host { font-family:'Public Sans',sans-serif; color:#1e293b; }
+.pwa-notifications { position:fixed; bottom:max(1.25rem,env(safe-area-inset-bottom)); left:1.25rem; z-index:10000; width:min(420px,calc(100vw - 2.5rem)); pointer-events:none; }
+.pwa-notifications__list { display:grid; gap:.75rem; max-height:65dvh; overflow:auto; padding:.4rem; margin:-.4rem; scrollbar-width:thin; }
+.pwa-notice { pointer-events:auto; padding:1.25rem; background:#fff; border:1px solid #e2e8f0; border-radius:20px; box-shadow:0 12px 40px #15334d1c,0 2px 8px #15334d08; animation:notice-arrive .38s cubic-bezier(.22,1,.36,1) both; }
+.pwa-notice__heading { display:flex; align-items:center; gap:.7rem; }
+.pwa-notice__icon { display:grid; place-items:center; width:34px; height:34px; flex:0 0 34px; background:none; color:#2d8be8; border-radius:0; box-shadow:none; font:700 22px 'Nunito',sans-serif; }
+.pwa-notice h2 { margin:0; flex:1; font:700 1rem/1.35 'Public Sans',sans-serif; letter-spacing:-.015em; }
+.pwa-notice p { margin:.85rem 0 0; font-size:.875rem; line-height:1.65; color:#64748b; }
+.pwa-notice .pwa-notice__detail { font-size:.77rem; color:#64748b; }
+.pwa-notice button,.pwa-notice a,.pwa-notifications__restore { font-family:inherit; font-size:.81rem; font-weight:700; transition:background .18s,box-shadow .18s; }
+.pwa-notice__close { display:grid; place-items:center; min-width:36px; min-height:36px; margin:-.5rem -.5rem -.5rem 0; border:0; border-radius:0; box-shadow:none; background:transparent; color:#64748b; cursor:pointer; }
+.pwa-notice__close:hover { background:transparent; color:#2d8be8; }
+.pwa-notice__actions { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-top:1rem; }
+.pwa-notice__actions:empty { display:none; }
+.pwa-notice__primary,.pwa-notice__secondary { min-height:40px; border:0; border-radius:11px; padding:.65rem .9rem; cursor:pointer; }
+.pwa-notice__primary { background:#1976d2; color:#fff; }
+.pwa-notice__primary:hover { background:#1565c0; }
+.pwa-notice__secondary { background:#f0f5f9; color:#475569; }
+.pwa-notice__secondary:hover { background:#e2edf5; }
+.pwa-notice a { color:#1976d2; text-underline-offset:3px; padding:.5rem 0; }
+.pwa-notice button:disabled { opacity:.55; cursor:wait; }
+.pwa-notice--critical .pwa-notice__icon { color:#b45309; background:none; box-shadow:none; }
+.pwa-notifications__restore { pointer-events:auto; display:flex; gap:.5rem; align-items:center; min-height:40px; margin-top:.75rem; border:1px solid #e2e8f0; border-radius:24px; padding:.6rem 1rem; background:#fff; color:#475569; box-shadow:0 4px 16px #15334d16; cursor:pointer; }
+button:focus-visible,a:focus-visible { outline:3px solid #1368c4; outline-offset:3px; }
+@keyframes notice-arrive { from { opacity:0; transform:translateY(18px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+@media(max-width:600px) { .pwa-notifications { left:.75rem; bottom:max(.75rem,env(safe-area-inset-bottom)); width:calc(100vw - 1.5rem); } .pwa-notice { padding:1rem; border-radius:16px; } .pwa-notifications__list { max-height:55dvh; } }
+@media(prefers-reduced-motion:reduce) { .pwa-notice { animation:none; } .pwa-notice button,.pwa-notice a { transition:none; } }

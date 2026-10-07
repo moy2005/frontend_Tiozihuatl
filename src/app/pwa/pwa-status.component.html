@@ -1,0 +1,53 @@
+<div class="pwa-notifications" aria-label="Avisos de la aplicación">
+  <div class="pwa-notifications__list" aria-live="polite" aria-relevant="additions text">
+    @for (notice of visibleNotices(); track notice.key) {
+      <section class="pwa-notice" [class.pwa-notice--critical]="!notice.closable" [attr.aria-label]="notice.title">
+        <div class="pwa-notice__heading">
+          <span class="pwa-notice__icon" aria-hidden="true">{{ notice.symbol }}</span>
+          <h2>{{ notice.title }}</h2>
+          @if (notice.closable) {
+            <button class="pwa-notice__close" type="button" (click)="dismiss(notice)" [attr.aria-label]="'Cerrar aviso: ' + notice.title">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+            </button>
+          }
+        </div>
+        <p>{{ notice.text }}</p>
+        @if (notice.kind === 'copy') {
+          <p class="pwa-notice__detail">Guardada el {{ copiedAt() | date:'dd/MM/yyyy HH:mm' }}</p>
+        }
+        @if (notice.kind === 'update' || notice.kind === 'recovery') {
+          <p class="pwa-notice__detail">Antes de recargar, guarda tus cambios y revisa cualquier pago en curso.</p>
+        }
+        <div class="pwa-notice__actions">
+          @switch (notice.kind) {
+            @case ('connection') {
+              <button class="pwa-notice__primary" type="button" (click)="retry()" [disabled]="connection.checking()">{{ connection.checking() ? 'Comprobando…' : 'Reintentar' }}</button>
+              <a routerLink="/sin-conexion">Ver páginas disponibles <span aria-hidden="true">↗</span></a>
+            }
+            @case ('restored') {
+              <button class="pwa-notice__secondary" type="button" (click)="connection.restored.set(false)">Entendido</button>
+            }
+            @case ('copy') {
+              @if (connection.available()) { <button class="pwa-notice__secondary" type="button" (click)="pwa.reload()">Actualizar página</button> }
+            }
+            @case ('storage') { <a routerLink="/sin-conexion">Revisar descarga <span aria-hidden="true">↗</span></a> }
+            @case ('error') {
+              <button class="pwa-notice__primary" type="button" [disabled]="!connection.available() || pwa.checkingUpdate()" (click)="pwa.checkForUpdate(true)">{{ pwa.checkingUpdate() ? 'Comprobando…' : 'Volver a comprobar' }}</button>
+              <button class="pwa-notice__secondary" type="button" (click)="dismiss(notice)">Más tarde</button>
+            }
+            @case ('update') {
+              <button class="pwa-notice__primary" type="button" [disabled]="!connection.available()" (click)="pwa.reload()">Actualizar ahora</button>
+              <button class="pwa-notice__secondary" type="button" (click)="dismiss(notice)">Más tarde</button>
+            }
+            @case ('recovery') {
+              <button class="pwa-notice__primary" type="button" [disabled]="!connection.available()" (click)="pwa.reload()">Recargar aplicación</button>
+            }
+          }
+        </div>
+      </section>
+    }
+  </div>
+  @if (hiddenCount()) {
+    <button class="pwa-notifications__restore" type="button" (click)="showNotices()"><span aria-hidden="true">ⓘ</span> Ver avisos ({{ hiddenCount() }})</button>
+  }
+</div>

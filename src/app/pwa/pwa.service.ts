@@ -16,6 +16,9 @@ export class PwaService {
   readonly assetsReady = signal(false);
   readonly updateReady = signal(false);
   readonly updateError = signal('');
+  readonly recoveryRequired = signal(false);
+  readonly readyVersion = signal('');
+  readonly checkingUpdate = signal(false);
   readonly unsupported = signal(false);
   private lastUpdateCheck = 0;
 
@@ -35,10 +38,23 @@ export class PwaService {
     if (!this.updates.isEnabled) return;
     if (!window.isSecureContext || !('serviceWorker' in navigator)) { this.unsupported.set(true); return; }
     const subscription = this.updates.versionUpdates.subscribe(event => {
-      if (event.type === 'VERSION_READY') { this.updateReady.set(true); this.updateError.set(''); }
-      if (event.type === 'VERSION_INSTALLATION_FAILED' || event.type === 'VERSION_FAILED') this.updateError.set('No se pudo descargar la nueva versión. La aplicación volverá a intentarlo con conexión.');
+      if (event.type === 'VERSION_READY') {
+        this.readyVersion.set(event.latestVersion?.hash || 'ready');
+        this.updateReady.set(true);
+        if (!this.recoveryRequired()) this.updateError.set('');
+      }
+      if (event.type === 'NO_NEW_VERSION_DETECTED' && !this.recoveryRequired()) this.updateError.set('');
+      if (event.type === 'VERSION_INSTALLATION_FAILED' || event.type === 'VERSION_FAILED') {
+        console.warn('[PWA]', event.type, event.version.hash, event.error);
+        if (event.version.hash === this.readyVersion()) { this.updateReady.set(false); this.readyVersion.set(''); }
+        if (!this.recoveryRequired()) this.updateError.set('No pudimos preparar la actualización. Puedes seguir usando la página y volver a comprobarla más tarde.');
+      }
     });
-    const unrecoverable = this.updates.unrecoverable.subscribe(() => this.updateError.set('Esta versión necesita recargarse con conexión. Guarda o revisa tus operaciones antes de continuar.'));
+    const unrecoverable = this.updates.unrecoverable.subscribe(event => {
+      console.warn('[PWA] UNRECOVERABLE', event.reason);
+      this.recoveryRequired.set(true);
+      this.updateError.set('Esta versión necesita recargarse con conexión. Guarda o revisa tus operaciones antes de continuar.');
+    });
     const controlled = () => this.zone.run(() => {
       this.assetsReady.set(!!navigator.serviceWorker.controller);
       if (this.assetsReady()) void this.content.prepareIcons().catch(() => this.content.iconsReady.set(false));
@@ -59,11 +75,19 @@ export class PwaService {
     });
   }
 
-  private async checkForUpdate(): Promise<void> {
-    if (!this.updates.isEnabled || !this.connection.available() || Date.now() - this.lastUpdateCheck < 60_000) return;
+  async checkForUpdate(manual = false): Promise<void> {
+    if (!this.updates.isEnabled || !this.connection.available() || this.checkingUpdate() || (!manual && Date.now() - this.lastUpdateCheck < 60_000)) return;
+    this.checkingUpdate.set(true);
     this.lastUpdateCheck = Date.now();
-    try { await this.updates.checkForUpdate(); }
-    catch { this.updateError.set('No se pudo comprobar si hay actualizaciones. Se volverá a intentar con conexión.'); }
+    try {
+      await this.updates.checkForUpdate();
+      if (!this.recoveryRequired()) this.updateError.set('');
+    }
+    catch (error) {
+      console.warn('[PWA] CHECK_FAILED', error);
+      if (!this.recoveryRequired()) this.updateError.set('No pudimos comprobar la actualización. La página seguirá abierta; vuelve a intentarlo más tarde.');
+    }
+    finally { this.checkingUpdate.set(false); }
   }
 
   reload(): void {

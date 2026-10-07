@@ -1,5 +1,32 @@
 # PWA para producción HTTPS
 
+## Incidencia de actualización del 7 de octubre de 2026
+
+Se revisó `https://frontiozihuatl.netlify.app`. De 112 recursos de precarga, solo `/index.html` no coincidía con su huella en `ngsw.json`. El HTML servido incluía un comentario de Netlify que no existía en el build. Al eliminar únicamente ese comentario de la respuesta, el SHA-1 coincidió exactamente con el declarado:
+
+- Esperado: `5ca5c53e45ee823a31e5f52d60e075524371f3f9`.
+- Servido: `a9baf0131b2765db5782c98cc675b1752d19873f`.
+
+La misma diferencia persistió usando una URL de cache busting. Angular rechaza una versión cuyos archivos no coinciden; recargar no corrige una transformación del servidor. La API `/api/health` respondió 200, con CORS correcto, en unos 350 ms durante la comprobación. Esto no descarta arranques lentos u otros problemas intermitentes. Tampoco demuestra que toda demora del inicio proceda del worker; el bundle inicial del proyecto sigue siendo grande.
+
+Se añadió `netlify.toml` con el build verificado, directorio publicable y `skip_processing = true`; `_headers` solicita `no-transform`. Estas son medidas de configuración, no una confirmación de que se haya desactivado la inyección en la cuenta publicada. No se modificó la cuenta ni se desplegó. Si se publica arrastrando únicamente `dist/frontend/browser`, el TOML del repositorio no configura ese despliegue: revisar también las opciones del proyecto en Netlify.
+
+Al publicar desde Git, la base del proyecto Netlify debe ser la carpeta del frontend que contiene `package.json` y `netlify.toml`. Publicar el build completo y evitar cualquier transformación posterior del HTML. Revisar Project configuration > Developer settings > Post processing > Snippet Injection y desactivar cualquier inyección que modifique el documento. Si el comentario automático sigue presente pese a la configuración, debe deshabilitarse en el proveedor o consultarse con soporte. No se debe eliminar la verificación de hashes ni editar `ngsw.json` para esconder el fallo.
+
+Después de publicar, ejecutar desde el frontend:
+
+```powershell
+npm run verify:pwa:deployed -- https://frontiozihuatl.netlify.app
+```
+
+El comando solo lee el sitio, comprueba todos sus recursos de precarga con concurrencia limitada y devuelve error si el hosting alteró un archivo. Detecta específicamente el comentario observado. Mientras falle esta comprobación, la causa del error publicado no está resuelta. Cuando pase, las pestañas existentes podrán descargar la versión correcta; una actualización lista se aplica al recargar voluntariamente.
+
+Los avisos separan ahora actualización lista, comprobación fallida y recuperación obligatoria. Los errores temporales se limpian tras una comprobación correcta y ofrecen reintentar, sin pedir recargar. Los avisos informativos se pueden cerrar o posponer; el botón «Ver avisos» permite recuperarlos. Un cambio de versión o una nueva desconexión vuelve a avisar. Una versión irrecuperable permanece visible y nunca se recarga automáticamente. El cierre solo dura durante la sesión de la página.
+
+Validación de este ajuste: 19 pruebas dirigidas aprobadas, build de producción y verificación de integridad local correctos (1406 archivos), revisión visual de escritorio y ancho móvil de 390 px, cierre y recuperación de avisos comprobados. La prueba visual se hizo en un origen de desarrollo sin autorización CORS de producción, por lo que el aviso de servicio no disponible y las copias públicas pendientes eran esperados allí. No se modificó CORS para esa prueba. El verificador remoto reprodujo el fallo del HTML del sitio publicado.
+
+La interfaz de `/sin-conexion` usa la paleta y tipografías de Nosotros, tarjetas por página y estados de descarga. «Comprobar descarga» permanece en esta pantalla si no hay un servicio de retorno solicitado. Los estilos de avisos respetan movimiento reducido y navegación por teclado.
+
 ## Comportamiento
 
 La aplicación usa el service worker oficial de Angular 20.3.4, manifiesto local y presentación `standalone`. Se registra únicamente en producción, cuando la aplicación se estabiliza o después de 30 segundos. La identidad, el alcance y las rutas presuponen publicación en la raíz del dominio.

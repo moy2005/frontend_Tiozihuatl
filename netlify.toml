@@ -1,0 +1,6 @@
+[build]
+  command = "npm run build:pwa"
+  publish = "dist/frontend/browser"
+
+[build.processing]
+  skip_processing = true
