@@ -5,7 +5,11 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { CatalogService, Libro } from '../../../api/services/catalog.service';
 import { Router } from '@angular/router';
-import { VoiceSearchComponent } from '../../../pwa/voice-search.component';
+import {
+  normalizeVoiceText,
+  VoiceSearchCommand,
+  VoiceSearchComponent,
+} from '../../../pwa/voice-search.component';
 
 @Component({
   selector: 'app-catalogo',
@@ -19,6 +23,7 @@ export class CatalogoComponent implements OnInit, OnDestroy {
 
   libros:       Libro[] = [];
   search        = '';
+  voicePreview  = '';
   filtroMateria = '';
   filtroFormato = '';
   ordenAutor    = '';
@@ -65,6 +70,7 @@ export class CatalogoComponent implements OnInit, OnDestroy {
   }
 
   onSearchInput(event: Event): void {
+    this.voicePreview = '';
     this.actualizarBusqueda((event.target as HTMLInputElement).value);
   }
 
@@ -73,6 +79,28 @@ export class CatalogoComponent implements OnInit, OnDestroy {
     this.paginaActual = 1;
     this.catalogRequest?.unsubscribe();
     this.searchSubject.next(this.search);
+  }
+
+  mostrarTranscripcionVoz(texto: string): void {
+    this.voicePreview = texto;
+  }
+
+  aplicarComandoVoz(comando: VoiceSearchCommand): void {
+    this.voicePreview = '';
+    if (comando.type === 'materia') {
+      const valorNormalizado = normalizeVoiceText(comando.value);
+      const coincidencias = this.materias.filter(
+        materia => normalizeVoiceText(materia.nombre) === valorNormalizado,
+      );
+      if (coincidencias.length === 1) {
+        this.search = '';
+        this.filtroMateria = coincidencias[0].nombre;
+        this.paginaActual = 1;
+        this._ejecutarCarga();
+        return;
+      }
+    }
+    this.actualizarBusqueda(comando.value);
   }
 
   limpiarBusqueda(): void {

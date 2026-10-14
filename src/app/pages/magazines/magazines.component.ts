@@ -7,6 +7,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../app/api/environments/environment';
 import { FormsModule } from '@angular/forms';
+import { VoiceSearchCommand, VoiceSearchComponent } from '../../pwa/voice-search.component';
 
 /* ── Toast ── */
 interface Toast {
@@ -20,7 +21,7 @@ interface Toast {
 @Component({
   selector: 'app-magazines',
   standalone: true,
-  imports: [CommonModule, RouterModule, HttpClientModule, FormsModule],
+  imports: [CommonModule, RouterModule, HttpClientModule, FormsModule, VoiceSearchComponent],
   templateUrl: './magazines.component.html',
   styleUrls: ['./magazines.component.css'], 
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -47,6 +48,7 @@ export class MagazinesComponent implements OnInit {
   purchasedIds: number[]   = [];
   purchasedMagazines: any[]= [];
   searchTerm               = '';
+  voicePreview             = '';
   sortOrder                = '';
   selectedLetter           = '';
   alphabet                 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -190,7 +192,7 @@ export class MagazinesComponent implements OnInit {
   }
   clearFilters(): void {
     this.sortOrder = ''; this.sortAlpha = ''; this.sortPrice = '';
-    this.selectedLetter = ''; this.searchTerm = '';
+    this.selectedLetter = ''; this.searchTerm = ''; this.voicePreview = '';
     this.loadMagazines();
   }
 
@@ -200,6 +202,28 @@ export class MagazinesComponent implements OnInit {
       sort:   this.sortOrder || this.sortAlpha || this.sortPrice,
       letter: this.selectedLetter
     }).subscribe((res: any) => this.magazines = this.sortMagazines(res.data || []));
+  }
+
+  onSearchInput(event: Event): void {
+    this.voicePreview = '';
+    this.searchTerm = (event.target as HTMLInputElement).value;
+    this.applyFilters();
+  }
+
+  limpiarBusqueda(): void {
+    this.voicePreview = '';
+    this.searchTerm = '';
+    this.applyFilters();
+  }
+
+  mostrarTranscripcionVoz(texto: string): void {
+    this.voicePreview = texto;
+  }
+
+  aplicarComandoVoz(comando: VoiceSearchCommand): void {
+    this.voicePreview = '';
+    this.searchTerm = comando.value;
+    this.applyFilters();
   }
   
 

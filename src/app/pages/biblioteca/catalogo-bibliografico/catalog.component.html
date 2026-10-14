@@ -13,26 +13,38 @@
         maxlength="200"
         class="search-box"
         [class.con-texto]="search !== ''"
-        placeholder="Buscar por título o autor..."
-        [value]="search"
+        [class.sin-voz]="!voz.createRecognition"
+        [class.dictando]="voz.listening()"
+        [placeholder]="voz.listening() ? 'Escuchando… di el título o autor' : 'Buscar por título o autor...'"
+        [value]="voicePreview || search"
         (input)="onSearchInput($event)">
 
-      <!-- buscador -->
-      <button
-        class="search-clear"
-        *ngIf="search !== ''"
-        (click)="limpiarBusqueda()"
-        type="button"
-        title="Limpiar búsqueda">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
+      <!-- Acciones: limpiar, dictar y buscar -->
+      <div class="search-actions">
+        <button
+          class="search-clear"
+          *ngIf="search !== ''"
+          (click)="limpiarBusqueda()"
+          type="button"
+          title="Limpiar búsqueda"
+          aria-label="Limpiar búsqueda">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
 
-      <!-- Lupa: siempre visible -->
-      <button class="search-icon" type="button" aria-label="Buscar libros" (click)="cargarCatalogo()">
-        <ion-icon name="search-outline"></ion-icon>
-      </button>
+        <app-voice-search
+          #voz
+          variant="inline"
+          (transcribing)="mostrarTranscripcionVoz($event)"
+          (commandRecognized)="aplicarComandoVoz($event)" />
+        @if (voz.createRecognition) { <span class="search-divider" aria-hidden="true"></span> }
+
+        <!-- Lupa: siempre visible -->
+        <button class="search-icon" type="button" aria-label="Buscar libros" (click)="cargarCatalogo()">
+          <ion-icon name="search-outline"></ion-icon>
+        </button>
+      </div>
     </div>
-    <app-voice-search (recognized)="actualizarBusqueda($event)" />
+    <p class="voice-status" role="status" aria-live="polite">{{ voz.message() }}</p>
     @if (errorCarga) { <p role="alert">No se pudo actualizar el catálogo. Comprueba tu conexión y vuelve a buscar.</p> }
   </div>
 

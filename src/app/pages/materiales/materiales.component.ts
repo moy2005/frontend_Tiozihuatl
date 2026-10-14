@@ -6,13 +6,18 @@ import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { NgxDocViewerModule, viewerType } from 'ngx-doc-viewer';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../api/services/auth';
+import {
+  normalizeVoiceText,
+  VoiceSearchCommand,
+  VoiceSearchComponent,
+} from '../../pwa/voice-search.component';
 
 @Component({
   selector: 'app-materiales',
   standalone: true,
   templateUrl: './materiales.component.html',
   styleUrls: ['./materiales.component.css'],
-  imports: [CommonModule, FormsModule, SafeUrlPipe, NgxDocViewerModule],
+  imports: [CommonModule, FormsModule, SafeUrlPipe, NgxDocViewerModule, VoiceSearchComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class MaterialesComponent implements OnInit {
@@ -24,6 +29,7 @@ export class MaterialesComponent implements OnInit {
   alumnoSemestre: string | number = '';
 
   search          = '';
+  voicePreview    = '';
   selectedDocente = '';
   selectedTipo    = '';
   selectedMateria = '';
@@ -97,6 +103,37 @@ export class MaterialesComponent implements OnInit {
     });
   }
 
+  onSearchInput(event: Event): void {
+    this.voicePreview = '';
+    this.search = (event.target as HTMLInputElement).value.slice(0, 200);
+    this.cargarMateriales(true);
+  }
+
+  mostrarTranscripcionVoz(texto: string): void {
+    this.voicePreview = texto;
+  }
+
+  aplicarComandoVoz(comando: VoiceSearchCommand): void {
+    this.voicePreview = '';
+
+    if (comando.type === 'materia') {
+      const valorNormalizado = normalizeVoiceText(comando.value);
+      const coincidencias = this.materias.filter(
+        materia => normalizeVoiceText(materia.nombre || '') === valorNormalizado,
+      );
+
+      if (coincidencias.length === 1) {
+        this.search = '';
+        this.selectedMateria = coincidencias[0].id;
+        this.cargarMateriales(true);
+        return;
+      }
+    }
+
+    this.search = comando.value.slice(0, 200);
+    this.cargarMateriales(true);
+  }
+
   irAPagina(page: number) {
     if (page < 1 || page > this.totalPages || page === this.currentPage) return;
     this.currentPage = page;
@@ -116,6 +153,7 @@ export class MaterialesComponent implements OnInit {
   }
 
   limpiarFiltros() {
+    this.voicePreview    = '';
     this.search         = '';
     this.selectedDocente = '';
     this.selectedTipo    = '';

@@ -37,46 +37,81 @@
 }
 
 /* ================= BUSCADOR ================= */
-.search-container {
+/* Acotado a .magazines-hero: este componente no encapsula estilos y no debe
+   alterar los buscadores de Biblioteca u otras páginas. */
+.magazines-hero .search-container {
+  width: 100%;
   max-width: 650px;
   margin: 0 auto;
   position: relative;
 }
 
-.search-box {
+.magazines-hero .search-box {
   width: 100%;
-  padding: 1rem 3.5rem 1rem 1.25rem;
+  padding: 1rem 6.75rem 1rem 1.25rem;
   border-radius: 12px;
-  border: none;
+  border: 2px solid transparent;
   font-size: 1rem;
   outline: none;
   box-shadow: 0 4px 14px rgba(0,0,0,0.15);
   color: #1e293b;
   background: #ffffff;
+  box-sizing: border-box;
+  transition: border-color .2s, box-shadow .2s;
+}
+.magazines-hero .search-box.sin-voz { padding-right: 3.5rem; }
+.magazines-hero .search-box.con-texto { padding-right: 8.75rem; }
+.magazines-hero .search-box.sin-voz.con-texto { padding-right: 5.5rem; }
+
+.magazines-hero .search-box::placeholder { color: #94a3b8; font-style: italic; }
+.magazines-hero .search-box:focus { box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+.magazines-hero .search-box.dictando {
+  border-color: #e5484d;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2), 0 0 0 3px rgba(229,72,77,.15);
 }
 
-.search-box::placeholder { color: #94a3b8; font-style: italic; }
-.search-box:focus { box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+.magazines-hero .search-actions {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; gap: 2px; z-index: 2;
+}
+.magazines-hero .search-divider { width: 1px; height: 24px; margin: 0 4px; background: #e2e8f0; }
 
-.search-icon {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 42px;
-  width: 42px;
-  border-radius: 10px;
+.magazines-hero .search-icon {
+  height: 40px;
+  width: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
   border: none;
-  background: white;
+  background: transparent;
   color: #2D8BE8;
   font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
+.magazines-hero .search-icon:hover { background: #eaf5fd; color: #1a6fc4; }
 
-.search-icon:hover {
-  background: #f1f5f9;
-  transform: translateY(-50%) scale(1.05);
+.magazines-hero .search-clear {
+  width: 28px; height: 28px; margin-right: 4px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 50%;
+  background: #e2e8f0; color: #64748b;
+  font-size: .875rem; cursor: pointer;
+  transition: all .2s;
+}
+.magazines-hero .search-clear:hover { color: #ef4444; background: #fee2e2; }
+
+.magazines-hero .voice-status {
+  min-height: 1.3em; margin: .75rem 0 0;
+  font-size: .875rem; text-align: center; color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+
+@media (max-width: 540px) {
+  .magazines-hero .search-box { padding-right: 6.5rem; font-size: .9rem; }
+  .magazines-hero .search-box.sin-voz { padding-right: 3.5rem; }
+  .magazines-hero .search-box.con-texto { padding-right: 8.5rem; }
+  .magazines-hero .search-box.sin-voz.con-texto { padding-right: 5.5rem; }
+  .magazines-hero .voice-status { font-size: .8rem; }
 }
 
 /* ================= VARIABLES ================= */

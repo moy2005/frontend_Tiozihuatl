@@ -10,23 +10,42 @@
         <input
           type="text"
           class="search-box"
+          aria-label="Buscar materiales por título o descripción"
           [class.con-texto]="search !== ''"
-          placeholder="Buscar por título o descripción..."
-          [(ngModel)]="search"
-          (ngModelChange)="cargarMateriales(true)">
-          
-        <button
-          class="search-clear"
-          *ngIf="search !== ''"
-          (click)="search = ''; cargarMateriales(true)"
-          type="button">
-          <i class="ph ph-x"></i>
-        </button>
+          [class.sin-voz]="!voz.createRecognition"
+          [class.dictando]="voz.listening()"
+          [placeholder]="voz.listening() ? 'Escuchando… di el título del material' : 'Buscar por título o descripción...'"
+          maxlength="200"
+          [value]="voicePreview || search"
+          (input)="onSearchInput($event)">
 
-        <button class="search-icon" type="button">
-          <i class="ph ph-magnifying-glass"></i>
-        </button>
+        <!-- Acciones: limpiar, dictar y buscar -->
+        <div class="search-actions">
+          <button
+            class="search-clear"
+            *ngIf="search !== ''"
+            (click)="voicePreview = ''; search = ''; cargarMateriales(true)"
+            type="button"
+            title="Limpiar búsqueda"
+            aria-label="Limpiar búsqueda">
+            <i class="ph ph-x"></i>
+          </button>
+
+          <app-voice-search
+            #voz
+            variant="inline"
+            helpText="Al dictar, el navegador puede procesar tu voz en un servicio externo. Materiales recibe el texto de búsqueda."
+            listeningMessage="Escuchando… Di el título o descripción del material."
+            (transcribing)="mostrarTranscripcionVoz($event)"
+            (commandRecognized)="aplicarComandoVoz($event)" />
+          @if (voz.createRecognition) { <span class="search-divider" aria-hidden="true"></span> }
+
+          <button class="search-icon" type="button" aria-label="Buscar materiales" (click)="cargarMateriales(true)">
+            <i class="ph ph-magnifying-glass"></i>
+          </button>
+        </div>
       </div>
+      <p class="voice-status" role="status" aria-live="polite">{{ voz.message() }}</p>
 
     </div>
 

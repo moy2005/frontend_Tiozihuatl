@@ -4,13 +4,36 @@
     <p class="eslogan">Tu conocimiento en enfermería, al alcance de un clic</p>
     <div class="search-container">
       <input type="text" class="search-box"
-        placeholder="Buscar revista por título..."
-        [(ngModel)]="searchTerm"
-        (input)="applyFilters()" />
-      <button class="search-icon" (click)="applyFilters()">
-        <ion-icon name="search-outline"></ion-icon>
-      </button>
+        aria-label="Buscar revistas por título"
+        [class.con-texto]="searchTerm !== ''"
+        [class.sin-voz]="!voz.createRecognition"
+        [class.dictando]="voz.listening()"
+        [placeholder]="voz.listening() ? 'Escuchando… di el título de la revista' : 'Buscar revista por título...'"
+        maxlength="200"
+        [value]="voicePreview || searchTerm"
+        (input)="onSearchInput($event)" />
+
+      <!-- Acciones: limpiar, dictar y buscar -->
+      <div class="search-actions">
+        @if (searchTerm !== '') {
+          <button class="search-clear" type="button" title="Limpiar búsqueda" aria-label="Limpiar búsqueda" (click)="limpiarBusqueda()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        }
+        <app-voice-search
+          #voz
+          variant="inline"
+          helpText="Al dictar, el navegador puede procesar tu voz en un servicio externo. La tienda recibe el texto de búsqueda."
+          listeningMessage="Escuchando… Di el título de la revista."
+          (transcribing)="mostrarTranscripcionVoz($event)"
+          (commandRecognized)="aplicarComandoVoz($event)" />
+        @if (voz.createRecognition) { <span class="search-divider" aria-hidden="true"></span> }
+        <button class="search-icon" type="button" aria-label="Buscar revistas" (click)="applyFilters()">
+          <ion-icon name="search-outline"></ion-icon>
+        </button>
+      </div>
     </div>
+    <p class="voice-status" role="status" aria-live="polite">{{ voz.message() }}</p>
   </div>
 
     <!-- OLA ANIMADA -->
