@@ -596,6 +596,11 @@ body.auth-navbar-route { padding-top: 52px; }
   background: rgba(255,255,255,0.1);
 }
 
+.profile-panel-item:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .profile-panel-item ion-icon {
   font-size: 1.25rem;
   color: rgba(255,255,255,0.85);

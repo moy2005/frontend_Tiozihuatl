@@ -58,6 +58,7 @@ import { GestionTerminosComponent} from './pages/admin/gestion-terminos/gestion-
 import { GestionPagosComponent } from './pages/admin/gestion-pagos/gestion-pagos.component';
 import { GestionDescuentosComponent } from './pages/admin/gestion-descuentos/gestion-descuentos.component';
 import { ReportesComponent } from './pages/admin/reportes/reportes';
+import { GestionNotificacionesComponent } from './pages/admin/gestion-notificaciones/gestion-notificaciones';
 
 const applicationRoutes: Routes = [
   { path: 'sin-conexion', component: OfflinePageComponent },
@@ -123,6 +124,7 @@ const applicationRoutes: Routes = [
       { path: 'materiales', component: GestionMaterialesComponent },
       { path: 'privacidad', component: GestionPrivacidadComponent},
       { path: 'terminos', component: GestionTerminosComponent},
+      { path: 'notificaciones', component: GestionNotificacionesComponent },
     ]
   },
   

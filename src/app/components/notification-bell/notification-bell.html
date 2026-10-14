@@ -1,0 +1,66 @@
+<div class="nb" [class.nb--mobile]="variant === 'mobile'">
+  <button type="button" class="nb-trigger" (click)="toggle($event)" [attr.aria-expanded]="abierto()"
+          [attr.aria-label]="bandeja.noLeidas() ? 'Notificaciones, ' + bandeja.noLeidas() + ' sin leer' : 'Notificaciones'">
+    <i class="ph" [class.ph-bell]="!bandeja.noLeidas()" [class.ph-bell-ringing]="bandeja.noLeidas()"></i>
+    @if (bandeja.noLeidas()) {
+      <span class="nb-badge">{{ bandeja.noLeidas() > 9 ? '9+' : bandeja.noLeidas() }}</span>
+    }
+  </button>
+
+  @if (abierto()) {
+    <section class="nb-panel" role="dialog" aria-label="Notificaciones">
+      <span class="nb-arrow" aria-hidden="true"></span>
+
+      <header class="nb-head">
+        <span class="nb-head-icon"><i class="ph ph-bell-simple"></i></span>
+        <span class="nb-head-text">
+          <span class="nb-head-title">Notificaciones</span>
+          <span class="nb-head-sub">
+            {{ bandeja.noLeidas() ? bandeja.noLeidas() + ' sin leer' : 'Estás al día' }}
+          </span>
+        </span>
+        <button type="button" class="nb-head-action" (click)="bandeja.marcarTodas()" [disabled]="!bandeja.noLeidas()"
+                title="Marcar todas como leídas" aria-label="Marcar todas como leídas">
+          <i class="ph ph-checks"></i>
+        </button>
+      </header>
+
+      <div class="nb-list">
+        @if (!bandeja.cargada() && bandeja.cargando()) {
+          <div class="nb-empty"><span class="nb-spinner"></span><span class="nb-empty-text">Cargando…</span></div>
+        } @else {
+          @for (n of bandeja.items(); track n.id_notificacion) {
+            <button type="button" class="nb-item" [class.nb-item--unread]="!n.leida" (click)="abrir(n)">
+              <span class="nb-icon nb-icon--{{ n.categoria }}"><i class="ph-fill {{ icono(n.categoria) }}"></i></span>
+              <span class="nb-body">
+                <span class="nb-row">
+                  <span class="nb-title">{{ n.titulo }}</span>
+                  @if (!n.leida) { <span class="nb-dot" aria-label="Sin leer"></span> }
+                </span>
+                <span class="nb-msg">{{ n.mensaje }}</span>
+                <span class="nb-meta">
+                  <span class="nb-tag">{{ etiqueta(n.categoria) }}</span>
+                  <span class="nb-time"><i class="ph ph-clock"></i>{{ hace(n.fecha) }}</span>
+                </span>
+              </span>
+            </button>
+          } @empty {
+            <div class="nb-empty">
+              <span class="nb-empty-icon"><i class="ph ph-bell-simple-slash"></i></span>
+              <span class="nb-empty-title">Sin notificaciones</span>
+              <span class="nb-empty-text">Aquí verás avisos de préstamos, eventos y comunicados del Instituto.</span>
+            </div>
+          }
+        }
+      </div>
+
+      @if (push.state() === 'off') {
+        <footer class="nb-foot">
+          <button type="button" class="nb-push" (click)="push.enable()">
+            <i class="ph ph-desktop-tower"></i> Recibir también avisos en el escritorio
+          </button>
+        </footer>
+      }
+    </section>
+  }
+</div>

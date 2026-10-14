@@ -60,6 +60,7 @@ export class AdminLayoutComponent implements OnInit {
     { label: 'Materias',      icon: 'ph-graduation-cap',   route: '/admin/materias' },
     { label: 'Privacidad',     icon: 'ph-shield-check',     route: '/admin/privacidad'},
     { label: 'Terminos',      icon: 'ph-file-doc',         route: '/admin/terminos'},
+    { label: 'Notificaciones', icon: 'ph-bell-ringing',    route: '/admin/notificaciones' },
   ];
 
   constructor(private router: Router) {}

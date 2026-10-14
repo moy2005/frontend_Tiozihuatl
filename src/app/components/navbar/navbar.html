@@ -202,6 +202,7 @@
         </ng-container>
 
         <ng-container *ngIf="isAuthenticated">
+          <app-notification-bell class="mr-2"></app-notification-bell>
           <div class="profile-wrapper">
             <button class="profile-dropdown-btn">
               <div class="profile-btn-left">
@@ -262,6 +263,21 @@
                     </a>
                   </ng-container>
 
+                  <button type="button" class="profile-panel-item" (click)="push.toggle()"
+                          [disabled]="push.state() === 'busy' || push.state() === 'unsupported' || push.state() === 'denied'"
+                          [attr.title]="push.state() === 'denied' ? 'Permite las notificaciones desde el candado de la barra de direcciones' : null">
+                    <i class="ph" [class.ph-bell-ringing]="push.state() === 'on'" [class.ph-bell-slash]="push.state() !== 'on'"></i>
+                    <div class="item-label">
+                      @switch (push.state()) {
+                        @case ('on') { Desactivar notificaciones }
+                        @case ('busy') { Procesando… }
+                        @case ('denied') { Notificaciones bloqueadas }
+                        @case ('unsupported') { Notificaciones no disponibles }
+                        @default { Activar notificaciones }
+                      }
+                    </div>
+                  </button>
+
                   <div class="profile-panel-sep"></div>
 
                   <button (click)="cerrarSesion()" class="profile-panel-item logout-item">
@@ -300,6 +316,7 @@
           Instituto de Estudios Superiores Tiozihuatl
         </div>
       </div>
+      <app-notification-bell *ngIf="isAuthenticated" variant="mobile" class="ml-2"></app-notification-bell>
       <label for="menu-toggle" class="hamburger-btn ml-2">
         <span></span>
         <span></span>
@@ -415,6 +432,13 @@
           <i class="ph ph-user text-xl"></i>
           <span>Mi Perfil</span>
         </a>
+
+        <button type="button" (click)="push.toggle()"
+                [disabled]="push.state() === 'busy' || push.state() === 'unsupported' || push.state() === 'denied'"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold disabled:opacity-60">
+          <i class="ph text-xl" [class.ph-bell-ringing]="push.state() === 'on'" [class.ph-bell-slash]="push.state() !== 'on'"></i>
+          <span>{{ push.state() === 'on' ? 'Desactivar notificaciones' : push.state() === 'denied' ? 'Notificaciones bloqueadas' : push.state() === 'unsupported' ? 'Notificaciones no disponibles' : 'Activar notificaciones' }}</span>
+        </button>
 
         <a *ngIf="esAdmin()" routerLink="/admin" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-all font-semibold">
           <i class="ph ph-gear text-xl"></i>

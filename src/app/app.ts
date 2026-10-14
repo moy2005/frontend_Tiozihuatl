@@ -8,6 +8,7 @@ import { VirtualAssistantComponent } from './components/virtual-assistant/virtua
 import { PwaStatusComponent } from './pwa/pwa-status.component';
 import { ConnectivityService } from './pwa/connectivity.service';
 import { PwaService } from './pwa/pwa.service';
+import { PushNotificationService } from './pwa/push-notification.service';
 import { allowsOffline } from './pwa/pwa-policy';
 
 @Component({
@@ -31,6 +32,7 @@ import { allowsOffline } from './pwa/pwa-policy';
 export class App {
   readonly connection = inject(ConnectivityService);
   private readonly pwa = inject(PwaService);
+  private readonly push = inject(PushNotificationService);
   mostrarNavbar = signal(true);
   mostrarFooter = signal(true);
 
@@ -39,7 +41,12 @@ export class App {
     private route: ActivatedRoute,
     private auth: AuthService
   ) {
-    afterNextRender(() => { this.connection.start(); this.pwa.start(); });
+    afterNextRender(() => {
+      this.connection.start();
+      this.pwa.start();
+      this.push.start();
+      void this.push.syncSession(() => this.auth.getSessionUserId());
+    });
     effect(() => {
       if (!this.connection.available() && !allowsOffline(this.router.url)) {
         void this.router.navigate(['/sin-conexion'], { queryParams: { volver: this.router.url }, replaceUrl: true });
@@ -53,6 +60,7 @@ export class App {
           return;
         }
         this.auth.registerSessionActivity();
+        void this.push.syncSession(() => this.auth.getSessionUserId());
 
         let currentRoute = this.route.firstChild;
         let hideNavbar = false;

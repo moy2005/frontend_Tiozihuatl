@@ -1,22 +1,25 @@
-import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { UserProfileService } from '../../api/services/user-profile.service';
 import { NewsService } from '../../api/services/news.service';
 import { EventsService } from '../../api/services/events.service';
+import { PushNotificationService } from '../../pwa/push-notification.service';
+import { NotificationBellComponent } from '../notification-bell/notification-bell';
 import Swal from 'sweetalert2';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, NotificationBellComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
 export class Navbar implements OnInit, OnDestroy {
+  readonly push = inject(PushNotificationService);
   isAuthenticated = false;
   userName = '';
   userRole = '';
@@ -224,6 +227,7 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   private cerrarSesionSilencioso() {
+    void this.push.disable(true);
     localStorage.clear();
     this.isAuthenticated = false;
     this.userName = '';

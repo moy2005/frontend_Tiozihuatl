@@ -1,0 +1,79 @@
+<div class="push-admin">
+  <header class="push-admin__header">
+    <h2>Notificaciones push</h2>
+    <button type="button" class="btn btn--ghost" (click)="probar()" [disabled]="probando() || push.state() === 'busy'">
+      <i class="ph ph-bell-ringing"></i> {{ probando() ? 'Enviando…' : 'Enviarme una prueba' }}
+    </button>
+  </header>
+
+  @if (stats(); as s) {
+    @if (!s.enabled) {
+      <p class="alert">El servidor no tiene configuradas las claves VAPID. Agrega VAPID_PUBLIC_KEY y VAPID_PRIVATE_KEY al entorno del backend.</p>
+    }
+    <section class="stats">
+      <div class="stat"><span>{{ s.total }}</span>Dispositivos</div>
+      <div class="stat"><span>{{ s.usuarios }}</span>Usuarios</div>
+      <div class="stat"><span>{{ s.estudiantes }}</span>Estudiantes</div>
+      <div class="stat"><span>{{ s.docentes }}</span>Docentes</div>
+      <div class="stat"><span>{{ s.administradores }}</span>Administradores</div>
+    </section>
+  }
+
+  <div class="push-admin__grid">
+    <form class="card" (ngSubmit)="enviar()">
+      <h3>Nueva notificación</h3>
+
+      <label>Título
+        <input name="title" [(ngModel)]="form.title" maxlength="80" placeholder="Ej. Nuevo evento en biblioteca" required />
+      </label>
+
+      <label>Mensaje
+        <textarea name="body" [(ngModel)]="form.body" maxlength="240" rows="3" placeholder="Texto que verá el usuario" required></textarea>
+        <small>{{ form.body.length }}/240</small>
+      </label>
+
+      <div class="row">
+        <label>Destinatarios
+          <select name="destino" [(ngModel)]="form.destino">
+            <option value="todos">Todos los suscritos</option>
+            <option value="Estudiante">Estudiantes</option>
+            <option value="Docente">Docentes</option>
+            <option value="Administrador">Administradores</option>
+            <option value="usuario">Usuario específico (ID)</option>
+          </select>
+        </label>
+
+        @if (form.destino === 'usuario') {
+          <label>ID de usuario
+            <input name="id_usuario" type="number" min="1" [(ngModel)]="form.id_usuario" />
+          </label>
+        }
+
+        <label>Al hacer clic abrir
+          <select name="url" [(ngModel)]="form.url">
+            @for (r of rutas; track r.value) { <option [value]="r.value">{{ r.label }}</option> }
+          </select>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn--primary" [disabled]="enviando()">
+        <i class="ph ph-paper-plane-tilt"></i> {{ enviando() ? 'Enviando…' : 'Enviar notificación' }}
+      </button>
+    </form>
+
+    <aside class="card preview">
+      <h3>Vista previa en Windows</h3>
+      <div class="toast">
+        <div class="toast__app"><img src="/icons/favicon-32.png" alt="" /> IEST · Microsoft Edge / Chrome</div>
+        <div class="toast__body">
+          <img class="toast__icon" src="/icons/iest-icon-192.png" alt="" />
+          <div>
+            <strong>{{ form.title || 'Título de la notificación' }}</strong>
+            <p>{{ form.body || 'Aquí aparecerá el mensaje.' }}</p>
+          </div>
+        </div>
+      </div>
+      <p class="hint">Aparece en la esquina inferior derecha y queda guardada en el Centro de notificaciones (Win + N).</p>
+    </aside>
+  </div>
+</div>
