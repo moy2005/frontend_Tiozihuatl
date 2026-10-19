@@ -7,7 +7,6 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import express from 'express';
-import pwaShell from '../netlify/functions/pwa-shell.mjs';
 
 const executable = process.env.PWA_BROWSER;
 assert.ok(executable, 'Indica la ruta del navegador en PWA_BROWSER.');
@@ -18,15 +17,16 @@ const manifest = JSON.parse(await readFile(join(dist, 'ngsw.json'), 'utf8'));
 const html = await readFile(join(dist, 'index.html'), 'utf8');
 const injectedHtml = html + '\n<!-- Simulated hosting injection after build -->';
 const app = express();
-app.get('/index.html', async (req, res) => {
-  if (broken) return res.type('html').send(injectedHtml);
-  const response = await pwaShell(new Request(`http://localhost${req.originalUrl}`));
-  res.status(response.status).set(Object.fromEntries(response.headers)).send(Buffer.from(await response.arrayBuffer()));
+// Pages canonicalizes /index.html to /. Keep the query when following that
+// redirect, including Angular's integrity retry with ngsw-cache-bust.
+app.get('/index.html', (req, res) => {
+  res.redirect(308, '/' + new URL(req.originalUrl, 'http://localhost').search);
 });
+app.get('/', (_req, res) => res.type('html').send(broken ? injectedHtml : html));
 app.use(express.static(dist, { index: false }));
 app.use((req, res) => {
   if (/\.[^/]+$/.test(req.path)) return res.sendStatus(404);
-  res.type('html').send(injectedHtml);
+  res.type('html').send(html);
 });
 const server = app.listen(0, '127.0.0.1');
 await once(server, 'listening');
@@ -123,7 +123,7 @@ try {
       ))).every(Boolean);
     })()`));
     assert.match(await state(), /Driver state: NORMAL/);
-    console.log(`Precarga completa: ${required.length} recursos, incluso con inyección en las rutas online.`);
+    console.log(`Precarga completa: ${required.length} recursos estáticos, con redirección de /index.html a /.`);
     // Stop the origin as well as emulating offline: worker requests cannot
     // silently use the network even if DevTools only throttles the page target.
     server.closeAllConnections();
@@ -131,10 +131,12 @@ try {
     const offline = { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 };
     await page.send('Network.emulateNetworkConditions', offline);
     await page.navigate('', true);
+    assert.equal(page.documentStatus(), 200);
     await until(() => page.evaluate(`document.querySelector('.offline-hero h1')?.textContent.includes('Seguimos aquí')`));
     console.log('Recarga offline de /sin-conexion?volver=%2Fmateriales: OK.');
     for (const path of ['/inicio', '/about', '/materiales']) {
       await page.navigate(origin + path);
+      assert.equal(page.documentStatus(), 200, path);
       if (path === '/materiales') await until(() => page.evaluate(`location.pathname === '/sin-conexion' && !!document.querySelector('.offline-hub')`));
       assert.ok(await page.evaluate(`!!document.querySelector('app-root router-outlet')`));
       console.log(`Navegación de documento sin servidor ${path}: OK.`);
@@ -143,6 +145,7 @@ try {
     const newPage = await connect(target.webSocketDebuggerUrl);
     await newPage.send('Network.emulateNetworkConditions', offline);
     await newPage.navigate(`${origin}/sin-conexion?volver=%2Fmateriales`);
+    assert.equal(newPage.documentStatus(), 200);
     await until(() => newPage.evaluate(`!!document.querySelector('.offline-hub')`));
     console.log('Nueva pestaña offline: OK.');
   }

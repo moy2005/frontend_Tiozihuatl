@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import pwaShell from '../netlify/functions/pwa-shell.mjs';
 
 const output = new URL('../dist/frontend/browser/', import.meta.url);
 const read = (path) => readFile(new URL(path.replace(/^\//, ''), output));
@@ -35,18 +34,11 @@ for (const icon of [...manifest.icons,
 
 assert.deepEqual(sw.dataGroups, [], 'La caché del worker no debe almacenar respuestas de la API.');
 assert.ok(sw.hashTable[sw.index], 'El HTML de arranque debe estar versionado.');
-// Exercise the same handler deployed behind /index.html, including Angular's
-// cache-busting request. No hash rewriting or HTML normalization is permitted.
-for (const suffix of ['', '?ngsw-cache-bust=verification']) {
-  const response = await pwaShell(new Request(`https://example.test/index.html${suffix}`));
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get('content-type'), /^text\/html/);
-  assert.equal(createHash('sha1').update(Buffer.from(await response.arrayBuffer())).digest('hex'), sw.hashTable[sw.index]);
-}
-const head = await pwaShell(new Request('https://example.test/index.html', { method: 'HEAD' }));
-assert.equal(head.status, 200);
-assert.equal(await head.text(), '');
-assert.equal((await pwaShell(new Request('https://example.test/index.html', { method: 'POST' }))).status, 405);
+// A root 404.html disables Cloudflare Pages' native SPA fallback.
+await assert.rejects(() => read('404.html'), { code: 'ENOENT' });
+const headers = (await read('_headers')).toString();
+assert.match(headers, /Cache-Control: no-cache, no-transform/);
+assert.match(headers, /Permissions-Policy: microphone=\(self\)/);
 assert.ok(sw.hashTable['/manifest.webmanifest']);
 for (const [url, hash] of Object.entries(sw.hashTable)) {
   assert.ok(!/^https?:/.test(url), `Recurso remoto inesperado: ${url}`);

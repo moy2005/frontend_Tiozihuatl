@@ -8,7 +8,15 @@ La PWA está preparada para producción HTTPS, con información institucional of
 avisos de conexión y actualización, servicios dinámicos protegidos y búsqueda por voz.
 Ejecuta `npm run test:pwa` y `npm run build:pwa` para validar y compilar.
 Consulta [funcionamiento y configuración de producción](docs/pwa.md), especialmente
-el endpoint de salud del backend, CORS y los encabezados del hosting. No se ha desplegado.
+el endpoint de salud del backend, CORS y los encabezados del hosting.
+
+## Cloudflare Pages
+
+Esta rama publica el frontend estático en Cloudflare Pages y conserva la API en Render.
+Configura `npm run build:pwa` como comando de build y `dist/frontend/browser`
+como directorio de salida. `.node-version` selecciona Node.js 22.
+Sigue la [guía de Cloudflare Pages](docs/cloudflare-pages.md) para conectar la rama,
+autorizar el nuevo dominio en el backend y verificar la recarga offline tras publicar.
 
 ## Development server
 

@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 
-const base = new URL(process.argv[2] || 'https://frontiozihuatl.netlify.app');
-if (base.protocol !== 'https:' || base.username || base.password || base.pathname !== '/') throw new Error('Indica únicamente el origen HTTPS del frontend.');
+if (!process.argv[2]) throw new Error('Uso: npm run verify:pwa:deployed -- https://<proyecto>.pages.dev');
+const base = new URL(process.argv[2]);
+if (base.protocol !== 'https:' || base.username || base.password || base.pathname !== '/' || base.search || base.hash) throw new Error('Indica únicamente el origen HTTPS del frontend.');
 const read = async (path) => {
   const url = new URL(path, base);
   if (url.origin !== base.origin) throw new Error('Recurso fuera del origen: ' + path);
@@ -29,8 +30,15 @@ await Promise.all(Array.from({ length: 4 }, async () => {
     } catch (error) { errors.push(path + ': ' + error.message); }
   }
 }));
+// Deep links must return the same shell, including a direct offline-page URL.
+for (const path of ['/', '/inicio', '/sin-conexion?volver=%2Fmateriales', '/materiales']) {
+  try {
+    const actual = createHash('sha1').update(await read(path)).digest('hex');
+    if (actual !== manifest.hashTable[manifest.index]) errors.push(path + ': la navegación no entrega el HTML versionado');
+  } catch (error) { errors.push(path + ': ' + error.message); }
+}
 if (errors.length) {
   console.error(errors.join('\n'));
   console.error('La versión publicada no supera la integridad PWA. Revisa transformaciones del hosting y publica el build completo.');
   process.exitCode = 1;
-} else console.log('PWA publicada íntegra: ' + urls.length + ' recursos de precarga verificados.');
+} else console.log('PWA publicada íntegra: ' + urls.length + ' recursos de precarga y 4 rutas SPA verificados.');

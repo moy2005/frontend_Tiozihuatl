@@ -10,30 +10,26 @@ descarga completa con conexión. La disponibilidad depende también de que el
 navegador conserve el almacenamiento; no se garantiza para navegadores antiguos
 o con estas capacidades deshabilitadas.
 
-El hosting publicado añadía un comentario al HTML después del build, invalidando
-el SHA-1 de `ngsw.json`. Para evitar esa transformación, `public/_redirects` envía
-`/index.html` a `netlify/functions/pwa-shell.mjs` mediante una reescritura forzada.
-La función entrega los bytes del `index.html` del mismo build, empaquetado mediante
-`included_files` en `netlify.toml`. Netlify documenta que la inyección de snippets
-no se aplica a respuestas de funciones:
-https://docs.netlify.com/build/post-processing/snippet-injection/
+Esta rama publica directamente los archivos estáticos en Cloudflare Pages. Se
+conservan los hashes de Angular y su worker generado. Las rutas se resuelven con
+el fallback SPA nativo de Pages; no se publica un archivo raíz `404.html`, una
+función de entrega del HTML ni las reescrituras específicas de Netlify.
+Consulta [despliegue en Cloudflare Pages](cloudflare-pages.md) para configurar el
+build, el backend en Render y comprobar la integridad después de publicar.
 
-Se mantienen todos los hashes y la validación de Angular; no se normaliza HTML
-ni se modifica el worker generado. La función solo interviene al descargar el
-documento con conexión. Las recargas offline se atienden en el navegador.
+El sitio anterior en Netlify devolvía un comentario añadido después del build.
+La diferencia se observó tanto en `/index.html` como en la respuesta de la función
+`pwa-shell`; esa alternativa no resolvió el problema publicado. Angular rechaza
+el HTML alterado por no coincidir con `ngsw.json`. Sin una versión válida que
+sirva la navegación desde caché, la petición de red falla offline y produce 504.
+Por eso esta rama retira la función y no elimina la validación de integridad.
+
 Los errores de versión se conservan aunque `checkForUpdate()` resuelva `false`;
 un fallo de actualización no deshabilita por sí solo la versión anterior usable.
+Los avisos distinguen actualización lista, comprobación fallida y recuperación
+obligatoria. No se fuerza una recarga durante el uso.
 
-**Despliegue:** usar la carpeta del frontend como base y desplegar desde Git o con
-una herramienta que publique también las funciones y lea `netlify.toml`. Arrastrar
-solo `dist/frontend/browser` no incluye esta función. Tras publicar, ejecutar
-`npm run verify:pwa:deployed -- https://frontiozihuatl.netlify.app`; la corrección
-del dominio no está confirmada hasta que esa comprobación pase. La función añade
-una invocación del hosting cuando el documento necesita descargarse de la red.
-En otro hosting basta servir el build estático sin transformar su HTML.
-
-**Pruebas locales:** `npm run build:pwa` verifica también que la función entrega el
-hash esperado, con y sin `ngsw-cache-bust`, y admite HEAD sin cuerpo. Después:
+**Pruebas locales**, después de `npm run build:pwa`:
 
 ```powershell
 $env:PWA_BROWSER = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
@@ -44,39 +40,14 @@ npm run test:pwa:offline
 ```
 
 La prueba requiere Node.js 22 o posterior y usa un perfil temporal aislado y el
-navegador instalado, sin dependencias adicionales. Simula HTML transformado en las rutas online, espera los recursos de
-precarga, detiene el servidor y comprueba recarga, rutas institucionales, bloqueo
-de `/materiales` y apertura de una pestaña nueva. `--broken` reproduce el HTML
-alterado también en `/index.html` y exige observar Hash mismatch y HTTP 504.
+navegador instalado, sin dependencias adicionales. Sirve el build estático,
+simula la redirección canónica de `/index.html` a `/`, espera la precarga y detiene
+el servidor. Comprueba recarga con parámetros, rutas institucionales, bloqueo de
+`/materiales` y apertura de una pestaña nueva, con respuestas de documento 200.
+`--broken` altera el HTML de arranque y exige observar Hash mismatch y HTTP 504.
+La simulación local no sustituye la prueba del dominio publicado.
 El ejecutor automatizado usa CDP (Chromium); eso no limita la implementación de la
 PWA. Firefox y Safari requieren además validación manual en sus plataformas.
-
-## Incidencia de actualización del 7 de octubre de 2026
-
-Se revisó `https://frontiozihuatl.netlify.app`. De 112 recursos de precarga, solo `/index.html` no coincidía con su huella en `ngsw.json`. El HTML servido incluía un comentario de Netlify que no existía en el build. Al eliminar únicamente ese comentario de la respuesta, el SHA-1 coincidió exactamente con el declarado:
-
-- Esperado: `5ca5c53e45ee823a31e5f52d60e075524371f3f9`.
-- Servido: `a9baf0131b2765db5782c98cc675b1752d19873f`.
-
-La misma diferencia persistió usando una URL de cache busting. Angular rechaza una versión cuyos archivos no coinciden; recargar no corrige una transformación del servidor. La API `/api/health` respondió 200, con CORS correcto, en unos 350 ms durante la comprobación. Esto no descarta arranques lentos u otros problemas intermitentes. Tampoco demuestra que toda demora del inicio proceda del worker; el bundle inicial del proyecto sigue siendo grande.
-
-Se añadió `netlify.toml` con el build verificado, directorio publicable y `skip_processing = true`; `_headers` solicita `no-transform`. Estas son medidas de configuración, no una confirmación de que se haya desactivado la inyección en la cuenta publicada. No se modificó la cuenta ni se desplegó. Si se publica arrastrando únicamente `dist/frontend/browser`, el TOML del repositorio no configura ese despliegue: revisar también las opciones del proyecto en Netlify.
-
-Al publicar desde Git, la base del proyecto Netlify debe ser la carpeta del frontend que contiene `package.json` y `netlify.toml`. Publicar el build completo y evitar cualquier transformación posterior del HTML. Revisar Project configuration > Developer settings > Post processing > Snippet Injection y desactivar cualquier inyección que modifique el documento. Si el comentario automático sigue presente pese a la configuración, debe deshabilitarse en el proveedor o consultarse con soporte. No se debe eliminar la verificación de hashes ni editar `ngsw.json` para esconder el fallo.
-
-Después de publicar, ejecutar desde el frontend:
-
-```powershell
-npm run verify:pwa:deployed -- https://frontiozihuatl.netlify.app
-```
-
-El comando solo lee el sitio, comprueba todos sus recursos de precarga con concurrencia limitada y devuelve error si el hosting alteró un archivo. Detecta específicamente el comentario observado. Mientras falle esta comprobación, la causa del error publicado no está resuelta. Cuando pase, las pestañas existentes podrán descargar la versión correcta; una actualización lista se aplica al recargar voluntariamente.
-
-Los avisos separan ahora actualización lista, comprobación fallida y recuperación obligatoria. Los errores temporales se limpian tras una comprobación correcta y ofrecen reintentar, sin pedir recargar. Los avisos informativos se pueden cerrar o posponer; el botón «Ver avisos» permite recuperarlos. Un cambio de versión o una nueva desconexión vuelve a avisar. Una versión irrecuperable permanece visible y nunca se recarga automáticamente. El cierre solo dura durante la sesión de la página.
-
-Validación de este ajuste: 19 pruebas dirigidas aprobadas, build de producción y verificación de integridad local correctos (1406 archivos), revisión visual de escritorio y ancho móvil de 390 px, cierre y recuperación de avisos comprobados. La prueba visual se hizo en un origen de desarrollo sin autorización CORS de producción, por lo que el aviso de servicio no disponible y las copias públicas pendientes eran esperados allí. No se modificó CORS para esa prueba. El verificador remoto reprodujo el fallo del HTML del sitio publicado.
-
-La interfaz de `/sin-conexion` usa la paleta y tipografías de Nosotros, tarjetas por página y estados de descarga. «Comprobar descarga» permanece en esta pantalla si no hay un servicio de retorno solicitado. Los estilos de avisos respetan movimiento reducido y navegación por teclado.
 
 ## Comportamiento
 
@@ -112,19 +83,18 @@ npm run build:pwa
 
 El script `preview:pwa` es una utilidad de desarrollo opcional, no un requisito ni un servidor del despliegue. La configuración de producción usa la API HTTPS de `src/app/api/environments/environment.prod.ts`; no depende de un servidor en el equipo del visitante.
 
-## Configuración del despliegue futuro
+## Configuración del despliegue
 
-No se ha desplegado la aplicación. Al publicarla:
+El destino de esta rama es Cloudflare Pages; el backend continúa en Render.
+La [guía de publicación](cloudflare-pages.md) incluye los ajustes exactos del
+proyecto y las variables de dominio del backend. El despliegue en Cloudflare
+queda pendiente hasta publicar la rama y configurar el proyecto.
 
-1. Publicar el frontend y el backend con certificados HTTPS válidos. Mantener la URL real de API en `environment.prod.ts` antes de compilar.
-2. Establecer `NODE_ENV=production` y `ALLOWED_ORIGINS` en el backend con los orígenes HTTPS exactos del frontend, separados por comas, sin rutas ni barra final. El backend rechaza una configuración de producción vacía o no HTTPS. Conservar las demás variables de autenticación, sesiones, base de datos y pagos del proyecto.
-3. Incluir el nuevo `/api/health` del backend. No protegerlo con sesión ni sustituir su JSON por HTML. El frontend y esta versión de la API deben publicarse de forma coordinada; una API antigua sin ese endpoint se considera no disponible.
-4. Publicar juntos todos los archivos de `dist/frontend/browser`, incluidos `ngsw.json`, `ngsw-worker.js`, manifiesto, imágenes, fuentes y `assets/ionicons`.
-5. Servir archivos reales antes del fallback de Angular. Las rutas de la aplicación deben resolver a `index.html`; archivos inexistentes, `/api` y `/uploads` no deben convertirse en HTML. Mantener los MIME de JavaScript, JSON/webmanifest, SVG, fuentes e imágenes.
-6. Aplicar `Cache-Control: no-cache` a HTML, manifiesto y archivos del worker. Reservar caché larga para archivos con hash. El backend responde con `no-store` para API y uploads. No añadir una regla CDN que almacene respuestas privadas.
-7. Aplicar `Permissions-Policy: microphone=(self)` en el frontend. `public/_headers` lo declara para los proveedores que interpretan ese archivo y `src/server.ts` lo configura para el servidor Angular/Express. En otro hosting se necesitan reglas equivalentes; el archivo por sí solo no configura todos los proveedores. Cualquier CSP adicional debe permitir los recursos existentes y la API HTTPS.
-
-El proyecto conserva su modelo de compilación actual; no se activó SSR como parte de la PWA. Para publicar en un subdirectorio se deben adaptar base, manifiesto, alcance y rutas antes de compilar.
+Se publica únicamente `dist/frontend/browser` en la raíz del dominio, sin SSR.
+La API sigue usando su URL HTTPS absoluta y queda fuera de la caché de Angular.
+`public/_headers` conserva `no-cache, no-transform` y el permiso de micrófono.
+Pages sirve los archivos y aplica su fallback SPA a rutas sin archivo; no debe
+usarse el dominio del frontend como sustituto del servidor API o de uploads.
 
 ## Verificación pendiente en el dominio definitivo
 
@@ -140,7 +110,7 @@ Estas comprobaciones requieren el despliegue y dispositivos reales; las pruebas 
 
 Se reutilizó el logo institucional previamente referenciado por el proyecto, conservando su diseño y proporciones. Los PNG de instalación y el logo de las páginas se sirven localmente. La variante maskable mantiene el emblema dentro de su zona segura. Las imágenes legales se incorporaron desde las referencias originales del proyecto. Las fuentes e iconos proceden de las dependencias fijadas en el lockfile.
 
-## Verificación realizada durante el desarrollo
+## Verificación previa a la migración de hosting
 
 - Compilación de producción y verificador PWA correctos; integridad de 1406 archivos y cinco iconos validada. Se conservan advertencias existentes de tamaño, estilos y dependencias CommonJS.
 - 17 pruebas dirigidas correctas en ChromeHeadless: selección de datos públicos, vigencia de copias, errores de almacenamiento, bloqueo de operaciones, conectividad, rutas, actualizaciones y reconocimiento de voz simulado.
