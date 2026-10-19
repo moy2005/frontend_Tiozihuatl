@@ -54,13 +54,16 @@
         }
       </div>
 
-      @if (push.state() === 'off') {
-        <footer class="nb-foot">
+      <footer class="nb-foot">
+        <p class="nb-status" role="status">{{ push.statusText() }}</p>
+        @if (push.state() === 'off') {
           <button type="button" class="nb-push" (click)="push.enable()">
-            <i class="ph ph-desktop-tower"></i> Recibir también avisos en el escritorio
+            <i class="ph ph-bell-ringing"></i> Activar avisos del sistema
           </button>
-        </footer>
-      }
+        } @else if (push.state() === 'local' || push.state() === 'unconfigured' || push.state() === 'pending') {
+          <button type="button" class="nb-push" (click)="push.enable()">Volver a comprobar</button>
+        }
+      </footer>
     </section>
   }
 </div>

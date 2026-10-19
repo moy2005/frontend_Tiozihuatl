@@ -6,13 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "build:pwa": "ng build --configuration production && npm run verify:pwa",
-    "preview:pwa": "node scripts/preview-pwa.mjs",
-    "test:pwa:offline": "node scripts/test-pwa-offline.mjs",
     "verify:pwa": "node scripts/verify-pwa.mjs",
     "verify:pwa:deployed": "node scripts/verify-pwa-deployed.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:frontend": "node dist/frontend/server/server.mjs",
     "test:pwa": "ng test --watch=false --browsers=ChromeHeadless --include=src/app/pwa/**/*.spec.ts"
   },
   "prettier": {

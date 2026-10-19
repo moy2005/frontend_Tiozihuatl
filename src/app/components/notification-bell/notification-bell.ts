@@ -7,14 +7,12 @@ const ICONOS: Record<string, string> = {
   prestamo: 'ph-book-bookmark',
   recordatorio: 'ph-alarm',
   aviso: 'ph-megaphone',
-  prueba: 'ph-bell-ringing',
 };
 
 const ETIQUETAS: Record<string, string> = {
   prestamo: 'Préstamo',
   recordatorio: 'Recordatorio',
   aviso: 'Comunicado',
-  prueba: 'Prueba',
 };
 
 @Component({

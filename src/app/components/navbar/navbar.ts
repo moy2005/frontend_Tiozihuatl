@@ -227,7 +227,7 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   private cerrarSesionSilencioso() {
-    void this.push.disable(true);
+    void this.push.signOut();
     localStorage.clear();
     this.isAuthenticated = false;
     this.userName = '';

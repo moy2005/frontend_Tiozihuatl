@@ -1,9 +1,6 @@
 <div class="push-admin">
   <header class="push-admin__header">
     <h2>Notificaciones push</h2>
-    <button type="button" class="btn btn--ghost" (click)="probar()" [disabled]="probando() || push.state() === 'busy'">
-      <i class="ph ph-bell-ringing"></i> {{ probando() ? 'Enviando…' : 'Enviarme una prueba' }}
-    </button>
   </header>
 
   @if (stats(); as s) {
@@ -62,9 +59,9 @@
     </form>
 
     <aside class="card preview">
-      <h3>Vista previa en Windows</h3>
+      <h3>Vista previa del aviso</h3>
       <div class="toast">
-        <div class="toast__app"><img src="/icons/favicon-32.png" alt="" /> IEST · Microsoft Edge / Chrome</div>
+        <div class="toast__app"><img src="/icons/favicon-32.png" alt="" /> Instituto Tiozihuatl</div>
         <div class="toast__body">
           <img class="toast__icon" src="/icons/iest-icon-192.png" alt="" />
           <div>
@@ -73,7 +70,7 @@
           </div>
         </div>
       </div>
-      <p class="hint">Aparece en la esquina inferior derecha y queda guardada en el Centro de notificaciones (Win + N).</p>
+      <p class="hint">La presentación depende del navegador, del sistema operativo y de los permisos del dispositivo.</p>
     </aside>
   </div>
 </div>

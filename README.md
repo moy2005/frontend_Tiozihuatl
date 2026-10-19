@@ -1,75 +1,82 @@
-# Frontend
+# Portal del Instituto de Estudios Superiores Tiozihuatl
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4.
+Aplicación web progresiva (PWA) del Instituto de Estudios Superiores Tiozihuatl (IEST).
+Reúne el portal institucional y los servicios de la biblioteca: catálogo bibliográfico,
+revistas digitales, préstamos, materiales docentes, pagos y la administración del sistema.
 
-## PWA
+## Arquitectura
 
-La PWA está preparada para producción HTTPS, con información institucional offline,
-avisos de conexión y actualización, servicios dinámicos protegidos y búsqueda por voz.
-Ejecuta `npm run test:pwa` y `npm run build:pwa` para validar y compilar.
-Consulta [funcionamiento y configuración de producción](docs/pwa.md), especialmente
-el endpoint de salud del backend, CORS y los encabezados del hosting.
+| Componente | Tecnología | Alojamiento |
+| --- | --- | --- |
+| Frontend (este repositorio) | Angular 20 (standalone, signals), Tailwind CSS, `@angular/service-worker` | Cloudflare Pages, sitio estático |
+| API REST | Node.js + Express 5, repositorio `backend_Tiozihuatl` | Render |
+| Base de datos | MySQL | Proveedor gestionado |
+| Archivos | Cloudinary | — |
 
-## Cloudflare Pages
+El frontend se publica como sitio estático (sin SSR) en la raíz del dominio y consume
+la API mediante la URL HTTPS absoluta definida en
+`src/app/api/environments/environment.prod.ts`.
 
-Esta rama publica el frontend estático en Cloudflare Pages y conserva la API en Render.
-Configura `npm run build:pwa` como comando de build y `dist/frontend/browser`
-como directorio de salida. `.node-version` selecciona Node.js 22.
-Sigue la [guía de Cloudflare Pages](docs/cloudflare-pages.md) para conectar la rama,
-autorizar el nuevo dominio en el backend y verificar la recarga offline tras publicar.
+## Funcionalidad
 
-## Development server
+- **Portal público:** inicio, nosotros, contacto, noticias, eventos, calendario académico,
+  aviso de privacidad, términos y seguridad.
+- **Biblioteca:** catálogo con búsqueda por texto y por voz, detalle de libros, revistas
+  digitales con carrito y pago, préstamos y materiales docentes con recomendaciones.
+- **Cuenta:** registro con verificación de correo, inicio de sesión con contraseña,
+  OAuth, SMS y passkeys (WebAuthn), recuperación de contraseña y perfil.
+- **Administración** (`/admin`): usuarios, contenido institucional, libros, revistas,
+  pagos y descuentos, periodos y materias, reportes, monitoreo de la base de datos,
+  mantenimiento, respaldos y notificaciones.
 
-To start a local development server, run:
+## Capacidades PWA
 
-```bash
-ng serve
+- Instalable (manifiesto, iconos y modo `standalone`).
+- Recarga y navegación sin conexión del shell de la aplicación.
+- Consulta offline de las páginas institucionales (nosotros, contacto, privacidad y términos).
+- Aviso de conexión, de API no disponible y de nueva versión disponible.
+- Notificaciones push (Web Push con VAPID) y bandeja de notificaciones dentro del portal.
+
+El detalle técnico está en [docs/pwa.md](docs/pwa.md).
+
+## Estructura
+
+```text
+src/app/
+  api/            Servicios HTTP, modelos y entornos
+  auth/ guards/   Autenticación y protección de rutas
+  interceptors/   Token de acceso y reintentos
+  components/     Navbar, pie de página, campana de notificaciones, asistente virtual
+  pages/          Páginas públicas, de biblioteca y de administración
+  pwa/            Service worker, conectividad, contenido offline, push y búsqueda por voz
+public/           Manifiesto, iconos, recursos offline y _headers de Cloudflare
+scripts/          Verificación del build y del sitio publicado
+ngsw-config.json  Configuración del service worker
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Desarrollo
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Requiere Node.js 22 (ver `.node-version`).
 
 ```bash
-ng generate component component-name
+npm ci
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+La aplicación queda en `http://localhost:4200/` y usa la API local
+`http://localhost:4000/api`. En desarrollo el service worker está desactivado.
 
-```bash
-ng generate --help
-```
+## Scripts
 
-## Building
+| Comando | Descripción |
+| --- | --- |
+| `npm start` | Servidor de desarrollo |
+| `npm run build:pwa` | Build de producción y verificación de la PWA |
+| `npm run test:pwa` | Pruebas unitarias de la capa PWA (ChromeHeadless) |
+| `npm test` | Todas las pruebas unitarias |
+| `npm run verify:pwa:deployed -- https://<dominio>` | Verifica la integridad del sitio publicado |
 
-To build the project run:
+## Despliegue
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+La rama `feat/cloudflare-pwa` se publica en Cloudflare Pages. Configuración, variables
+del backend y verificación posterior: [docs/cloudflare-pages.md](docs/cloudflare-pages.md).

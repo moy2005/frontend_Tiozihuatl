@@ -349,3 +349,10 @@
 
 .nb-push .ph { color: #fff; font-size: 1rem; }
 .nb-push:hover { background: #0277BD; }
+
+.nb-status {
+  margin: 0 0 0.5rem;
+  color: #465a70;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}

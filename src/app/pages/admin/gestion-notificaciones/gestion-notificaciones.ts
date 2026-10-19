@@ -4,7 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 import { environment } from '../../../api/environments/environment';
-import { PushNotificationService } from '../../../pwa/push-notification.service';
 
 interface PushStats {
   enabled: boolean;
@@ -24,12 +23,10 @@ interface PushStats {
 })
 export class GestionNotificacionesComponent implements OnInit {
   private readonly http = inject(HttpClient);
-  readonly push = inject(PushNotificationService);
   private readonly api = `${environment.apiUrl}/notifications`;
 
   readonly stats = signal<PushStats | null>(null);
   readonly enviando = signal(false);
-  readonly probando = signal(false);
 
   form = { title: '', body: '', url: '/inicio', destino: 'todos', id_usuario: '' };
 
@@ -87,16 +84,4 @@ export class GestionNotificacionesComponent implements OnInit {
     }
   }
 
-  async probar(): Promise<void> {
-    if (this.push.state() !== 'on') await this.push.enable();
-    if (this.push.state() !== 'on') return;
-    this.probando.set(true);
-    try {
-      await this.push.sendTest();
-    } catch {
-      void Swal.fire('Error', 'No se pudo enviar la prueba.', 'error');
-    } finally {
-      this.probando.set(false);
-    }
-  }
 }

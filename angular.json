@@ -47,8 +47,7 @@
               "node_modules/@phosphor-icons/web/src/bold/style.css",
               "node_modules/@phosphor-icons/web/src/fill/style.css",
               "node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css"
-            ],
-            "server": "src/main.server.ts"
+            ]
           },
           "configurations": {
             "production": {

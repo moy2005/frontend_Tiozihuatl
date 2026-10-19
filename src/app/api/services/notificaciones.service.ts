@@ -7,7 +7,7 @@ import { environment } from '../environments/environment';
 
 export interface NotificacionBandeja {
   id_notificacion: number;
-  categoria: 'prestamo' | 'recordatorio' | 'aviso' | 'prueba' | string;
+  categoria: 'prestamo' | 'recordatorio' | 'aviso' | string;
   titulo: string;
   mensaje: string;
   url: string | null;
@@ -48,6 +48,7 @@ export class NotificacionesService {
       if (document.visibilityState === 'visible') void this.refreshCount();
     }, POLL_MS);
     document.addEventListener('visibilitychange', this.onVisible);
+    window.addEventListener('online', this.onVisible);
   }
 
   detach(): void {
@@ -57,6 +58,7 @@ export class NotificacionesService {
   }
 
   async refresh(): Promise<void> {
+    if (!this.browser || !navigator.onLine || this.cargando()) return;
     this.cargando.set(true);
     try {
       const res = await firstValueFrom(
@@ -73,6 +75,7 @@ export class NotificacionesService {
   }
 
   async refreshCount(): Promise<void> {
+    if (!this.browser || !navigator.onLine) return;
     try {
       const res = await firstValueFrom(this.http.get<{ data: { noLeidas: number } }>(`${this.api}/unread-count`));
       const previous = this.noLeidas();
@@ -84,14 +87,14 @@ export class NotificacionesService {
   }
 
   async marcarLeida(item: NotificacionBandeja): Promise<void> {
-    if (item.leida) return;
+    if (item.leida || !this.browser || !navigator.onLine) return;
     this.items.update(list => list.map(n => (n.id_notificacion === item.id_notificacion ? { ...n, leida: true } : n)));
     this.noLeidas.update(n => Math.max(0, n - 1));
     await firstValueFrom(this.http.patch(`${this.api}/${item.id_notificacion}/read`, {})).catch(() => this.refresh());
   }
 
   async marcarTodas(): Promise<void> {
-    if (!this.noLeidas()) return;
+    if (!this.noLeidas() || !this.browser || !navigator.onLine) return;
     this.items.update(list => list.map(n => ({ ...n, leida: true })));
     this.noLeidas.set(0);
     await firstValueFrom(this.http.patch(`${this.api}/read-all`, {})).catch(() => this.refresh());
@@ -114,6 +117,7 @@ export class NotificacionesService {
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
     if (this.browser) document.removeEventListener('visibilitychange', this.onVisible);
+    if (this.browser) window.removeEventListener('online', this.onVisible);
     this.items.set([]);
     this.noLeidas.set(0);
     this.cargada.set(false);

@@ -266,10 +266,13 @@
                   <button type="button" class="profile-panel-item" (click)="push.toggle()"
                           [disabled]="push.state() === 'busy' || push.state() === 'unsupported' || push.state() === 'denied'"
                           [attr.title]="push.state() === 'denied' ? 'Permite las notificaciones desde el candado de la barra de direcciones' : null">
-                    <i class="ph" [class.ph-bell-ringing]="push.state() === 'on'" [class.ph-bell-slash]="push.state() !== 'on'"></i>
+                    <i class="ph" [class.ph-bell-ringing]="push.active()" [class.ph-bell-slash]="!push.active()"></i>
                     <div class="item-label">
                       @switch (push.state()) {
                         @case ('on') { Desactivar notificaciones }
+                        @case ('local') { Desactivar avisos del sistema }
+                        @case ('unconfigured') { Desactivar avisos del sistema }
+                        @case ('pending') { Desactivar avisos del sistema }
                         @case ('busy') { Procesando… }
                         @case ('denied') { Notificaciones bloqueadas }
                         @case ('unsupported') { Notificaciones no disponibles }
