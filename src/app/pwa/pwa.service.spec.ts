@@ -29,7 +29,7 @@ describe('Actualización de PWA', () => {
     expect(pwa.updateError()).toContain('recargarse');
   });
 
-  it('limpia errores recuperables y agrupa comprobaciones simultáneas', async () => {
+  it('conserva el fallo de integridad aunque checkForUpdate resuelva false y agrupa comprobaciones', async () => {
     const events = new Subject<unknown>();
     let resolveCheck!: (value: boolean) => void;
     const pending = new Promise<boolean>(resolve => { resolveCheck = resolve; });
@@ -41,17 +41,23 @@ describe('Actualización de PWA', () => {
     ] });
     const pwa = TestBed.inject(PwaService);
     pwa.start();
+    pwa.assetsReady.set(true);
     events.next({ type: 'VERSION_INSTALLATION_FAILED', version: { hash: 'broken' }, error: 'Hash mismatch' });
     expect(pwa.updateError()).not.toBe('');
+    expect(pwa.assetsReady()).toBeTrue(); // La versión anterior sigue disponible.
     const check = pwa.checkForUpdate(true);
     await pwa.checkForUpdate(true);
     expect(updates.checkForUpdate).toHaveBeenCalledTimes(1);
     resolveCheck(false);
     await check;
-    expect(pwa.updateError()).toBe('');
+    expect(pwa.updateError()).not.toBe('');
+    events.next({ type: 'NO_NEW_VERSION_DETECTED' });
+    expect(pwa.updateError()).not.toBe('');
     expect(pwa.checkingUpdate()).toBeFalse();
     events.next({ type: 'VERSION_READY', latestVersion: { hash: 'next' } });
+    expect(pwa.updateError()).toBe('');
     events.next({ type: 'VERSION_FAILED', version: { hash: 'next' }, error: 'Missing asset' });
     expect(pwa.updateReady()).toBeFalse();
+    expect(pwa.assetsReady()).toBeFalse();
   });
 });

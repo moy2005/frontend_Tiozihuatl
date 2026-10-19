@@ -1,5 +1,56 @@
 # PWA para producción HTTPS
 
+## Recarga offline y entrega del HTML
+
+El worker oficial conserva `navigationRequestStrategy: performance`: una navegación
+a `/sin-conexion?volver=%2Fmateriales` se resuelve con el `/index.html` precargado.
+No se usa detección de navegador ni un worker alternativo. Se requiere HTTPS
+(o localhost en pruebas), soporte de Service Worker/Cache Storage y una primera
+descarga completa con conexión. La disponibilidad depende también de que el
+navegador conserve el almacenamiento; no se garantiza para navegadores antiguos
+o con estas capacidades deshabilitadas.
+
+El hosting publicado añadía un comentario al HTML después del build, invalidando
+el SHA-1 de `ngsw.json`. Para evitar esa transformación, `public/_redirects` envía
+`/index.html` a `netlify/functions/pwa-shell.mjs` mediante una reescritura forzada.
+La función entrega los bytes del `index.html` del mismo build, empaquetado mediante
+`included_files` en `netlify.toml`. Netlify documenta que la inyección de snippets
+no se aplica a respuestas de funciones:
+https://docs.netlify.com/build/post-processing/snippet-injection/
+
+Se mantienen todos los hashes y la validación de Angular; no se normaliza HTML
+ni se modifica el worker generado. La función solo interviene al descargar el
+documento con conexión. Las recargas offline se atienden en el navegador.
+Los errores de versión se conservan aunque `checkForUpdate()` resuelva `false`;
+un fallo de actualización no deshabilita por sí solo la versión anterior usable.
+
+**Despliegue:** usar la carpeta del frontend como base y desplegar desde Git o con
+una herramienta que publique también las funciones y lea `netlify.toml`. Arrastrar
+solo `dist/frontend/browser` no incluye esta función. Tras publicar, ejecutar
+`npm run verify:pwa:deployed -- https://frontiozihuatl.netlify.app`; la corrección
+del dominio no está confirmada hasta que esa comprobación pase. La función añade
+una invocación del hosting cuando el documento necesita descargarse de la red.
+En otro hosting basta servir el build estático sin transformar su HTML.
+
+**Pruebas locales:** `npm run build:pwa` verifica también que la función entrega el
+hash esperado, con y sin `ngsw-cache-bust`, y admite HEAD sin cuerpo. Después:
+
+```powershell
+$env:PWA_BROWSER = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+npm run test:pwa:offline
+npm run test:pwa:offline -- --broken
+$env:PWA_BROWSER = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
+npm run test:pwa:offline
+```
+
+La prueba requiere Node.js 22 o posterior y usa un perfil temporal aislado y el
+navegador instalado, sin dependencias adicionales. Simula HTML transformado en las rutas online, espera los recursos de
+precarga, detiene el servidor y comprueba recarga, rutas institucionales, bloqueo
+de `/materiales` y apertura de una pestaña nueva. `--broken` reproduce el HTML
+alterado también en `/index.html` y exige observar Hash mismatch y HTTP 504.
+El ejecutor automatizado usa CDP (Chromium); eso no limita la implementación de la
+PWA. Firefox y Safari requieren además validación manual en sus plataformas.
+
 ## Incidencia de actualización del 7 de octubre de 2026
 
 Se revisó `https://frontiozihuatl.netlify.app`. De 112 recursos de precarga, solo `/index.html` no coincidía con su huella en `ngsw.json`. El HTML servido incluía un comentario de Netlify que no existía en el build. Al eliminar únicamente ese comentario de la respuesta, el SHA-1 coincidió exactamente con el declarado:

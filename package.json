@@ -7,6 +7,7 @@
     "build": "ng build",
     "build:pwa": "ng build --configuration production && npm run verify:pwa",
     "preview:pwa": "node scripts/preview-pwa.mjs",
+    "test:pwa:offline": "node scripts/test-pwa-offline.mjs",
     "verify:pwa": "node scripts/verify-pwa.mjs",
     "verify:pwa:deployed": "node scripts/verify-pwa-deployed.mjs",
     "watch": "ng build --watch --configuration development",

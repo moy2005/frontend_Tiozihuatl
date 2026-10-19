@@ -4,3 +4,9 @@
 
 [build.processing]
   skip_processing = true
+
+[functions]
+  directory = "netlify/functions"
+
+[functions."pwa-shell"]
+  included_files = ["dist/frontend/browser/index.html"]
