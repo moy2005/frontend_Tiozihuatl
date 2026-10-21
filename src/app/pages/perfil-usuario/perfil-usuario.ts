@@ -201,7 +201,7 @@ export class PerfilUsuarioComponent implements OnInit {
 
   async cambiarContrasena() {
     if (!this.contrasenaActual || !this.nuevaContrasena) {
-      Swal.fire('Campos incompletos', 'Debes llenar ambas contrasenas.', 'info');
+      Swal.fire('Campos incompletos', 'Debes llenar ambas contraseñas.', 'info');
       return;
     }
 
@@ -210,11 +210,11 @@ export class PerfilUsuarioComponent implements OnInit {
       const res = await this.userService
         .changePassword(this.contrasenaActual, this.nuevaContrasena)
         .toPromise();
-      Swal.fire('Exito', res?.message || 'Contrasena actualizada correctamente.', 'success');
+      Swal.fire('Exito', res?.message || 'Contraseña actualizada correctamente.', 'success');
       this.contrasenaActual = '';
       this.nuevaContrasena = '';
     } catch (err: any) {
-      Swal.fire('Error', err?.error?.error || 'Error al cambiar contrasena.', 'error');
+      Swal.fire('Error', err?.error?.error || 'Error al cambiar contraseña.', 'error');
     } finally {
       this.cargando = false;
     }
