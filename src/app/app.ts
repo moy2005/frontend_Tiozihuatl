@@ -10,6 +10,7 @@ import { ConnectivityService } from './pwa/connectivity.service';
 import { PwaService } from './pwa/pwa.service';
 import { PushNotificationService } from './pwa/push-notification.service';
 import { allowsOffline } from './pwa/pwa-policy';
+import { playSplashIntro } from './splash-intro';
 
 @Component({
   selector: 'app-root',
@@ -46,6 +47,7 @@ export class App {
       this.pwa.start();
       this.push.start();
       void this.push.syncSession(() => this.auth.getSessionUserId());
+      void playSplashIntro(this.router);
     });
     effect(() => {
       if (!this.connection.available() && !allowsOffline(this.router.url)) {

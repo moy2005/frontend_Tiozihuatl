@@ -20,11 +20,12 @@ body {
   overflow-x: hidden;
 }
 
+/* Sin fondo propio: el contenedor sticky (100dvh) ya pinta el azul. Un fondo aquí
+   asomaba como línea azul bajo la ola cuando la altura en vh no es un píxel entero. */
 .home-brand-sentinel {
   position: relative;
   height: 220vh;
   height: 220svh;
-  background: var(--blue);
 }
 
 .home-brand-sticky {
@@ -139,8 +140,8 @@ body {
   transform: translate3d(0, 46px, 0) scale(0.985);
   transform-origin: center top;
   transition:
-    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.8s cubic-bezier(0.33, 0, 0.2, 1),
+    transform 0.9s cubic-bezier(0.33, 0, 0.2, 1);
   transition-delay: calc(var(--reveal-index, 0) * 70ms);
   will-change: transform, opacity;
 }
@@ -761,12 +762,6 @@ section#inicio > .absolute.inset-0 {
   }
   section#inicio .home-main-hero-content {
     max-width: 90vw;
-  }
-  section#inicio .home-main-hero-content span {
-    margin-bottom: 0.35rem !important;
-    padding-top: 0.3rem !important;
-    padding-bottom: 0.3rem !important;
-    font-size: 0.72rem !important;
   }
   section#inicio h1 {
     margin-bottom: 0.5rem !important;

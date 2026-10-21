@@ -3,6 +3,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fondo del lienzo: es lo que muestra el rebote elástico (overscroll) por encima
+   del navbar y por debajo del pie. Al darle color a html, el fondo de body (y el
+   que fija cada página) ya no se propaga al lienzo y solo pinta el contenido. */
+html { background-color: #3fa6e8; }
+body { background-color: #ffffff; }
+
+/* El padding-top de body es el hueco reservado al navbar fijo. Sin pintarlo, deja
+   ver el azul del lienzo: así no asoma blanco bajo el navbar en el rebote elástico
+   ni mientras el navbar aparece. !important porque varias páginas fijan su fondo
+   con el atajo `background`, que restablecería el recorte al borde. */
+body { background-clip: content-box !important; }
+
 .institution-display-title {
   font-family: 'Nunito', sans-serif !important;
   font-weight: 900 !important;

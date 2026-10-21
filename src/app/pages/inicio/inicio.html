@@ -12,15 +12,12 @@
         #heroContent
         class="home-main-hero-content relative z-10 max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-16 items-center">
         <div>
-          <span class="inline-block mb-4 px-4 py-2 bg-white/15 text-white rounded-full text-sm font-semibold tracking-wide border border-white/20">
-            Centro de formacion profesional
-          </span>
           <h1 class="texto text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-md">
-            Vocacion, <br> <span class="text-white/90">Fe y Esperanza</span>
+            Vocación, <br> <span class="text-white/90 whitespace-nowrap">Fe y Esperanza</span>
           </h1>
           <p class="text-lg text-white/85 mb-8 leading-relaxed max-w-lg">
-            La enfermeria es una mezcla de ciencia, servicio, amor y compromiso, celebramos con gratitud y admiracion a
-            quienes, con manos calidas y corazones fuertes cada dia dan su amor y cuidado.
+            La enfermería es una mezcla de ciencia, servicio, amor y compromiso, celebramos con gratitud y admiración a
+            quienes, con manos cálidas y corazones fuertes, cada día dan su amor y cuidado.
           </p>
         </div>
       </div>
@@ -28,9 +25,12 @@
         #heroWave
         class="home-main-hero-wave absolute bottom-0 left-0 w-full"
         viewBox="0 0 1440 320"
-        preserveAspectRatio="none">
+        preserveAspectRatio="none"
+        overflow="visible">
+        <!-- El relleno pasa del borde inferior del viewBox (330 > 320): el recorte de la
+             sección, alineado a píxel, corta en blanco y no deja ver el azul de fondo. -->
         <path fill="#ffffff" fill-opacity="1"
-          d="M0,256L80,229.3C160,203,320,149,480,138.7C640,128,800,160,960,176C1120,192,1280,192,1360,192L1440,192L1440,320L0,320Z"/>
+          d="M0,256L80,229.3C160,203,320,149,480,138.7C640,128,800,160,960,176C1120,192,1280,192,1360,192L1440,192L1440,330L0,330Z"/>
       </svg>
     </section>
 

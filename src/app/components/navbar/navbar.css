@@ -23,17 +23,10 @@ body.auth-navbar-route { padding-top: 52px; }
 
 /* ========== NAVBAR DE DOS NIVELES ========== */
 
-/* Tapa el fondo blanco visible detrás del navbar al colapsar navbar-top en scroll */
-.navbar-desktop::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 8px;
+/* Mientras navbar-top se pliega y desvanece, deja ver el fondo del propio nav
+   (azul) en lugar de la página. En Inicio el nav es translúcido a propósito. */
+.navbar-desktop:not(.home-route) {
   background: #3FA6E8;
-  z-index: 49;
-  pointer-events: none;
 }
 
 .navbar-top {

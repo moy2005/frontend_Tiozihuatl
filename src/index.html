@@ -12,8 +12,41 @@
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
   <script type="module" src="assets/ionicons/ionicons.esm.js"></script>
+  <style>
+    /* Pantalla de bienvenida: se pinta antes de que cargue la aplicación.
+       src/app/splash-intro.ts la retira con la transición hacia la página. */
+    #app-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483000;
+      display: grid;
+      place-items: center;
+      background: #3fa6e8;
+      /* Respaldo: si la aplicación no llega a retirarla, se oculta sola. */
+      animation: app-splash-failsafe 400ms ease 8s forwards;
+    }
+    #app-splash img {
+      display: block;
+      width: clamp(96px, 22vmin, 128px);
+      height: clamp(96px, 22vmin, 128px);
+      object-fit: contain;
+      animation: app-splash-in 700ms cubic-bezier(0.33, 0, 0.2, 1) both;
+    }
+    @keyframes app-splash-in {
+      from { opacity: 0; transform: scale(0.94); }
+    }
+    @keyframes app-splash-failsafe {
+      to { opacity: 0; visibility: hidden; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #app-splash img { animation: none; }
+    }
+  </style>
 </head>
 <body>
+  <div id="app-splash" aria-hidden="true">
+    <img src="offline/logo.png" alt="" width="128" height="128">
+  </div>
   <app-root></app-root>
   <noscript>Activa JavaScript para utilizar el portal del Instituto Tiozihuatl.</noscript>
 </body>
