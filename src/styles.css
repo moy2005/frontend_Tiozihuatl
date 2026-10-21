@@ -15,19 +15,14 @@ body { background-color: #ffffff; }
    con el atajo `background`, que restablecería el recorte al borde. */
 body { background-clip: content-box !important; }
 
-/* Breadcrumbs: mismo azul del navbar y espacio para su cabecera fija.
-   La altura compacta se aplica también en los visores con barra sticky. */
+/* Breadcrumbs: mismo azul y borde inferior real del navbar durante su transición. */
 .app-shell nav.breadcrumb-bar {
   background: #3fa6e8;
   padding-top: 28px;
   padding-bottom: 12px;
   flex-wrap: wrap;
   row-gap: 8px;
-  top: 164px;
-}
-
-body:has(.navbar-desktop.scrolled) .app-shell nav.breadcrumb-bar {
-  top: 68px;
+  top: var(--navbar-bottom, 164px);
 }
 
 .app-shell nav.breadcrumb-bar :is(.current, .crumb-current) {
@@ -42,9 +37,8 @@ body:has(.navbar-desktop.scrolled) .app-shell nav.breadcrumb-bar {
 }
 
 @media (max-width: 1023px) {
-  .app-shell nav.breadcrumb-bar,
-  body:has(.navbar-desktop.scrolled) .app-shell nav.breadcrumb-bar {
-    top: 70px;
+  .app-shell nav.breadcrumb-bar {
+    top: var(--navbar-bottom, 70px);
     padding-top: 20px;
   }
 }

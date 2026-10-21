@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, NgZone, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, NgZone, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { UserProfileService } from '../../api/services/user-profile.service';
@@ -18,8 +18,10 @@ import { filter } from 'rxjs/operators';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
-export class Navbar implements OnInit, OnDestroy {
+export class Navbar implements OnInit, AfterViewInit, OnDestroy {
   readonly push = inject(PushNotificationService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private navbarResizeObserver?: ResizeObserver;
   isAuthenticated = false;
   userName = '';
   userRole = '';
@@ -80,12 +82,35 @@ export class Navbar implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    if (typeof ResizeObserver === 'undefined') return;
+
+    const navbars = this.host.nativeElement.querySelectorAll<HTMLElement>(
+      '.navbar-desktop, .navbar-mobile'
+    );
+
+    // Mantiene los breadcrumbs pegados al borde real, incluso durante la animación.
+    this.ngZone.runOutsideAngular(() => {
+      const actualizarBorde = () => {
+        const bottom = Math.max(0, ...Array.from(navbars, navbar =>
+          navbar.getBoundingClientRect().bottom
+        ));
+        document.documentElement.style.setProperty('--navbar-bottom', `${bottom}px`);
+      };
+      this.navbarResizeObserver = new ResizeObserver(actualizarBorde);
+      navbars.forEach(navbar => this.navbarResizeObserver!.observe(navbar));
+      actualizarBorde();
+    });
+  }
+
   ngOnDestroy() {
+    this.navbarResizeObserver?.disconnect();
     clearTimeout(this.panelShowTimeout);
     clearTimeout(this.panelHideTimeout);
     window.removeEventListener('scroll', this.onScroll);
     cancelAnimationFrame(this.scrollRafId);
     if (typeof document !== 'undefined') {
+      document.documentElement.style.removeProperty('--navbar-bottom');
       document.body.classList.remove('home-navbar-route');
       document.body.classList.remove('auth-navbar-route');
     }
