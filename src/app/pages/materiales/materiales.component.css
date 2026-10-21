@@ -28,6 +28,21 @@
   color: var(--ink);
 }
 
+/* Tipografía de los filtros de revistas, conservando el resto de Materiales. */
+.materiales-page .library-filters :is(.filtros-bar-label, .chip-select, .btn-borrar-filtros, .resultados-count) {
+  font-family: 'Nunito', sans-serif;
+}
+
+.materiales-page .library-filters .chip-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.materiales-page .library-filters .chip-select {
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
 /* ── Materiales recomendados ─────────────────────────────────── */
 .recomendaciones-materiales {
   position: relative;
