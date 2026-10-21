@@ -1,3 +1,5 @@
+@import '../biblioteca/library-filters.css';
+
       @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap');
       
 /* ============================================================
@@ -321,87 +323,10 @@
 /* ============================================================
    BARRA DE FILTROS
    ============================================================ */
-.filtros-bar-wrap {
-  width: 100%; background: #fff;
-  border: 0;
-  box-shadow: none;
-}
-.filtros-bar {
-  width: 100%; max-width: 1400px; margin: 0 auto;
-  padding: 0.875rem 2rem;
-  display: flex; align-items: center; gap: 0.625rem; flex-wrap: wrap;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-.filtros-bar-label {
-  font-size: 0.8rem; font-weight: 800; color: var(--primary);
-  display: flex; align-items: center; gap: 0.35rem;
-  white-space: nowrap; flex-shrink: 0;
-  text-transform: uppercase; letter-spacing: .06em;
-}
-.filtros-bar-label ion-icon { font-size: 1.0625rem; }
-.filtros-divider-v {
-  width: 1px; height: 22px;
-  background: linear-gradient(to bottom, transparent, var(--border), transparent);
-  flex-shrink: 0; margin: 0 .125rem;
-}
 
 /* Chips / selects */
-.chip-wrap { position: relative; display: inline-flex; align-items: center; }
-.chip-select {
-  appearance: none;
-  padding: 0.5rem 2.25rem 0.5rem 1rem;
-  border: 1.5px solid var(--border); border-radius: 999px;
-  background: #f8fafc; font-size: 0.8125rem; font-weight: 600; color: #64748b;
-  cursor: pointer; font-family: inherit;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  transition: border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
-  white-space: nowrap;
-}
-.chip-select:hover {
-  border-color: var(--primary); background: #fff;
-  box-shadow: 0 2px 8px rgba(63,166,232,0.12);
-}
-.chip-select:focus { outline: none; }
-.chip-select.activo {
-  border-color: var(--primary); background: #E7EEFF;
-  color: #2D8BE8; font-weight: 700;
-  box-shadow: 0 0 0 3px rgba(63,166,232,0.12);
-}
-.chip-arrow {
-  position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
-  pointer-events: none; font-size: 0.75rem; color: #94a3b8;
-  transition: color 0.2s;
-}
-.chip-select:hover ~ .chip-arrow,
-.chip-select.activo ~ .chip-arrow { color: var(--primary); }
 
 /* Botón borrar filtros */
-.btn-borrar-filtros {
-  display: inline-flex; align-items: center; gap: 0.375rem;
-  padding: 0.5rem 1rem 0.5rem 0.8rem;
-  border: none; border-radius: 999px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  font-size: 0.8rem; font-weight: 700; color: #fff;
-  cursor: pointer; font-family: inherit;
-  box-shadow: 0 2px 8px rgba(220,38,38,0.3);
-  transition: all 0.2s; white-space: nowrap; letter-spacing: 0.01em;
-}
-.btn-borrar-filtros ion-icon { font-size: 1rem; }
-.btn-borrar-filtros:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  box-shadow: 0 4px 14px rgba(220,38,38,0.4);
-  transform: translateY(-1px);
-}
-.btn-borrar-filtros:active { transform: translateY(0); }
-
-.filtros-spacer { flex: 1; }
-.resultados-count {
-  font-size: 0.8rem; font-weight: 700; color: #2D8BE8;
-  white-space: nowrap; flex-shrink: 0;
-  background: #E7EEFF;
-  padding: .375rem .875rem; border-radius: 999px;
-  border: 1px solid rgba(63,166,232,0.25);
-}
 
 /* ============================================================
    MAIN CONTENT
@@ -916,11 +841,6 @@
 @media (max-width: 768px) {
   .hero-section  { padding: 2.5rem 1.25rem 3rem; }
   .hero-section h1 { font-size: 2rem; }
-  .filtros-bar   { padding: .5rem 1rem; gap: .375rem; }
-  .chip-select   { font-size: .75rem; padding: .4375rem 1.875rem .4375rem .75rem; }
-  .btn-borrar-filtros { font-size: .75rem; padding: .4375rem .75rem; }
-  .resultados-count { display: none; }
-  .filtros-divider-v { display: none; }
   .main-content  { padding: 1rem 1rem 2rem; }
   .materiales-grid { grid-template-columns: repeat(2, 1fr); gap: 0.875rem; }
   .skeleton-grid   { grid-template-columns: repeat(2, 1fr); }

@@ -55,6 +55,8 @@ export class DetalleEventoComponent implements OnInit {
 
   @ViewChild('imgPrincipal') imgPrincipalRef?: ElementRef<HTMLImageElement>;
   @ViewChild('thumbStrip') thumbStripRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('viewerClose') viewerCloseRef?: ElementRef<HTMLButtonElement>;
+  @ViewChildren('galleryItem') galleryItems?: QueryList<ElementRef<HTMLButtonElement>>;
   @ViewChildren('thumbItem') thumbItems?: QueryList<ElementRef<HTMLDivElement>>;
 
   constructor(
@@ -140,6 +142,7 @@ export class DetalleEventoComponent implements OnInit {
     this.visorAbierto = true;
     this.cdr.detectChanges();
     this.viewportScroller.scrollToPosition([0, 0]);
+    this.viewerCloseRef?.nativeElement.focus({ preventScroll: true });
 
     setTimeout(() => this.scrollThumbIntoView(index), 50);
   }
@@ -147,6 +150,7 @@ export class DetalleEventoComponent implements OnInit {
   cerrarVisor(): void {
     this.visorAbierto = false;
     this.cdr.detectChanges();
+    this.galleryItems?.get(this.imagenActiva)?.nativeElement.focus({ preventScroll: true });
 
     setTimeout(() => this.viewportScroller.scrollToAnchor('galeria'), 0);
   }
@@ -194,6 +198,9 @@ export class DetalleEventoComponent implements OnInit {
 
     const thumb = thumbEls[index].nativeElement;
     const offset = thumb.offsetLeft - strip.offsetWidth / 2 + thumb.offsetWidth / 2;
-    strip.scrollTo({ left: offset, behavior: 'smooth' });
+    strip.scrollTo({
+      left: offset,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
   }
 }

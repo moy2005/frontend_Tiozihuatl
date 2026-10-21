@@ -15,6 +15,40 @@ body { background-color: #ffffff; }
    con el atajo `background`, que restablecería el recorte al borde. */
 body { background-clip: content-box !important; }
 
+/* Breadcrumbs: mismo azul del navbar y espacio para su cabecera fija.
+   La altura compacta se aplica también en los visores con barra sticky. */
+.app-shell nav.breadcrumb-bar {
+  background: #3fa6e8;
+  padding-top: 28px;
+  padding-bottom: 12px;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  top: 164px;
+}
+
+body:has(.navbar-desktop.scrolled) .app-shell nav.breadcrumb-bar {
+  top: 68px;
+}
+
+.app-shell nav.breadcrumb-bar :is(.current, .crumb-current) {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.app-shell nav.breadcrumb-bar :is(a, button):focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 1023px) {
+  .app-shell nav.breadcrumb-bar,
+  body:has(.navbar-desktop.scrolled) .app-shell nav.breadcrumb-bar {
+    top: 70px;
+    padding-top: 20px;
+  }
+}
+
 .institution-display-title {
   font-family: 'Nunito', sans-serif !important;
   font-weight: 900 !important;

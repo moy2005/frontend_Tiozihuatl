@@ -62,7 +62,7 @@
 <!-- ═══════════════════════════════════════
      FILTROS
      ═══════════════════════════════════════ -->
-<div class="filtros-bar-wrap">
+<div class="filtros-bar-wrap library-filters" role="group" aria-label="Filtros del catálogo">
   <div class="filtros-bar">
 
     <span class="filtros-bar-label">
@@ -74,7 +74,7 @@
     <!-- Materia -->
     <div class="chip-wrap">
       <select class="chip-select" [class.activo]="filtroMateria !== ''"
-        [(ngModel)]="filtroMateria" (change)="cargarCatalogo()">
+        aria-label="Materia" [(ngModel)]="filtroMateria" (change)="cargarCatalogo()">
         <option value="">Todas las materias</option>
         <option *ngFor="let m of materias" [value]="m.nombre">{{ m.nombre }}</option>
       </select>
@@ -84,7 +84,7 @@
     <!-- Semestre -->
     <div class="chip-wrap">
       <select class="chip-select"
-        [(ngModel)]="filtroSemestre"
+        aria-label="Semestre" [(ngModel)]="filtroSemestre"
         (change)="cargarCatalogo()">
 
         <option value="">Todos los semestres</option>
@@ -101,7 +101,7 @@
     <!-- Formato -->
     <div class="chip-wrap">
       <select class="chip-select" [class.activo]="filtroFormato !== ''"
-        [(ngModel)]="filtroFormato" (change)="cargarCatalogo()">
+        aria-label="Formato" [(ngModel)]="filtroFormato" (change)="cargarCatalogo()">
         <option value="">Todos los formatos</option>
         <option value="FISICO">Físico</option>
         <option value="DIGITAL">Digital</option>
@@ -113,7 +113,7 @@
     <!-- Orden autor -->
     <div class="chip-wrap">
       <select class="chip-select" [class.activo]="ordenAutor !== ''"
-        [(ngModel)]="ordenAutor" (change)="cargarCatalogo()">
+        aria-label="Orden del autor" [(ngModel)]="ordenAutor" (change)="cargarCatalogo()">
         <option value="">Ordenar por autor</option>
         <option value="ASC">A → Z</option>
         <option value="DESC">Z → A</option>
@@ -180,10 +180,6 @@
           (click)="abrirDetalle(libro)"
           [attr.aria-label]="'Ver detalles de ' + libro.titulo">
           <h3>{{ libro.titulo }}</h3>
-          <span class="titulo-ver-detalles">
-            <ion-icon name="eye-outline"></ion-icon>
-            Ver detalles
-          </span>
         </button>
       </div>
 

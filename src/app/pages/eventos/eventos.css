@@ -137,7 +137,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0;
   background: var(--primary);
   border-radius: 2px;
   overflow: hidden;
@@ -151,7 +151,12 @@
   background: transparent;
   color: rgba(255, 255, 255, 0.88);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 160ms, color 160ms;
+}
+
+.eventos-page .filter-card:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: -5px;
 }
 
 .eventos-page .filter-card:last-child {
@@ -539,4 +544,7 @@
   .eventos-page .modal-title {
     font-size: 1.55rem;
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eventos-page .filter-card { transition: none; }
 }

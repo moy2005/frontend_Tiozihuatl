@@ -13,18 +13,13 @@
 
   <div *ngIf="!cargandoEventos && eventos.length > 0" class="main-content">
     <div class="info-section">
-      <h2 class="section-title">
-        <span class="title-icon">
-          <i class="ph ph-funnel"></i>
-        </span>
-        Filtrar eventos
-      </h2>
 
-      <div class="filter-grid">
+      <div class="filter-grid" role="group" aria-label="Categorías de eventos">
         <button
           *ngFor="let filtro of filtros"
           (click)="aplicarFiltro(filtro.key)"
           [class.active]="filtroSeleccionado === filtro.key"
+          [attr.aria-pressed]="filtroSeleccionado === filtro.key"
           class="filter-card"
           type="button">
           <div class="filter-content">

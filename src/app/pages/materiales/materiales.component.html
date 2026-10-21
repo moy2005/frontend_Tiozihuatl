@@ -57,7 +57,7 @@
   </header>
 
   <!-- ── BARRA DE FILTROS (sin semestre) ───────────────────────── -->
-  <div class="filtros-bar-wrap">
+  <div class="filtros-bar-wrap library-filters" role="group" aria-label="Filtros de materiales">
     <div class="filtros-bar">
 
       <span class="filtros-bar-label">
@@ -69,7 +69,7 @@
       <!-- Docente -->
       <div class="chip-wrap">
         <select class="chip-select" [class.activo]="selectedDocente"
-                [(ngModel)]="selectedDocente" (change)="cargarMateriales(true)">
+                aria-label="Docente" [(ngModel)]="selectedDocente" (change)="cargarMateriales(true)">
           <option value="">Todos los docentes</option>
           <option *ngFor="let d of docentes" [value]="d.id_usuario">{{ d.nombre }}</option>
         </select>
@@ -79,7 +79,7 @@
       <!-- Tipo -->
       <div class="chip-wrap">
         <select class="chip-select" [class.activo]="selectedTipo"
-                [(ngModel)]="selectedTipo" (change)="cargarMateriales(true)">
+                aria-label="Tipo de archivo" [(ngModel)]="selectedTipo" (change)="cargarMateriales(true)">
           <option *ngFor="let t of tiposArchivo" [value]="t.value">{{ t.label }}</option>
         </select>
         <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
@@ -88,7 +88,7 @@
       <!-- Materia -->
       <div class="chip-wrap">
         <select class="chip-select" [class.activo]="selectedMateria"
-                [(ngModel)]="selectedMateria" (change)="cargarMateriales(true)">
+                aria-label="Materia" [(ngModel)]="selectedMateria" (change)="cargarMateriales(true)">
           <option value="">Todas las materias</option>
           <option *ngFor="let m of materias" [value]="m.id">{{ m.nombre }}</option>
         </select>

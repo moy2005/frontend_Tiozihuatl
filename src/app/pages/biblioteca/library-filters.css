@@ -1,0 +1,53 @@
+/* Patrón compartido por catálogo y materiales; estilos locales al grupo de filtros. */
+.library-filters { width: 100%; background: #fff; }
+.library-filters .filtros-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .625rem;
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding: .875rem 2rem;
+  font-family: 'Montserrat', system-ui, sans-serif;
+}
+.library-filters .filtros-bar-label { display: inline-flex; align-items: center; gap: .35rem; flex-shrink: 0; color: #285c8d; font: 700 .8rem 'Montserrat', sans-serif; }
+.library-filters .filtros-bar-label ion-icon { font-size: 1.0625rem; }
+.library-filters .filtros-divider-v { width: 1px; height: 22px; background: #dbe5ee; margin-inline: .125rem; }
+.library-filters .chip-wrap { position: relative; display: inline-flex; align-items: center; max-width: 100%; min-width: 0; }
+.library-filters .chip-select {
+  appearance: none;
+  min-height: 44px;
+  width: 100%;
+  max-width: 100%;
+  padding: .5rem 2.25rem .5rem 1rem;
+  border: 1.5px solid #dbe5ee;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #475569;
+  font-family: inherit;
+  font-size: .8125rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: border-color 160ms, background-color 160ms, color 160ms;
+}
+.library-filters .chip-select:hover { border-color: #3fa6e8; background: #fff; }
+.library-filters .chip-select.activo { border-color: #3fa6e8; background: #e8f4fd; color: #165d91; }
+.library-filters .chip-arrow { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: .875rem; color: #57748b; }
+.library-filters .btn-borrar-filtros { display: inline-flex; align-items: center; justify-content: center; gap: .375rem; min-height: 44px; padding: .5rem 1rem; border: 1.5px solid #dbe5ee; border-radius: 999px; background: #fff; color: #285c8d; font-family: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer; transition: background-color 160ms, border-color 160ms; }
+.library-filters .btn-borrar-filtros:hover { background: #e8f4fd; border-color: #3fa6e8; }
+.library-filters .btn-borrar-filtros ion-icon { font-size: 1rem; }
+.library-filters :is(select, button):focus-visible { outline: 2px solid #1368c4; outline-offset: 3px; }
+.library-filters .filtros-spacer { flex: 1; }
+.library-filters .resultados-count { color: #4c647b; font: 500 .8125rem 'Montserrat', sans-serif; line-height: 1.5; }
+@media (max-width: 768px) {
+  .library-filters .filtros-bar { padding: .75rem 1rem; }
+  .library-filters .filtros-divider-v, .library-filters .filtros-spacer { display: none; }
+  .library-filters .resultados-count { flex-basis: 100%; }
+}
+@media (max-width: 480px) {
+  .library-filters .filtros-bar-label { flex-basis: 100%; }
+  .library-filters .chip-wrap { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .library-filters * { transition: none; } }
