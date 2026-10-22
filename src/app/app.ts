@@ -36,12 +36,14 @@ export class App {
   private readonly push = inject(PushNotificationService);
   mostrarNavbar = signal(true);
   mostrarFooter = signal(true);
+  private readonly activeUrl = signal('/');
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private auth: AuthService
   ) {
+    this.activeUrl.set(this.router.url);
     afterNextRender(() => {
       this.connection.start();
       this.pwa.start();
@@ -50,17 +52,18 @@ export class App {
       void playSplashIntro(this.router);
     });
     effect(() => {
-      if (!this.connection.available() && !allowsOffline(this.router.url)) {
-        void this.router.navigate(['/sin-conexion'], { queryParams: { volver: this.router.url }, replaceUrl: true });
+      // Espera a que se confirme el destino: no redirigir por la ruta anterior
+      // si la conexión se pierde mientras se abre una página disponible offline.
+      if (this.router.currentNavigation()) return;
+      const url = this.activeUrl();
+      if (!this.connection.available() && !allowsOffline(url)) {
+        void this.router.navigate(['/sin-conexion'], { queryParams: { volver: url }, replaceUrl: true });
       }
     });
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
-        if (!this.connection.available() && !allowsOffline(this.router.url)) {
-          void this.router.navigate(['/sin-conexion'], { queryParams: { volver: this.router.url }, replaceUrl: true });
-          return;
-        }
+      .subscribe(event => {
+        this.activeUrl.set(event.urlAfterRedirects);
         this.auth.registerSessionActivity();
         void this.push.syncSession(() => this.auth.getSessionUserId());
 

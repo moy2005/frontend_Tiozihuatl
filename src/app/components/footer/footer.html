@@ -14,7 +14,7 @@
         <h3 class="iest-col__title">La Institución</h3>
         <ul class="iest-col__list">
           <li *ngFor="let link of publicRoutes.institucional">
-            <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
+            <a [routerLink]="destino(link.path)" [queryParams]="requiereConexion(link.path) ? { volver: link.path } : null" [attr.title]="requiereConexion(link.path) ? 'Temporalmente inaccesible: requiere conexión' : null" class="iest-col__link">{{ link.label }}</a>
           </li>
         </ul>
       </div>
@@ -23,14 +23,14 @@
         <h3 class="iest-col__title">Servicios</h3>
         <ul class="iest-col__list">
           <li *ngFor="let link of publicRoutes.servicios">
-            <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
+            <a [routerLink]="destino(link.path)" [queryParams]="requiereConexion(link.path) ? { volver: link.path } : null" [attr.title]="requiereConexion(link.path) ? 'Temporalmente inaccesible: requiere conexión' : null" class="iest-col__link">{{ link.label }}</a>
           </li>
         </ul>
 
         <h3 class="iest-col__title iest-col__title--secondary">Legal</h3>
         <ul class="iest-col__list">
           <li *ngFor="let link of publicRoutes.legal">
-            <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
+            <a [routerLink]="destino(link.path)" [queryParams]="requiereConexion(link.path) ? { volver: link.path } : null" [attr.title]="requiereConexion(link.path) ? 'Temporalmente inaccesible: requiere conexión' : null" class="iest-col__link">{{ link.label }}</a>
           </li>
         </ul>
       </div>
@@ -39,7 +39,7 @@
         <h3 class="iest-col__title">Acceso rápido</h3>
         <ul class="iest-col__list">
           <li *ngFor="let link of publicRoutes.academico">
-            <a [routerLink]="link.path" class="iest-col__link">{{ link.label }}</a>
+            <a [routerLink]="destino(link.path)" [queryParams]="requiereConexion(link.path) ? { volver: link.path } : null" [attr.title]="requiereConexion(link.path) ? 'Temporalmente inaccesible: requiere conexión' : null" class="iest-col__link">{{ link.label }}</a>
           </li>
         </ul>
       </div>
@@ -50,7 +50,7 @@
           <span></span><span></span><span></span>
         </div>
 
-        <ng-container *ngIf="!cargandoContacto">
+        <ng-container>
           <p class="iest-col__body">¿Tienes dudas o necesitas orientación académica? Estamos para ayudarte.</p>
           <a routerLink="/contactanos" class="iest-btn">Escríbenos</a>
 
@@ -75,17 +75,17 @@
     <div class="iest-bottom">
       <p class="iest-bottom__copy">© {{ currentYear }} · Instituto de Estudios Superiores Tiozihuatl · Todos los derechos reservados.</p>
 
-      <div class="iest-social" *ngIf="!cargandoContacto">
-        <a *ngIf="contacto.facebook" [href]="contacto.facebook" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="Facebook">
+      <div class="iest-social">
+        <a *ngIf="contacto.facebook" [href]="destinoExterno(contacto.facebook)" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" class="iest-social__btn" aria-label="Facebook">
           <ion-icon name="logo-facebook"></ion-icon>
         </a>
-        <a *ngIf="contacto.instagram" [href]="contacto.instagram" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="Instagram">
+        <a *ngIf="contacto.instagram" [href]="destinoExterno(contacto.instagram)" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" class="iest-social__btn" aria-label="Instagram">
           <ion-icon name="logo-instagram"></ion-icon>
         </a>
-        <a *ngIf="contacto.twitter" [href]="contacto.twitter" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="Twitter / X">
+        <a *ngIf="contacto.twitter" [href]="destinoExterno(contacto.twitter)" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" class="iest-social__btn" aria-label="Twitter / X">
           <ion-icon name="logo-twitter"></ion-icon>
         </a>
-        <a *ngIf="contacto.whatsapp" [href]="'https://wa.me/' + normalizePhone(contacto.whatsapp)" target="_blank" rel="noopener noreferrer" class="iest-social__btn" aria-label="WhatsApp">
+        <a *ngIf="contacto.whatsapp" [href]="destinoExterno('https://wa.me/' + normalizePhone(contacto.whatsapp))" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" class="iest-social__btn" aria-label="WhatsApp">
           <ion-icon name="logo-whatsapp"></ion-icon>
         </a>
       </div>

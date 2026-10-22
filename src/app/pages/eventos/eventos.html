@@ -37,9 +37,6 @@
 
     <div class="info-section">
       <h2 class="section-title">
-        <span class="title-icon">
-          <i class="ph ph-calendar-check"></i>
-        </span>
         {{ filtroSeleccionado === 'Todas' ? 'Todos los eventos' : filtroSeleccionado }}
       </h2>
 
@@ -50,47 +47,26 @@
           (keydown.enter)="irADetalle(evento, $event)"
           (keydown.space)="irADetalle(evento, $event)"
           class="event-card"
+          [attr.aria-label]="evento.titulo"
           tabindex="0"
           role="button">
           <div
             class="event-media"
-            [class.event-media--empty]="!obtenerImagenPreview(evento)"
-            [style.aspect-ratio]="obtenerAspectRatioEventoCss(evento)">
-            <button
-              (click)="abrirEvento(evento, $event)"
-              class="event-preview-btn"
-              type="button"
-              title="Vista previa"
-              aria-label="Abrir vista previa del evento">
-              <i class="ph ph-eye"></i>
-            </button>
-
+            [class.event-media--empty]="!obtenerImagenPreview(evento)">
             <img
               *ngIf="obtenerImagenPreview(evento)"
               [alt]="evento.titulo"
               [src]="obtenerImagenPreview(evento)"
-              class="event-image" />
+              class="event-image" loading="lazy" />
 
             <div *ngIf="!obtenerImagenPreview(evento)" class="event-placeholder">
-              <i class="ph ph-image"></i>
-            </div>
-
-            <div class="event-badges">
-              <span class="event-badge event-badge--type">{{ obtenerEtiquetaTipo(evento) }}</span>
-              <span
-                class="event-badge"
-                [class.event-badge--done]="evento.estado === 'Finalizado'">
-                {{ obtenerEtiquetaEstado(evento) }}
-              </span>
+              <i class="ph ph-image" aria-hidden="true"></i>
             </div>
           </div>
 
           <div class="event-body">
             <div class="event-meta">
-              <span><i class="ph ph-calendar-blank"></i>{{ formatearFechaCorta(evento.fecha_inicio) }}</span>
-              <span *ngIf="normalizarBooleano(evento.destacado)" class="event-meta-star">
-                <i class="ph ph-star"></i> Destacado
-              </span>
+              <time [attr.datetime]="evento.fecha_inicio">{{ formatearFechaCorta(evento.fecha_inicio) }}</time>
             </div>
 
             <h3 class="event-title">{{ evento.titulo }}</h3>

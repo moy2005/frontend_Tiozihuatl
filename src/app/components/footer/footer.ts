@@ -1,8 +1,10 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ContactService } from '../../api/services/contact.service';
+import { ConnectivityService } from '../../pwa/connectivity.service';
+import { allowsOffline } from '../../pwa/pwa-policy';
 
 interface RouteLink { label: string; path: string; }
 interface PublicRoutes {
@@ -33,6 +35,7 @@ interface ContactInfo {
   encapsulation: ViewEncapsulation.None,
 })
 export class Footer implements OnInit {
+  readonly connection = inject(ConnectivityService);
   currentYear = new Date().getFullYear();
   cargandoContacto = false;
   contacto: ContactInfo = {
@@ -103,5 +106,17 @@ export class Footer implements OnInit {
 
   normalizePhone(phone: string): string {
     return phone ? phone.replace(/\D/g, '') : '';
+  }
+
+  requiereConexion(path: string): boolean {
+    return !this.connection.available() && !allowsOffline(path);
+  }
+
+  destino(path: string): string {
+    return this.requiereConexion(path) ? '/sin-conexion' : path;
+  }
+
+  destinoExterno(url: string): string {
+    return this.connection.state() === 'offline' ? '/sin-conexion' : url;
   }
 }
