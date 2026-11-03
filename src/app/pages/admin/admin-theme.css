@@ -1,0 +1,437 @@
+/* =====================================================================
+   TEMA COMÚN DEL PANEL DE ADMINISTRACIÓN
+   ---------------------------------------------------------------------
+   Referencia visual: Gestión de catálogo (/admin/libros). Unifica las
+   piezas que comparten las gestiones (cabecera, filtros, tabla, insignias,
+   botones de acción, tarjetas móviles) y la sensación de interacción.
+   Se carga con el layout de administración (encapsulación desactivada).
+   El prefijo `.admin-layout .content-area > :not(…, #adm-theme)` se aplica
+   a la gestión activa salvo Respaldos y Monitoreo; el ID inexistente
+   #adm-theme dentro de :not() eleva la especificidad por encima de los
+   estilos propios de cada página (incluidos los encapsulados con atributos)
+   sin recurrir a !important.
+   Respaldos (/admin/backups) y Monitoreo (/admin/monitoreo) conservan su
+   diseño: usan clases propias que este tema no toca.
+   ===================================================================== */
+
+.admin-layout .content-area {
+  --adm-azul: #2196F3;
+  --adm-azul-dark: #0288D1;
+  --adm-azul-fondo: #E1F5FE;
+  --adm-azul-border: #B3E5FC;
+  --adm-azul-row: #E3F2FD;
+  --adm-verde: #4CAF50;
+  --adm-rojo: #F44336;
+  --adm-ambar: #F59E0B;
+  --adm-texto: #1E293B;
+  --adm-texto-sec: #64748B;
+  --adm-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ── Contenedor de página ─────────────────────────────────────────── */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .admin-content {
+  padding: 1.5rem;
+  background: var(--adm-azul-fondo);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--adm-texto);
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .admin-content > [class~="max-w-[95%]"] { max-width: 100%; }
+
+/* ── Cabecera (como .header-principal de Libros) ──────────────────── */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .header-section {
+  background: var(--adm-azul);
+  border: none;
+  border-radius: 0;
+  padding: 1.5rem 2rem;
+  margin-bottom: 0;
+  box-shadow: none;
+}
+
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #FFFFFF;
+  margin: 0;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .page-title > ion-icon,
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .page-title > i { font-size: 1.875rem; flex-shrink: 0; }
+
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .page-subtitle { color: rgba(255, 255, 255, 0.85); }
+
+/* Cabecera de Materiales (estructura propia, mismo aspecto). */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .section-header .section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .section-header .section-title > ion-icon { font-size: 1.875rem; flex-shrink: 0; }
+
+/* Botones de la cabecera: contorno blanco (como "Nuevo libro"). */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .header-section :is(.btn-primary, .btn-secondary, .btn-warning, .btn-success, .btn-danger, .btn-info, .btn-export, .btn-new, .btn-nuevo) {
+  background: transparent;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.5rem 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  box-shadow: none;
+  transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .header-section :is(.btn-primary, .btn-secondary, .btn-warning, .btn-success, .btn-danger, .btn-info, .btn-export, .btn-new, .btn-nuevo):hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: #FFFFFF;
+  box-shadow: none;
+  transform: none;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .header-section :is(.btn-primary, .btn-secondary, .btn-warning, .btn-success, .btn-danger, .btn-info, .btn-export, .btn-new, .btn-nuevo):disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Tarjetas / bloques pegados a la cabecera ─────────────────────── */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .admin-content .content-card {
+  background: #FFFFFF;
+  border: 1px solid var(--adm-azul-border);
+  border-radius: 0;
+  box-shadow: none;
+  margin-top: 0;
+}
+
+/* Los bloques del listado (filtros, contador, tabla) van unidos, como en Libros. */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .admin-content :is(.filters-card, .filtros-section, .content-card:has(+ .content-card)) {
+  margin-bottom: 0;
+}
+
+/* Sin línea doble: el bloque pegado a la cabecera o a otro bloque no repite el borde superior. */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.header-section, .content-card, .filtros-section, .filters-card) + :is(.content-card, .filtros-section, .filters-card) {
+  border-top: none;
+}
+
+/* ── Filtros ──────────────────────────────────────────────────────── */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtros-section {
+  background: #FFFFFF;
+  border: 1px solid var(--adm-azul-border);
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+}
+
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.filtro-select, .filtro-input, .search-input, .buscar-input) {
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtro-select { background-color: #F8FAFC; cursor: pointer; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.filtro-select, .filtro-input, .search-input, .buscar-input):hover { border-color: #90CAF9; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.filtro-select, .filtro-input, .search-input, .buscar-input):focus {
+  outline: none;
+  border-color: var(--adm-azul);
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+}
+
+/* Gestiones con la estructura de Libros: mismo azul de cabecera y tabla. */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .header-principal { background: var(--adm-azul); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .tabla-wrapper thead { background: var(--adm-azul); }
+
+/* Barras de filtros en línea (como .filtros-container de Libros). */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtros-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--adm-azul-border);
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtros-bar :is(input, select) {
+  height: auto;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background-color: #F8FAFC;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtros-bar input { min-width: 230px; background-color: #FFFFFF; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtros-bar :is(input, select):hover { border-color: #90CAF9; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtros-bar :is(input, select):focus {
+  outline: none;
+  border-color: var(--adm-azul);
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtros-bar :is(.btn-primary, .btn-secondary) {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  box-shadow: none;
+  transform: none;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtros-bar .btn-secondary {
+  background: #F8FAFC;
+  color: #334155;
+  border: 1px solid #CBD5E1;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .filtros-bar .btn-secondary:hover { background: #E2E8F0; border-color: #94A3B8; }
+
+/* ── Tabla (como .tabla-libros) ───────────────────────────────────── */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .table-header {
+  background: var(--adm-azul);
+  border: none;
+}
+
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .th-cell {
+  position: relative;
+  padding: 0.875rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  background: transparent;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .th-cell::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.25);
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .th-cell:last-child::after { display: none; }
+
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .table-row {
+  transition: background-color 0.15s ease;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .table-row:hover { background: var(--adm-azul-row); }
+
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .td-cell {
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: var(--adm-texto);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--adm-azul-border);
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .table-row:last-child .td-cell { border-bottom: none; }
+
+/* ── Insignias (contorno, como en Libros) ─────────────────────────── */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-estado, .badge-rol, .badge-activo, .badge-inactivo, .badge-pending, .badge-warning, .badge-info, .badge-success, .badge-danger) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .badge-rol { color: var(--adm-azul); background: rgba(33, 150, 243, 0.08); border-color: var(--adm-azul); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-activo, .badge-success) { color: var(--adm-verde); background: rgba(76, 175, 80, 0.08); border-color: var(--adm-verde); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-inactivo, .badge-danger) { color: var(--adm-rojo); background: rgba(244, 67, 54, 0.08); border-color: var(--adm-rojo); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-pending, .badge-warning) { color: #B45309; background: rgba(245, 158, 11, 0.08); border-color: var(--adm-ambar); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .badge-info { color: var(--adm-azul-dark); background: rgba(2, 136, 209, 0.08); border-color: var(--adm-azul-dark); }
+
+/* Estados propios de cada gestión, con la misma semántica de color. */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-publicada, .badge-publico, .badge-ok, .badge-borrador, .badge-restringido, .badge-manual, .badge-cancelado, .badge-error, .badge-duplicate, .badge-cerrado, .badge-otro, .badge-existing, .badge-automatico, .badge-tipo, .badge-seccion, .badge-descuento, .badge-pdf, .badge-img, .badge-video, .badge-estudiante, .badge-docente, .badge-mision, .badge-vision, .badge-valores) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-publicada, .badge-publico, .badge-ok) { color: var(--adm-verde); background: rgba(76, 175, 80, 0.08); border-color: var(--adm-verde); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-borrador, .badge-restringido, .badge-manual) { color: #B45309; background: rgba(245, 158, 11, 0.08); border-color: var(--adm-ambar); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-cancelado, .badge-error, .badge-duplicate) { color: var(--adm-rojo); background: rgba(244, 67, 54, 0.08); border-color: var(--adm-rojo); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-cerrado, .badge-otro, .badge-existing) { color: #475569; background: rgba(100, 116, 139, 0.08); border-color: #94A3B8; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.badge-automatico, .badge-tipo, .badge-seccion, .badge-descuento, .badge-mision, .badge-vision, .badge-valores) { color: var(--adm-azul-dark); background: rgba(2, 136, 209, 0.08); border-color: var(--adm-azul-dark); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .badge-estudiante { color: #7C3AED; background: rgba(124, 58, 237, 0.08); border-color: #7C3AED; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .badge-docente { color: var(--adm-azul); background: rgba(33, 150, 243, 0.08); border-color: var(--adm-azul); }
+
+/* ── Botones de acción (iconos con contorno) ──────────────────────── */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: 4px;
+  background: #FFFFFF;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon :is(i, ion-icon) { font-size: 1.1rem; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-primary { color: var(--adm-azul-dark); border-color: var(--adm-azul-dark); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-primary:hover { background: var(--adm-azul-dark); color: #FFFFFF; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-info { color: var(--adm-azul); border-color: var(--adm-azul); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-info:hover { background: var(--adm-azul); color: #FFFFFF; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-success { color: var(--adm-verde); border-color: var(--adm-verde); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-success:hover { background: var(--adm-verde); color: #FFFFFF; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-danger { color: var(--adm-rojo); border-color: var(--adm-rojo); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-danger:hover { background: var(--adm-rojo); color: #FFFFFF; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-warning { color: var(--adm-ambar); border-color: var(--adm-ambar); }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-warning:hover { background: var(--adm-ambar); color: #FFFFFF; }
+
+/* Botones de acción en tarjetas móviles (como .libro-card-btn). */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: 1px solid;
+  border-radius: 6px;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-mobile.btn-icon-primary:hover { background: var(--adm-azul-dark); color: #FFFFFF; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-mobile.btn-icon-info:hover { background: var(--adm-azul); color: #FFFFFF; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-mobile.btn-icon-success:hover { background: var(--adm-verde); color: #FFFFFF; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-mobile.btn-icon-danger:hover { background: var(--adm-rojo); color: #FFFFFF; }
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-mobile.btn-icon-warning:hover { background: var(--adm-ambar); color: #FFFFFF; }
+
+/* Las acciones de una tarjeta pasan a otra línea si no caben (pantallas estrechas). */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :has(> .btn-icon-mobile) {
+  flex-wrap: wrap;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon-mobile { flex: 1 1 auto; min-width: 0; }
+
+/* ── Tarjetas móviles (como .libro-card) ──────────────────────────── */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.user-card, .news-card) {
+  background: #FFFFFF;
+  border: 1px solid var(--adm-azul-border);
+  border-radius: 8px;
+  box-shadow: none;
+  transition: box-shadow 0.2s ease, transform 0.2s var(--adm-ease);
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.user-card, .news-card):hover {
+  box-shadow: 0 4px 12px rgba(2, 136, 209, 0.12);
+}
+
+/* ── Contenedores de carga: el loader común aporta su propio espacio ─ */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.loading-wrapper, .rep-loading) {
+  padding: 0;
+  background: #FFFFFF;
+  border: 1px solid var(--adm-azul-border);
+  border-top: none;
+  min-height: 0;
+}
+
+/* ── Paginación común dentro de una tarjeta: solo la línea superior ─ */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.content-card, .tabla-wrapper, .table-container) .adm-pager {
+  border: none;
+  border-top: 1px solid var(--adm-azul-border);
+}
+
+/* ── Paginaciones propias que aún existan dentro de una tarjeta ───── */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .pagination-btn {
+  min-width: 2.375rem;
+  height: 2.375rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: var(--adm-texto-sec);
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+/* =====================================================================
+   SENSACIÓN DE INTERACCIÓN — suave al tocar, cambiar, mover o ver
+   (no cambia el diseño, solo cómo responde)
+   ===================================================================== */
+
+/* Entrada suave de cada gestión al navegar. */
+.admin-layout .content-area > router-outlet + * {
+  display: block;
+  animation: adm-page-in 0.32s var(--adm-ease) both;
+}
+
+/* Respuesta táctil discreta al pulsar. */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(button, [role="button"], .btn-icon, .btn-icon-mobile):not(:disabled):active {
+  transform: scale(0.97);
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(button, a, select, input, textarea) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Foco visible y uniforme para teclado. */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(button, a, select, input, textarea):focus-visible {
+  outline: 2px solid rgba(33, 150, 243, 0.55);
+  outline-offset: 2px;
+}
+
+/* Tooltips de acciones: aparecen con un leve desplazamiento. */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .btn-icon::after {
+  transition: opacity 0.18s ease, transform 0.18s var(--adm-ease);
+}
+
+/* Modales: el fondo se funde y el panel sube ligeramente. */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .modal-overlay {
+  animation: adm-fade-in 0.2s ease both;
+}
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .modal-overlay > :is(.modal-content, .modal-container, .modal) {
+  animation: adm-modal-in 0.28s var(--adm-ease) both;
+}
+
+/* Desplazamiento suave dentro de tablas y modales con scroll propio. */
+.admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) :is(.tabla-scroll, .overflow-x-auto, .modal-body) {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes adm-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+@keyframes adm-fade-in {
+  from { opacity: 0; }
+}
+@keyframes adm-modal-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.985); }
+}
+
+/* =====================================================================
+   RESPONSIVE
+   ===================================================================== */
+@media (max-width: 768px) {
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .admin-content { padding: 0.75rem; }
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .header-section { padding: 1rem 1.25rem; }
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .page-title { font-size: 1.375rem; }
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .page-title > :is(ion-icon, i) { font-size: 1.5rem; }
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .header-section :is(.btn-primary, .btn-secondary, .btn-warning, .btn-success, .btn-danger, .btn-info, .btn-export, .btn-new, .btn-nuevo) {
+    font-size: 0.8125rem;
+    padding: 0.4rem 0.75rem;
+  }
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .th-cell,
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) .td-cell { padding: 0.75rem 0.625rem; font-size: 0.8125rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) *,
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) *::before,
+  .admin-layout .content-area > :not(app-gestion-backups, app-monitoreo, #adm-theme) *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

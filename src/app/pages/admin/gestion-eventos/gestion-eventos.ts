@@ -12,6 +12,8 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 import { EventsService } from '../../../api/services/events.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 type ModoPublicacion = 'ahora' | 'programada';
 
@@ -27,13 +29,17 @@ interface EventoImagenEditable {
 @Component({
   selector: 'app-gestion-eventos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './gestion-eventos.html',
   styleUrls: ['./gestion-eventos.css'],
   encapsulation: ViewEncapsulation.Emulated,
 })
 export class GestionEventosComponent implements OnInit {
+  // Paginación del listado (componente común del admin)
+  paginaActual = 1;
+  itemsPorPagina = 10;
+
   @ViewChild('imagenesInput') imagenesInput?: ElementRef<HTMLInputElement>;
 
   eventos: any[] = [];

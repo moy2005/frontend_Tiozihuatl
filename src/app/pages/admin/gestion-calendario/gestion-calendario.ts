@@ -6,19 +6,25 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../api/environments/environment.prod';
 import { AdminCalendarService } from '../../../api/services/admin-calendar.service';
 import Swal from 'sweetalert2';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-gestion-calendario',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule, AdminLoaderComponent, AdminPaginationComponent
   ],
   templateUrl: './gestion-calendario.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
    styleUrls: ['./gestion-calendario.css'],
 })
 export class GestionCalendarioComponent {
+  // Paginación del listado (componente común del admin)
+  paginaActual = 1;
+  itemsPorPagina = 10;
+
 
   calendars: any[] = [];
   mostrarModal = false;

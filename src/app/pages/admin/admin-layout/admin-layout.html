@@ -134,9 +134,34 @@
 
       <!-- Lado izquierdo: toggle + breadcrumb / título de sección -->
       <div class="topbar-left">
-        <button class="toggle-btn" (click)="toggleSidebar()" [title]="getToggleButtonTitle()">
-          <i [class]="'ph ' + getToggleButtonIcon()"></i>
-        </button>
+        <!-- Botón de estado + selector flotante (aparece al pasar el puntero o al enfocar) -->
+        <div class="sidebar-switch"
+             [class.sidebar-switch--open]="stateMenuOpen"
+             (pointerenter)="openStateMenu($event)"
+             (pointerleave)="scheduleCloseStateMenu($event)"
+             (focusin)="openStateMenu()"
+             (focusout)="onStateMenuFocusOut($event)"
+             (keydown.escape)="closeStateMenu()">
+          <button class="toggle-btn" type="button" (click)="toggleSidebar()"
+                  [title]="getToggleButtonTitle()" [attr.aria-label]="getToggleButtonTitle()">
+            <i [class]="'ph ' + getToggleButtonIcon()"></i>
+          </button>
+
+          <div class="state-picker" role="group" aria-label="Estado del menú lateral">
+            <button *ngFor="let option of stateOptions; let i = index"
+                    type="button"
+                    class="state-picker__option"
+                    [class.state-picker__option--active]="sidebarState === option.state"
+                    [style.--i]="i"
+                    [title]="option.label"
+                    [attr.aria-label]="option.label"
+                    [attr.aria-pressed]="sidebarState === option.state"
+                    [attr.tabindex]="stateMenuOpen ? 0 : -1"
+                    (click)="setSidebarState(option.state, $event)">
+              <i [class]="'ph ' + option.icon"></i>
+            </button>
+          </div>
+        </div>
 
         <div class="topbar-divider"></div>
 
@@ -147,71 +172,6 @@
 
       <!-- Lado derecho: acciones -->
       <div class="topbar-right">
-
-
-        <!-- Notificaciones con panel emergente -->
-        <div class="topbar-action-wrapper" (clickOutside)="closeNotifPanel()">
-          <button 
-            class="topbar-action-btn topbar-action-btn--notif" 
-            [class.active]="showNotifPanel"
-            title="Notificaciones"
-            (click)="toggleNotifPanel()">
-            <i class="ph ph-bell"></i>
-            <span class="topbar-badge">5</span>
-          </button>
-
-          <!-- Panel de notificaciones -->
-          <div class="notif-panel" [class.notif-panel--open]="showNotifPanel">
-            <div class="notif-panel__header">
-              <span class="notif-panel__title">Notificaciones</span>
-              <span class="notif-panel__count">5 nuevas</span>
-            </div>
-            <ul class="notif-list">
-              <li class="notif-item notif-item--unread">
-                <div class="notif-item__dot"></div>
-                <div class="notif-item__body">
-                  <p class="notif-item__text">Nuevo contacto recibido</p>
-                  <span class="notif-item__time">Hace 5 min</span>
-                </div>
-              </li>
-              <li class="notif-item notif-item--unread">
-                <div class="notif-item__dot"></div>
-                <div class="notif-item__body">
-                  <p class="notif-item__text">Préstamo vence hoy</p>
-                  <span class="notif-item__time">Hace 20 min</span>
-                </div>
-              </li>
-              <li class="notif-item notif-item--unread">
-                <div class="notif-item__dot"></div>
-                <div class="notif-item__body">
-                  <p class="notif-item__text">Respaldo completado</p>
-                  <span class="notif-item__time">Hace 1 h</span>
-                </div>
-              </li>
-              <li class="notif-item">
-                <div class="notif-item__dot notif-item__dot--read"></div>
-                <div class="notif-item__body">
-                  <p class="notif-item__text">Nuevo usuario registrado</p>
-                  <span class="notif-item__time">Hace 3 h</span>
-                </div>
-              </li>
-              <li class="notif-item">
-                <div class="notif-item__dot notif-item__dot--read"></div>
-                <div class="notif-item__body">
-                  <p class="notif-item__text">Revista actualizada</p>
-                  <span class="notif-item__time">Ayer</span>
-                </div>
-              </li>
-            </ul>
-            <div class="notif-panel__footer">
-              <button class="notif-panel__see-all">Ver todas</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Separador visual -->
-        <div class="topbar-divider topbar-divider--tall"></div>
-
         <!-- Perfil de usuario -->
         <button class="topbar-user-btn" (click)="goToProfile()" title="Mi perfil">
           <div class="topbar-user-avatar">

@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { ContactService } from '../../../api/services/contact.service';
 import { firstValueFrom } from 'rxjs';
+import { AdminLoaderComponent } from '../shared/admin-loader';
 
 @Component({
   selector: 'app-gestion-contacto',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent],
   templateUrl: './gestion-contacto.html',
   styleUrls: ['./gestion-contacto.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

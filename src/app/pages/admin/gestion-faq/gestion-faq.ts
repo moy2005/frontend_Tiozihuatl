@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { HelpService } from '../../../api/services/help.service';
 import { firstValueFrom } from 'rxjs';
+import { AdminLoaderComponent } from '../shared/admin-loader';
 
 @Component({
   selector: 'app-gestion-faq',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './gestion-faq.html',
   styleUrls: ['./gestion-faq.css'],

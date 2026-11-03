@@ -6,7 +6,7 @@
     ══════════════════════════════════════════════════════ -->
     <div class="header-section mb-6">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h2 class="page-title">Gestión de Quiénes Somos</h2>
+        <h2 class="page-title"><ion-icon name="business-outline"></ion-icon> Gestión de Quiénes Somos</h2>
         <div class="flex flex-wrap gap-2">
           <button
             class="btn-primary flex items-center gap-2"
@@ -22,9 +22,8 @@
     <!-- ══════════════════════════════════════════════════════
          LOADING
     ══════════════════════════════════════════════════════ -->
-    <div *ngIf="cargando && abouts.length === 0" class="content-card text-center py-12">
-      <div class="loading-spinner inline-block"></div>
-      <p class="mt-4 text-gray-600 font-medium">Cargando contenido...</p>
+    <div *ngIf="cargando && abouts.length === 0" class="content-card">
+      <app-admin-loader texto="Cargando contenido..."></app-admin-loader>
     </div>
 
     <!-- ══════════════════════════════════════════════════════
@@ -52,7 +51,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of abouts" class="table-row">
+            <tr *ngFor="let item of abouts | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina" class="table-row">
 
               <td class="td-cell">
                 <span class="badge-tipo" [ngClass]="{
@@ -109,7 +108,7 @@
 
       <!-- Cards móvil -->
       <div *ngIf="abouts.length > 0" class="lg:hidden p-4 space-y-4">
-        <div *ngFor="let item of abouts" class="user-card">
+        <div *ngFor="let item of abouts | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina" class="user-card">
           <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
@@ -144,6 +143,9 @@
           </div>
         </div>
       </div>
+
+      <app-admin-pagination *ngIf="!cargando" [total]="abouts.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+        itemLabel="sección" itemLabelPlural="secciones"></app-admin-pagination>
 
     </div>
 

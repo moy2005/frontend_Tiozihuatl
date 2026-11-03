@@ -3,17 +3,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import {AdminTerminosService, SeccionTermino} from '../../../api/services/admin.terminos.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-gestion-terminos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './gestion-terminos.component.html',
   styleUrls: ['./gestion-terminos.component.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
 export class GestionTerminosComponent implements OnInit {
+  // Paginación del listado (componente común del admin)
+  paginaActual = 1;
+  itemsPorPagina = 10;
+
 
   @ViewChild('richEditor') richEditorRef!: ElementRef<HTMLDivElement>;
 

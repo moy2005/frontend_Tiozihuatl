@@ -55,8 +55,9 @@
 @if (!connection.available()) {
   <section class="public-content-error" role="status">Las noticias y los eventos requieren conexión para mostrar información actualizada. <a routerLink="/sin-conexion">Consultar páginas descargadas</a></section>
 }
-<section id="noticias" class="home-news-section" *ngIf="connection.available()">
-  <div *ngIf="cargandoNoticias" class="home-news-skeleton-list" aria-label="Cargando noticias..." aria-busy="true">
+<!-- Bloque grande: eventos destacados (mismo diseño que tenían las noticias) -->
+<section id="eventos" class="home-news-section" *ngIf="connection.available() && (cargandoEventos || eventosRender.length > 0)">
+  <div *ngIf="cargandoEventos" class="home-news-skeleton-list" aria-label="Cargando eventos..." aria-busy="true">
     <div class="home-news-skeleton-item">
       <div class="home-news-skeleton-media"></div>
       <div class="home-news-skeleton-copy" style="background:#ffffff;">
@@ -114,101 +115,74 @@
     </div>
   </div>
 
-  <div *ngIf="!cargandoNoticias && noticiasRender.length === 0" class="home-news-empty">
-    <p>No hay noticias disponibles. Pronto publicaremos contenido nuevo.</p>
-  </div>
-
-  <div *ngIf="!cargandoNoticias && noticiasRender.length > 0" class="home-news-list">
-    <ng-container *ngFor="let group of noticiasRender; let groupIndex = index">
+  <div *ngIf="!cargandoEventos && eventosRender.length > 0" class="home-news-list">
+    <ng-container *ngFor="let group of eventosRender; let groupIndex = index">
       <ng-container *ngIf="group.layout === 'landscape'">
-        <article
-          *ngIf="group.item as noticia"
+        <a
+          *ngIf="group.item as evento"
           #revealItem
-          class="home-news-card home-news-card--landscape home-scroll-reveal"
+          [routerLink]="['/eventos', evento.id_evento]"
+          [attr.aria-label]="evento.titulo"
+          class="home-news-card home-news-card--landscape home-news-card--link home-scroll-reveal"
           [style.--reveal-index]="groupIndex % 3">
           <div
             class="home-news-media home-news-media--landscape"
-            *ngIf="noticia.imagen_url || noticia.video_url"
-            [style.aspect-ratio]="obtenerAspectRatioCss(noticia)">
+            [style.aspect-ratio]="obtenerAspectRatioCss(evento)">
             <img
-              *ngIf="noticia.imagen_url && !noticia.video_url"
-              [src]="noticia.imagen_url"
-              [alt]="noticia.titulo"
+              [src]="obtenerImagenEvento(evento)"
+              [alt]="evento.titulo"
               class="home-news-image home-news-image--landscape"
             />
-            <video
-              *ngIf="noticia.video_url"
-              [src]="noticia.video_url"
-              class="home-news-video home-news-video--landscape"
-              muted
-              autoplay
-              loop
-              playsinline
-            ></video>
           </div>
-        </article>
+        </a>
       </ng-container>
 
       <ng-container *ngIf="group.layout === 'grid'">
         <div class="home-news-grid-row" [class.home-news-grid-row--single]="(group.items?.length || 0) === 1">
-          <article
-            *ngFor="let noticia of group.items; let cardIndex = index"
+          <a
+            *ngFor="let evento of group.items; let cardIndex = index"
             #revealItem
-            class="home-news-card home-news-card--grid home-scroll-reveal"
+            [routerLink]="['/eventos', evento.id_evento]"
+            [attr.aria-label]="evento.titulo"
+            class="home-news-card home-news-card--grid home-news-card--link home-scroll-reveal"
             [style.--reveal-index]="cardIndex"
-            [ngClass]="obtenerClaseGrid(noticia)">
+            [ngClass]="obtenerClaseGrid(evento)">
             <div
               class="home-news-media home-news-media--grid"
-              *ngIf="noticia.imagen_url || noticia.video_url"
-              [style.aspect-ratio]="obtenerAspectRatioCss(noticia)">
+              [style.aspect-ratio]="obtenerAspectRatioCss(evento)">
               <img
-                *ngIf="noticia.imagen_url && !noticia.video_url"
-                [src]="noticia.imagen_url"
-                [alt]="noticia.titulo"
+                [src]="obtenerImagenEvento(evento)"
+                [alt]="evento.titulo"
                 class="home-news-image home-news-image--grid"
               />
-              <video
-                *ngIf="noticia.video_url"
-                [src]="noticia.video_url"
-                class="home-news-video home-news-video--grid"
-                muted
-                autoplay
-                loop
-                playsinline
-              ></video>
             </div>
-          </article>
+          </a>
         </div>
       </ng-container>
     </ng-container>
   </div>
 </section>
 
-<section class="events-home-section" *ngIf="connection.available() && !cargandoEventos && eventosPreview.length > 0">
-  <div class="events-home-inner">
-    <div class="events-home-grid">
-      <a
-        *ngFor="let evento of eventosPreview; let eventIndex = index"
-        #revealItem
-        [style.--reveal-index]="eventIndex"
-        [routerLink]="['/eventos', evento.id_evento]"
-        class="events-home-card home-scroll-reveal">
-        <div
-          class="events-home-media"
-          [style.aspect-ratio]="obtenerAspectRatioEventoCss(evento)">
-          <img
-            *ngIf="obtenerImagenEvento(evento)"
-            [src]="obtenerImagenEvento(evento)"
-            [alt]="evento.titulo"
-          />
-          <div *ngIf="!obtenerImagenEvento(evento)" class="events-home-placeholder">
-            <i class="ph ph-calendar-blank"></i>
-          </div>
-        </div>
+<!-- Tarjetas: noticias (solo la imagen, sin fondo ni sombra) -->
+<section id="noticias" class="home-tiles-section" *ngIf="connection.available() && !cargandoNoticias">
+  <div class="home-tiles-inner">
+    <p *ngIf="noticias.length === 0" class="home-news-empty">No hay noticias disponibles. Pronto publicaremos contenido nuevo.</p>
 
-        <div class="events-home-body">
-          <h3>{{ evento.titulo }}</h3>
-        </div>
+    <div *ngIf="noticias.length > 0" class="home-tiles-grid">
+      <a
+        *ngFor="let noticia of noticias; let tileIndex = index"
+        #revealItem
+        [style.--reveal-index]="tileIndex % 3"
+        [routerLink]="['/noticias', noticia.id_noticia]"
+        [attr.aria-label]="noticia.titulo"
+        class="home-tile home-scroll-reveal">
+        <span class="home-tile-media" [style.aspect-ratio]="obtenerAspectRatioTarjeta(noticia)">
+          <img *ngIf="noticia.imagen_url && !noticia.video_url" [src]="noticia.imagen_url" [alt]="noticia.titulo" loading="lazy" />
+          <video *ngIf="noticia.video_url" [src]="noticia.video_url" muted autoplay loop playsinline></video>
+          <span *ngIf="!noticia.imagen_url && !noticia.video_url" class="home-tile-placeholder">
+            <i class="ph ph-newspaper"></i>
+          </span>
+        </span>
       </a>
     </div>
   </div>

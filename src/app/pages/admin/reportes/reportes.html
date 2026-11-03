@@ -139,14 +139,14 @@
         <div class="rep-empty-table" *ngIf="currentTotal === 0"><div><i class="ph ph-magnifying-glass"></i></div><h3>No se encontraron registros</h3><p>Prueba con otro rango, estado o término de búsqueda.</p></div>
       </div>
 
-      <footer class="rep-table-footer">
-        <span>Mostrando <strong>{{ pageStart }}–{{ pageEnd }}</strong> de <strong>{{ currentTotal }}</strong> registros</span>
-        <div class="rep-pagination"><button type="button" (click)="previousPage()" [disabled]="page === 1"><i class="ph ph-caret-left"></i></button><span>Página <strong>{{ page }}</strong> de {{ totalPages }}</span><button type="button" (click)="nextPage()" [disabled]="page === totalPages"><i class="ph ph-caret-right"></i></button></div>
-      </footer>
+      <app-admin-pagination [total]="currentTotal" [(page)]="page" [pageSize]="pageSize"
+        [pageSizes]="[]" itemLabel="registro" itemLabelPlural="registros"></app-admin-pagination>
     </article>
   </ng-container>
 
   <ng-template #initialLoading>
-    <div class="rep-loading" *ngIf="loading && !errorMessage"><div class="rep-loading-orbit"><i class="ph ph-chart-line-up"></i></div><h2>Preparando análisis institucional</h2><p>Consultando indicadores, tendencias y transacciones…</p><div class="rep-loading-line"><span></span></div></div>
+    <div class="rep-loading" *ngIf="loading && !errorMessage">
+      <app-admin-loader texto="Preparando análisis institucional..."></app-admin-loader>
+    </div>
   </ng-template>
 </section>

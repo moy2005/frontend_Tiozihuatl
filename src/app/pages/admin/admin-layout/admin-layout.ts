@@ -21,7 +21,7 @@ const NOTCH_R     = 14;   // radio de la escotadura cóncava
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './admin-layout.html',
-  styleUrls: ['./admin-layout.css'],
+  styleUrls: ['./admin-layout.css', '../admin-theme.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None
 })
@@ -34,14 +34,20 @@ export class AdminLayoutComponent implements OnInit {
   hoveredItemIndex: number = -1;
   labelTop: number = 0;
 
-  // Topbar: panel de notificaciones
-  showNotifPanel = false;
+  // Selector flotante de estado del menú
+  stateMenuOpen = false;
+  private stateMenuTimer?: ReturnType<typeof setTimeout>;
+  readonly stateOptions: { state: SidebarState; icon: string; label: string }[] = [
+    { state: 'open',      icon: 'ph-sidebar',        label: 'Menú expandido' },
+    { state: 'collapsed', icon: 'ph-sidebar-simple', label: 'Menú compacto' },
+    { state: 'hidden',    icon: 'ph-rectangle',      label: 'Ocultar menú' },
+  ];
 
   menuItems: MenuItem[] = [
     // { label: 'Dashboard',     icon: 'ph-squares-four',    route: '/admin/dashboard' },
     { label: 'Usuarios',      icon: 'ph-users',           route: '/admin/usuarios' },
     // { label: 'Preguntas',     icon: 'ph-question',        route: '/admin/preguntas' },
-    { label: 'Contactos',     icon: 'ph-envelope',        route: '/admin/contactos', badge: 5 },
+    { label: 'Contactos',     icon: 'ph-envelope',        route: '/admin/contactos' },
     { label: 'Noticias',      icon: 'ph-megaphone',       route: '/admin/noticias' },
     { label: 'Eventos',       icon: 'ph-ticket',          route: '/admin/eventos' },
     { label: 'Quienes Somos', icon: 'ph ph-buildings',    route: '/admin/about' },
@@ -125,8 +131,44 @@ export class AdminLayoutComponent implements OnInit {
 
   onNavItemClick() { if (this.isMobile) this.sidebarState = 'hidden'; }
 
-  toggleNotifPanel() { this.showNotifPanel = !this.showNotifPanel; }
-  closeNotifPanel()  { this.showNotifPanel = false; }
+  // ─── Selector flotante de estado ───────────────────────────────────────────
+
+  setSidebarState(state: SidebarState, event?: Event) {
+    this.sidebarState = state;
+    // Con dedo o teclado se cierra al elegir; con ratón sigue visible mientras
+    // el puntero esté encima y se cierra al retirarlo.
+    if ((event as PointerEvent | undefined)?.pointerType !== 'mouse') {
+      this.closeStateMenu();
+      (event?.currentTarget as HTMLElement | undefined)?.blur();
+    }
+  }
+
+  openStateMenu(event?: PointerEvent) {
+    // En pantallas táctiles el selector se abre al enfocar (tocar) el botón,
+    // no al "pasar" por encima, para no abrirse en cada toque de scroll.
+    if (event && event.pointerType !== 'mouse') return;
+    clearTimeout(this.stateMenuTimer);
+    this.stateMenuOpen = true;
+  }
+
+  // Pequeño margen al salir: permite cruzar del botón a las opciones sin que
+  // el selector se cierre a mitad de camino.
+  scheduleCloseStateMenu(event?: PointerEvent) {
+    if (event && event.pointerType !== 'mouse') return;
+    clearTimeout(this.stateMenuTimer);
+    this.stateMenuTimer = setTimeout(() => (this.stateMenuOpen = false), 160);
+  }
+
+  closeStateMenu() {
+    clearTimeout(this.stateMenuTimer);
+    this.stateMenuOpen = false;
+  }
+
+  onStateMenuFocusOut(event: FocusEvent) {
+    const next = event.relatedTarget as Node | null;
+    const switcher = (event.currentTarget as HTMLElement);
+    if (!next || !switcher.contains(next)) this.closeStateMenu();
+  }
 
   // ─── Hover para label flotante fixed ───────────────────────────────────────
 

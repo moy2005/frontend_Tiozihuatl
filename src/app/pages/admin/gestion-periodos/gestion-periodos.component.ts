@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PeriodosService, CanDeleteResponse } from '../../../api/services/periodos.service';
 import Swal from 'sweetalert2';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 interface DeleteInfo {
   verificando:   boolean;
@@ -12,12 +14,16 @@ interface DeleteInfo {
 @Component({
   selector:    'app-gestion-periodos',
   standalone:  true,
-  imports:     [CommonModule, FormsModule],
+  imports:     [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './gestion-periodos.component.html',
   styleUrls:   ['./gestion-periodos.component.css'],
   schemas:     [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class GestionPeriodosComponent implements OnInit {
+  // Paginación del listado (componente común del admin)
+  paginaActual = 1;
+  itemsPorPagina = 10;
+
 
   periodos:  any[] = [];
   loading           = false;

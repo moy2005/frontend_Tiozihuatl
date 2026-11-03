@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { AdminUserService } from '../../../api/services/admin-user.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './gestion-usuarios.html',
   styleUrls: ['./gestion-usuarios.css'],
   encapsulation: ViewEncapsulation.None

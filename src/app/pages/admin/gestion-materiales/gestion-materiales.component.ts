@@ -3,13 +3,15 @@ import { MaterialesService } from '../../../api/services/materiales.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-gestion-materiales',
   templateUrl: './gestion-materiales.component.html',
   styleUrls: ['./gestion-materiales.component.css'],
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, AdminLoaderComponent, AdminPaginationComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class GestionMaterialesComponent implements OnInit {

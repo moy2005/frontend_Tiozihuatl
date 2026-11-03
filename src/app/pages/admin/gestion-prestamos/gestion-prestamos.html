@@ -3,7 +3,7 @@
     <div class="header-copy">
       <h2 class="titulo-principal">
         <i class="ph ph-arrows-left-right"></i>
-        Gestion de prestamos
+        Gestión de Préstamos
       </h2>
       <p class="subtitulo-principal">
         Registra y da seguimiento a los prestamos de libros para estudiantes.
@@ -146,8 +146,7 @@
   </div>
 
   <div *ngIf="cargando" class="loading-wrapper">
-    <div class="loading-spinner"></div>
-    <p class="loading-text">Cargando prestamos...</p>
+    <app-admin-loader texto="Cargando préstamos..."></app-admin-loader>
   </div>
 
   <div *ngIf="!cargando && prestamosFiltrados.length === 0" class="empty-wrapper">
@@ -271,37 +270,8 @@
     </div>
   </div>
 
-  <div *ngIf="!cargando && prestamosFiltrados.length > 0" class="pagination-bar">
-    <p>
-      Mostrando
-      <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
-      a
-      <strong>{{ Math.min(paginaActual * itemsPorPagina, prestamosFiltrados.length) }}</strong>
-      de
-      <strong>{{ prestamosFiltrados.length }}</strong>
-      prestamos
-    </p>
-
-    <div class="pagination-controls">
-      <button type="button" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
-        Anterior
-      </button>
-
-      <button
-        *ngFor="let pagina of paginasVisibles"
-        type="button"
-        [class.active]="pagina === paginaActual"
-        [disabled]="pagina === '...'"
-        (click)="irAPagina(pagina)"
-      >
-        {{ pagina }}
-      </button>
-
-      <button type="button" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
-        Siguiente
-      </button>
-    </div>
-  </div>
+  <app-admin-pagination *ngIf="!cargando" [total]="prestamosFiltrados.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+    [pageSizes]="[]" itemLabel="préstamo" itemLabelPlural="préstamos"></app-admin-pagination>
 
   <div *ngIf="mostrarModalPrestamo" class="modal-overlay" (click)="cerrarModalPrestamo()">
     <div class="modal-container modal-prestamo" (click)="$event.stopPropagation()">

@@ -6,7 +6,7 @@
     ══════════════════════════════════════════════════════ -->
     <div class="header-section mb-6">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h2 class="page-title">Gestión de Usuarios</h2>
+        <h2 class="page-title"><i class="ph ph-users"></i> Gestión de Usuarios</h2>
         <div class="flex flex-wrap gap-2">
           <button
             (click)="editando = false; nuevoUsuario = resetForm(); nuevaContrasena = ''; mostrarModal = true"
@@ -135,11 +135,8 @@
     <!-- ══════════════════════════════════════════════════════
          LOADING
     ══════════════════════════════════════════════════════ -->
-    <div *ngIf="cargando" class="content-card users-loading-state">
-      <div class="users-loader" aria-hidden="true"></div>
-      <div class="users-loading-copy">
-        <p class="users-loading-title">Cargando...</p>
-      </div>
+    <div *ngIf="cargando" class="content-card">
+      <app-admin-loader texto="Cargando usuarios..."></app-admin-loader>
     </div>
 
     <!-- ══════════════════════════════════════════════════════
@@ -1018,42 +1015,8 @@
       <!-- ══════════════════════════════════════════════════════
            PAGINACIÓN
       ══════════════════════════════════════════════════════ -->
-      <div *ngIf="!cargando && usuarios.length > 0" class="pagination-section">
-        <div class="pagination-info">
-          <i class="ph ph-users text-blue-500"></i>
-          <span>
-            Mostrando <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
-            a <strong>{{ Math.min(paginaActual * itemsPorPagina, usuarios.length) }}</strong>
-            de <strong>{{ usuarios.length }}</strong> usuarios
-          </span>
-        </div>
-
-        <div class="flex items-center gap-2 flex-wrap justify-center">
-          <div class="pagination-page-size">
-            <select [(ngModel)]="itemsPorPagina" (change)="cambiarItemsPorPagina()" class="form-input !py-1.5">
-              <option [value]="15">15 por página</option>
-              <option [value]="25">25 por página</option>
-              <option [value]="50">50 por página</option>
-              <option [value]="100">100 por página</option>
-            </select>
-          </div>
-
-          <div class="pagination-controls">
-            <button class="pagination-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
-              <i class="ph ph-caret-left"></i>
-            </button>
-            <ng-container *ngFor="let page of paginas">
-              <button *ngIf="page !== '...'" class="pagination-btn" [class.active]="paginaActual === page" (click)="irAPagina(page)">
-                {{ page }}
-              </button>
-              <span *ngIf="page === '...'" class="pagination-dots">...</span>
-            </ng-container>
-            <button class="pagination-btn" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
-              <i class="ph ph-caret-right"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+      <app-admin-pagination *ngIf="!cargando" [total]="usuarios.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+        [pageSizes]="[15, 25, 50, 100]" itemLabel="usuario" itemLabelPlural="usuarios"></app-admin-pagination>
 
     </div>
   </div>

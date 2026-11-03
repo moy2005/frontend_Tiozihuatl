@@ -3,11 +3,13 @@ import { CommonModule }  from '@angular/common';
 import { FormsModule }   from '@angular/forms';
 import Swal from 'sweetalert2';
 import { AdminPrivacidadService, SeccionPolitica } from '../../../api/services/admin-privacidad.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-gestion-privacidad',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './gestion-privacidad.html',
   styleUrls: ['./gestion-privacidad.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

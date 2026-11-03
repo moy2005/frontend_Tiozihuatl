@@ -47,8 +47,7 @@
 
   <!-- LOADING -->
   <div *ngIf="cargandoTabla" class="loading-wrapper">
-    <div class="loading-spinner"></div>
-    <p style="margin-top:1rem; color:#64748B; font-weight:500; font-size:0.875rem;">Cargando libros...</p>
+    <app-admin-loader texto="Cargando libros..."></app-admin-loader>
   </div>
 
   <!-- CONTADOR -->
@@ -199,64 +198,8 @@
   </div>
 
   <!-- PAGINACIÓN -->
-  <div *ngIf="!cargandoTabla && libros.length > 0" 
-      style="display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:1rem; padding:1.25rem 1.5rem; border-top:1px solid var(--azul-border); background:white; flex-wrap:wrap;">
-    
-    <div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap; gap:1rem;">
-      
-      <!-- Info -->
-      <span style="font-size:0.875rem; color:#64748B; display:flex; align-items:center; gap:0.375rem;">
-        <ion-icon name="library-outline" style="color:var(--azul);"></ion-icon>
-        Mostrando 
-        <strong style="color:var(--azul);">{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
-        &nbsp;a&nbsp;
-        <strong style="color:var(--azul);">{{ Math.min(paginaActual * itemsPorPagina, libros.length) }}</strong>
-        &nbsp;de&nbsp;
-        <strong style="color:var(--azul);">{{ libros.length }}</strong>
-        &nbsp;libro{{ libros.length !== 1 ? 's' : '' }}
-      </span>
-
-      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-
-        <!-- Items por página -->
-        <select [(ngModel)]="itemsPorPagina" (change)="cambiarItemsPorPagina()"
-          style="padding:0.375rem 1.5rem 0.375rem 0.75rem; font-size:0.875rem; border:1px solid #E2E8F0; border-radius:6px; cursor:pointer; background:#fff; color:var(--texto);">
-          <option [value]="20">20 por página</option>
-          <option [value]="30">30 por página</option>
-          <option [value]="50">50 por página</option>
-          <option [value]="100">100 por página</option>
-        </select>
-
-        <!-- Botones de página -->
-        <div style="display:flex; align-items:center; gap:0.375rem; flex-wrap:wrap;">
-          
-          <button (click)="paginaAnterior()" [disabled]="paginaActual === 1"
-            style="min-width:2.375rem; height:2.375rem; display:inline-flex; align-items:center; justify-content:center; border:1px solid #E2E8F0; border-radius:6px; background:white; cursor:pointer; color:#64748B;"
-            [style.opacity]="paginaActual === 1 ? '0.5' : '1'">
-            <ion-icon name="chevron-back-outline"></ion-icon>
-          </button>
-
-          <ng-container *ngFor="let p of paginas">
-            <button *ngIf="p !== '...'" (click)="irAPagina(p)"
-              [style.background]="paginaActual === p ? 'var(--azul)' : 'white'"
-              [style.color]="paginaActual === p ? '#fff' : '#64748B'"
-              [style.border]="paginaActual === p ? '1px solid var(--azul)' : '1px solid #E2E8F0'"
-              style="min-width:2.375rem; height:2.375rem; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; cursor:pointer; font-size:0.875rem; font-weight:500;">
-              {{ p }}
-            </button>
-            <span *ngIf="p === '...'" style="color:#64748B; padding:0 0.25rem;">...</span>
-          </ng-container>
-
-          <button (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas"
-            style="min-width:2.375rem; height:2.375rem; display:inline-flex; align-items:center; justify-content:center; border:1px solid #E2E8F0; border-radius:6px; background:white; cursor:pointer; color:#64748B;"
-            [style.opacity]="paginaActual === totalPaginas ? '0.5' : '1'">
-            <ion-icon name="chevron-forward-outline"></ion-icon>
-          </button>
-
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-admin-pagination *ngIf="!cargandoTabla" [total]="libros.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+    [pageSizes]="[20, 30, 50, 100]" itemLabel="libro" itemLabelPlural="libros"></app-admin-pagination>
 
   <!-- MODAL -->
   <div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
@@ -264,11 +207,7 @@
 
       <!-- Loading overlay -->
       <div *ngIf="cargando" class="upload-loading-overlay">
-        <div class="upload-loading-content">
-          <div class="loading-spinner"></div>
-          <p style="margin-top:1rem; color:white; font-weight:600; font-size:1rem;">Guardando libro...</p>
-          <p style="color:rgba(255,255,255,0.8); font-size:0.8125rem; margin-top:0.375rem;">Por favor espere...</p>
-        </div>
+        <app-admin-loader [inverse]="true" texto="Guardando libro..."></app-admin-loader>
       </div>
 
       <!-- Header -->

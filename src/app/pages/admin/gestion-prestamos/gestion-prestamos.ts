@@ -10,6 +10,8 @@ import {
 } from '../../../api/services/prestamo-admin.service';
 import { AdminUserService } from '../../../api/services/admin-user.service';
 import { CatalogAdminService } from '../../../api/services/admin.catalog.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 interface EstudianteOption {
   id_usuario: number;
@@ -41,7 +43,7 @@ type AccionPrestamo = 'devolver' | 'cancelar' | 'vencido' | 'activar';
 @Component({
   selector: 'app-gestion-prestamos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './gestion-prestamos.html',
   styleUrls: ['./gestion-prestamos.css'],

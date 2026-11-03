@@ -7,17 +7,23 @@ import {
   AdminDiscountsService,
 } from '../../../api/services/admin-discounts.service';
 import { MagazinesService } from '../../../api/services/magazines.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-gestion-descuentos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './gestion-descuentos.component.html',
   styleUrls: ['./gestion-descuentos.component.css'],
   encapsulation: ViewEncapsulation.None,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class GestionDescuentosComponent implements OnInit {
+  // Paginación del listado (componente común del admin)
+  paginaActual = 1;
+  itemsPorPagina = 10;
+
   discounts: AdminDiscount[] = [];
   magazines: any[] = [];
   loading = false;

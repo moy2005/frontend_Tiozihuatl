@@ -28,6 +28,8 @@ import {
   TopBookRow,
 } from '../../../api/models/reports.models';
 import { ReportsService } from '../../../api/services/reports.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 type TableTab = 'loans' | 'books' | 'sales' | 'activity';
 type ChartKey = 'loans' | 'books' | 'roles' | 'magazines' | 'activity';
@@ -50,7 +52,7 @@ interface ExportChart {
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './reportes.html',
   styleUrls: ['./reportes.css'],
   encapsulation: ViewEncapsulation.None,

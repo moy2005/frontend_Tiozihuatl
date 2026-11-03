@@ -4,7 +4,7 @@
     <div class="header-section mb-6">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h2 class="page-title">Gestion de Pagos</h2>
+          <h2 class="page-title"><ion-icon name="card-outline"></ion-icon> Gestión de Pagos</h2>
           <p class="page-subtitle">Mercado Pago, compras y estados guardados en MySQL</p>
         </div>
         <button class="btn-primary flex items-center gap-2" (click)="loadPayments()" [disabled]="loading">
@@ -135,9 +135,8 @@
       </div>
     </div>
 
-    <div *ngIf="loading && payments.length === 0" class="content-card text-center py-12">
-      <div class="loading-spinner inline-block"></div>
-      <p class="mt-4 text-gray-600 font-medium">Cargando pagos...</p>
+    <div *ngIf="loading && payments.length === 0" class="content-card">
+      <app-admin-loader texto="Cargando pagos..."></app-admin-loader>
     </div>
 
     <div *ngIf="!loading || payments.length > 0" class="content-card overflow-hidden">
@@ -165,7 +164,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let payment of payments; trackBy: trackByCompra" class="table-row">
+            <tr *ngFor="let payment of payments | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina; trackBy: trackByCompra" class="table-row">
               <td class="td-cell font-medium text-gray-900">#{{ payment.id_compra }}</td>
               <td class="td-cell">
                 <div class="user-cell">
@@ -203,7 +202,7 @@
       </div>
 
       <div *ngIf="payments.length > 0" class="lg:hidden p-4 space-y-4">
-        <div *ngFor="let payment of payments; trackBy: trackByCompra" class="payment-card">
+        <div *ngFor="let payment of payments | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina; trackBy: trackByCompra" class="payment-card">
           <div class="payment-card-head">
             <div>
               <span class="payment-id">Compra #{{ payment.id_compra }}</span>
@@ -237,6 +236,9 @@
           </div>
         </div>
       </div>
+
+      <app-admin-pagination *ngIf="!loading" [total]="payments.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+        itemLabel="pago" itemLabelPlural="pagos"></app-admin-pagination>
     </div>
 
   </div>

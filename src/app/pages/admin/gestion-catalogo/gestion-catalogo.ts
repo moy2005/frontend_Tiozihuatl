@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { CatalogAdminService, LibroAdmin } from '../../../api/services/admin.catalog.service';
 import { StorageService } from '../../../api/services/storage.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-catalogo-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './gestion-catalogo.html',
   styleUrls: ['./gestion-catalogo.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

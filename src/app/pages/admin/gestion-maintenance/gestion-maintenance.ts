@@ -5,11 +5,13 @@ import Swal from 'sweetalert2';
 import { firstValueFrom } from 'rxjs';
 import { MaintenanceService } from '../../../api/services/maintenance.service';
 import { AutomationService } from '../../../api/services/automation.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-gestion-maintenance',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './gestion-maintenance.html',
   styleUrls: ['./gestion-maintenance.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

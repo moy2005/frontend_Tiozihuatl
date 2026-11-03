@@ -179,9 +179,7 @@
         
       </div>
 
-      <div *ngIf="cargandoTareas" class="text-center py-12">
-        <div class="loading-spinner inline-block"></div>
-      </div>
+      <app-admin-loader *ngIf="cargandoTareas" texto="Cargando registros..."></app-admin-loader>
       <div *ngIf="!cargandoLogs && logsFiltrados.length === 0" class="sin-resultados">
         <ion-icon name="calendar-outline"></ion-icon>
         No hay optimizaciones programadas aún
@@ -432,43 +430,8 @@
   </div>
 
   <!-- PAGINACIÓN HISTORIAL -->
-<div *ngIf="!cargandoLogs && logsFiltrados.length > 0" class="pagination-section">
-  <div class="pagination-info">
-    <ion-icon name="time-outline" style="color: var(--color-primario)"></ion-icon>
-    <span>
-      Mostrando <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
-      a <strong>{{ Math.min(paginaActual * itemsPorPagina, logsFiltrados.length) }}</strong>
-      de <strong>{{ logsFiltrados.length }}</strong> registros
-    </span>
-  </div>
-
-  <div class="flex items-center gap-2 flex-wrap justify-center">
-    <div class="pagination-page-size">
-      <select [(ngModel)]="itemsPorPagina" (change)="cambiarItemsPorPagina()" class="form-input">
-        <option [value]="15">15 por página</option>
-        <option [value]="25">25 por página</option>
-        <option [value]="50">50 por página</option>
-      </select>
-    </div>
-
-    <div class="pagination-controls">
-      <button class="pagination-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-      </button>
-      <ng-container *ngFor="let page of paginas">
-        <button *ngIf="page !== '...'" class="pagination-btn"
-          [class.active]="paginaActual === page"
-          (click)="irAPagina(page)">
-          {{ page }}
-        </button>
-        <span *ngIf="page === '...'" class="pagination-dots">...</span>
-      </ng-container>
-      <button class="pagination-btn" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
-        <ion-icon name="chevron-forward-outline"></ion-icon>
-      </button>
-    </div>
-  </div>
-</div>
+<app-admin-pagination *ngIf="!cargandoLogs" [total]="logsFiltrados.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+  [pageSizes]="[15, 25, 50]" itemLabel="registro" itemLabelPlural="registros"></app-admin-pagination>
 
  </div>
 </div>

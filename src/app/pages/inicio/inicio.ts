@@ -38,10 +38,16 @@ interface NoticiaDetectada extends NoticiaHome {
   aspectRatio: number | null;
 }
 
-interface NewsRenderGroup {
+// Grupo de presentación del bloque grande de Inicio (horizontal o rejilla de dos).
+interface MediaRenderGroup<T> {
   layout: 'landscape' | 'grid';
-  item?: NoticiaDetectada;
-  items?: NoticiaDetectada[];
+  item?: T;
+  items?: T[];
+}
+
+interface MediaDetectada {
+  mediaKind: NewsMediaKind;
+  aspectRatio: number | null;
 }
 
 interface EventoHomeImagen {
@@ -83,8 +89,9 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('revealItem') revealItems!: QueryList<ElementRef<HTMLElement>>;
 
   noticias: NoticiaDetectada[] = [];
-  noticiasRender: NewsRenderGroup[] = [];
   eventosPreview: EventoHomeDetectado[] = [];
+  // Los eventos destacados ocupan el bloque grande; las noticias, las tarjetas.
+  eventosRender: MediaRenderGroup<EventoHomeDetectado>[] = [];
   cargandoNoticias = true;
   cargandoEventos = true;
 
@@ -107,7 +114,7 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       const available = this.connection.available();
       untracked(() => {
         if (available) void Promise.all([this.cargarNoticias(), this.cargarEventos()]);
-        else { this.noticias = []; this.noticiasRender = []; this.eventosPreview = []; this.cargandoNoticias = false; this.cargandoEventos = false; }
+        else { this.noticias = []; this.eventosPreview = []; this.eventosRender = []; this.cargandoNoticias = false; this.cargandoEventos = false; }
       });
     });
   }
@@ -393,11 +400,9 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (!this.connection.available()) return;
       this.noticias = noticiasDetectadas;
-      this.noticiasRender = this.construirGruposNoticias(noticiasDetectadas);
     } catch (error) {
       console.error('Error al cargar noticias:', error);
       this.noticias = [];
-      this.noticiasRender = [];
     } finally {
       this.cargandoNoticias = false;
     }
@@ -417,9 +422,11 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       this.eventosPreview = eventosDetectados
         .filter((evento) => this.normalizarBooleano(evento?.destacado))
         .slice(0, 3);
+      this.eventosRender = this.construirGrupos(this.eventosPreview);
     } catch (error) {
       console.error('Error al cargar eventos:', error);
       this.eventosPreview = [];
+      this.eventosRender = [];
     } finally {
       this.cargandoEventos = false;
     }
@@ -478,9 +485,9 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private construirGruposNoticias(noticias: NoticiaDetectada[]): NewsRenderGroup[] {
-    const grupos: NewsRenderGroup[] = [];
-    let bufferGrid: NoticiaDetectada[] = [];
+  private construirGrupos<T extends MediaDetectada>(elementos: T[]): MediaRenderGroup<T>[] {
+    const grupos: MediaRenderGroup<T>[] = [];
+    let bufferGrid: T[] = [];
 
     const vaciarBuffer = () => {
       if (!bufferGrid.length) return;
@@ -488,34 +495,34 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       bufferGrid = [];
     };
 
-    for (const noticia of noticias) {
-      if (noticia.mediaKind === 'portrait' || noticia.mediaKind === 'square') {
-        bufferGrid.push(noticia);
+    for (const elemento of elementos) {
+      if (elemento.mediaKind === 'portrait' || elemento.mediaKind === 'square') {
+        bufferGrid.push(elemento);
         if (bufferGrid.length === 2) {
           vaciarBuffer();
         }
         continue;
       }
 
-      if (noticia.mediaKind === 'no-media') {
+      if (elemento.mediaKind === 'no-media') {
         continue;
       }
 
       vaciarBuffer();
 
-      grupos.push({ layout: 'landscape', item: noticia });
+      grupos.push({ layout: 'landscape', item: elemento });
     }
 
     vaciarBuffer();
     return grupos;
   }
 
-  obtenerClaseGrid(noticia: NoticiaDetectada): string {
-    return noticia.mediaKind === 'portrait' ? 'home-news-card--portrait' : 'home-news-card--square';
+  obtenerClaseGrid(elemento: MediaDetectada): string {
+    return elemento.mediaKind === 'portrait' ? 'home-news-card--portrait' : 'home-news-card--square';
   }
 
-  obtenerAspectRatioCss(noticia: NoticiaDetectada): string {
-    switch (noticia.mediaKind) {
+  obtenerAspectRatioCss(elemento: MediaDetectada): string {
+    switch (elemento.mediaKind) {
       case 'landscape':
         return '2.45';
       case 'portrait':
@@ -527,21 +534,13 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  obtenerImagenEvento(evento: EventoHome): string | null {
-    return evento?.imagen_principal || evento?.imagenes?.[0]?.url || null;
+  /** Proporción real de la imagen en las tarjetas: se muestra completa, sin franjas de fondo. */
+  obtenerAspectRatioTarjeta(elemento: MediaDetectada): string {
+    return elemento.aspectRatio ? String(elemento.aspectRatio) : '4 / 3';
   }
 
-  obtenerAspectRatioEventoCss(evento: EventoHomeDetectado): string {
-    switch (evento.mediaKind) {
-      case 'landscape':
-        return '1.3';
-      case 'portrait':
-        return '0.95';
-      case 'square':
-        return '1';
-      default:
-        return '1.2';
-    }
+  obtenerImagenEvento(evento: EventoHome): string | null {
+    return evento?.imagen_principal || evento?.imagenes?.[0]?.url || null;
   }
 
   private detectarMediaEvento(evento: EventoHome): Promise<EventoHomeDetectado> {

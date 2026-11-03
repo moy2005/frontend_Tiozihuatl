@@ -9,6 +9,10 @@
           <ion-icon name="calendar-outline"></ion-icon>
           Gestión de Calendario
         </h2>
+        <button class="btn-primary" type="button" (click)="abrirModal()">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Nuevo Calendario
+        </button>
       </div>
     </div>
 
@@ -17,18 +21,6 @@
     ============================================================ -->
     <div class="content-card overflow-hidden">
 
-      <!-- Cabecera del card -->
-      <div class="seccion-titulo">
-        <h3>
-          <ion-icon name="calendar-outline"></ion-icon>
-          Lista de Calendarios
-        </h3>
-        
-        <button class="btn-primary" (click)="abrirModal()">
-          <ion-icon name="add-circle-outline"></ion-icon>
-          Nuevo Calendario
-        </button>
-      </div>
      <!-- FILTROS -->
       <div class="filtros-bar">
         <!-- el contenido interno queda igual -->
@@ -61,10 +53,7 @@
         <button (click)="limpiarFiltros()" class="btn-secondary">Limpiar</button>
       </div>
       <!-- Loading -->
-      <div *ngIf="cargando" class="flex flex-col items-center justify-center py-12 gap-4">
-        <div class="loading-spinner"></div>
-        <p class="text-gray-600 font-medium">Cargando calendarios...</p>
-      </div>
+      <app-admin-loader *ngIf="cargando" texto="Cargando calendarios..."></app-admin-loader>
 
       <!-- Sin resultados -->
       <div *ngIf="!cargando && calendars.length === 0" class="sin-resultados">
@@ -85,7 +74,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let c of calendars" class="table-row">
+            <tr *ngFor="let c of calendars | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina" class="table-row">
 
               <!-- Título + sección opcional -->
               <td class="td-cell">
@@ -167,7 +156,7 @@
 
       <!-- Vista Mobile / Tablet -->
       <div *ngIf="!cargando && calendars.length > 0" class="lg:hidden p-4 space-y-4">
-        <div *ngFor="let c of calendars" class="prestamo-card">
+        <div *ngFor="let c of calendars | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina" class="prestamo-card">
 
           <div class="card-header">
             <div class="flex-1">
@@ -234,6 +223,9 @@
         </div>
       </div>
 
+      <app-admin-pagination *ngIf="!cargando" [total]="calendars.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+        itemLabel="calendario" itemLabelPlural="calendarios"></app-admin-pagination>
+
     </div>
   </div>
 
@@ -260,11 +252,7 @@
 
       <!-- Loading overlay al guardar -->
       <div *ngIf="guardando" class="upload-loading-overlay">
-        <div class="upload-loading-content">
-          <div class="loading-spinner"></div>
-          <p class="mt-4 text-white font-semibold text-lg">Guardando calendario...</p>
-          <p class="text-blue-200 text-sm">Por favor espere...</p>
-        </div>
+        <app-admin-loader [inverse]="true" texto="Guardando calendario..."></app-admin-loader>
       </div>
 
       <!-- Body modal -->

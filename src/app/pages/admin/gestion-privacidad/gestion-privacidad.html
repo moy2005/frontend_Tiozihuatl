@@ -34,10 +34,7 @@
 
   <!-- LOADING -->
   <div *ngIf="cargandoTabla" class="loading-wrapper">
-    <div class="loading-spinner"></div>
-    <p style="margin-top:1rem;color:#64748B;font-weight:500;font-size:.875rem;">
-      Cargando secciones...
-    </p>
+    <app-admin-loader texto="Cargando secciones..."></app-admin-loader>
   </div>
 
   <!-- TABLA DESKTOP -->
@@ -155,46 +152,8 @@
   </div>
 
   <!-- PAGINACIÓN -->
-  <div *ngIf="!cargandoTabla && secciones.length > 0" class="paginacion-bar">
-
-    <span class="pag-info">
-      <ion-icon name="shield-checkmark-outline" style="color:var(--azul);"></ion-icon>
-      Mostrando
-      <strong style="color:var(--azul);">{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong>
-      &nbsp;a&nbsp;
-      <strong style="color:var(--azul);">{{ Math.min(paginaActual * itemsPorPagina, secciones.length) }}</strong>
-      &nbsp;de&nbsp;
-      <strong style="color:var(--azul);">{{ secciones.length }}</strong>
-      &nbsp;sección{{ secciones.length !== 1 ? 'es' : '' }}
-    </span>
-
-    <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
-      <select [(ngModel)]="itemsPorPagina" (change)="cambiarItems()" class="pag-select">
-        <option [value]="10">10 por página</option>
-        <option [value]="20">20 por página</option>
-        <option [value]="50">50 por página</option>
-      </select>
-
-      <div style="display:flex;align-items:center;gap:.375rem;flex-wrap:wrap;">
-        <button (click)="anterior()" [disabled]="paginaActual === 1" class="pag-btn"
-          [style.opacity]="paginaActual === 1 ? '0.4' : '1'">
-          <ion-icon name="chevron-back-outline"></ion-icon>
-        </button>
-        <ng-container *ngFor="let p of paginas">
-          <button *ngIf="p !== '...'" (click)="irAPagina(p)"
-            [style.background]="paginaActual === p ? 'var(--azul)' : 'white'"
-            [style.color]="paginaActual === p ? '#fff' : '#64748B'"
-            [style.border]="paginaActual === p ? '1px solid var(--azul)' : '1px solid #E2E8F0'"
-            class="pag-btn">{{ p }}</button>
-          <span *ngIf="p === '...'" style="color:#64748B;padding:0 .25rem;">...</span>
-        </ng-container>
-        <button (click)="siguiente()" [disabled]="paginaActual === totalPaginas" class="pag-btn"
-          [style.opacity]="paginaActual === totalPaginas ? '0.4' : '1'">
-          <ion-icon name="chevron-forward-outline"></ion-icon>
-        </button>
-      </div>
-    </div>
-  </div>
+  <app-admin-pagination *ngIf="!cargandoTabla" [total]="secciones.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+    [pageSizes]="[10, 20, 50]" itemLabel="sección" itemLabelPlural="secciones"></app-admin-pagination>
 
   <!-- ═══════════════════════════════════════════════
       MODAL
@@ -204,12 +163,7 @@
 
       <!-- Loading overlay -->
       <div *ngIf="cargando" class="upload-loading-overlay">
-        <div class="upload-loading-content">
-          <div class="loading-spinner"
-            style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:4rem;height:4rem;margin:0 auto;"></div>
-          <p style="margin-top:1rem;color:white;font-weight:600;font-size:1rem;">Guardando sección...</p>
-          <p style="color:rgba(255,255,255,.8);font-size:.8125rem;margin-top:.375rem;">Por favor espere...</p>
-        </div>
+        <app-admin-loader [inverse]="true" texto="Guardando sección..."></app-admin-loader>
       </div>
 
       <!-- Header -->

@@ -31,8 +31,7 @@
 
   <!-- LOADING -->
   <div *ngIf="loading" class="loading-wrapper">
-    <div class="loading-spinner"></div>
-    <p style="margin-top:1rem;color:#64748B;font-weight:500;font-size:.875rem">Cargando periodos...</p>
+    <app-admin-loader texto="Cargando periodos..."></app-admin-loader>
   </div>
 
   <!-- TABLA DESKTOP -->
@@ -49,7 +48,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of periodos">
+          <tr *ngFor="let p of periodos | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina">
 
             <td>{{ p.nombre }}</td>
             <td>{{ p.fecha_inicio | date:'dd/MM/yyyy' }}</td>
@@ -124,7 +123,7 @@
 
   <!-- CARDS MOBILE -->
   <div *ngIf="!loading && periodos.length > 0" class="cards-mobile-wrapper">
-    <div *ngFor="let p of periodos" class="periodo-card">
+    <div *ngFor="let p of periodos | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina" class="periodo-card">
 
       <div class="periodo-card-header">
         <div>
@@ -186,16 +185,15 @@
     </div>
   </div>
 
+  <app-admin-pagination *ngIf="!loading" [total]="periodos.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+    itemLabel="periodo" itemLabelPlural="periodos"></app-admin-pagination>
+
   <!-- MODAL -->
   <div class="modal-overlay" *ngIf="showModal" (click)="cerrarModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
 
       <div *ngIf="guardando" class="upload-loading-overlay">
-        <div class="upload-loading-content">
-          <div class="loading-spinner"></div>
-          <p style="margin-top:1rem;color:white;font-weight:600;font-size:1rem">Guardando periodo...</p>
-          <p style="color:rgba(255,255,255,.8);font-size:.8125rem;margin-top:.375rem">Por favor espere...</p>
-        </div>
+        <app-admin-loader [inverse]="true" texto="Guardando periodo..."></app-admin-loader>
       </div>
 
       <div class="modal-header">

@@ -4,7 +4,7 @@
     <!-- HEADER -->
     <div class="header-section mb-6">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h2 class="page-title">Gestión de Revistas</h2>
+        <h2 class="page-title"><ion-icon name="newspaper-outline"></ion-icon> Gestión de Revistas</h2>
         <div class="flex flex-wrap gap-2">
           <button class="btn-export flex items-center gap-2"
                   (click)="exportarExcel()"
@@ -117,9 +117,8 @@
         </div>
       </div>
 
-      <div *ngIf="loading && magazines.length === 0" class="content-card text-center py-12">
-        <div class="loading-spinner inline-block"></div>
-        <p class="mt-4 text-gray-600 font-medium">Cargando revistas...</p>
+      <div *ngIf="loading && magazines.length === 0" class="content-card">
+        <app-admin-loader texto="Cargando revistas..."></app-admin-loader>
       </div>
 
       <div *ngIf="!loading" class="content-card overflow-hidden">
@@ -142,7 +141,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let mag of revistasFiltradas; trackBy: trackById" class="table-row">
+              <tr *ngFor="let mag of revistasFiltradas | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina; trackBy: trackById" class="table-row">
                 <td class="td-cell font-medium text-gray-900">{{ mag.titulo }}</td>
                 <td class="td-cell text-gray-500 text-sm td-descripcion">
                   {{ mag.descripcion ? (mag.descripcion.length > 60 ? (mag.descripcion | slice:0:60) + '...' : mag.descripcion) : '—' }}
@@ -178,7 +177,7 @@
         </div>
 
         <div *ngIf="revistasFiltradas.length > 0" class="lg:hidden p-4 space-y-4">
-          <div *ngFor="let mag of revistasFiltradas; trackBy: trackById" class="user-card">
+          <div *ngFor="let mag of revistasFiltradas | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina; trackBy: trackById" class="user-card">
             <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
@@ -205,6 +204,9 @@
             </div>
           </div>
         </div>
+
+        <app-admin-pagination *ngIf="!loading" [total]="revistasFiltradas.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+          itemLabel="revista" itemLabelPlural="revistas"></app-admin-pagination>
       </div>
     </div>
 
@@ -244,10 +246,7 @@
       </div>
 
       <div class="content-card overflow-hidden">
-        <div *ngIf="cargandoAuditoria" class="text-center py-12">
-          <div class="loading-spinner inline-block"></div>
-          <p class="mt-4 text-gray-600 font-medium">Cargando auditoría...</p>
-        </div>
+        <app-admin-loader *ngIf="cargandoAuditoria" texto="Cargando auditoría..."></app-admin-loader>
         <div *ngIf="!cargandoAuditoria">
           <div class="px-6 py-3 border-b border-gray-100" style="font-size:0.82rem; color:#64748B;">
             Total registros: <strong style="color:#2196F3;">{{ auditoria.length }}</strong>

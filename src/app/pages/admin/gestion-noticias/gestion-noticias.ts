@@ -5,17 +5,23 @@ import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { NewsService } from '../../../api/services/news.service';
 import { firstValueFrom } from 'rxjs';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-gestion-noticias',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './gestion-noticias.html',
   styleUrls: ['./gestion-noticias.css'],
   encapsulation: ViewEncapsulation.None
 })
 export class GestionNoticiasComponent implements OnInit {
+  // Paginación del listado (componente común del admin)
+  paginaActual = 1;
+  itemsPorPagina = 10;
+
 
   @ViewChild('imagenInput') imagenInput!: ElementRef<HTMLInputElement>;
   @ViewChild('videoInput') videoInput!: ElementRef<HTMLInputElement>;

@@ -5,6 +5,8 @@ import { MagazinesService } from '../../../api/services/magazines.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import * as XLSXStyle from 'xlsx-js-style';
 import Swal from 'sweetalert2';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 /* ===============================
    INTERFACES
@@ -43,13 +45,17 @@ interface CampoExportable {
 @Component({
   selector: 'app-gestion-revistas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './gestion-revistas.component.html',
   styleUrls: ['./gestion-revistas.component.css'],
   encapsulation: ViewEncapsulation.None,
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class GestionRevistasComponent implements OnInit {
+  // Paginación del listado (componente común del admin)
+  paginaActual = 1;
+  itemsPorPagina = 10;
+
 
   /* ===============================
      CONTROL DE VISTA (TABS)

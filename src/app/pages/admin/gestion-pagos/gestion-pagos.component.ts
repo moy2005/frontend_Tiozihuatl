@@ -8,17 +8,23 @@ import {
   AdminPaymentStats,
   AdminPaymentsService,
 } from '../../../api/services/admin-payments.service';
+import { AdminLoaderComponent } from '../shared/admin-loader';
+import { AdminPaginationComponent } from '../shared/admin-pagination';
 
 @Component({
   selector: 'app-gestion-pagos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminLoaderComponent, AdminPaginationComponent],
   templateUrl: './gestion-pagos.component.html',
   styleUrls: ['./gestion-pagos.component.css'],
   encapsulation: ViewEncapsulation.None,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class GestionPagosComponent implements OnInit {
+  // Paginación del listado (componente común del admin)
+  paginaActual = 1;
+  itemsPorPagina = 10;
+
   payments: AdminPayment[] = [];
   stats: AdminPaymentStats = this.emptyStats();
   loading = false;

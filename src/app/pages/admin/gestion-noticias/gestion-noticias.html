@@ -2,7 +2,7 @@
   <div class="max-w-[95%] mx-auto">
     <div class="header-section mb-6">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 class="page-title">Gestión de Noticias</h2>
+        <h2 class="page-title"><ion-icon name="megaphone-outline"></ion-icon> Gestión de Noticias</h2>
         <button
           (click)="nuevaNoticia()"
           class="btn-primary flex items-center gap-2">
@@ -12,9 +12,8 @@
       </div>
     </div>
 
-    <div *ngIf="cargando" class="content-card text-center py-12">
-      <div class="loading-spinner inline-block"></div>
-      <p class="mt-4 text-gray-600 font-medium">Cargando noticias...</p>
+    <div *ngIf="cargando" class="content-card">
+      <app-admin-loader texto="Cargando noticias..."></app-admin-loader>
     </div>
 
     <div *ngIf="!cargando" class="content-card overflow-hidden">
@@ -31,7 +30,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let n of noticias" class="table-row">
+            <tr *ngFor="let n of noticias | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina" class="table-row">
               <td class="td-cell font-medium text-gray-900">{{ n.titulo }}</td>
               <td class="td-cell text-gray-600">{{ n.categoria || '—' }}</td>
               <td class="td-cell">
@@ -77,7 +76,7 @@
       </div>
 
       <div class="lg:hidden p-4 space-y-4">
-        <div *ngFor="let n of noticias" class="news-card">
+        <div *ngFor="let n of noticias | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina" class="news-card">
           <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
@@ -132,6 +131,9 @@
           </div>
         </div>
       </div>
+
+      <app-admin-pagination *ngIf="!cargando" [total]="noticias.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+        itemLabel="noticia" itemLabelPlural="noticias"></app-admin-pagination>
     </div>
   </div>
 
@@ -147,11 +149,7 @@
       </div>
 
       <div *ngIf="guardando" class="upload-loading-overlay">
-        <div class="upload-loading-content">
-          <div class="loading-spinner"></div>
-          <p class="mt-4 text-white font-semibold text-lg">{{ mensajeCarga }}</p>
-          <p class="text-blue-200 text-sm">Por favor espere...</p>
-        </div>
+        <app-admin-loader [inverse]="true" [texto]="mensajeCarga"></app-admin-loader>
       </div>
 
       <div class="modal-body">

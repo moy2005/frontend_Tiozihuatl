@@ -31,8 +31,7 @@
 
   <!-- LOADING -->
   <div *ngIf="loading" class="loading-wrapper">
-    <div class="loading-spinner"></div>
-    <p style="margin-top:1rem;color:#64748B;font-weight:500;font-size:.875rem">Cargando materias...</p>
+    <app-admin-loader texto="Cargando materias..."></app-admin-loader>
   </div>
 
   <!-- TABLA DESKTOP -->
@@ -47,7 +46,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let m of materias">
+          <tr *ngFor="let m of materias | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina">
 
             <td>{{ m.nombre }}</td>
 
@@ -120,7 +119,7 @@
 
   <!-- CARDS MOBILE -->
   <div *ngIf="!loading && materias.length > 0" class="cards-mobile-wrapper">
-    <div *ngFor="let m of materias" class="materia-card">
+    <div *ngFor="let m of materias | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina" class="materia-card">
 
       <div class="materia-card-header">
         <p class="materia-card-nombre">{{ m.nombre }}</p>
@@ -170,16 +169,15 @@
     </div>
   </div>
 
+  <app-admin-pagination *ngIf="!loading" [total]="materias.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+    itemLabel="materia" itemLabelPlural="materias"></app-admin-pagination>
+
   <!-- MODAL -->
   <div class="modal-overlay" *ngIf="showModal" (click)="cerrarModal()">
     <div class="modal-content" (click)="$event.stopPropagation()" style="position:relative">
 
       <div *ngIf="guardando" class="upload-loading-overlay">
-        <div class="upload-loading-content">
-          <div class="loading-spinner"></div>
-          <p style="margin-top:1rem;color:white;font-weight:600;font-size:1rem">Guardando materia...</p>
-          <p style="color:rgba(255,255,255,.8);font-size:.8125rem;margin-top:.375rem">Por favor espere...</p>
-        </div>
+        <app-admin-loader [inverse]="true" texto="Guardando materia..."></app-admin-loader>
       </div>
 
       <div class="modal-header">

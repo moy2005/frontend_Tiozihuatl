@@ -14,10 +14,7 @@
 
   <!-- LOADING -->
   <div *ngIf="cargandoTabla" class="loading-wrapper">
-    <div class="loading-spinner"></div>
-    <p style="margin-top:1rem;color:#64748B;font-weight:500;font-size:0.875rem;">
-      Cargando secciones...
-    </p>
+    <app-admin-loader texto="Cargando secciones..."></app-admin-loader>
   </div>
 
   <!-- CONTADOR -->
@@ -40,7 +37,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let s of secciones">
+          <tr *ngFor="let s of secciones | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina">
             <td>
               <span class="num-badge">{{ s.numero }}</span>
             </td>
@@ -94,7 +91,7 @@
 
   <!-- CARDS MOBILE -->
   <div *ngIf="!cargandoTabla && secciones.length > 0" class="cards-mobile-wrapper">
-    <div *ngFor="let s of secciones" class="termino-card">
+    <div *ngFor="let s of secciones | slice:(paginaActual - 1) * itemsPorPagina:paginaActual * itemsPorPagina" class="termino-card">
       <div class="termino-card-header">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
           <span class="num-badge">{{ s.numero }}</span>
@@ -124,6 +121,9 @@
     </div>
   </div>
 
+  <app-admin-pagination *ngIf="!cargandoTabla" [total]="secciones.length" [(page)]="paginaActual" [(pageSize)]="itemsPorPagina"
+    itemLabel="sección" itemLabelPlural="secciones"></app-admin-pagination>
+
   <!-- ═══════════════════════════════════════
        MODAL
        ═══════════════════════════════════════ -->
@@ -132,12 +132,7 @@
 
       <!-- Loading overlay -->
       <div *ngIf="cargando" class="upload-loading-overlay">
-        <div class="upload-loading-content">
-          <div class="loading-spinner"
-            style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:4rem;height:4rem;margin:0 auto;"></div>
-          <p style="margin-top:1rem;color:white;font-weight:600;font-size:1rem;">Guardando sección...</p>
-          <p style="color:rgba(255,255,255,.8);font-size:.8125rem;margin-top:.375rem;">Por favor espere...</p>
-        </div>
+        <app-admin-loader [inverse]="true" texto="Guardando sección..."></app-admin-loader>
       </div>
 
       <!-- Header -->
