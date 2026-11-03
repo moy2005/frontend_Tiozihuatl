@@ -474,8 +474,8 @@ section#inicio > .absolute.inset-0 {
   min-height: 0;
 }
 
-/* Tarjetas de noticias: solo la imagen, sin fondo ni sombra; responden al
-   puntero y al toque para que se perciban como pulsables. */
+/* Tarjetas de noticias: contenedor con imagen y título. Sin fondo azul tras la
+   imagen ni sombras; responden al puntero y al toque para percibirse pulsables. */
 .home-tiles-section {
   background: var(--white);
   padding: 2rem 0 3.5rem;
@@ -491,22 +491,27 @@ section#inicio > .absolute.inset-0 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 .home-tile {
-  display: block;
-  position: relative;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   cursor: pointer;
   text-decoration: none;
+  background: var(--white);
+  border: 1px solid #d9ebfb;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.18s ease;
+  transition: border-color 0.25s ease, transform 0.18s ease;
 }
+
+.home-tile:hover { border-color: #9fd0f2; }
 
 .home-tile-media {
   display: block;
   width: 100%;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
 }
 
@@ -516,13 +521,31 @@ section#inicio > .absolute.inset-0 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), filter 0.3s ease;
+  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-.home-tile:hover .home-tile-media :is(img, video) {
-  transform: scale(1.035);
-  filter: brightness(1.04);
+.home-tile:hover .home-tile-media :is(img, video) { transform: scale(1.04); }
+
+.home-tile-body {
+  display: block;
+  padding: 1rem;
 }
+
+.home-tile-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.home-tile:hover .home-tile-title { color: var(--blue-dk); }
 
 .home-tile:active { transform: scale(0.985); }
 

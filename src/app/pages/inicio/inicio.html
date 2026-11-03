@@ -163,7 +163,7 @@
   </div>
 </section>
 
-<!-- Tarjetas: noticias (solo la imagen, sin fondo ni sombra) -->
+<!-- Tarjetas de noticias: imagen y título, sin fondo azul ni sombra -->
 <section id="noticias" class="home-tiles-section" *ngIf="connection.available() && !cargandoNoticias">
   <div class="home-tiles-inner">
     <p *ngIf="noticias.length === 0" class="home-news-empty">No hay noticias disponibles. Pronto publicaremos contenido nuevo.</p>
@@ -174,14 +174,16 @@
         #revealItem
         [style.--reveal-index]="tileIndex % 3"
         [routerLink]="['/noticias', noticia.id_noticia]"
-        [attr.aria-label]="noticia.titulo"
         class="home-tile home-scroll-reveal">
-        <span class="home-tile-media" [style.aspect-ratio]="obtenerAspectRatioTarjeta(noticia)">
-          <img *ngIf="noticia.imagen_url && !noticia.video_url" [src]="noticia.imagen_url" [alt]="noticia.titulo" loading="lazy" />
+        <span class="home-tile-media">
+          <img *ngIf="noticia.imagen_url && !noticia.video_url" [src]="noticia.imagen_url" alt="" loading="lazy" />
           <video *ngIf="noticia.video_url" [src]="noticia.video_url" muted autoplay loop playsinline></video>
           <span *ngIf="!noticia.imagen_url && !noticia.video_url" class="home-tile-placeholder">
             <i class="ph ph-newspaper"></i>
           </span>
+        </span>
+        <span class="home-tile-body">
+          <h3 class="home-tile-title">{{ noticia.titulo }}</h3>
         </span>
       </a>
     </div>

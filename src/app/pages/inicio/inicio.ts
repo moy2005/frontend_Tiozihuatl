@@ -534,11 +534,6 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /** Proporción real de la imagen en las tarjetas: se muestra completa, sin franjas de fondo. */
-  obtenerAspectRatioTarjeta(elemento: MediaDetectada): string {
-    return elemento.aspectRatio ? String(elemento.aspectRatio) : '4 / 3';
-  }
-
   obtenerImagenEvento(evento: EventoHome): string | null {
     return evento?.imagen_principal || evento?.imagenes?.[0]?.url || null;
   }
