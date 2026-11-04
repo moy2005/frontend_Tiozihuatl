@@ -88,7 +88,10 @@
             <section
               class="va-section"
               *ngFor="let section of message.sections; trackBy: trackBySection">
-              <h3>{{ section.title }}</h3>
+              <h3>
+                {{ section.title }}
+                <span class="va-section__count" *ngIf="section.items.length > 1">{{ section.items.length }}</span>
+              </h3>
               <button
                 type="button"
                 class="va-section-item"

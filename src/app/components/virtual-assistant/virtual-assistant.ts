@@ -3,10 +3,12 @@ import {
   Component,
   ElementRef,
   Inject,
+  Injector,
   OnDestroy,
   OnInit,
   PLATFORM_ID,
   ViewChild,
+  afterNextRender,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router } from '@angular/router';
@@ -14,6 +16,7 @@ import { Subscription, filter } from 'rxjs';
 import {
   VirtualAssistantAction,
   VirtualAssistantIntent,
+  VirtualAssistantMemory,
   VirtualAssistantSection,
   VirtualAssistantSectionItem,
   VirtualAssistantService,
@@ -31,7 +34,11 @@ interface ChatMessage {
   sections?: VirtualAssistantSection[];
   actions?: VirtualAssistantAction[];
   suggestions?: VirtualAssistantSuggestion[];
+  memory?: VirtualAssistantMemory;
 }
+
+/** Cómo colocar la conversación después de un cambio. */
+type ScrollTarget = 'end' | 'latest';
 
 @Component({
   selector: 'app-virtual-assistant',
@@ -50,10 +57,10 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
   draft = '';
   messages: ChatMessage[] = [];
   starterPrompts: string[] = [
-    'Quiero buscar un libro',
+    'Busco un libro de anatomía',
     '¿Cómo pido un préstamo?',
     '¿Qué eventos hay?',
-    'Quiero hablar con alguien',
+    '¿Dónde encuentro materiales de mi clase?',
   ];
 
   private readonly isBrowser: boolean;
@@ -61,7 +68,11 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
   private readonly sessionKey = 'tiozihuatlVirtualAssistantSession';
   private readonly maxHistory = 18;
   private readonly welcomeText =
-    '¡Hola! Soy el asistente virtual del Instituto de Estudios Superiores Tiozihuatl. Cuéntame qué necesitas y te ayudo paso a paso. Puedo buscar libros y recursos, orientarte sobre préstamos, ayudarte con tu cuenta o llevarte a la sección correcta.';
+    '¡Hola! Soy el asistente virtual del Instituto de Estudios Superiores Tiozihuatl. Puedo buscar libros y materiales, orientarte sobre préstamos, eventos y fechas escolares, o ayudarte con tu cuenta. ¿Qué necesitas?';
+  private readonly welcomeActions: VirtualAssistantAction[] = [
+    { label: 'Biblioteca', route: '/catalogo', icon: 'ph-book-bookmark' },
+    { label: 'Materiales', route: '/materiales', icon: 'ph-folder-open' },
+  ];
   private sessionId = '';
   private currentPath = '/inicio';
   private subscriptions = new Subscription();
@@ -69,6 +80,7 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
   constructor(
     private readonly assistantService: VirtualAssistantService,
     private readonly router: Router,
+    private readonly injector: Injector,
     @Inject(PLATFORM_ID) platformId: object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -97,7 +109,7 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
       this.replayHeaderRobotAnimation();
-      this.scheduleScroll();
+      this.scheduleScroll('latest', false);
     }
   }
 
@@ -160,22 +172,19 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
           sections: response.sections,
           actions: response.actions,
           suggestions: response.suggestions,
+          memory: {
+            searchType: response.meta?.searchType ?? null,
+            searchTerms: response.meta?.searchTerms ?? [],
+            shownIds: response.meta?.shownIds ?? [],
+          },
         });
         this.isLoading = false;
       },
       error: () => {
         this.pushMessage({
           sender: 'assistant',
-          text:
-            'Parece que no pude conectarme en este momento. ¿Intentamos otra vez? Si lo prefieres, también puedo llevarte a Contacto para que recibas atención directa.',
-          actions: [
-            { label: 'Contacto', route: '/contactanos', icon: 'ph-envelope' },
-            { label: 'Inicio', route: '/inicio', icon: 'ph-house' },
-          ],
-          suggestions: [
-            { label: 'Biblioteca', prompt: 'Ayuda con biblioteca' },
-            { label: 'Cuenta', prompt: 'Ayuda con mi cuenta' },
-          ],
+          text: 'No pude conectarme en este momento. Revisa tu conexión e inténtalo de nuevo en unos segundos.',
+          suggestions: [{ label: 'Intentar de nuevo', prompt: message }],
         });
         this.isLoading = false;
       },
@@ -257,6 +266,9 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
         sender: message.sender,
         text: message.text.slice(0, 300),
         intentId: message.intent?.id,
+        searchType: message.memory?.searchType ?? undefined,
+        searchTerms: message.memory?.searchTerms,
+        shownIds: message.memory?.shownIds,
       })),
     };
   }
@@ -272,7 +284,8 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
     ].slice(-this.maxHistory);
 
     this.persistHistory();
-    this.scheduleScroll();
+    // Lo que escribe el usuario se ve al final; una respuesta se muestra desde su inicio.
+    this.scheduleScroll(input.sender === 'user' ? 'end' : 'latest');
   }
 
   private seedWelcomeMessage(): void {
@@ -282,10 +295,7 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
         sender: 'assistant',
         text: this.welcomeText,
         time: this.formatTime(),
-        actions: [
-          { label: 'Biblioteca', route: '/catalogo', icon: 'ph-book-bookmark' },
-          { label: 'Contacto', route: '/contactanos', icon: 'ph-envelope' },
-        ],
+        actions: [...this.welcomeActions],
       },
     ];
   }
@@ -302,8 +312,12 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
       this.messages = Array.isArray(parsed) ? parsed.slice(-this.maxHistory) : [];
 
       const welcome = this.messages.find((message) => message.id.startsWith('welcome-'));
-      if (welcome && (welcome.text !== this.welcomeText || welcome.suggestions?.length)) {
+      const outdatedActions =
+        welcome?.actions?.map((action) => action.route).join() !==
+        this.welcomeActions.map((action) => action.route).join();
+      if (welcome && (welcome.text !== this.welcomeText || welcome.suggestions?.length || outdatedActions)) {
         welcome.text = this.welcomeText;
+        welcome.actions = [...this.welcomeActions];
         delete welcome.suggestions;
         this.persistHistory();
       }
@@ -321,14 +335,36 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
     localStorage.setItem(this.storageKey, JSON.stringify(this.messages.slice(-this.maxHistory)));
   }
 
-  private scheduleScroll(): void {
+  /**
+   * Coloca la conversación tras un cambio:
+   * - 'end': al final (mensajes del usuario y el indicador de escritura).
+   * - 'latest': el último mensaje completo; si no cabe en el panel, se alinea
+   *   su inicio arriba para leerlo desde el principio sin saltos.
+   */
+  private scheduleScroll(target: ScrollTarget = 'end', animate = true): void {
     if (!this.isBrowser) return;
 
-    setTimeout(() => {
-      const element = this.messagesPane?.nativeElement;
-      if (!element) return;
-      element.scrollTop = element.scrollHeight;
-    }, 40);
+    // Se mide después de que Angular pinte el mensaje nuevo.
+    afterNextRender(() => {
+      const pane = this.messagesPane?.nativeElement;
+      if (!pane) return;
+
+      const maxTop = pane.scrollHeight - pane.clientHeight;
+      let top = maxTop;
+
+      if (target === 'latest') {
+        const messages = pane.querySelectorAll<HTMLElement>('.va-message');
+        const latest = messages[messages.length - 1];
+        if (latest) {
+          const paddingTop = parseFloat(getComputedStyle(pane).paddingTop) || 0;
+          const latestTop = latest.offsetTop - paddingTop;
+          top = latest.offsetHeight > pane.clientHeight - paddingTop ? latestTop : maxTop;
+        }
+      }
+
+      const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      pane.scrollTo({ top: Math.max(0, Math.min(top, maxTop)), behavior: animate && !reduceMotion ? 'smooth' : 'auto' });
+    }, { injector: this.injector });
   }
 
   private getOrCreateSessionId(): string {

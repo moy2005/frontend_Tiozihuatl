@@ -288,11 +288,25 @@ section#inicio > .absolute.inset-0 {
 }
 .hf-layout--sin-imagen { grid-template-columns: minmax(0, 1fr); max-width: 820px; }
 
+/* Proporción animable: al cambiar de imagen, el carrusel se ajusta con suavidad. */
+@property --hf-ratio {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1.3333;
+}
+
+/* La figura adopta la proporción de la imagen activa (--hf-ratio, desde TS):
+   usa el ancho de su columna y, si la imagen es vertical, se estrecha para no
+   superar la altura máxima. Así la imagen se ve completa y sin huecos. */
 .hf-media {
+  --hf-max-h: min(640px, 72vh);
   position: sticky;
   top: 110px;
+  justify-self: center;
+  width: min(100%, calc(var(--hf-max-h) * var(--hf-ratio)));
   margin: 0;
   isolation: isolate;
+  transition: --hf-ratio 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .hf-media-shape {
@@ -315,8 +329,8 @@ section#inicio > .absolute.inset-0 {
 .hf-carousel {
   position: relative;
   display: grid;
-  aspect-ratio: 4 / 3;
-  max-height: 640px;
+  width: 100%;
+  aspect-ratio: var(--hf-ratio);
   overflow: hidden;
   border-radius: 28px 28px 28px 96px;
   background: #d6ecfb;
@@ -327,12 +341,15 @@ section#inicio > .absolute.inset-0 {
 .hf-carousel:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
 
 /* Todas las imágenes ocupan la misma celda: la activa aparece con un fundido
-   y un leve acercamiento que se asienta; la anterior se desvanece debajo. */
+   y un leve acercamiento que se asienta; la anterior se desvanece debajo.
+   Como la celda tiene la proporción de la imagen activa, «cover» no la recorta;
+   solo ajusta la saliente mientras se desvanece. */
 .hf-slide {
   grid-area: 1 / 1;
   display: block;
   width: 100%;
   height: 100%;
+  min-height: 0;
   object-fit: cover;
   opacity: 0;
   transform: scale(1.06);
@@ -449,6 +466,7 @@ section#inicio > .absolute.inset-0 {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hf-media { transition: none; }
   .hf-slide { transition: opacity 0.2s linear; transform: none; }
   .hf-dot, .hf-cta, .hf-cta i { transition: none; }
 }
@@ -470,7 +488,8 @@ section#inicio > .absolute.inset-0 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
-  align-items: stretch;
+  /* Cada tarjeta mide lo que su imagen y título: sin huecos bajo el contenido. */
+  align-items: start;
 }
 
 .home-tile {
@@ -487,10 +506,11 @@ section#inicio > .absolute.inset-0 {
 
 .home-tile:hover { border-color: #9fd0f2; }
 
+/* La imagen se muestra completa: el contenedor toma la altura que dicta su
+   proporción, sea horizontal o vertical. */
 .home-tile-media {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
   overflow: hidden;
 }
 
@@ -498,8 +518,7 @@ section#inicio > .absolute.inset-0 {
 .home-tile-media video {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -538,7 +557,7 @@ section#inicio > .absolute.inset-0 {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 10;
   color: var(--muted);
   font-size: 2.6rem;
   background: var(--surface);

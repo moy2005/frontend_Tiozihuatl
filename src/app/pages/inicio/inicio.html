@@ -96,7 +96,8 @@
     <div class="hf-layout" [class.hf-layout--sin-imagen]="imagenesDestacado.length === 0">
       <figure
         class="hf-media"
-        *ngIf="imagenesDestacado.length > 0">
+        *ngIf="imagenesDestacado.length > 0"
+        [style.--hf-ratio]="proporcionActiva">
         <svg class="hf-media-shape" viewBox="0 0 200 200" aria-hidden="true">
           <path fill="#3fa6e8" transform="translate(100 100)"
             d="M51.6,-61.4C65.4,-49.2,74.1,-31.1,76.8,-12.4C79.5,6.3,76.1,25.6,65.6,40C55.1,54.4,37.4,63.9,18.4,69.9C-0.6,75.9,-20.9,78.4,-38.6,71.4C-56.3,64.4,-71.4,47.9,-77.8,28.6C-84.2,9.3,-81.9,-12.8,-72.1,-29.9C-62.3,-47,-45,-59.1,-27.4,-69.4C-9.8,-79.7,8.1,-88.2,24.3,-84.4C40.5,-80.6,37.8,-73.6,51.6,-61.4Z" />
@@ -129,7 +130,8 @@
             [src]="imagen"
             [alt]="imagenesDestacado.length > 1 ? evento.titulo + ' — imagen ' + (i + 1) + ' de ' + imagenesDestacado.length : evento.titulo"
             [attr.aria-hidden]="i === imagenActiva ? null : 'true'"
-            [attr.loading]="i === 0 ? 'eager' : 'lazy'"
+            [attr.fetchpriority]="i === 0 ? 'high' : 'low'"
+            (load)="registrarProporcion(i, $event)"
             draggable="false" />
         </div>
 

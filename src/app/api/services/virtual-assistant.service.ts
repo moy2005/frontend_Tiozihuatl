@@ -3,16 +3,25 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { API_URL } from '../api.config';
 
+/** Lo que el asistente necesita recordar de una búsqueda para los seguimientos. */
+export interface VirtualAssistantMemory {
+  searchType?: string | null;
+  searchTerms?: string[];
+  shownIds?: number[];
+}
+
 export interface VirtualAssistantContext {
   sessionId: string;
   path: string;
   role?: string | null;
   isAuthenticated: boolean;
-  history?: Array<{
-    sender: 'assistant' | 'user';
-    text: string;
-    intentId?: string;
-  }>;
+  history?: Array<
+    VirtualAssistantMemory & {
+      sender: 'assistant' | 'user';
+      text: string;
+      intentId?: string;
+    }
+  >;
 }
 
 export interface VirtualAssistantAction {
@@ -70,10 +79,11 @@ export interface VirtualAssistantMessageData {
   actions: VirtualAssistantAction[];
   suggestions: VirtualAssistantSuggestion[];
   related: VirtualAssistantRelated[];
-  meta: {
-    searchTerm?: string;
+  meta: VirtualAssistantMemory & {
     deterministic: boolean;
     source: string;
+    contextUsed?: boolean;
+    authenticated?: boolean;
   };
 }
 

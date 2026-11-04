@@ -86,6 +86,9 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   imagenesDestacado: string[] = [];
   imagenActiva = 0;
   carruselAutomatico = false;
+  // Proporción (ancho / alto) de cada imagen: el carrusel adopta la de la imagen
+  // activa para mostrarla completa, sin recortes ni espacios sobrantes.
+  private proporcionesDestacado: number[] = [];
   private inicioDeslizamiento: { x: number; y: number } | null = null;
   cargandoNoticias = true;
   cargandoEventos = true;
@@ -413,6 +416,7 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!this.connection.available()) return;
       this.eventoDestacado = listaEventos.find((evento) => this.normalizarBooleano(evento?.destacado)) ?? null;
       this.imagenesDestacado = this.eventoDestacado ? this.obtenerImagenesEvento(this.eventoDestacado) : [];
+      this.proporcionesDestacado = [];
       this.imagenActiva = 0;
       const reducirMovimiento = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       this.carruselAutomatico = this.imagenesDestacado.length > 1 && !reducirMovimiento;
@@ -502,6 +506,18 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       .filter(Boolean);
     const urls = evento.imagen_principal ? [evento.imagen_principal, ...galeria] : galeria;
     return [...new Set(urls)];
+  }
+
+  /** Guarda la proporción real de una imagen del carrusel cuando termina de cargar. */
+  registrarProporcion(indice: number, event: Event): void {
+    const imagen = event.target as HTMLImageElement | null;
+    if (!imagen?.naturalWidth || !imagen.naturalHeight) return;
+    this.proporcionesDestacado[indice] = imagen.naturalWidth / imagen.naturalHeight;
+  }
+
+  /** Proporción que adopta el carrusel: la de la imagen activa (4:3 mientras carga). */
+  get proporcionActiva(): number {
+    return this.proporcionesDestacado[this.imagenActiva] || this.proporcionesDestacado[0] || 4 / 3;
   }
 
   irAImagenDestacada(indice: number, manual = true): void {
