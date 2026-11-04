@@ -1,8 +1,9 @@
-<div class="noticias-page">
+<!-- Mismo diseño que el listado de eventos (usa eventos.css). -->
+<div class="eventos-page noticias-page">
   <div class="hero-section">
     <div class="hero-content">
       <h1 class="hero-title">Noticias Institucionales</h1>
-      <p class="hero-subtitle">Mantente informado de las ultimas novedades</p>
+      <p class="hero-subtitle">Mantente al día con los anuncios, logros y novedades del Instituto.</p>
     </div>
   </div>
 
@@ -13,53 +14,21 @@
 
   <div *ngIf="!cargandoNoticias && noticias.length > 0" class="main-content">
     <div class="info-section">
-      <h2 class="section-title">
-        <span class="title-icon">
-          <ion-icon name="filter-outline"></ion-icon>
-        </span>
-        Filtrar por categoria
-      </h2>
-
-      <div class="filter-grid">
+      <div class="filter-grid" role="group" aria-label="Categorías de noticias">
         <button
+          *ngFor="let filtro of filtros"
+          (click)="aplicarFiltro(filtro.key)"
+          [class.active]="filtroSeleccionado === filtro.key"
+          [attr.aria-pressed]="filtroSeleccionado === filtro.key"
           class="filter-card"
-          [class.active]="categoriaSeleccionada === 'Todas'"
-          (click)="filtrarPorCategoria('Todas')">
-          <div class="filter-bg">
-            <ion-icon name="apps"></ion-icon>
-          </div>
+          type="button">
           <div class="filter-content">
             <div class="filter-icon">
-              <ion-icon name="apps-outline"></ion-icon>
+              <i class="ph" [ngClass]="filtro.icon"></i>
             </div>
             <div class="filter-text">
-              <span class="filter-label">Ver todas</span>
-              <h3 class="filter-value">Todas</h3>
-              <div class="filter-count">{{ noticias.length }}</div>
-            </div>
-          </div>
-        </button>
-
-        <button
-          *ngFor="let cat of categorias; let i = index"
-          class="filter-card"
-          [class.active]="categoriaSeleccionada === cat"
-          [class.filter-1]="i % 4 === 0"
-          [class.filter-2]="i % 4 === 1"
-          [class.filter-3]="i % 4 === 2"
-          [class.filter-4]="i % 4 === 3"
-          (click)="filtrarPorCategoria(cat)">
-          <div class="filter-bg">
-            <ion-icon name="pricetag"></ion-icon>
-          </div>
-          <div class="filter-content">
-            <div class="filter-icon">
-              <ion-icon name="pricetag-outline"></ion-icon>
-            </div>
-            <div class="filter-text">
-              <span class="filter-label">Categoria</span>
-              <h3 class="filter-value">{{ cat }}</h3>
-              <div class="filter-count">{{ contarPorCategoria(cat) }}</div>
+              <h3 class="filter-value">{{ filtro.label }}</h3>
+              <div class="filter-count">{{ contarPorFiltro(filtro.key) }}</div>
             </div>
           </div>
         </button>
@@ -68,131 +37,66 @@
 
     <div class="info-section">
       <h2 class="section-title">
-        <span class="title-icon">
-          <ion-icon name="newspaper"></ion-icon>
-        </span>
-        {{ categoriaSeleccionada === 'Todas' ? 'Todas las noticias' : categoriaSeleccionada }}
+        {{ filtroSeleccionado === 'Todas' ? 'Todas las noticias' : filtroSeleccionado }}
       </h2>
 
-      <div class="info-grid">
-        <div
+      <div class="events-grid">
+        <article
           *ngFor="let noticia of noticiasFiltradas"
-          class="info-card noticia-card"
-          [ngStyle]="getCardStyle(noticia)"
           (click)="irADetalle(noticia, $event)"
           (keydown.enter)="irADetalle(noticia, $event)"
           (keydown.space)="irADetalle(noticia, $event)"
+          class="event-card"
+          [attr.aria-label]="noticia.titulo"
           tabindex="0"
           role="button">
-          <div class="info-bg">
-            <ion-icon name="newspaper"></ion-icon>
-          </div>
-
-          <button
-            class="preview-eye-btn"
-            type="button"
-            title="Vista previa"
-            aria-label="Abrir vista previa de la noticia"
-            (click)="abrirNoticia(noticia, $event)">
-            <i class="ph ph-eye"></i>
-          </button>
-
-          <div class="noticia-media" *ngIf="noticia.imagen_url || noticia.video_url">
+          <div
+            class="event-media"
+            [class.event-media--empty]="!noticia.imagen_url && !noticia.video_url">
             <img
               *ngIf="noticia.imagen_url && !noticia.video_url"
-              [src]="noticia.imagen_url"
               [alt]="noticia.titulo"
-              class="noticia-image"
-            />
+              [src]="noticia.imagen_url"
+              class="event-image" loading="lazy" />
             <video
               *ngIf="noticia.video_url"
               [src]="noticia.video_url"
-              class="noticia-video"
+              class="event-image"
               muted
-              loop
               playsinline
-              (mouseenter)="playVideo($event)"
-              (mouseleave)="pauseVideo($event)">
-            </video>
-            <div class="media-badge" *ngIf="noticia.categoria">
-              <ion-icon name="pricetag"></ion-icon>
-              {{ noticia.categoria }}
+              preload="metadata"></video>
+
+            <div *ngIf="!noticia.imagen_url && !noticia.video_url" class="event-placeholder">
+              <i class="ph ph-newspaper" aria-hidden="true"></i>
             </div>
           </div>
 
-          <div class="info-content">
-            <div class="info-text">
-              <span class="info-label">
-                <ion-icon name="calendar-outline"></ion-icon>
-                {{ formatearFecha(noticia.fecha_publicacion) }}
-              </span>
-              <h3 class="info-value">{{ noticia.titulo }}</h3>
-              <p class="noticia-descripcion">{{ truncarTexto(noticia.contenido, 120) }}</p>
+          <div class="event-body">
+            <div class="event-meta">
+              <time [attr.datetime]="noticia.fecha_publicacion">{{ formatearFechaCorta(noticia.fecha_publicacion) }}</time>
             </div>
+
+            <h3 class="event-title">{{ noticia.titulo }}</h3>
+            <p class="event-description">{{ truncarTexto(noticia.contenido, 115) }}</p>
           </div>
-        </div>
+        </article>
       </div>
     </div>
 
     <div *ngIf="noticiasFiltradas.length === 0" class="empty-wrapper">
-      <ion-icon name="search-outline"></ion-icon>
-      <h3>No hay noticias en esta categoria</h3>
-      <p>Intenta seleccionar otra categoria</p>
-      <button class="reset-btn" (click)="filtrarPorCategoria('Todas')">
-        <ion-icon name="arrow-forward"></ion-icon>
+      <i class="ph ph-magnifying-glass"></i>
+      <h3>No hay noticias en esta categoría</h3>
+      <p>Intenta explorar otra categoría para encontrar publicaciones disponibles.</p>
+      <button (click)="aplicarFiltro('Todas')" class="reset-btn" type="button">
+        <i class="ph ph-arrow-clockwise"></i>
         Ver todas las noticias
       </button>
     </div>
   </div>
 
   <div *ngIf="!cargandoNoticias && noticias.length === 0" class="empty-wrapper">
-    <ion-icon name="newspaper-outline"></ion-icon>
+    <i class="ph ph-newspaper"></i>
     <h3>No hay noticias disponibles</h3>
-    <p>Pronto publicaremos nuevas noticias institucionales</p>
-  </div>
-</div>
-
-<div class="modal-overlay" *ngIf="noticiaSeleccionada" (click)="cerrarModal($event)">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-    <button class="modal-close" (click)="cerrarModal($event)" type="button">
-      <ion-icon name="close"></ion-icon>
-    </button>
-
-    <div class="modal-media" *ngIf="noticiaSeleccionada.imagen_url || noticiaSeleccionada.video_url">
-      <img
-        *ngIf="noticiaSeleccionada.imagen_url && !noticiaSeleccionada.video_url"
-        [src]="noticiaSeleccionada.imagen_url"
-        [alt]="noticiaSeleccionada.titulo"
-      />
-      <video
-        *ngIf="noticiaSeleccionada.video_url"
-        [src]="noticiaSeleccionada.video_url"
-        controls
-        autoplay>
-      </video>
-    </div>
-
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="modal-badge" *ngIf="noticiaSeleccionada.categoria">
-          <ion-icon name="pricetag"></ion-icon>
-          {{ noticiaSeleccionada.categoria }}
-        </span>
-        <span class="modal-date">
-          <ion-icon name="calendar-outline"></ion-icon>
-          {{ formatearFecha(noticiaSeleccionada.fecha_publicacion) }}
-        </span>
-      </div>
-
-      <h2 class="modal-title">{{ noticiaSeleccionada.titulo }}</h2>
-      <div class="modal-text">{{ truncarTexto(noticiaSeleccionada.contenido, 280) }}</div>
-
-      <div class="modal-actions">
-        <button class="modal-detail-btn" (click)="irADetalle(noticiaSeleccionada, $event)" type="button">
-          <ion-icon name="arrow-forward-outline"></ion-icon>
-          Ver detalle completo
-        </button>
-      </div>
-    </div>
+    <p>Pronto se publicarán nuevas noticias institucionales.</p>
   </div>
 </div>

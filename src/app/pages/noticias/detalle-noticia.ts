@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { NewsService } from '../../api/services/news.service';
+import { TextoEnlazadoComponent } from '../../components/texto-enlazado/texto-enlazado';
 
 interface NoticiaDetalle {
   id_noticia: number;
@@ -22,9 +23,9 @@ interface NoticiaDetalle {
 @Component({
   selector: 'app-detalle-noticia',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TextoEnlazadoComponent],
   templateUrl: './detalle-noticia.html',
-  styleUrls: ['./detalle-noticia.css'],
+  styleUrls: ['../eventos/detalle-evento.css', './detalle-noticia.css'],
   encapsulation: ViewEncapsulation.None,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

@@ -42,7 +42,7 @@
             </span>
           </div>
         </header>
-        <p class="ed-description">{{ evento.descripcion }}</p>
+        <div class="ed-description"><app-texto-enlazado [texto]="evento.descripcion"></app-texto-enlazado></div>
         <div id="galeria" class="ed-gallery" *ngIf="galeria.length > 0"
           [class.ed-gallery--two]="galeria.length === 2"
           [class.ed-gallery--single]="galeria.length === 1">

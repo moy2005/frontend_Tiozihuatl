@@ -13,6 +13,7 @@ import { CommonModule, ViewportScroller } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { EventsService } from '../../api/services/events.service';
+import { TextoEnlazadoComponent } from '../../components/texto-enlazado/texto-enlazado';
 
 interface EventoImagenDetalle {
   id_imagen?: number;
@@ -38,7 +39,7 @@ interface EventoDetalle {
 @Component({
   selector: 'app-detalle-evento',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TextoEnlazadoComponent],
   templateUrl: './detalle-evento.html',
   styleUrls: ['./detalle-evento.css'],
   encapsulation: ViewEncapsulation.None,

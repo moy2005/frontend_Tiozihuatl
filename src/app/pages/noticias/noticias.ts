@@ -1,296 +1,101 @@
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation,
-  CUSTOM_ELEMENTS_SCHEMA,
-} from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { NewsService } from '../../api/services/news.service';
 
 interface Noticia {
   id_noticia: number;
   titulo: string;
   contenido: string;
-  imagen_url?: string;
-  video_url?: string;
-  categoria?: string;
+  imagen_url?: string | null;
+  video_url?: string | null;
+  categoria?: string | null;
   fecha_publicacion: string;
-  estado: string;
-  // Propiedades dinámicas para dimensiones
-  imageWidth?: number;
-  imageHeight?: number;
-  aspectRatio?: number;
-  gridSpan?: { row: number; col: number };
 }
 
+interface FiltroNoticia {
+  key: string;
+  label: string;
+  icon: string;
+}
+
+const TODAS = 'Todas';
+
+/** Listado público de noticias con el mismo diseño que el de eventos (eventos.css). */
 @Component({
   selector: 'app-noticias',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './noticias.html',
-  styleUrls: ['./noticias.css'],
+  styleUrls: ['../eventos/eventos.css'],
   encapsulation: ViewEncapsulation.None,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class NoticiasComponent implements OnInit, OnDestroy {
+export class NoticiasComponent implements OnInit {
   cargandoNoticias = false;
   noticias: Noticia[] = [];
   noticiasFiltradas: Noticia[] = [];
-  categorias: string[] = [];
-  categoriaSeleccionada = 'Todas';
-  noticiaSeleccionada: Noticia | null = null;
+  filtros: FiltroNoticia[] = [{ key: TODAS, label: 'Todas', icon: 'ph-squares-four' }];
+  filtroSeleccionado = TODAS;
 
   constructor(
     private newsService: NewsService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.cargarNoticias();
   }
 
-  ngOnDestroy(): void {
-    document.body.style.overflow = '';
-  }
-
-  /**
-   * Cargar noticias desde el servicio
-   */
   async cargarNoticias(): Promise<void> {
     this.cargandoNoticias = true;
-    
-    this.newsService.getPublicNews().subscribe({
-      next: async (noticias) => {
-        console.log('✅ NOTICIAS CARGADAS:', noticias);
-        
-        this.noticias = noticias || [];
-        
-        // Cargar dimensiones de imágenes
-        await this.cargarDimensionesImagenes();
-        
-        this.noticiasFiltradas = [...this.noticias];
-        
-        // Extraer categorías únicas
-        this.extraerCategorias();
-        
-        this.cargandoNoticias = false;
-      },
-      error: (error) => {
-        console.error('❌ Error al cargar noticias:', error);
-        this.cargandoNoticias = false;
-      }
-    });
-  }
 
-  /**
-   * Cargar dimensiones reales de las imágenes
-   */
-  async cargarDimensionesImagenes(): Promise<void> {
-    const promesas = this.noticias.map(noticia => {
-      return new Promise<void>((resolve) => {
-        if (noticia.imagen_url) {
-          const img = new Image();
-          img.onload = () => {
-            noticia.imageWidth = img.naturalWidth;
-            noticia.imageHeight = img.naturalHeight;
-            noticia.aspectRatio = img.naturalWidth / img.naturalHeight;
-            noticia.gridSpan = this.calcularGridSpan(noticia.aspectRatio);
-            console.log(`📐 ${noticia.titulo}: ${noticia.imageWidth}x${noticia.imageHeight} (ratio: ${noticia.aspectRatio?.toFixed(2)})`);
-            resolve();
-          };
-          img.onerror = () => {
-            noticia.aspectRatio = 1.5; // Default
-            noticia.gridSpan = { row: 1, col: 1 };
-            resolve();
-          };
-          img.src = noticia.imagen_url;
-        } else if (noticia.video_url) {
-          // Para videos, usar ratio 16:9 por defecto
-          noticia.aspectRatio = 16 / 9;
-          noticia.gridSpan = this.calcularGridSpan(noticia.aspectRatio);
-          resolve();
-        } else {
-          noticia.aspectRatio = 1;
-          noticia.gridSpan = { row: 1, col: 1 };
-          resolve();
-        }
-      });
-    });
-
-    await Promise.all(promesas);
-  }
-
-  /**
-   * Calcular span del grid basado en aspect ratio
-   */
-  calcularGridSpan(aspectRatio: number): { row: number; col: number } {
-    // Imágenes muy anchas (panorámicas)
-    if (aspectRatio > 2) {
-      return { row: 1, col: 2 };
+    try {
+      const noticias = await firstValueFrom(this.newsService.getPublicNews());
+      this.noticias = Array.isArray(noticias) ? (noticias as Noticia[]) : [];
+      const categorias = [...new Set(this.noticias.map((n) => n.categoria?.trim()).filter((c): c is string => !!c))]
+        .sort((a, b) => a.localeCompare(b, 'es'));
+      this.filtros = [
+        { key: TODAS, label: 'Todas', icon: 'ph-squares-four' },
+        ...categorias.map((categoria) => ({ key: categoria, label: categoria, icon: 'ph-tag' })),
+      ];
+      this.aplicarFiltro(this.filtroSeleccionado);
+    } catch (error) {
+      console.error('Error al cargar noticias públicas:', error);
+      this.noticias = [];
+      this.noticiasFiltradas = [];
+    } finally {
+      this.cargandoNoticias = false;
     }
-    // Imágenes anchas normales
-    else if (aspectRatio > 1.4) {
-      return { row: 1, col: 1 };
-    }
-    // Imágenes cuadradas
-    else if (aspectRatio >= 0.9 && aspectRatio <= 1.1) {
-      return { row: 1, col: 1 };
-    }
-    // Imágenes verticales
-    else if (aspectRatio < 0.9) {
-      return { row: 2, col: 1 };
-    }
-    // Default
-    return { row: 1, col: 1 };
   }
 
-  /**
-   * Obtener estilos dinámicos para cada card
-   */
-  getCardStyle(noticia: Noticia): any {
-    if (!noticia.gridSpan) {
-      return {};
-    }
-
-    return {
-      'grid-row': `span ${noticia.gridSpan.row}`,
-      'grid-column': `span ${noticia.gridSpan.col}`
-    };
+  aplicarFiltro(filtro: string): void {
+    this.filtroSeleccionado = this.filtros.some((f) => f.key === filtro) ? filtro : TODAS;
+    this.noticiasFiltradas = this.filtroSeleccionado === TODAS
+      ? [...this.noticias]
+      : this.noticias.filter((n) => n.categoria?.trim() === this.filtroSeleccionado);
   }
 
-  /**
-   * Extraer categorías únicas de las noticias
-   */
-  extraerCategorias(): void {
-    const categoriasSet = new Set<string>();
-    
-    this.noticias.forEach(noticia => {
-      if (noticia.categoria && noticia.categoria.trim()) {
-        categoriasSet.add(noticia.categoria.trim());
-      }
-    });
-    
-    this.categorias = Array.from(categoriasSet).sort();
-  }
-
-  /**
-   * Filtrar noticias por categoría
-   */
-  filtrarPorCategoria(categoria: string): void {
-    this.categoriaSeleccionada = categoria;
-    
-    if (categoria === 'Todas') {
-      this.noticiasFiltradas = [...this.noticias];
-    } else {
-      this.noticiasFiltradas = this.noticias.filter(
-        noticia => noticia.categoria === categoria
-      );
-    }
-    
-    console.log(`📂 Filtrando por: ${categoria} - ${this.noticiasFiltradas.length} noticias`);
-  }
-
-  /**
-   * Contar noticias por categoría
-   */
-  contarPorCategoria(categoria: string): number {
-    return this.noticias.filter(
-      noticia => noticia.categoria === categoria
-    ).length;
-  }
-
-  /**
-   * Formatear fecha
-   */
-  formatearFecha(fecha: string): string {
-    if (!fecha) return '';
-    
-    const fechaObj = new Date(fecha);
-    const opciones: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    };
-    
-    return fechaObj.toLocaleDateString('es-MX', opciones);
-  }
-
-  /**
-   * Truncar texto
-   */
-  truncarTexto(texto: string, maxLength: number): string {
-    if (!texto) return '';
-    if (texto.length <= maxLength) return texto;
-    
-    return texto.substring(0, maxLength).trim() + '...';
-  }
-
-  /**
-   * Abrir noticia en modal
-   */
-  abrirNoticia(noticia: Noticia, event?: Event): void {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    
-    this.noticiaSeleccionada = noticia;
-    
-    // Prevenir scroll del body
-    document.body.style.overflow = 'hidden';
-    
-    console.log('📰 Noticia abierta:', noticia);
-  }
-
-  /**
-   * Cerrar modal
-   */
-  cerrarModal(event?: Event): void {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    
-    this.noticiaSeleccionada = null;
-    
-    // Restaurar scroll del body
-    document.body.style.overflow = '';
-    
-    console.log('❌ Modal cerrado');
+  contarPorFiltro(filtro: string): number {
+    return filtro === TODAS
+      ? this.noticias.length
+      : this.noticias.filter((n) => n.categoria?.trim() === filtro).length;
   }
 
   irADetalle(noticia: Noticia, event?: Event): void {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    this.cerrarModal();
+    event?.preventDefault();
     this.router.navigate(['/noticias', noticia.id_noticia]);
   }
 
-  /**
-   * Reproducir video al hacer hover
-   */
-  playVideo(event: Event): void {
-    const video = event.target as HTMLVideoElement;
-    if (video && video.tagName === 'VIDEO') {
-      video.play().catch(err => {
-        console.log('No se pudo reproducir el video:', err);
-      });
-    }
+  formatearFechaCorta(fecha: string): string {
+    if (!fecha) return '';
+    return new Date(fecha).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
-  /**
-   * Pausar video al quitar hover
-   */
-  pauseVideo(event: Event): void {
-    const video = event.target as HTMLVideoElement;
-    if (video && video.tagName === 'VIDEO') {
-      video.pause();
-      video.currentTime = 0;
-    }
+  truncarTexto(texto: string | null | undefined, maxLength = 140): string {
+    if (!texto) return '';
+    if (texto.length <= maxLength) return texto;
+    return `${texto.slice(0, maxLength).trim()}...`;
   }
 }

@@ -20,9 +20,9 @@ import { RouterModule } from '@angular/router';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { NewsService } from '../../api/services/news.service';
 import { EventsService } from '../../api/services/events.service';
+import { TextoEnlazadoComponent } from '../../components/texto-enlazado/texto-enlazado';
 
 type NewsMediaKind = 'landscape' | 'portrait' | 'square' | 'no-media';
-type EventMediaKind = 'landscape' | 'portrait' | 'square' | 'no-media';
 
 interface NoticiaHome {
   id_noticia: number;
@@ -38,39 +38,29 @@ interface NoticiaDetectada extends NoticiaHome {
   aspectRatio: number | null;
 }
 
-// Grupo de presentación del bloque grande de Inicio (horizontal o rejilla de dos).
-interface MediaRenderGroup<T> {
-  layout: 'landscape' | 'grid';
-  item?: T;
-  items?: T[];
-}
-
-interface MediaDetectada {
-  mediaKind: NewsMediaKind;
-  aspectRatio: number | null;
-}
-
 interface EventoHomeImagen {
   url: string;
+  orden?: number | null;
 }
 
 interface EventoHome {
   id_evento: number;
   titulo: string;
+  descripcion?: string | null;
+  tipo?: 'PRESENCIAL' | 'VIRTUAL' | string | null;
+  ubicacion?: string | null;
+  enlace?: string | null;
+  fecha_inicio?: string | null;
+  fecha_fin?: string | null;
   imagen_principal?: string | null;
   imagenes?: EventoHomeImagen[];
   destacado?: boolean | number | string;
 }
 
-interface EventoHomeDetectado extends EventoHome {
-  mediaKind: EventMediaKind;
-  aspectRatio: number | null;
-}
-
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TextoEnlazadoComponent],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -89,9 +79,14 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('revealItem') revealItems!: QueryList<ElementRef<HTMLElement>>;
 
   noticias: NoticiaDetectada[] = [];
-  eventosPreview: EventoHomeDetectado[] = [];
-  // Los eventos destacados ocupan el bloque grande; las noticias, las tarjetas.
-  eventosRender: MediaRenderGroup<EventoHomeDetectado>[] = [];
+  // Inicio muestra un único evento destacado: el primero marcado como tal.
+  eventoDestacado: EventoHome | null = null;
+  // Carrusel del evento destacado: avanza solo al terminar la barra del punto activo
+  // (CSS la pausa al pasar el puntero o enfocar) y se detiene al usarlo a mano.
+  imagenesDestacado: string[] = [];
+  imagenActiva = 0;
+  carruselAutomatico = false;
+  private inicioDeslizamiento: { x: number; y: number } | null = null;
   cargandoNoticias = true;
   cargandoEventos = true;
 
@@ -114,7 +109,7 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       const available = this.connection.available();
       untracked(() => {
         if (available) void Promise.all([this.cargarNoticias(), this.cargarEventos()]);
-        else { this.noticias = []; this.eventosPreview = []; this.eventosRender = []; this.cargandoNoticias = false; this.cargandoEventos = false; }
+        else { this.noticias = []; this.eventoDestacado = null; this.imagenesDestacado = []; this.cargandoNoticias = false; this.cargandoEventos = false; }
       });
     });
   }
@@ -414,19 +409,17 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       const eventos = await firstValueFrom(this.eventsService.getPublicEvents());
       const listaEventos = Array.isArray(eventos) ? (eventos as EventoHome[]) : [];
-      const eventosDetectados = await Promise.all(
-        listaEventos.map((evento) => this.detectarMediaEvento(evento))
-      );
 
       if (!this.connection.available()) return;
-      this.eventosPreview = eventosDetectados
-        .filter((evento) => this.normalizarBooleano(evento?.destacado))
-        .slice(0, 3);
-      this.eventosRender = this.construirGrupos(this.eventosPreview);
+      this.eventoDestacado = listaEventos.find((evento) => this.normalizarBooleano(evento?.destacado)) ?? null;
+      this.imagenesDestacado = this.eventoDestacado ? this.obtenerImagenesEvento(this.eventoDestacado) : [];
+      this.imagenActiva = 0;
+      const reducirMovimiento = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      this.carruselAutomatico = this.imagenesDestacado.length > 1 && !reducirMovimiento;
     } catch (error) {
       console.error('Error al cargar eventos:', error);
-      this.eventosPreview = [];
-      this.eventosRender = [];
+      this.eventoDestacado = null;
+      this.imagenesDestacado = [];
     } finally {
       this.cargandoEventos = false;
     }
@@ -485,104 +478,66 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private construirGrupos<T extends MediaDetectada>(elementos: T[]): MediaRenderGroup<T>[] {
-    const grupos: MediaRenderGroup<T>[] = [];
-    let bufferGrid: T[] = [];
-
-    const vaciarBuffer = () => {
-      if (!bufferGrid.length) return;
-      grupos.push({ layout: 'grid', items: [...bufferGrid] });
-      bufferGrid = [];
-    };
-
-    for (const elemento of elementos) {
-      if (elemento.mediaKind === 'portrait' || elemento.mediaKind === 'square') {
-        bufferGrid.push(elemento);
-        if (bufferGrid.length === 2) {
-          vaciarBuffer();
-        }
-        continue;
-      }
-
-      if (elemento.mediaKind === 'no-media') {
-        continue;
-      }
-
-      vaciarBuffer();
-
-      grupos.push({ layout: 'landscape', item: elemento });
-    }
-
-    vaciarBuffer();
-    return grupos;
-  }
-
-  obtenerClaseGrid(elemento: MediaDetectada): string {
-    return elemento.mediaKind === 'portrait' ? 'home-news-card--portrait' : 'home-news-card--square';
-  }
-
-  obtenerAspectRatioCss(elemento: MediaDetectada): string {
-    switch (elemento.mediaKind) {
-      case 'landscape':
-        return '2.45';
-      case 'portrait':
-        return '0.8';
-      case 'square':
-        return '1';
-      default:
-        return '1.4';
-    }
-  }
-
-  obtenerImagenEvento(evento: EventoHome): string | null {
-    return evento?.imagen_principal || evento?.imagenes?.[0]?.url || null;
-  }
-
-  private detectarMediaEvento(evento: EventoHome): Promise<EventoHomeDetectado> {
-    const imagenUrl = this.obtenerImagenEvento(evento);
-
-    if (!imagenUrl) {
-      return Promise.resolve({
-        ...evento,
-        mediaKind: 'no-media',
-        aspectRatio: null,
-      });
-    }
-
-    return new Promise((resolve) => {
-      const image = new Image();
-
-      image.onload = () => {
-        const width = image.naturalWidth || 1;
-        const height = image.naturalHeight || 1;
-        const aspectRatio = width / height;
-
-        let mediaKind: EventMediaKind;
-        if (aspectRatio >= 1.25) {
-          mediaKind = 'landscape';
-        } else if (aspectRatio <= 0.9) {
-          mediaKind = 'portrait';
-        } else {
-          mediaKind = 'square';
-        }
-
-        resolve({
-          ...evento,
-          mediaKind,
-          aspectRatio,
-        });
-      };
-
-      image.onerror = () => {
-        resolve({
-          ...evento,
-          mediaKind: 'square',
-          aspectRatio: 1,
-        });
-      };
-
-      image.src = imagenUrl;
+  formatearFechaEvento(fecha?: string | null): string {
+    if (!fecha) return '';
+    const texto = new Date(fecha).toLocaleDateString('es-MX', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
     });
+    return texto.charAt(0).toLocaleUpperCase('es-MX') + texto.slice(1);
+  }
+
+  formatearHoraEvento(fecha?: string | null): string {
+    if (!fecha) return '';
+    return new Date(fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /** Imagen principal primero y después el resto de la galería, sin repetir. */
+  private obtenerImagenesEvento(evento: EventoHome): string[] {
+    const galeria = [...(evento.imagenes ?? [])]
+      .sort((a, b) => Number(a.orden ?? 0) - Number(b.orden ?? 0))
+      .map((imagen) => imagen.url)
+      .filter(Boolean);
+    const urls = evento.imagen_principal ? [evento.imagen_principal, ...galeria] : galeria;
+    return [...new Set(urls)];
+  }
+
+  irAImagenDestacada(indice: number, manual = true): void {
+    const total = this.imagenesDestacado.length;
+    if (!total) return;
+    this.imagenActiva = (indice + total) % total;
+    if (manual) this.carruselAutomatico = false;
+  }
+
+  siguienteImagen(manual = false): void {
+    this.irAImagenDestacada(this.imagenActiva + 1, manual);
+  }
+
+  anteriorImagen(): void {
+    this.irAImagenDestacada(this.imagenActiva - 1, true);
+  }
+
+  iniciarDeslizamiento(evento: PointerEvent): void {
+    if (this.imagenesDestacado.length < 2) return;
+    this.inicioDeslizamiento = { x: evento.clientX, y: evento.clientY };
+  }
+
+  terminarDeslizamiento(evento: PointerEvent): void {
+    const inicio = this.inicioDeslizamiento;
+    this.inicioDeslizamiento = null;
+    if (!inicio) return;
+    const dx = evento.clientX - inicio.x;
+    const dy = evento.clientY - inicio.y;
+    // Solo un gesto horizontal claro: no interfiere con el desplazamiento vertical.
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    if (dx < 0) this.siguienteImagen(true);
+    else this.anteriorImagen();
+  }
+
+  cancelarDeslizamiento(): void {
+    this.inicioDeslizamiento = null;
   }
 
   normalizarBooleano(valor: unknown): boolean {
