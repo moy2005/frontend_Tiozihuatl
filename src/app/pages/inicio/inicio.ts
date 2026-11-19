@@ -5,7 +5,6 @@ import {
   ElementRef,
   NgZone,
   OnDestroy,
-  OnInit,
   QueryList,
   ViewChild,
   ViewChildren,
@@ -31,11 +30,26 @@ interface NoticiaHome {
   imagen_url?: string | null;
   video_url?: string | null;
   categoria?: string | null;
+  fecha_publicacion?: string | null;
 }
 
 interface NoticiaDetectada extends NoticiaHome {
   mediaKind: NewsMediaKind;
   aspectRatio: number | null;
+}
+
+interface AccesoInicio {
+  nombre: string;
+  descripcion: string;
+  ruta: string;
+  icono: string;
+  color: string;
+}
+
+interface GrupoAccesos {
+  titulo: string;
+  requiereSesion: boolean;
+  accesos: AccesoInicio[];
 }
 
 interface EventoHomeImagen {
@@ -57,6 +71,25 @@ interface EventoHome {
   destacado?: boolean | number | string;
 }
 
+/** Papel del mural que entra con el scroll: tramo de la línea de tiempo y desde dónde llega. */
+interface PapelEntrante {
+  element: HTMLElement;
+  start: number;
+  length: number;
+  dx: number;
+  dy: number;
+  dr: number;
+}
+
+// Colores de papel de las fichas: amarillo, celeste, rosa, verde y blanco.
+const PAPEL = {
+  amarillo: '#fff3a6',
+  celeste: '#d8efff',
+  rosa: '#ffe3df',
+  verde: '#e3f5e6',
+  blanco: '#fffdf8',
+};
+
 @Component({
   selector: 'app-inicio',
   standalone: true,
@@ -66,29 +99,63 @@ interface EventoHome {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   encapsulation: ViewEncapsulation.None,
 })
-export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
+export class InicioComponent implements AfterViewInit, OnDestroy {
   readonly connection = inject(ConnectivityService);
   @ViewChild('brandSentinel') brandSentinel!: ElementRef<HTMLElement>;
   @ViewChild('brandLogo') brandLogo!: ElementRef<HTMLElement>;
   @ViewChild('brandName') brandName!: ElementRef<HTMLElement>;
   @ViewChild('brandNameSub') brandNameSub!: ElementRef<HTMLElement>;
-  @ViewChild('brandOverlay') brandOverlay!: ElementRef<HTMLElement>;
-  @ViewChild('heroContent') heroContent!: ElementRef<HTMLElement>;
-  @ViewChild('heroBackdrop') heroBackdrop!: ElementRef<HTMLElement>;
-  @ViewChild('heroWave') heroWave!: ElementRef<SVGElement>;
+  @ViewChild('brandCover') brandCover!: ElementRef<HTMLElement>;
+  @ViewChild('scrollHint') scrollHint!: ElementRef<HTMLElement>;
   @ViewChildren('revealItem') revealItems!: QueryList<ElementRef<HTMLElement>>;
+  @ViewChildren('enterItem') enterItems!: QueryList<ElementRef<HTMLElement>>;
 
   noticias: NoticiaDetectada[] = [];
+  // Los estados iniciales de las animaciones solo se activan cuando el JS ya
+  // corre: si algo falla, el contenido queda visible.
+  movimientoListo = false;
+  readonly reducirMovimiento =
+    typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+  // Fichas del pie del tablero en la portada.
+  readonly accesosRapidos: AccesoInicio[] = [
+    { nombre: 'Biblioteca', descripcion: '', ruta: '/catalogo', icono: 'ph-books', color: PAPEL.blanco },
+    { nombre: 'Calendario', descripcion: '', ruta: '/calendario', icono: 'ph-calendar-blank', color: PAPEL.rosa },
+    { nombre: 'Eventos', descripcion: '', ruta: '/eventos', icono: 'ph-calendar-star', color: PAPEL.verde },
+    { nombre: 'Contáctanos', descripcion: '', ruta: '/contactanos', icono: 'ph-envelope-simple', color: PAPEL.amarillo },
+  ];
+
+  // Secciones del instituto: solo rutas que ya existen en el sistema.
+  readonly gruposAccesos: GrupoAccesos[] = [
+    {
+      titulo: 'Para todos',
+      requiereSesion: false,
+      accesos: [
+        { nombre: 'Noticias', descripcion: 'Avisos, convocatorias e inscripciones', ruta: '/noticias', icono: 'ph-newspaper', color: PAPEL.blanco },
+        { nombre: 'Eventos', descripcion: 'Congresos y actividades del instituto', ruta: '/eventos', icono: 'ph-calendar-star', color: PAPEL.verde },
+        { nombre: 'Calendario escolar', descripcion: 'Fechas y periodos del ciclo escolar', ruta: '/calendario', icono: 'ph-calendar-blank', color: PAPEL.rosa },
+        { nombre: 'Quiénes somos', descripcion: 'Misión, visión y valores', ruta: '/about', icono: 'ph-users-three', color: PAPEL.celeste },
+        { nombre: 'Contáctanos', descripcion: 'Escríbenos y resuelve tus dudas', ruta: '/contactanos', icono: 'ph-envelope-simple', color: PAPEL.amarillo },
+      ],
+    },
+    {
+      titulo: 'Con tu cuenta',
+      requiereSesion: true,
+      accesos: [
+        { nombre: 'Biblioteca', descripcion: 'Catálogo de libros y préstamos', ruta: '/catalogo', icono: 'ph-books', color: PAPEL.blanco },
+        { nombre: 'Tienda', descripcion: 'Revistas para consultar y adquirir', ruta: '/magazines', icono: 'ph-book-open-text', color: PAPEL.celeste },
+        { nombre: 'Materiales', descripcion: 'Materiales de estudio por materia', ruta: '/materiales', icono: 'ph-folder-simple', color: PAPEL.amarillo },
+      ],
+    },
+  ];
+
   // Inicio muestra un único evento destacado: el primero marcado como tal.
   eventoDestacado: EventoHome | null = null;
-  // Carrusel del evento destacado: avanza solo al terminar la barra del punto activo
-  // (CSS la pausa al pasar el puntero o enfocar) y se detiene al usarlo a mano.
+  // Pila de fotos del evento: avanza sola al terminar la barra del punto activo
+  // (CSS la pausa al pasar el puntero o enfocar) y se detiene al usarla a mano.
   imagenesDestacado: string[] = [];
   imagenActiva = 0;
   carruselAutomatico = false;
-  // Proporción (ancho / alto) de cada imagen: el carrusel adopta la de la imagen
-  // activa para mostrarla completa, sin recortes ni espacios sobrantes.
-  private proporcionesDestacado: number[] = [];
   private inicioDeslizamiento: { x: number; y: number } | null = null;
   cargandoNoticias = true;
   cargandoEventos = true;
@@ -100,8 +167,9 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   // Progreso mostrado: sigue al del scroll con un suavizado exponencial.
   private brandProgress = -1;
   private lastBrandFrame = 0;
+  private papeles: PapelEntrante[] = [];
   private revealObserver?: IntersectionObserver;
-  private revealChanges?: Subscription;
+  private subs: Subscription[] = [];
 
   constructor(
     private newsService: NewsService,
@@ -112,22 +180,36 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       const available = this.connection.available();
       untracked(() => {
         if (available) void Promise.all([this.cargarNoticias(), this.cargarEventos()]);
-        else { this.noticias = []; this.eventoDestacado = null; this.imagenesDestacado = []; this.cargandoNoticias = false; this.cargandoEventos = false; }
+        else {
+          this.noticias = [];
+          this.eventoDestacado = null;
+          this.imagenesDestacado = [];
+          this.cargandoNoticias = false;
+          this.cargandoEventos = false;
+        }
       });
     });
-  }
-
-  async ngOnInit(): Promise<void> {
   }
 
   ngAfterViewInit(): void {
     this.ngZone.runOutsideAngular(() => {
       requestAnimationFrame(() => {
         this.medirLogoInicial();
+        this.leerPapeles();
         window.addEventListener('scroll', this.onBrandScroll, { passive: true });
         window.addEventListener('resize', this.onBrandResize, { passive: true });
         this.inicializarRevelados();
+        this.subs.push(
+          this.enterItems.changes.subscribe(() => requestAnimationFrame(() => {
+            this.leerPapeles();
+            this.brandProgress = -1;
+            this.programarBrandFrame();
+          }))
+        );
         this.programarBrandFrame();
+        if (typeof IntersectionObserver !== 'undefined') {
+          this.ngZone.run(() => { this.movimientoListo = true; });
+        }
       });
     });
   }
@@ -139,8 +221,10 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     this.scrollRafId = 0;
     if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
     this.revealObserver?.disconnect();
-    this.revealChanges?.unsubscribe();
+    this.subs.forEach((s) => s.unsubscribe());
   }
+
+  // ── Intro y portada ligadas al scroll ─────────────────────────────
 
   private onBrandScroll = (): void => this.programarBrandFrame();
 
@@ -166,8 +250,7 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     const target = this.calcularProgresoBrand();
     if (target === null) return;
 
-    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (this.brandProgress < 0 || reduceMotion) {
+    if (this.brandProgress < 0 || this.reducirMovimiento) {
       this.brandProgress = target;
     } else {
       const dt = this.lastBrandFrame ? Math.min(64, now - this.lastBrandFrame) : 16;
@@ -201,6 +284,16 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     };
   }
 
+  /** Lee una sola vez el tramo de entrada de cada papel (data-enter="inicio duración dx dy giro"). */
+  private leerPapeles(): void {
+    this.papeles = (this.enterItems?.toArray() ?? []).map(({ nativeElement }) => {
+      const [start, length, dx, dy, dr] = (nativeElement.dataset['enter'] ?? '0 1 0 0 0')
+        .split(/\s+/)
+        .map(Number);
+      return { element: nativeElement, start, length, dx, dy, dr };
+    });
+  }
+
   private calcularProgresoBrand(): number | null {
     const sentinel = this.brandSentinel?.nativeElement;
     if (!sentinel) return null;
@@ -219,8 +312,6 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Centro del destino sin las traslaciones CSS en curso del navbar, para que
   // su transición de entrada no desplace el punto de llegada del logo.
-  // Se usa la altura: el contenedor de escritorio crece en ancho con el
-  // progreso y encoge la imagen, pero el logo es cuadrado y su altura es fija.
   private centroSinTraslacion(element: HTMLElement): { x: number; y: number; width: number } {
     const rect = element.getBoundingClientRect();
     let dx = 0;
@@ -235,32 +326,25 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     return { x: rect.left + rect.height / 2 - dx, y: rect.top + rect.height / 2 - dy, width: rect.height };
   }
 
+  /*
+   * Línea de tiempo de la intro (0 → 1 a lo largo del sentinel):
+   *   0.02–0.28  el título sube y se desvanece
+   *   0.03–0.40  el logo viaja al navbar (llega antes de que la portada se arme)
+   *   0.08–0.40  la portada azul con retícula se levanta como una hoja
+   *   0.32–0.42  el navbar muestra su logo (navbar.ts) y el grande se funde en él
+   *   0.28–0.72  los papeles de la portada se colocan uno a uno
+   * El último tramo (0.72–1) deja la portada quieta antes de seguir bajando.
+   */
   private actualizarBrandHero(progress: number): void {
     const sentinel = this.brandSentinel?.nativeElement;
     const logo = this.brandLogo?.nativeElement;
     const name = this.brandName?.nativeElement;
     const nameSub = this.brandNameSub?.nativeElement;
-    const overlay = this.brandOverlay?.nativeElement;
-    const heroContent = this.heroContent?.nativeElement;
-    const heroBackdrop = this.heroBackdrop?.nativeElement;
-    const heroWave = this.heroWave?.nativeElement;
-
-    if (
-      !sentinel ||
-      !logo ||
-      !name ||
-      !nameSub ||
-      !overlay ||
-      !heroContent ||
-      !heroBackdrop ||
-      !heroWave
-    ) return;
+    const cover = this.brandCover?.nativeElement;
+    if (!sentinel || !logo || !name || !nameSub || !cover) return;
     if (!this.logoOrigin) this.medirLogoInicial();
 
-    // El logo viaja de 0.02 a 0.96: termina justo cuando el navbar completa
-    // su aparición (0.80 → 0.96), así el relevo entre ambos es continuo.
-    const travelProgress = Math.min(1, Math.max(0, (progress - 0.02) / 0.94));
-    const eased = this.easeInOutSine(travelProgress);
+    const travel = this.easeInOutCubic(Math.min(1, Math.max(0, (progress - 0.03) / 0.37)));
 
     const targetSelector = window.innerWidth >= 1024
       ? '.navbar-desktop .navbar-compact-logo img'
@@ -275,43 +359,40 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       const translateY = destino.y - (base.top + this.logoOrigin.y);
       const targetScale = Math.max(0.05, destino.width / Math.max(this.logoOrigin.width, 1));
       // Escala geométrica: la reducción se percibe uniforme durante todo el viaje.
-      const scale = Math.pow(targetScale, eased);
+      const scale = Math.pow(targetScale, travel);
 
       logo.style.transform =
-        `translate3d(${(translateX * eased).toFixed(2)}px, ` +
-        `${(translateY * eased).toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+        `translate3d(${(translateX * travel).toFixed(2)}px, ` +
+        `${(translateY * travel).toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
     }
 
-    const logoFade = 1 - this.smoothstep(0.84, 0.96, progress);
-    logo.style.opacity = logoFade.toFixed(4);
-    logo.style.visibility = progress >= 0.965 ? 'hidden' : 'visible';
+    // Ya en su sitio, el logo grande se funde con el del navbar (relevo 0.36–0.42).
+    logo.style.opacity = (1 - this.smoothstep(0.36, 0.42, progress)).toFixed(4);
+    logo.style.visibility = progress >= 0.425 ? 'hidden' : 'visible';
 
-    // Título y subtítulo salen junto con el inicio del viaje del logo, con un
-    // leve escalonado, y desaparecen antes de que el logo llegue al navbar.
+    // Título y subtítulo salen con un leve escalonado.
     const titleDistanceFactor = Math.min(1, Math.max(0.52, window.innerHeight / 780));
-    this.aplicarSalidaTitulo(name, progress, 0.04, 0.56, -96 * titleDistanceFactor);
-    this.aplicarSalidaTitulo(nameSub, progress, 0.09, 0.56, -84 * titleDistanceFactor);
+    this.aplicarSalidaTitulo(name, progress, 0.02, 0.24, -96 * titleDistanceFactor);
+    this.aplicarSalidaTitulo(nameSub, progress, 0.05, 0.23, -84 * titleDistanceFactor);
 
-    const backgroundAlpha = 1 - Math.min(1, Math.max(0, (progress - 0.48) / 0.4));
-    overlay.style.background = `rgba(63, 166, 232, ${backgroundAlpha.toFixed(4)})`;
+    // La portada azul con retícula se levanta como una hoja y descubre la portada armada.
+    const lift = this.easeInOutCubic(Math.min(1, Math.max(0, (progress - 0.08) / 0.32)));
+    cover.style.transform = `translate3d(0, ${(-101 * lift).toFixed(3)}%, 0)`;
+    cover.style.visibility = lift >= 1 ? 'hidden' : 'visible';
 
-    const contentProgress = this.easeInOut(
-      Math.min(1, Math.max(0, (progress - 0.48) / 0.4))
-    );
-    const contentDistance = window.innerWidth <= 640 ? 30 : window.innerWidth <= 1023 ? 40 : 52;
-    heroContent.style.opacity = contentProgress.toFixed(4);
-    heroContent.style.transform =
-      `translate3d(0, ${(contentDistance * (1 - contentProgress)).toFixed(2)}px, 0) ` +
-      `scale(${(0.985 + contentProgress * 0.015).toFixed(4)})`;
+    const hint = this.scrollHint?.nativeElement;
+    if (hint) hint.style.opacity = (1 - this.smoothstep(0, 0.05, progress)).toFixed(4);
 
-    heroBackdrop.style.opacity = (0.1 * contentProgress).toFixed(4);
-    heroBackdrop.style.transform =
-      `translate3d(0, ${(16 * (1 - contentProgress)).toFixed(2)}px, 0) ` +
-      `scale(${(1.08 - contentProgress * 0.08).toFixed(4)})`;
-
-    heroWave.style.opacity = contentProgress.toFixed(4);
-    heroWave.style.transform =
-      `translate3d(0, ${((window.innerWidth <= 640 ? 42 : 70) * (1 - contentProgress)).toFixed(2)}px, 0)`;
+    // Los papeles de la portada llegan en la misma línea de tiempo y se clavan.
+    for (const papel of this.papeles) {
+      const local = Math.min(1, Math.max(0, (progress - papel.start) / Math.max(papel.length, 0.001)));
+      const s = this.reducirMovimiento ? (local > 0 ? 1 : 0) : this.easeOutCubic(local);
+      papel.element.style.setProperty('--s', s.toFixed(4));
+      papel.element.style.setProperty('--dx', `${papel.dx}px`);
+      papel.element.style.setProperty('--dy', `${papel.dy}px`);
+      papel.element.style.setProperty('--dr', `${papel.dr}deg`);
+      papel.element.style.visibility = s <= 0 ? 'hidden' : 'visible';
+    }
   }
 
   private aplicarSalidaTitulo(
@@ -326,11 +407,13 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     element.style.transform =
       `translate3d(0, ${(distance * eased).toFixed(2)}px, 0) ` +
       `scale(${(1 - 0.04 * eased).toFixed(4)})`;
-    // La opacidad se completa un poco antes que el desplazamiento para que el
-    // texto no quede visible y detenido al final de su recorrido.
+    // La opacidad se completa antes que el desplazamiento para que el texto
+    // no quede visible y detenido al final de su recorrido.
     element.style.opacity = (1 - this.smoothstep(0, 0.85, localProgress)).toFixed(4);
     element.style.visibility = localProgress >= 1 ? 'hidden' : 'visible';
   }
+
+  // ── Revelado bajo el pliegue: los avisos caen en cascada al entrar ──
 
   private inicializarRevelados(): void {
     if (typeof IntersectionObserver === 'undefined') return;
@@ -338,45 +421,42 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     this.revealObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const element = entry.target as HTMLElement;
-
-          if (entry.isIntersecting) {
-            element.classList.add('is-visible');
-            return;
-          }
-
-          if (entry.boundingClientRect.top > window.innerHeight * 0.72) {
-            element.classList.remove('is-visible');
-          }
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          // Una vez clavado, el aviso se queda: no se vuelve a ocultar.
+          this.revealObserver?.unobserve(entry.target);
         });
       },
-      {
-        threshold: 0.14,
-        rootMargin: '0px 0px -7% 0px',
-      }
+      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
     );
 
     this.observarElementosRevelados();
-    this.revealChanges = this.revealItems.changes.subscribe(() => {
-      requestAnimationFrame(() => this.observarElementosRevelados());
-    });
+    this.subs.push(
+      this.revealItems.changes.subscribe(() => {
+        requestAnimationFrame(() => this.observarElementosRevelados());
+      })
+    );
   }
 
   private observarElementosRevelados(): void {
     if (!this.revealObserver) return;
     this.revealItems.forEach(({ nativeElement }) => {
-      this.revealObserver?.observe(nativeElement);
+      if (!nativeElement.classList.contains('is-visible')) this.revealObserver?.observe(nativeElement);
     });
   }
 
-  private easeInOut(value: number): number {
-    return value < 0.5
-      ? 4 * value * value * value
-      : 1 - Math.pow(-2 * value + 2, 3) / 2;
+  // ── Curvas ────────────────────────────────────────────────────────
+
+  private easeInOutCubic(value: number): number {
+    return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2;
   }
 
-  // Curva más suave que la cúbica para movimiento ligado al scroll: no se
-  // queda "pegada" al inicio ni acelera bruscamente a mitad de recorrido.
+  private easeOutCubic(value: number): number {
+    return 1 - Math.pow(1 - value, 3);
+  }
+
+  // Curva suave para movimiento ligado al scroll: no se queda "pegada" al
+  // inicio ni acelera bruscamente a mitad de recorrido.
   private easeInOutSine(value: number): number {
     return -(Math.cos(Math.PI * value) - 1) / 2;
   }
@@ -385,6 +465,8 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     const t = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));
     return t * t * (3 - 2 * t);
   }
+
+  // ── Datos ─────────────────────────────────────────────────────────
 
   async cargarNoticias(): Promise<void> {
     this.cargandoNoticias = true;
@@ -416,10 +498,8 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!this.connection.available()) return;
       this.eventoDestacado = listaEventos.find((evento) => this.normalizarBooleano(evento?.destacado)) ?? null;
       this.imagenesDestacado = this.eventoDestacado ? this.obtenerImagenesEvento(this.eventoDestacado) : [];
-      this.proporcionesDestacado = [];
       this.imagenActiva = 0;
-      const reducirMovimiento = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      this.carruselAutomatico = this.imagenesDestacado.length > 1 && !reducirMovimiento;
+      this.carruselAutomatico = this.imagenesDestacado.length > 1 && !this.reducirMovimiento;
     } catch (error) {
       console.error('Error al cargar eventos:', error);
       this.eventoDestacado = null;
@@ -431,19 +511,11 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private detectarMediaNoticia(noticia: NoticiaHome): Promise<NoticiaDetectada> {
     if (noticia.video_url) {
-      return Promise.resolve({
-        ...noticia,
-        mediaKind: 'landscape',
-        aspectRatio: 16 / 9,
-      });
+      return Promise.resolve({ ...noticia, mediaKind: 'landscape', aspectRatio: 16 / 9 });
     }
 
     if (!noticia.imagen_url) {
-      return Promise.resolve({
-        ...noticia,
-        mediaKind: 'no-media',
-        aspectRatio: null,
-      });
+      return Promise.resolve({ ...noticia, mediaKind: 'no-media', aspectRatio: null });
     }
 
     return new Promise((resolve) => {
@@ -455,32 +527,19 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
         const aspectRatio = width / height;
 
         let mediaKind: NewsMediaKind;
-        if (aspectRatio >= 1.25) {
-          mediaKind = 'landscape';
-        } else if (aspectRatio <= 0.9) {
-          mediaKind = 'portrait';
-        } else {
-          mediaKind = 'square';
-        }
+        if (aspectRatio >= 1.25) mediaKind = 'landscape';
+        else if (aspectRatio <= 0.9) mediaKind = 'portrait';
+        else mediaKind = 'square';
 
-        resolve({
-          ...noticia,
-          mediaKind,
-          aspectRatio,
-        });
+        resolve({ ...noticia, mediaKind, aspectRatio });
       };
 
-      image.onerror = () => {
-        resolve({
-          ...noticia,
-          mediaKind: 'square',
-          aspectRatio: 1,
-        });
-      };
-
+      image.onerror = () => resolve({ ...noticia, mediaKind: 'square', aspectRatio: 1 });
       image.src = noticia.imagen_url!;
     });
   }
+
+  // ── Formato ───────────────────────────────────────────────────────
 
   formatearFechaEvento(fecha?: string | null): string {
     if (!fecha) return '';
@@ -493,9 +552,42 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     return texto.charAt(0).toLocaleUpperCase('es-MX') + texto.slice(1);
   }
 
+  formatearFechaCorta(fecha?: string | null): string {
+    if (!fecha) return '';
+    return new Date(fecha).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  formatearModalidad(tipo?: string | null): string {
+    if (!tipo) return '';
+    const t = tipo.toUpperCase();
+    if (t === 'PRESENCIAL') return 'Presencial';
+    if (t === 'VIRTUAL') return 'En línea';
+    return tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
+  }
+
   formatearHoraEvento(fecha?: string | null): string {
     if (!fecha) return '';
     return new Date(fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /** Inclinación estable de cada papel según su posición: el mural se ve hecho a mano. */
+  inclinacion(indice: number): string {
+    const giros = [-1.6, 1.2, -0.7, 1.9, -1.2, 0.8, -2, 1.4];
+    return `${giros[indice % giros.length]}deg`;
+  }
+
+  // ── Pila de fotos del evento ──────────────────────────────────────
+
+  /**
+   * Profundidad de cada foto en la pila: 0 arriba, 1 y 2 asoman detrás,
+   * 3 = la que acaba de salir (se va de lado), 4 = guardada al fondo, invisible.
+   */
+  profundidadFoto(indice: number): number {
+    const total = this.imagenesDestacado.length;
+    const k = (indice - this.imagenActiva + total) % total;
+    if (k <= 2 && k < total - (total > 3 ? 1 : 0)) return k;
+    if (k === total - 1) return 3;
+    return 4;
   }
 
   /** Imagen principal primero y después el resto de la galería, sin repetir. */
@@ -506,18 +598,6 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       .filter(Boolean);
     const urls = evento.imagen_principal ? [evento.imagen_principal, ...galeria] : galeria;
     return [...new Set(urls)];
-  }
-
-  /** Guarda la proporción real de una imagen del carrusel cuando termina de cargar. */
-  registrarProporcion(indice: number, event: Event): void {
-    const imagen = event.target as HTMLImageElement | null;
-    if (!imagen?.naturalWidth || !imagen.naturalHeight) return;
-    this.proporcionesDestacado[indice] = imagen.naturalWidth / imagen.naturalHeight;
-  }
-
-  /** Proporción que adopta el carrusel: la de la imagen activa (4:3 mientras carga). */
-  get proporcionActiva(): number {
-    return this.proporcionesDestacado[this.imagenActiva] || this.proporcionesDestacado[0] || 4 / 3;
   }
 
   irAImagenDestacada(indice: number, manual = true): void {
@@ -563,6 +643,6 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   truncarTexto(texto: string | null | undefined, limite = 220): string {
     if (!texto) return '';
     if (texto.length <= limite) return texto;
-    return `${texto.slice(0, limite).trim()}...`;
+    return `${texto.slice(0, limite).trim()}…`;
   }
 }

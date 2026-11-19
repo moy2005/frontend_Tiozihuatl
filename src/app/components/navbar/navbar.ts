@@ -138,7 +138,8 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
 
   get homeBrandReveal(): number {
     if (!this.isInicioRoute) return 1;
-    return Math.min(1, Math.max(0, (this.homeIntroProgress - 0.8) / 0.16));
+    // Relevo con el logo grande de Inicio: aparece mientras este se funde (0.32 → 0.42).
+    return Math.min(1, Math.max(0, (this.homeIntroProgress - 0.32) / 0.1));
   }
 
   private normalizarProgresoNavbar(progress: number): number {
@@ -146,7 +147,7 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
 
     // En móvil evitamos actualizar Angular en cada píxel de scroll. La marca
     // conserva un espacio estable y CSS realiza una única transición ligera.
-    if (progress >= 0.9) return 1;
+    if (progress >= 0.35) return 1;
     return progress > 0.02 ? 0.1 : 0;
   }
 

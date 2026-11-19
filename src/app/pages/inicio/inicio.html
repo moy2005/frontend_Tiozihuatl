@@ -1,201 +1,364 @@
-<div
-  class="home-brand-sentinel"
-  data-home-brand-sentinel
-  #brandSentinel>
-  <div class="home-brand-sticky">
-    <section id="inicio" class="relative bg-[#3FA6E8] text-white overflow-hidden">
-      <div
-        #heroBackdrop
-        class="absolute inset-0 bg-gradient-to-br from-white to-sky-700 opacity-10 bg-cover bg-center">
-      </div>
-      <div
-        #heroContent
-        class="home-main-hero-content relative z-10 max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <h1 class="texto text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-md">
-            Vocación, <br> <span class="text-white/90 whitespace-nowrap">Fe y Esperanza</span>
-          </h1>
-          <p class="text-lg text-white/85 mb-8 leading-relaxed max-w-lg">
-            La enfermería es una mezcla de ciencia, servicio, amor y compromiso, celebramos con gratitud y admiración a
-            quienes, con manos cálidas y corazones fuertes, cada día dan su amor y cuidado.
-          </p>
+<div class="home-mural" [attr.data-motion]="movimientoListo ? 'ready' : null">
+
+  <!-- ═══ Intro: el título sale, el logo viaja al navbar, la portada azul se levanta
+       y los papeles de la portada se colocan uno a uno ═══ -->
+  <div
+    class="home-brand-sentinel"
+    data-home-brand-sentinel
+    #brandSentinel>
+    <div class="home-brand-sticky">
+
+      <section id="inicio" class="mu-hero" aria-labelledby="mu-hero-title">
+        <div class="mu-stage">
+
+          <!-- Papel principal: el lema -->
+          <article class="mu-paper mu-lema" #enterItem data-enter="0.28 0.22 -70 160 -9" style="--r: -1.2deg">
+            <span class="mu-tape mu-tape--top" aria-hidden="true"></span>
+            <h1 id="mu-hero-title" class="mu-lema-title">
+              <span>Vocación,</span>
+              <span class="mu-lema-accent">Fe y Esperanza</span>
+            </h1>
+            <p class="mu-lema-text">
+              La enfermería es una mezcla de ciencia, servicio, amor y compromiso. Celebramos con gratitud y admiración
+              a quienes, con manos cálidas y corazones fuertes, cada día dan su amor y cuidado.
+            </p>
+            <div class="mu-lema-actions">
+              @if (eventoDestacado) {
+                <a class="mu-btn mu-btn--solid" href="#eventos">
+                  Ver lo destacado
+                  <i class="ph ph-arrow-down" aria-hidden="true"></i>
+                </a>
+              } @else {
+                <a class="mu-btn mu-btn--solid" routerLink="/eventos">
+                  Ver eventos
+                  <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                </a>
+              }
+              <a class="mu-btn mu-btn--line" href="#secciones">Explorar secciones</a>
+            </div>
+          </article>
+
+          <!-- Columna derecha: flyer del congreso y notas -->
+          <div class="mu-side">
+            @if (connection.available() && cargandoEventos) {
+              <div class="mu-paper mu-flyer mu-flyer--loading" #enterItem data-enter="0.35 0.22 180 -60 12" style="--r: 2.2deg" aria-hidden="true">
+                <span class="mu-pin" aria-hidden="true"></span>
+                <span class="mu-flyer-media mu-skeleton"></span>
+                <span class="mu-skeleton mu-skeleton-line"></span>
+              </div>
+            } @else if (eventoDestacado && imagenesDestacado.length > 0) {
+              <a class="mu-paper mu-flyer" href="#eventos" #enterItem data-enter="0.35 0.22 180 -60 12" style="--r: 2.2deg">
+                <span class="mu-pin" aria-hidden="true"></span>
+                <span class="mu-flyer-media">
+                  <img [src]="imagenesDestacado[0]" alt="" fetchpriority="high" />
+                </span>
+                <span class="mu-flyer-title">{{ eventoDestacado.titulo }}</span>
+                @if (eventoDestacado.ubicacion) {
+                  <span class="mu-flyer-meta">{{ eventoDestacado.ubicacion }}</span>
+                }
+              </a>
+            }
+
+            @if (!connection.available()) {
+              <a class="mu-note mu-note--pink" routerLink="/sin-conexion" #enterItem data-enter="0.43 0.2 120 80 -10" style="--r: -2deg">
+                <span class="mu-tape mu-tape--top" aria-hidden="true"></span>
+                <span class="mu-note-label">Sin conexión</span>
+                <span class="mu-note-hand">Ver páginas descargadas</span>
+              </a>
+            } @else {
+              @if (cargandoNoticias) {
+                <div class="mu-note mu-note--blue" #enterItem data-enter="0.43 0.2 -40 140 -12" style="--r: 2.6deg">
+                  <span class="mu-pin" aria-hidden="true"></span>
+                  <span class="mu-note-label">Noticias</span>
+                  <span class="mu-note-hand">Cargando…</span>
+                </div>
+              } @else if (noticias[0]; as reciente) {
+                <a class="mu-note mu-note--blue" [routerLink]="['/noticias', reciente.id_noticia]" #enterItem data-enter="0.43 0.2 -40 140 -12" style="--r: 2.6deg">
+                  <span class="mu-pin" aria-hidden="true"></span>
+                  <span class="mu-note-label">Noticia reciente</span>
+                  <span class="mu-note-hand">{{ truncarTexto(reciente.titulo, 40) }}</span>
+                </a>
+              }
+
+              <a class="mu-note mu-note--yellow" routerLink="/noticias" #enterItem data-enter="0.49 0.2 140 60 14" style="--r: -3.4deg">
+                <span class="mu-tape mu-tape--top" aria-hidden="true"></span>
+                <span class="mu-note-label">Noticias</span>
+                <span class="mu-note-hand">Ver todas</span>
+              </a>
+            }
+          </div>
+
+          <!-- Fichas de secciones, clavadas al pie del tablero -->
+          <nav class="mu-tabs" aria-label="Accesos rápidos" #enterItem data-enter="0.52 0.2 0 140 0" style="--r: 0.6deg">
+            @for (acceso of accesosRapidos; track acceso.ruta; let i = $index) {
+              <a class="mu-tab" [routerLink]="acceso.ruta" [style.--tint]="acceso.color" [style.--tilt]="(i % 2 === 0 ? -1 : 1) * (0.6 + i * 0.3) + 'deg'">
+                <i [class]="'ph ' + acceso.icono" aria-hidden="true"></i>
+                {{ acceso.nombre }}
+              </a>
+            }
+          </nav>
         </div>
-      </div>
-      <svg
-        #heroWave
-        class="home-main-hero-wave absolute bottom-0 left-0 w-full"
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-        overflow="visible">
-        <!-- El relleno pasa del borde inferior del viewBox (330 > 320): el recorte de la
-             sección, alineado a píxel, corta en blanco y no deja ver el azul de fondo. -->
-        <path fill="#ffffff" fill-opacity="1"
-          d="M0,256L80,229.3C160,203,320,149,480,138.7C640,128,800,160,960,176C1120,192,1280,192,1360,192L1440,192L1440,330L0,330Z"/>
-      </svg>
-    </section>
+      </section>
 
-    <div class="home-brand-overlay" #brandOverlay>
-      <div class="home-brand-logo-wrap" #brandLogo>
-        <img
-          src="/offline/logo.png"
-          alt="Logo del Instituto de Estudios Superiores Tiozihuatl"
-          class="home-brand-logo"
-        />
-      </div>
-      <h1 class="home-brand-name institution-display-title" #brandName>
-        Instituto de Estudios Superiores
-      </h1>
-      <h1 class="home-brand-name-sub institution-display-title" #brandNameSub>
-        Tiozihuatl
-      </h1>
-    </div>
-  </div>
-</div>
+      <!-- Portada: hoja azul con retícula que se levanta y descubre la portada armada -->
+      <div class="at-cover" #brandCover aria-hidden="true"></div>
 
-@if (!connection.available()) {
-  <section class="public-content-error" role="status">Las noticias y los eventos requieren conexión para mostrar información actualizada. <a routerLink="/sin-conexion">Consultar páginas descargadas</a></section>
-}
-<!-- Evento destacado: el único evento que se muestra en Inicio -->
-<section
-  id="eventos"
-  class="home-featured"
-  *ngIf="connection.available() && !cargandoEventos && eventoDestacado as evento"
-  aria-labelledby="home-featured-title">
-
-  <svg class="hf-wave hf-wave--top" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true">
-    <path fill="#ffffff" d="M0,0H1440V38C1290,92 1110,104 920,72C730,40 560,6 380,22C230,35 110,70 0,84Z" />
-  </svg>
-
-  <!-- Formas decorativas de fondo -->
-  <svg class="hf-deco hf-deco--blob" viewBox="0 0 200 200" aria-hidden="true">
-    <path fill="#3fa6e8" fill-opacity="0.1" transform="translate(100 100)"
-      d="M44.7,-63.2C57.2,-53.6,66,-39.4,71.3,-23.7C76.6,-8,78.4,9.2,72.6,23.5C66.8,37.8,53.4,49.2,38.6,58.6C23.8,68,7.6,75.4,-9.4,77.5C-26.4,79.6,-44.2,76.4,-56.6,66.1C-69,55.8,-76,38.4,-78.2,20.9C-80.4,3.4,-77.8,-14.2,-70,-28.3C-62.2,-42.4,-49.2,-53,-35.3,-62.2C-21.4,-71.4,-6.7,-79.2,8.2,-79.9C23.1,-80.6,32.2,-72.8,44.7,-63.2Z" />
-  </svg>
-  <svg class="hf-deco hf-deco--ring" viewBox="0 0 120 120" aria-hidden="true">
-    <circle cx="60" cy="60" r="52" fill="none" stroke="#3fa6e8" stroke-opacity="0.22" stroke-width="10" stroke-dasharray="2 18" stroke-linecap="round" />
-  </svg>
-
-  <div class="hf-inner">
-    <header class="hf-head">
-      <h2 id="home-featured-title" class="hf-title">{{ evento.titulo }}</h2>
-      <svg class="hf-title-stroke" viewBox="0 0 320 20" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M4 14C64 4 148 3 316 10" fill="none" stroke="#3fa6e8" stroke-width="7" stroke-linecap="round" />
-      </svg>
-
-      <!-- Fecha, hora y lugar en un solo dato -->
-      <p class="hf-meta" *ngIf="evento.fecha_inicio || evento.ubicacion">
-        <i class="ph ph-calendar-blank" aria-hidden="true"></i>
-        <span class="hf-meta-text">
-          <time *ngIf="evento.fecha_inicio" [attr.datetime]="evento.fecha_inicio">{{ formatearFechaEvento(evento.fecha_inicio) }}, {{ formatearHoraEvento(evento.fecha_inicio) }}</time>
-          <span *ngIf="evento.fecha_inicio && evento.ubicacion" class="hf-meta-sep" aria-hidden="true"></span>
-          <span *ngIf="evento.ubicacion">{{ evento.ubicacion }}</span>
-        </span>
-      </p>
-    </header>
-
-    <div class="hf-layout" [class.hf-layout--sin-imagen]="imagenesDestacado.length === 0">
-      <figure
-        class="hf-media"
-        *ngIf="imagenesDestacado.length > 0"
-        [style.--hf-ratio]="proporcionActiva">
-        <svg class="hf-media-shape" viewBox="0 0 200 200" aria-hidden="true">
-          <path fill="#3fa6e8" transform="translate(100 100)"
-            d="M51.6,-61.4C65.4,-49.2,74.1,-31.1,76.8,-12.4C79.5,6.3,76.1,25.6,65.6,40C55.1,54.4,37.4,63.9,18.4,69.9C-0.6,75.9,-20.9,78.4,-38.6,71.4C-56.3,64.4,-71.4,47.9,-77.8,28.6C-84.2,9.3,-81.9,-12.8,-72.1,-29.9C-62.3,-47,-45,-59.1,-27.4,-69.4C-9.8,-79.7,8.1,-88.2,24.3,-84.4C40.5,-80.6,37.8,-73.6,51.6,-61.4Z" />
-        </svg>
-        <svg class="hf-media-dots" viewBox="0 0 96 96" aria-hidden="true">
-          <defs>
-            <pattern id="hf-dot-pattern" width="16" height="16" patternUnits="userSpaceOnUse">
-              <circle cx="3" cy="3" r="2.4" fill="#1368c4" />
-            </pattern>
-          </defs>
-          <rect width="96" height="96" fill="url(#hf-dot-pattern)" />
-        </svg>
-
-        <!-- Carrusel: se desliza con el dedo, con las flechas del teclado o con los puntos -->
-        <div
-          class="hf-carousel"
-          [attr.role]="imagenesDestacado.length > 1 ? 'region' : null"
-          [attr.aria-roledescription]="imagenesDestacado.length > 1 ? 'carrusel' : null"
-          [attr.aria-label]="imagenesDestacado.length > 1 ? 'Imágenes de ' + evento.titulo : null"
-          [attr.tabindex]="imagenesDestacado.length > 1 ? 0 : null"
-          (keydown.arrowRight)="siguienteImagen(true)"
-          (keydown.arrowLeft)="anteriorImagen()"
-          (pointerdown)="iniciarDeslizamiento($event)"
-          (pointerup)="terminarDeslizamiento($event)"
-          (pointercancel)="cancelarDeslizamiento()">
+      <div class="home-brand-overlay">
+        <div class="home-brand-logo-wrap" #brandLogo>
           <img
-            *ngFor="let imagen of imagenesDestacado; let i = index"
-            class="hf-slide"
-            [class.hf-slide--active]="i === imagenActiva"
-            [src]="imagen"
-            [alt]="imagenesDestacado.length > 1 ? evento.titulo + ' — imagen ' + (i + 1) + ' de ' + imagenesDestacado.length : evento.titulo"
-            [attr.aria-hidden]="i === imagenActiva ? null : 'true'"
-            [attr.fetchpriority]="i === 0 ? 'high' : 'low'"
-            (load)="registrarProporcion(i, $event)"
-            draggable="false" />
+            src="/offline/logo.png"
+            alt="Logo del Instituto de Estudios Superiores Tiozihuatl"
+            class="home-brand-logo"
+          />
         </div>
-
-        <div
-          *ngIf="imagenesDestacado.length > 1"
-          class="hf-dots"
-          [class.hf-dots--playing]="carruselAutomatico"
-          role="group"
-          aria-label="Seleccionar imagen">
-          <button
-            *ngFor="let imagen of imagenesDestacado; let i = index"
-            type="button"
-            class="hf-dot"
-            [class.hf-dot--active]="i === imagenActiva"
-            [attr.aria-label]="'Ver imagen ' + (i + 1) + ' de ' + imagenesDestacado.length"
-            [attr.aria-current]="i === imagenActiva ? 'true' : null"
-            (click)="irAImagenDestacada(i)">
-            <span class="hf-dot-fill" (animationend)="i === imagenActiva && siguienteImagen()"></span>
-          </button>
-        </div>
-      </figure>
-
-      <div class="hf-body">
-        <div class="hf-description">
-          <app-texto-enlazado [texto]="evento.descripcion"></app-texto-enlazado>
-        </div>
-
-        <div class="hf-actions" *ngIf="evento.enlace">
-          <a class="hf-cta" [href]="evento.enlace" target="_blank" rel="noopener noreferrer">
-            Ir al evento
-            <i class="ph ph-arrow-square-out" aria-hidden="true"></i>
-          </a>
-        </div>
+        <p class="home-brand-name institution-display-title" #brandName>
+          Instituto de Estudios Superiores
+        </p>
+        <p class="home-brand-name-sub institution-display-title" #brandNameSub>
+          Tiozihuatl
+        </p>
+        <span class="at-scroll-hint" #scrollHint aria-hidden="true">
+          <span class="at-scroll-hint-line"></span>
+        </span>
       </div>
     </div>
   </div>
 
-  <svg class="hf-wave hf-wave--bottom" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true">
-    <path fill="#ffffff" d="M0,110H1440V30C1300,70 1150,92 960,66C770,40 640,4 450,18C280,30 130,74 0,52Z" />
-  </svg>
-</section>
+  @if (!connection.available()) {
+    <section class="mu-section mu-offline" role="status">
+      <div class="mu-wrap">
+        <div class="mu-note mu-note--pink mu-offline-note">
+          <span class="mu-pin" aria-hidden="true"></span>
+          <p>Las noticias y los eventos requieren conexión para mostrar información actualizada.</p>
+          <a routerLink="/sin-conexion">Consultar páginas descargadas</a>
+        </div>
+      </div>
+    </section>
+  }
 
-<!-- Tarjetas de noticias: imagen y título, sin fondo azul ni sombra -->
-<!-- Sin noticias, la sección no se muestra -->
-<section id="noticias" class="home-tiles-section" *ngIf="connection.available() && !cargandoNoticias && noticias.length > 0">
-  <div class="home-tiles-inner">
-    <div class="home-tiles-grid">
-      <a
-        *ngFor="let noticia of noticias; let tileIndex = index"
-        #revealItem
-        [style.--reveal-index]="tileIndex % 3"
-        [routerLink]="['/noticias', noticia.id_noticia]"
-        class="home-tile home-scroll-reveal">
-        <span class="home-tile-media">
-          <img *ngIf="noticia.imagen_url && !noticia.video_url" [src]="noticia.imagen_url" alt="" loading="lazy" />
-          <video *ngIf="noticia.video_url" [src]="noticia.video_url" muted autoplay loop playsinline></video>
-          <span *ngIf="!noticia.imagen_url && !noticia.video_url" class="home-tile-placeholder">
-            <i class="ph ph-newspaper"></i>
-          </span>
-        </span>
-        <span class="home-tile-body">
-          <h3 class="home-tile-title">{{ noticia.titulo }}</h3>
-        </span>
-      </a>
+  <!-- ═══ Evento destacado ═══ -->
+  @if (connection.available() && cargandoEventos) {
+    <section class="mu-section mu-event" aria-hidden="true">
+      <div class="mu-wrap mu-event-layout">
+        <div class="mu-photos"><div class="mu-photo mu-skeleton" data-k="0"></div></div>
+        <div class="mu-paper mu-event-sheet">
+          <span class="mu-skeleton mu-skeleton-title"></span>
+          <span class="mu-skeleton mu-skeleton-line"></span>
+          <span class="mu-skeleton mu-skeleton-line"></span>
+          <span class="mu-skeleton mu-skeleton-line mu-skeleton-line--short"></span>
+        </div>
+      </div>
+    </section>
+  } @else if (connection.available() && eventoDestacado; as evento) {
+    <section id="eventos" class="mu-section mu-event" aria-labelledby="mu-event-title">
+      <div class="mu-wrap mu-event-layout" [class.mu-event-layout--solo]="imagenesDestacado.length === 0">
+
+        @if (imagenesDestacado.length > 0) {
+          <div class="mu-gallery mu-drop" #revealItem>
+            <!-- Pila de fotos clavadas: se pasa con el dedo, con las flechas del teclado o con los botones -->
+            <div
+              class="mu-photos"
+              [attr.role]="imagenesDestacado.length > 1 ? 'region' : null"
+              [attr.aria-roledescription]="imagenesDestacado.length > 1 ? 'carrusel' : null"
+              [attr.aria-label]="imagenesDestacado.length > 1 ? 'Imágenes de ' + evento.titulo : null"
+              [attr.tabindex]="imagenesDestacado.length > 1 ? 0 : null"
+              (keydown.arrowRight)="siguienteImagen(true)"
+              (keydown.arrowLeft)="anteriorImagen()"
+              (pointerdown)="iniciarDeslizamiento($event)"
+              (pointerup)="terminarDeslizamiento($event)"
+              (pointercancel)="cancelarDeslizamiento()">
+              @for (imagen of imagenesDestacado; track imagen; let i = $index) {
+                <figure class="mu-photo" [attr.data-k]="profundidadFoto(i)" [attr.aria-hidden]="i === imagenActiva ? null : 'true'">
+                  <img
+                    [src]="imagen"
+                    [alt]="imagenesDestacado.length > 1 ? evento.titulo + ' — imagen ' + (i + 1) + ' de ' + imagenesDestacado.length : evento.titulo"
+                    [attr.fetchpriority]="i === 0 ? 'high' : 'low'"
+                    [attr.loading]="i < 3 ? null : 'lazy'"
+                    draggable="false" />
+                </figure>
+              }
+              <span class="mu-pin mu-pin--photo" aria-hidden="true"></span>
+            </div>
+
+            @if (imagenesDestacado.length > 1) {
+              <div class="mu-gallery-controls">
+                <button type="button" class="mu-round" (click)="anteriorImagen()" aria-label="Imagen anterior">
+                  <i class="ph ph-arrow-left" aria-hidden="true"></i>
+                </button>
+                <span class="mu-gallery-count"><span class="mu-num">{{ imagenActiva + 1 }}</span> de <span class="mu-num">{{ imagenesDestacado.length }}</span></span>
+                <button type="button" class="mu-round" (click)="siguienteImagen(true)" aria-label="Imagen siguiente">
+                  <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                </button>
+                <div class="mu-dots" [class.mu-dots--playing]="carruselAutomatico" role="group" aria-label="Seleccionar imagen">
+                  @for (imagen of imagenesDestacado; track imagen; let i = $index) {
+                    <button
+                      type="button"
+                      class="mu-dot"
+                      [class.mu-dot--active]="i === imagenActiva"
+                      [attr.aria-label]="'Ver imagen ' + (i + 1) + ' de ' + imagenesDestacado.length"
+                      [attr.aria-current]="i === imagenActiva ? 'true' : null"
+                      (click)="irAImagenDestacada(i)">
+                      <span class="mu-dot-fill" (animationend)="i === imagenActiva && siguienteImagen()"></span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <article class="mu-paper mu-event-sheet mu-drop" #revealItem [style.--reveal-index]="1">
+          <span class="mu-tape mu-tape--top" aria-hidden="true"></span>
+          <h2 id="mu-event-title" class="mu-h2">{{ evento.titulo }}</h2>
+
+          @if (evento.fecha_inicio || evento.ubicacion) {
+            <p class="mu-when">
+              @if (evento.fecha_inicio) {
+                <span class="mu-when-item">
+                  <i class="ph ph-calendar-blank" aria-hidden="true"></i>
+                  <time [attr.datetime]="evento.fecha_inicio">{{ formatearFechaEvento(evento.fecha_inicio) }}, {{ formatearHoraEvento(evento.fecha_inicio) }}</time>
+                </span>
+              }
+              @if (evento.ubicacion) {
+                <span class="mu-when-item">
+                  <i class="ph ph-map-pin" aria-hidden="true"></i>
+                  {{ evento.ubicacion }}
+                </span>
+              }
+            </p>
+          }
+
+          @if (evento.descripcion) {
+            <div class="mu-event-description">
+              <app-texto-enlazado [texto]="evento.descripcion"></app-texto-enlazado>
+            </div>
+          }
+
+          <div class="mu-event-actions">
+            @if (evento.enlace) {
+              <a class="mu-btn mu-btn--solid" [href]="evento.enlace" target="_blank" rel="noopener noreferrer">
+                Ir al evento
+                <i class="ph ph-arrow-square-out" aria-hidden="true"></i>
+              </a>
+            }
+            <a class="mu-btn" [class.mu-btn--solid]="!evento.enlace" [class.mu-btn--line]="!!evento.enlace" [routerLink]="['/eventos', evento.id_evento]">
+              Ver detalles
+            </a>
+            <a class="mu-textlink" routerLink="/eventos">
+              Todos los eventos
+              <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+  }
+
+  <!-- ═══ Noticias: papeles clavados en el tablero ═══ -->
+  @if (connection.available()) {
+    <section id="noticias" class="mu-section mu-news" aria-labelledby="mu-news-title">
+      <div class="mu-wrap">
+        <header class="mu-board-head mu-drop" #revealItem>
+          <h2 id="mu-news-title" class="mu-board-title">Noticias</h2>
+          <a class="mu-board-link" routerLink="/noticias">
+            Todas las noticias
+            <i class="ph ph-arrow-right" aria-hidden="true"></i>
+          </a>
+        </header>
+
+        <div class="mu-posts">
+          @if (cargandoNoticias) {
+            @for (n of [0, 1, 2, 3]; track n) {
+              <div class="mu-paper mu-post mu-post--loading" [style.--r]="inclinacion(n)" aria-hidden="true">
+                <span class="mu-post-media mu-skeleton"></span>
+                <span class="mu-skeleton mu-skeleton-line"></span>
+                <span class="mu-skeleton mu-skeleton-line mu-skeleton-line--short"></span>
+              </div>
+            }
+          } @else if (noticias.length === 0) {
+            <div class="mu-note mu-note--yellow mu-empty" style="--r: -1.5deg">
+              <span class="mu-tape mu-tape--top" aria-hidden="true"></span>
+              <span class="mu-note-hand">Aún no hay noticias publicadas.</span>
+              <a routerLink="/noticias">Ir a Noticias</a>
+            </div>
+          } @else {
+            @for (noticia of noticias; track noticia.id_noticia; let i = $index) {
+              <a
+                #revealItem
+                class="mu-paper mu-post mu-drop"
+                [class.mu-post--taped]="i % 2 === 1"
+                [style.--r]="inclinacion(i)"
+                [style.--reveal-index]="i % 4"
+                [routerLink]="['/noticias', noticia.id_noticia]">
+                @if (i % 2 === 1) {
+                  <span class="mu-tape mu-tape--top" aria-hidden="true"></span>
+                } @else {
+                  <span class="mu-pin" aria-hidden="true"></span>
+                }
+                <span class="mu-post-media" [style.--media-ratio]="noticia.aspectRatio || 0.8">
+                  @if (noticia.video_url) {
+                    <video [src]="noticia.video_url" muted [autoplay]="!reducirMovimiento" loop playsinline [attr.controls]="reducirMovimiento ? '' : null"></video>
+                  } @else if (noticia.imagen_url) {
+                    <img [src]="noticia.imagen_url" alt="" loading="lazy" />
+                  } @else {
+                    <i class="ph ph-newspaper" aria-hidden="true"></i>
+                  }
+                </span>
+                <span class="mu-post-body">
+                  <h3 class="mu-post-title">{{ noticia.titulo }}</h3>
+                  <span class="mu-post-meta">
+                    @if (noticia.fecha_publicacion) {
+                      <time class="mu-num" [attr.datetime]="noticia.fecha_publicacion">{{ formatearFechaCorta(noticia.fecha_publicacion) }}</time>
+                    }
+                  </span>
+                </span>
+              </a>
+            }
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- ═══ Secciones: fichas del tablero ═══ -->
+  <section id="secciones" class="mu-section mu-sections" aria-labelledby="mu-sections-title">
+    <div class="mu-wrap">
+      <header class="mu-board-head mu-drop" #revealItem>
+        <h2 id="mu-sections-title" class="mu-board-title">Secciones del instituto</h2>
+      </header>
+
+      @for (grupo of gruposAccesos; track grupo.titulo; let g = $index) {
+        <div class="mu-group">
+          <h3 class="mu-group-title mu-drop" #revealItem>
+            @if (grupo.requiereSesion) {
+              <i class="ph ph-lock-simple" aria-hidden="true"></i>
+            }
+            {{ grupo.titulo }}
+          </h3>
+          <ul class="mu-cards">
+            @for (acceso of grupo.accesos; track acceso.ruta; let i = $index) {
+              <li>
+                <a
+                  #revealItem
+                  class="mu-card mu-drop"
+                  [routerLink]="acceso.ruta"
+                  [style.--tint]="acceso.color"
+                  [style.--r]="inclinacion(i + g * 2)"
+                  [style.--reveal-index]="i">
+                  <span class="mu-pin" aria-hidden="true"></span>
+                  <i [class]="'ph ' + acceso.icono + ' mu-card-icon'" aria-hidden="true"></i>
+                  <span class="mu-card-name">{{ acceso.nombre }}</span>
+                  <span class="mu-card-desc">{{ acceso.descripcion }}</span>
+                  <span class="mu-card-go">
+                    Abrir
+                    <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
     </div>
-  </div>
-</section>
+  </section>
+</div>
