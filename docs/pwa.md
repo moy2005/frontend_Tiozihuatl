@@ -25,8 +25,15 @@ IndexedDB (sin credenciales) con una vigencia de 30 días. Con conexión se cons
 primero al servidor; ante un fallo temporal se muestra la copia con su fecha. Una
 respuesta 4xx invalida la copia.
 
-El resto de servicios (catálogo, revistas, préstamos, pagos, perfil, administración y
-asistente) requiere conexión: `online.guard` impide el acceso offline y, si la conexión se
+Inicio guarda además su propia copia en IndexedDB (`tiozihuatl-inicio`, en
+`src/app/pwa/home-offline.service.ts`): las noticias públicas, el evento destacado y sus
+imágenes principales en versión reducida de Cloudinary (máx. 900 px, unos 600 KB en total).
+Se renueva cada vez que Inicio carga con conexión y vence a los 30 días. Sin conexión, Inicio
+muestra esa copia con su fecha; los videos no se guardan. Las imágenes van a IndexedDB y no a
+la caché del worker, que por política no guarda respuestas de la API ni recursos remotos.
+
+El resto de servicios (catálogo, revistas, préstamos, pagos, perfil, administración,
+asistente y los detalles de noticias y eventos) requiere conexión: `online.guard` impide el acceso offline y, si la conexión se
 pierde dentro de una de esas pantallas, se redirige a `/sin-conexion`. No se encolan ni
 reenvían escrituras.
 

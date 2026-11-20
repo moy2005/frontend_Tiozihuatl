@@ -20,6 +20,7 @@ import { firstValueFrom, Subscription } from 'rxjs';
 import { NewsService } from '../../api/services/news.service';
 import { EventsService } from '../../api/services/events.service';
 import { TextoEnlazadoComponent } from '../../components/texto-enlazado/texto-enlazado';
+import { CopiaInicio, HomeOfflineService } from '../../pwa/home-offline.service';
 
 type NewsMediaKind = 'landscape' | 'portrait' | 'square' | 'no-media';
 
@@ -101,6 +102,7 @@ const PAPEL = {
 })
 export class InicioComponent implements AfterViewInit, OnDestroy {
   readonly connection = inject(ConnectivityService);
+  private readonly copiaInicio = inject(HomeOfflineService);
   @ViewChild('brandSentinel') brandSentinel!: ElementRef<HTMLElement>;
   @ViewChild('brandLogo') brandLogo!: ElementRef<HTMLElement>;
   @ViewChild('brandName') brandName!: ElementRef<HTMLElement>;
@@ -156,6 +158,15 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
   imagenesDestacado: string[] = [];
   imagenActiva = 0;
   carruselAutomatico = false;
+  // Flyer de la portada: su proporción real define el tamaño del papel; mientras
+  // la imagen llega, el hueco (proporción 0.7) respira igual que en noticias.
+  flyerProporcion: number | null = null;
+  // Sin conexión, Inicio muestra la última copia guardada; aquí queda su fecha
+  // (null cuando los datos son en vivo o no hay copia).
+  copiaOffline: number | null = null;
+  private copiaActual: CopiaInicio | null = null;
+  flyerCargado = false;
+  flyerError = false;
   private inicioDeslizamiento: { x: number; y: number } | null = null;
   cargandoNoticias = true;
   cargandoEventos = true;
@@ -179,14 +190,8 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       const available = this.connection.available();
       untracked(() => {
-        if (available) void Promise.all([this.cargarNoticias(), this.cargarEventos()]);
-        else {
-          this.noticias = [];
-          this.eventoDestacado = null;
-          this.imagenesDestacado = [];
-          this.cargandoNoticias = false;
-          this.cargandoEventos = false;
-        }
+        if (available) void this.cargarEnLinea();
+        else void this.cargarCopia();
       });
     });
   }
@@ -222,6 +227,7 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
     if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
     this.revealObserver?.disconnect();
     this.subs.forEach((s) => s.unsubscribe());
+    this.copiaInicio.liberar(this.copiaActual);
   }
 
   // ── Intro y portada ligadas al scroll ─────────────────────────────
@@ -468,7 +474,59 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
 
   // ── Datos ─────────────────────────────────────────────────────────
 
-  async cargarNoticias(): Promise<void> {
+  /** Con conexión: datos en vivo y, si llegaron completos, se renueva la copia offline. */
+  private async cargarEnLinea(): Promise<void> {
+    const [noticiasOk, eventosOk] = await Promise.all([this.cargarNoticias(), this.cargarEventos()]);
+    if (noticiasOk && eventosOk) {
+      this.copiaInicio.liberar(this.copiaActual);
+      this.copiaActual = null;
+      this.copiaOffline = null;
+      void this.copiaInicio.guardar(this.noticias, this.eventoDestacado, this.imagenesDestacado[0] ?? null);
+    } else {
+      // La red falló a medio camino: se completa con la copia guardada.
+      await this.cargarCopia({ noticias: !noticiasOk, evento: !eventosOk });
+    }
+  }
+
+  /** Sin conexión: muestra la última copia de Inicio guardada en este dispositivo. */
+  private async cargarCopia(partes = { noticias: true, evento: true }): Promise<void> {
+    if (partes.noticias) this.cargandoNoticias = true;
+    if (partes.evento) this.cargandoEventos = true;
+
+    const copia = await this.copiaInicio.leer();
+    this.copiaInicio.liberar(this.copiaActual);
+    this.copiaActual = copia;
+    this.copiaOffline = copia?.savedAt ?? null;
+    const local = (url: string | null): string | null => (url ? copia?.imagenes.get(url) ?? null : null);
+
+    if (partes.noticias) {
+      this.noticias = (copia?.noticias ?? []).map((n) => ({
+        ...n,
+        imagen_url: local(n.imagen_url),
+        mediaKind: n.aspectRatio ? (n.aspectRatio >= 1.25 ? 'landscape' : n.aspectRatio <= 0.9 ? 'portrait' : 'square') : 'no-media',
+      }));
+      this.cargandoNoticias = false;
+    }
+
+    if (partes.evento) {
+      const evento = copia?.evento ?? null;
+      this.eventoDestacado = evento
+        ? { ...evento, imagen_principal: null, imagenes: [], destacado: true }
+        : null;
+      const imagen = local(evento?.imagen ?? null);
+      this.imagenesDestacado = imagen ? [imagen] : [];
+      this.imagenActiva = 0;
+      this.carruselAutomatico = false;
+      this.flyerProporcion = null;
+      this.flyerCargado = false;
+      this.flyerError = false;
+      this.cargandoEventos = false;
+    }
+    this.revisarImagenesListas();
+  }
+
+  /** Devuelve si las noticias llegaron del servidor. */
+  async cargarNoticias(): Promise<boolean> {
     this.cargandoNoticias = true;
 
     try {
@@ -478,34 +536,44 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
         listaNoticias.map((noticia) => this.detectarMediaNoticia(noticia))
       );
 
-      if (!this.connection.available()) return;
+      if (!this.connection.available()) return false;
       this.noticias = noticiasDetectadas;
+      return true;
     } catch (error) {
       console.error('Error al cargar noticias:', error);
       this.noticias = [];
+      return false;
     } finally {
       this.cargandoNoticias = false;
+      this.revisarImagenesListas();
     }
   }
 
-  async cargarEventos(): Promise<void> {
+  /** Devuelve si los eventos llegaron del servidor. */
+  async cargarEventos(): Promise<boolean> {
     this.cargandoEventos = true;
 
     try {
       const eventos = await firstValueFrom(this.eventsService.getPublicEvents());
       const listaEventos = Array.isArray(eventos) ? (eventos as EventoHome[]) : [];
 
-      if (!this.connection.available()) return;
+      if (!this.connection.available()) return false;
       this.eventoDestacado = listaEventos.find((evento) => this.normalizarBooleano(evento?.destacado)) ?? null;
       this.imagenesDestacado = this.eventoDestacado ? this.obtenerImagenesEvento(this.eventoDestacado) : [];
       this.imagenActiva = 0;
       this.carruselAutomatico = this.imagenesDestacado.length > 1 && !this.reducirMovimiento;
+      this.flyerProporcion = null;
+      this.flyerCargado = false;
+      this.flyerError = false;
+      return true;
     } catch (error) {
       console.error('Error al cargar eventos:', error);
       this.eventoDestacado = null;
       this.imagenesDestacado = [];
+      return false;
     } finally {
       this.cargandoEventos = false;
+      this.revisarImagenesListas();
     }
   }
 
@@ -539,6 +607,49 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  // ── Navegación dentro de la página ───────────────────────────────
+
+  /**
+   * Desplaza a una sección de esta página. Un href="#id" no sirve aquí: el
+   * router lo resuelve contra la ruta base y no contra la sección.
+   */
+  irASeccion(id: string, evento?: Event): void {
+    evento?.preventDefault();
+    const destino = document.getElementById(id);
+    if (!destino) return;
+    // Se descuenta el navbar visible (escritorio o móvil) para no tapar el título.
+    const navbar = Array.from(document.querySelectorAll<HTMLElement>('.navbar-desktop, .navbar-mobile'))
+      .find((nav) => getComputedStyle(nav).display !== 'none');
+    const alto = navbar?.getBoundingClientRect().bottom ?? 0;
+    const top = destino.getBoundingClientRect().top + window.scrollY - Math.max(0, alto) - 16;
+    window.scrollTo({ top, behavior: this.reducirMovimiento ? 'auto' : 'smooth' });
+  }
+
+  // ── Carga de imágenes ─────────────────────────────────────────────
+
+  alCargarFlyer(evento: Event): void {
+    const imagen = evento.target as HTMLImageElement | null;
+    if (imagen?.naturalWidth && imagen.naturalHeight) {
+      this.flyerProporcion = imagen.naturalWidth / imagen.naturalHeight;
+    }
+    this.flyerCargado = true;
+  }
+
+  /**
+   * La imagen del flyer puede venir de caché y terminar antes de que Angular
+   * escuche su `load`: tras pintar los datos se revisa si ya está completa para
+   * que no se quede oculta en el hueco de carga.
+   */
+  private revisarImagenesListas(): void {
+    if (typeof document === 'undefined') return;
+    setTimeout(() => {
+      const flyer = document.querySelector<HTMLImageElement>('app-inicio .mu-flyer-media img');
+      if (flyer?.complete && flyer.naturalWidth && !this.flyerCargado) {
+        this.ngZone.run(() => this.alCargarFlyer({ target: flyer } as unknown as Event));
+      }
+    }, 60);
+  }
+
   // ── Formato ───────────────────────────────────────────────────────
 
   formatearFechaEvento(fecha?: string | null): string {
@@ -550,6 +661,12 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
       year: 'numeric',
     });
     return texto.charAt(0).toLocaleUpperCase('es-MX') + texto.slice(1);
+  }
+
+  formatearFechaCopia(marca: number | null): string {
+    if (!marca) return '';
+    // 24 horas: con «p.m.» la frase terminaba en doble punto.
+    return new Date(marca).toLocaleString('es-MX', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
   formatearFechaCorta(fecha?: string | null): string {

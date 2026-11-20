@@ -54,11 +54,14 @@ app-inicio {
 /* Fieltro: ruido fino sobre el azul del tablero */
 .home-mural {
   background-color: var(--mu-board);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  border-bottom: 10px solid var(--mu-board-deep);
   /* Los papeles giran al caer: se recortan sin crear un contenedor de scroll
      (clip, no hidden), así el sticky de la intro sigue funcionando. */
   overflow-x: clip;
+}
+
+/* Inicio termina en el mismo azul plano que el footer: sin línea entre ambos. */
+body.home-navbar-route app-footer .iest-footer {
+  border-top-color: transparent;
 }
 
 /* El navbar declara `* { font-family: Montserrat }` globalmente: dentro del
@@ -344,58 +347,74 @@ app-inicio .home-brand-name-sub.institution-display-title {
   grid-row: 1 / span 2;
   position: relative;
   align-self: center;
-  justify-self: center;
-  /* El ancho lo da el flyer: el papel se ajusta a la imagen completa. */
+  justify-self: end;
+  /* El ancho lo da el flyer: el papel se ajusta a la imagen completa. El
+     relleno inferior reserva el sitio de las notas que cuelgan debajo. */
   width: max-content;
   max-width: 100%;
+  padding-bottom: 74px;
 }
 
 .mu-flyer {
   display: grid;
   width: max-content;
   max-width: 100%;
-  padding: 12px 12px 16px;
+  padding: 12px 12px 14px;
   text-decoration: none;
   color: var(--mu-ink);
   transition: translate 260ms var(--mu-ease);
 }
+
+/*
+ * La imagen es lo que resalta: crece hasta el 62 % del alto (sin pasar del espacio
+ * libre ni de su ancho máximo) y el hueco toma su proporción real, así el papel se
+ * ajusta a ella. Antes de conocerla, el hueco (proporción 0.7) respira como en noticias.
+ */
 .mu-flyer-media {
+  --fh: min(60vh, calc(100vh - 360px));
+  --fw: min(32vw, 470px);
+  position: relative;
   display: block;
+  width: min(calc(var(--fh) * var(--ratio, 0.7)), var(--fw));
+  aspect-ratio: var(--ratio, 0.7);
+  overflow: hidden;
 }
-/* Imagen completa en su proporción real: limitada por alto y ancho, sin recortes. */
 .mu-flyer-media img {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: min(30vw, 420px);
-  max-height: 50vh;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 420ms ease;
 }
-.mu-flyer-title,
-.mu-flyer-meta {
-  /* El texto se ajusta al ancho de la imagen en vez de ensancharla. */
-  contain: inline-size;
-}
+.mu-flyer-media img.is-loaded { opacity: 1; }
 .mu-flyer-title {
   display: block;
-  margin-top: 12px;
+  margin-top: 10px;
+  /* El texto se ajusta al ancho de la imagen en vez de ensancharla. */
+  contain: inline-size;
   font-family: var(--mu-display);
   font-weight: 700;
-  font-size: 1.25rem;
-  line-height: 1.1;
+  font-size: 1.1rem;
+  line-height: 1.15;
   letter-spacing: -0.01em;
 }
-.mu-flyer-meta {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.92rem;
+
+.mu-media-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 2.5rem;
   color: var(--mu-ink-2);
 }
 
 .mu-note {
   position: relative;
   display: block;
-  width: 220px;
-  padding: 22px 20px 18px;
+  width: 158px;
+  padding: 15px 14px 12px;
   text-decoration: none;
   color: var(--mu-ink);
   transition: translate 260ms var(--mu-ease);
@@ -405,8 +424,8 @@ app-inicio .home-brand-name-sub.institution-display-title {
 .mu-note--pink { background: var(--mu-pink); }
 .mu-note-label {
   display: block;
-  margin-bottom: 4px;
-  font-size: 0.74rem;
+  margin-bottom: 2px;
+  font-size: 0.64rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -416,12 +435,16 @@ app-inicio .home-brand-name-sub.institution-display-title {
   display: block;
   font-family: var(--mu-hand);
   font-weight: 700;
-  font-size: 1.75rem;
+  font-size: 1.3rem;
   line-height: 1.05;
+  overflow-wrap: anywhere;
 }
 
-.mu-side .mu-note--blue { position: absolute; left: -150px; bottom: -104px; }
-.mu-side .mu-note--yellow { position: absolute; right: -56px; bottom: -118px; }
+/* Notas clavadas al pie del flyer, justo debajo del papel. Se anclan por arriba:
+   si el título de la noticia ocupa más líneas, la nota crece hacia abajo y no
+   tapa el título del evento. */
+.mu-side .mu-note--blue { position: absolute; left: -64px; top: calc(100% - 60px); }
+.mu-side .mu-note--yellow { position: absolute; right: -38px; top: calc(100% - 52px); }
 .mu-side .mu-note--pink { position: relative; margin: 0 auto; }
 .mu-side:not(:has(.mu-flyer)) {
   display: flex;
@@ -834,8 +857,6 @@ app-inicio .home-brand-name-sub.institution-display-title {
 .mu-skeleton-line--short { width: 50%; }
 .mu-skeleton-title { height: 2.6rem; width: 75%; border-radius: 4px; }
 .mu-post--loading .mu-post-media { aspect-ratio: 4 / 5; }
-.mu-flyer--loading { width: min(100%, 320px); padding: 12px 12px 16px; }
-.mu-flyer--loading .mu-flyer-media { aspect-ratio: 4 / 5; max-height: 50vh; }
 @keyframes mu-breathe {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
@@ -866,16 +887,14 @@ app-inicio .home-brand-name-sub.institution-display-title {
 .home-mural[data-motion='ready'] .mu-drop:not(.is-visible) .mu-pin { transform: scale(0); }
 
 /* ═══ Responsivo ═════════════════════════════════════════════════════ */
-/* Ventanas bajas: el flyer se reduce para que las notas no se corten. */
-@media (min-width: 1024px) and (max-height: 820px) {
-  .mu-flyer-media img { max-height: 38vh; }
-  .mu-side .mu-note--blue { bottom: -92px; }
-  .mu-side .mu-note--yellow { bottom: -104px; }
+/* Escritorio amplio: las fichas caben en una fila aprovechando el carril libre de abajo. */
+@media (min-width: 1181px) {
+  .mu-tabs { flex-wrap: nowrap; width: max-content; }
 }
 
+/* Escritorio angosto: el flyer se reduce un poco para dejar sitio al lema y a las notas. */
 @media (max-width: 1180px) {
-  .mu-side .mu-note--blue { left: -96px; }
-  .mu-side .mu-note--yellow { right: -24px; }
+  .mu-flyer-media { --fh: min(50vh, calc(100vh - 360px)); }
 }
 
 @media (max-width: 1023px) {
@@ -893,6 +912,7 @@ app-inicio .home-brand-name-sub.institution-display-title {
     display: flex;
     justify-content: center;
     gap: 1rem;
+    padding-bottom: 0;
   }
   .mu-side .mu-flyer { display: none; }
   .mu-side .mu-note { position: relative; inset: auto; width: min(48%, 240px); }

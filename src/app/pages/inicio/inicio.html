@@ -24,7 +24,7 @@
             </p>
             <div class="mu-lema-actions">
               @if (eventoDestacado) {
-                <a class="mu-btn mu-btn--solid" href="#eventos">
+                <a class="mu-btn mu-btn--solid" href="#eventos" (click)="irASeccion('eventos', $event)">
                   Ver lo destacado
                   <i class="ph ph-arrow-down" aria-hidden="true"></i>
                 </a>
@@ -34,32 +34,41 @@
                   <i class="ph ph-arrow-right" aria-hidden="true"></i>
                 </a>
               }
-              <a class="mu-btn mu-btn--line" href="#secciones">Explorar secciones</a>
+              <a class="mu-btn mu-btn--line" href="#secciones" (click)="irASeccion('secciones', $event)">Explorar secciones</a>
             </div>
           </article>
 
           <!-- Columna derecha: flyer del congreso y notas -->
           <div class="mu-side">
-            @if (connection.available() && cargandoEventos) {
-              <div class="mu-paper mu-flyer mu-flyer--loading" #enterItem data-enter="0.35 0.22 180 -60 12" style="--r: 2.2deg" aria-hidden="true">
+            @if (cargandoEventos) {
+              <div class="mu-paper mu-flyer" #enterItem data-enter="0.35 0.22 180 -60 12" style="--r: 2.2deg" role="status" aria-label="Cargando el evento destacado">
                 <span class="mu-pin" aria-hidden="true"></span>
-                <span class="mu-flyer-media mu-skeleton"></span>
+                <span class="mu-flyer-media mu-skeleton" style="--ratio: 0.7"></span>
                 <span class="mu-skeleton mu-skeleton-line"></span>
               </div>
             } @else if (eventoDestacado && imagenesDestacado.length > 0) {
-              <a class="mu-paper mu-flyer" href="#eventos" #enterItem data-enter="0.35 0.22 180 -60 12" style="--r: 2.2deg">
+              <a class="mu-paper mu-flyer" href="#eventos" (click)="irASeccion('eventos', $event)" #enterItem data-enter="0.35 0.22 180 -60 12" style="--r: 2.2deg">
                 <span class="mu-pin" aria-hidden="true"></span>
-                <span class="mu-flyer-media">
-                  <img [src]="imagenesDestacado[0]" alt="" fetchpriority="high" />
+                <span
+                  class="mu-flyer-media"
+                  [class.mu-skeleton]="!flyerCargado && !flyerError"
+                  [style.--ratio]="flyerProporcion || 0.7">
+                  <img
+                    [src]="imagenesDestacado[0]"
+                    [alt]="eventoDestacado.titulo"
+                    fetchpriority="high"
+                    [class.is-loaded]="flyerCargado"
+                    (load)="alCargarFlyer($event)"
+                    (error)="flyerError = true" />
+                  @if (flyerError) {
+                    <i class="ph ph-image-broken mu-media-fallback" aria-hidden="true"></i>
+                  }
                 </span>
                 <span class="mu-flyer-title">{{ eventoDestacado.titulo }}</span>
-                @if (eventoDestacado.ubicacion) {
-                  <span class="mu-flyer-meta">{{ eventoDestacado.ubicacion }}</span>
-                }
               </a>
             }
 
-            @if (!connection.available()) {
+            @if (!connection.available() && !cargandoNoticias && noticias.length === 0) {
               <a class="mu-note mu-note--pink" routerLink="/sin-conexion" #enterItem data-enter="0.43 0.2 120 80 -10" style="--r: -2deg">
                 <span class="mu-tape mu-tape--top" aria-hidden="true"></span>
                 <span class="mu-note-label">Sin conexión</span>
@@ -129,7 +138,14 @@
       <div class="mu-wrap">
         <div class="mu-note mu-note--pink mu-offline-note">
           <span class="mu-pin" aria-hidden="true"></span>
-          <p>Las noticias y los eventos requieren conexión para mostrar información actualizada.</p>
+          @if (copiaOffline) {
+            <p>
+              Estás sin conexión. Te mostramos la información guardada el {{ formatearFechaCopia(copiaOffline) }}.
+              Los detalles y otras secciones se abrirán cuando vuelva la conexión.
+            </p>
+          } @else {
+            <p>Las noticias y los eventos requieren conexión para mostrar información actualizada.</p>
+          }
           <a routerLink="/sin-conexion">Consultar páginas descargadas</a>
         </div>
       </div>
@@ -137,7 +153,7 @@
   }
 
   <!-- ═══ Evento destacado ═══ -->
-  @if (connection.available() && cargandoEventos) {
+  @if (cargandoEventos) {
     <section class="mu-section mu-event" aria-hidden="true">
       <div class="mu-wrap mu-event-layout">
         <div class="mu-photos"><div class="mu-photo mu-skeleton" data-k="0"></div></div>
@@ -149,7 +165,7 @@
         </div>
       </div>
     </section>
-  } @else if (connection.available() && eventoDestacado; as evento) {
+  } @else if (eventoDestacado; as evento) {
     <section id="eventos" class="mu-section mu-event" aria-labelledby="mu-event-title">
       <div class="mu-wrap mu-event-layout" [class.mu-event-layout--solo]="imagenesDestacado.length === 0">
 
@@ -235,13 +251,13 @@
           }
 
           <div class="mu-event-actions">
-            @if (evento.enlace) {
+            @if (evento.enlace && connection.available()) {
               <a class="mu-btn mu-btn--solid" [href]="evento.enlace" target="_blank" rel="noopener noreferrer">
                 Ir al evento
                 <i class="ph ph-arrow-square-out" aria-hidden="true"></i>
               </a>
             }
-            <a class="mu-btn" [class.mu-btn--solid]="!evento.enlace" [class.mu-btn--line]="!!evento.enlace" [routerLink]="['/eventos', evento.id_evento]">
+            <a class="mu-btn" [class.mu-btn--solid]="!evento.enlace || !connection.available()" [class.mu-btn--line]="!!evento.enlace && connection.available()" [routerLink]="['/eventos', evento.id_evento]">
               Ver detalles
             </a>
             <a class="mu-textlink" routerLink="/eventos">
@@ -255,7 +271,7 @@
   }
 
   <!-- ═══ Noticias: papeles clavados en el tablero ═══ -->
-  @if (connection.available()) {
+  @if (connection.available() || cargandoNoticias || noticias.length > 0) {
     <section id="noticias" class="mu-section mu-news" aria-labelledby="mu-news-title">
       <div class="mu-wrap">
         <header class="mu-board-head mu-drop" #revealItem>
