@@ -1,5 +1,4 @@
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, ChangeDetectorRef, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ContactService } from '../../api/services/contact.service';
@@ -13,6 +12,7 @@ interface PublicRoutes {
   legal: RouteLink[];
   academico: RouteLink[];
 }
+interface GrupoEnlaces { titulo: string; color: string; links: RouteLink[]; }
 interface ContactInfo {
   telefono: string;
   correo: string;
@@ -28,7 +28,7 @@ interface ContactInfo {
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule],
   templateUrl: './footer.html',
   styleUrl: './footer.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -69,6 +69,28 @@ export class Footer implements OnInit {
       { label: 'Carrito', path: '/cart' },
     ],
   };
+
+  /** Aros de la espiral del cuaderno (decorativos). */
+  readonly aros = Array.from({ length: 28 });
+
+  /** Grupos del índice, cada título con su color de marcatextos. */
+  readonly grupos: GrupoEnlaces[] = [
+    { titulo: 'La institución', color: 'var(--iest-sky)', links: this.publicRoutes.institucional },
+    { titulo: 'Servicios', color: 'var(--iest-green)', links: this.publicRoutes.servicios },
+    { titulo: 'Tu cuenta', color: 'var(--iest-yellow)', links: this.publicRoutes.academico },
+    { titulo: 'Legal', color: 'var(--iest-pink)', links: this.publicRoutes.legal },
+  ];
+
+  get tieneContacto(): boolean {
+    const c = this.contacto;
+    return !!(c.telefono || c.whatsapp || c.correo || c.direccion || c.horario);
+  }
+
+  /** Separa el horario en la frase principal y la nota (p. ej. "Sábados y domingos cerrado."). */
+  get horario(): { principal: string; nota: string } {
+    const [principal, ...resto] = (this.contacto.horario || '').trim().split(/(?<=\.)\s+(?=[A-ZÁÉÍÓÚÑ])/);
+    return { principal: principal ?? '', nota: resto.join(' ') };
+  }
 
   constructor(
     private contactService: ContactService,
@@ -118,5 +140,10 @@ export class Footer implements OnInit {
 
   destinoExterno(url: string): string {
     return this.connection.state() === 'offline' ? '/sin-conexion' : url;
+  }
+
+  volverArriba(): void {
+    const reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reducir ? 'auto' : 'smooth' });
   }
 }

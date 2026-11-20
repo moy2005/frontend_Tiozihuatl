@@ -1,93 +1,99 @@
 <footer class="iest-footer">
-  <div class="iest-content">
-    <div class="iest-badge">
-      <img
-        src="/offline/logo.png"
-        alt="Logo IEST"
-        class="iest-badge__logo"
-      />
-      <span class="iest-badge__name">Instituto de Estudios Superiores Tiozihuatl</span>
+  <div class="iest-cuaderno">
+    <div class="iest-espiral" aria-hidden="true">
+      @for (aro of aros; track $index) { <span></span> }
     </div>
 
-    <div class="iest-grid">
-      <div class="iest-col">
-        <h3 class="iest-col__title">La Institución</h3>
-        <ul class="iest-col__list">
-          <li *ngFor="let link of publicRoutes.institucional">
-            <a [routerLink]="destino(link.path)" [queryParams]="requiereConexion(link.path) ? { volver: link.path } : null" [attr.title]="requiereConexion(link.path) ? 'Temporalmente inaccesible: requiere conexión' : null" class="iest-col__link">{{ link.label }}</a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="iest-col">
-        <h3 class="iest-col__title">Servicios</h3>
-        <ul class="iest-col__list">
-          <li *ngFor="let link of publicRoutes.servicios">
-            <a [routerLink]="destino(link.path)" [queryParams]="requiereConexion(link.path) ? { volver: link.path } : null" [attr.title]="requiereConexion(link.path) ? 'Temporalmente inaccesible: requiere conexión' : null" class="iest-col__link">{{ link.label }}</a>
-          </li>
-        </ul>
-
-        <h3 class="iest-col__title iest-col__title--secondary">Legal</h3>
-        <ul class="iest-col__list">
-          <li *ngFor="let link of publicRoutes.legal">
-            <a [routerLink]="destino(link.path)" [queryParams]="requiereConexion(link.path) ? { volver: link.path } : null" [attr.title]="requiereConexion(link.path) ? 'Temporalmente inaccesible: requiere conexión' : null" class="iest-col__link">{{ link.label }}</a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="iest-col">
-        <h3 class="iest-col__title">Acceso rápido</h3>
-        <ul class="iest-col__list">
-          <li *ngFor="let link of publicRoutes.academico">
-            <a [routerLink]="destino(link.path)" [queryParams]="requiereConexion(link.path) ? { volver: link.path } : null" [attr.title]="requiereConexion(link.path) ? 'Temporalmente inaccesible: requiere conexión' : null" class="iest-col__link">{{ link.label }}</a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="iest-col">
-        <h3 class="iest-col__title">Contáctanos</h3>
-        <div *ngIf="cargandoContacto" class="iest-dots" aria-label="Cargando información de contacto">
-          <span></span><span></span><span></span>
+    <div class="iest-cabeza">
+      <div>
+        <p class="iest-apunte">Para no olvidar:</p>
+        <h2 class="iest-titulo">¿Tienes dudas? Estamos para <span class="iest-marcador">ayudarte.</span></h2>
+        <div class="iest-marca">
+          <img src="/offline/logo.png" alt="Logo del Instituto" width="48" height="48" />
+          <p>Instituto de Estudios Superiores Tiozihuatl<span>Vocación, Fe y Esperanza</span></p>
         </div>
-
-        <ng-container>
-          <p class="iest-col__body">¿Tienes dudas o necesitas orientación académica? Estamos para ayudarte.</p>
-          <a routerLink="/contactanos" class="iest-btn">Escríbenos</a>
-
-          <div class="iest-contacts">
-            <div class="iest-contact" *ngIf="contacto.telefono">
-              <ion-icon name="call-outline"></ion-icon>
-              <span>{{ contacto.telefono }}</span>
-            </div>
-            <div class="iest-contact" *ngIf="contacto.correo">
-              <ion-icon name="mail-outline"></ion-icon>
-              <span>{{ contacto.correo }}</span>
-            </div>
-            <div class="iest-contact" *ngIf="contacto.horario">
-              <ion-icon name="time-outline"></ion-icon>
-              <span>{{ contacto.horario }}</span>
-            </div>
-          </div>
-        </ng-container>
       </div>
+
+      @if (cargandoContacto) {
+        <ul class="iest-lista" aria-label="Cargando información de contacto">
+          <li class="iest-skel"><span></span></li>
+          <li class="iest-skel"><span></span></li>
+          <li class="iest-skel"><span></span></li>
+          <li class="iest-skel"><span></span></li>
+        </ul>
+      } @else {
+        <ul class="iest-lista">
+          @if (contacto.telefono) {
+            <li>
+              <i class="ph ph-phone" aria-hidden="true"></i>
+              <a class="iest-tel" [href]="'tel:' + normalizePhone(contacto.telefono)">{{ contacto.telefono }}</a>
+            </li>
+          }
+          @if (contacto.whatsapp) {
+            <li>
+              <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
+              <a [href]="destinoExterno('https://wa.me/' + normalizePhone(contacto.whatsapp))" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer">También por WhatsApp</a>
+            </li>
+          }
+          @if (contacto.correo) {
+            <li>
+              <i class="ph ph-envelope-simple" aria-hidden="true"></i>
+              <a [href]="'mailto:' + contacto.correo">{{ contacto.correo }}</a>
+            </li>
+          }
+          @if (contacto.direccion) {
+            <li>
+              <i class="ph ph-map-pin" aria-hidden="true"></i>
+              <span>{{ contacto.direccion }}</span>
+            </li>
+          }
+          @if (contacto.horario) {
+            <li>
+              <i class="ph ph-clock" aria-hidden="true"></i>
+              <span>{{ horario.principal }}@if (horario.nota) {<small>{{ horario.nota }}</small>}</span>
+            </li>
+          }
+          @if (!tieneContacto) {
+            <li>
+              <i class="ph ph-chat-circle-text" aria-hidden="true"></i>
+              <a routerLink="/contactanos">Escríbenos desde Contáctanos</a>
+            </li>
+          }
+        </ul>
+      }
     </div>
 
-    <div class="iest-bottom">
-      <p class="iest-bottom__copy">© {{ currentYear }} · Instituto de Estudios Superiores Tiozihuatl · Todos los derechos reservados.</p>
+    <nav class="iest-indice" aria-label="Mapa del sitio">
+      @for (grupo of grupos; track grupo.titulo) {
+        <div>
+          <h3 class="iest-marcador" [style.--iest-mk]="grupo.color">{{ grupo.titulo }}</h3>
+          <ul>
+            @for (link of grupo.links; track link.path) {
+              <li>
+                <a [routerLink]="destino(link.path)" [queryParams]="requiereConexion(link.path) ? { volver: link.path } : null" [attr.title]="requiereConexion(link.path) ? 'Temporalmente inaccesible: requiere conexión' : null">{{ link.label }}</a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </nav>
 
-      <div class="iest-social">
-        <a *ngIf="contacto.facebook" [href]="destinoExterno(contacto.facebook)" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" class="iest-social__btn" aria-label="Facebook">
-          <ion-icon name="logo-facebook"></ion-icon>
-        </a>
-        <a *ngIf="contacto.instagram" [href]="destinoExterno(contacto.instagram)" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" class="iest-social__btn" aria-label="Instagram">
-          <ion-icon name="logo-instagram"></ion-icon>
-        </a>
-        <a *ngIf="contacto.twitter" [href]="destinoExterno(contacto.twitter)" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" class="iest-social__btn" aria-label="Twitter / X">
-          <ion-icon name="logo-twitter"></ion-icon>
-        </a>
-        <a *ngIf="contacto.whatsapp" [href]="destinoExterno('https://wa.me/' + normalizePhone(contacto.whatsapp))" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" class="iest-social__btn" aria-label="WhatsApp">
-          <ion-icon name="logo-whatsapp"></ion-icon>
-        </a>
+    <div class="iest-pie">
+      <p>© {{ currentYear }} · Instituto de Estudios Superiores Tiozihuatl · Todos los derechos reservados.</p>
+      <div class="iest-redes">
+        @if (contacto.facebook) {
+          <a [href]="destinoExterno(contacto.facebook)" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" aria-label="Facebook"><i class="ph ph-facebook-logo" aria-hidden="true"></i></a>
+        }
+        @if (contacto.instagram) {
+          <a [href]="destinoExterno(contacto.instagram)" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" aria-label="Instagram"><i class="ph ph-instagram-logo" aria-hidden="true"></i></a>
+        }
+        @if (contacto.twitter) {
+          <a [href]="destinoExterno(contacto.twitter)" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" aria-label="Twitter / X"><i class="ph ph-x-logo" aria-hidden="true"></i></a>
+        }
+        @if (contacto.whatsapp) {
+          <a [href]="destinoExterno('https://wa.me/' + normalizePhone(contacto.whatsapp))" [attr.target]="connection.state() === 'offline' ? null : '_blank'" [attr.title]="connection.state() === 'offline' ? 'Temporalmente inaccesible: requiere conexión' : null" rel="noopener noreferrer" aria-label="WhatsApp"><i class="ph ph-whatsapp-logo" aria-hidden="true"></i></a>
+        }
+        <button type="button" (click)="volverArriba()" aria-label="Volver arriba"><i class="ph ph-arrow-up" aria-hidden="true"></i></button>
       </div>
     </div>
   </div>
