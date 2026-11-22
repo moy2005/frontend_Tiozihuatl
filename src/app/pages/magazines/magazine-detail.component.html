@@ -25,8 +25,8 @@
     <div class="mag-cover">
       <div class="mag-cover-inner">
         <img
-          *ngIf="magazine.pdf_public_id"
-          [src]="getPdfCover(magazine.pdf_public_id)"
+          *ngIf="magazine.portada_url || magazine.pdf_public_id"
+          [src]="magazine.portada_url || getPdfCover(magazine.pdf_public_id)"
           [alt]="magazine.titulo"
           class="mag-cover-img">
         <div class="mag-cover-glow"></div>
