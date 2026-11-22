@@ -159,7 +159,7 @@
       <div class="card" *ngFor="let m of paginatedMagazines">
 
         <div class="card-cover-wrap">
-          <img [src]="getPdfCover(m.pdf_public_id)" class="cover" [alt]="m.titulo" />
+          <img [src]="m.portada_url || getPdfCover(m.pdf_public_id)" class="cover" [alt]="m.titulo" />
           <span *ngIf="m.descuento_activo" class="card-badge card-badge-sale">OFERTA</span>
           <span *ngIf="isPurchased(getMagazineId(m))" class="card-badge card-badge-owned">
             <ion-icon name="checkmark-circle-outline"></ion-icon> Adquirida
