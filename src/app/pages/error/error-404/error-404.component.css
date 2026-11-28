@@ -4,7 +4,7 @@
   display: grid;
   align-items: center;
   padding: clamp(3rem, 8vw, 7rem) 1.5rem;
-  background: #f2f8fd;
+  background: #ffffff;
   color: #0d3b72;
   font-family: 'Nunito', system-ui, sans-serif;
 }

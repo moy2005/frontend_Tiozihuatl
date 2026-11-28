@@ -172,10 +172,10 @@ select.input-field {
 .info-visitantes {
   margin: 0.4rem 0 0;
   padding: 0.55rem 0.65rem;
-  border: 1px solid #f2d99c;
+  border: 1px solid #b9dff5;
   border-radius: 9px;
-  background: #fff9e9;
-  color: #705513;
+  background: #eff8ff;
+  color: #245779;
   font-size: 0.71rem;
   line-height: 1.38;
 }
