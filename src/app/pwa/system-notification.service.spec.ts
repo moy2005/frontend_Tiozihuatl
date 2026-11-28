@@ -10,13 +10,15 @@ describe('Avisos del sistema por conexión', () => {
   let permission: jasmine.Spy;
   let show: jasmine.Spy;
   let registration: jasmine.Spy;
+  let close: jasmine.Spy;
 
   beforeEach(async () => {
     await resetStore();
     permission = spyOnProperty(Notification, 'permission', 'get').and.returnValue('granted');
     show = jasmine.createSpy('showNotification').and.resolveTo();
+    close = jasmine.createSpy('close');
     registration = spyOn(navigator.serviceWorker, 'getRegistration').and.resolveTo({
-      active: {}, showNotification: show,
+      active: {}, showNotification: show, getNotifications: async () => [{ close }],
     } as unknown as ServiceWorkerRegistration);
   });
   afterEach(resetStore);
@@ -30,19 +32,18 @@ describe('Avisos del sistema por conexión', () => {
     expect(show).toHaveBeenCalledTimes(1);
     expect(show.calls.mostRecent().args[0]).toBe('Sin conexión');
     await new SystemNotificationService().connectionChanged('online', () => true);
-    expect(show).toHaveBeenCalledTimes(2);
-    expect(show.calls.mostRecent().args[0]).toBe('Conexión restablecida');
+    expect(show).toHaveBeenCalledTimes(1);
+    expect(close).toHaveBeenCalledTimes(1);
     await new SystemNotificationService().connectionChanged('offline', () => true);
-    expect(show).toHaveBeenCalledTimes(3);
+    expect(show).toHaveBeenCalledTimes(2);
   });
 
-  it('no anuncia recuperación al abrir online por primera vez y distingue caída de la API', async () => {
+  it('no genera avisos del sistema por una demora del servicio', async () => {
     const service = new SystemNotificationService();
     await service.connectionChanged('online', () => true);
     expect(show).not.toHaveBeenCalled();
     await service.connectionChanged('unavailable', () => true);
-    expect(show.calls.mostRecent().args[0]).toBe('Servicio no disponible');
-    expect(show.calls.mostRecent().args[1].data.onActionClick.default.url).toBe('/sin-conexion');
+    expect(show).not.toHaveBeenCalled();
   });
 
   it('respeta permisos, baja voluntaria y transiciones que ya no están vigentes', async () => {

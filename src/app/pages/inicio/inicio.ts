@@ -22,8 +22,6 @@ import { EventsService } from '../../api/services/events.service';
 import { TextoEnlazadoComponent } from '../../components/texto-enlazado/texto-enlazado';
 import { CopiaInicio, HomeOfflineService } from '../../pwa/home-offline.service';
 
-type NewsMediaKind = 'landscape' | 'portrait' | 'square' | 'no-media';
-
 interface NoticiaHome {
   id_noticia: number;
   titulo: string;
@@ -35,7 +33,6 @@ interface NoticiaHome {
 }
 
 interface NoticiaDetectada extends NoticiaHome {
-  mediaKind: NewsMediaKind;
   aspectRatio: number | null;
 }
 
@@ -181,6 +178,9 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
   private papeles: PapelEntrante[] = [];
   private revealObserver?: IntersectionObserver;
   private subs: Subscription[] = [];
+  private cargaId = 0;
+  errorNoticias = false;
+  errorEventos = false;
 
   constructor(
     private newsService: NewsService,
@@ -190,8 +190,9 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       const available = this.connection.available();
       untracked(() => {
-        if (available) void this.cargarEnLinea();
-        else void this.cargarCopia();
+        const carga = ++this.cargaId;
+        if (available) void this.cargarEnLinea(carga);
+        else void this.cargarCopia(carga);
       });
     });
   }
@@ -220,6 +221,7 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.cargaId++;
     window.removeEventListener('scroll', this.onBrandScroll);
     window.removeEventListener('resize', this.onBrandResize);
     cancelAnimationFrame(this.scrollRafId);
@@ -429,6 +431,11 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           entry.target.classList.add('is-visible');
+          const video = entry.target.querySelector('video');
+          if (video && !this.reducirMovimiento) {
+            video.muted = true;
+            void video.play().catch(() => { video.controls = true; });
+          }
           // Una vez clavado, el aviso se queda: no se vuelve a ocultar.
           this.revealObserver?.unobserve(entry.target);
         });
@@ -475,8 +482,9 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
   // ── Datos ─────────────────────────────────────────────────────────
 
   /** Con conexión: datos en vivo y, si llegaron completos, se renueva la copia offline. */
-  private async cargarEnLinea(): Promise<void> {
-    const [noticiasOk, eventosOk] = await Promise.all([this.cargarNoticias(), this.cargarEventos()]);
+  private async cargarEnLinea(carga: number): Promise<void> {
+    const [noticiasOk, eventosOk] = await Promise.all([this.cargarNoticias(carga), this.cargarEventos(carga)]);
+    if (carga !== this.cargaId) return;
     if (noticiasOk && eventosOk) {
       this.copiaInicio.liberar(this.copiaActual);
       this.copiaActual = null;
@@ -484,16 +492,25 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
       void this.copiaInicio.guardar(this.noticias, this.eventoDestacado, this.imagenesDestacado[0] ?? null);
     } else {
       // La red falló a medio camino: se completa con la copia guardada.
-      await this.cargarCopia({ noticias: !noticiasOk, evento: !eventosOk });
+      await this.cargarCopia(carga, { noticias: !noticiasOk, evento: !eventosOk });
     }
   }
 
   /** Sin conexión: muestra la última copia de Inicio guardada en este dispositivo. */
-  private async cargarCopia(partes = { noticias: true, evento: true }): Promise<void> {
+  private async cargarCopia(carga: number, partes = { noticias: true, evento: true }): Promise<void> {
     if (partes.noticias) this.cargandoNoticias = true;
     if (partes.evento) this.cargandoEventos = true;
 
     const copia = await this.copiaInicio.leer();
+    if (carga !== this.cargaId) {
+      this.copiaInicio.liberar(copia);
+      return;
+    }
+    if (!copia) {
+      if (partes.noticias) this.cargandoNoticias = false;
+      if (partes.evento) this.cargandoEventos = false;
+      return;
+    }
     this.copiaInicio.liberar(this.copiaActual);
     this.copiaActual = copia;
     this.copiaOffline = copia?.savedAt ?? null;
@@ -503,7 +520,6 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
       this.noticias = (copia?.noticias ?? []).map((n) => ({
         ...n,
         imagen_url: local(n.imagen_url),
-        mediaKind: n.aspectRatio ? (n.aspectRatio >= 1.25 ? 'landscape' : n.aspectRatio <= 0.9 ? 'portrait' : 'square') : 'no-media',
       }));
       this.cargandoNoticias = false;
     }
@@ -526,38 +542,38 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
   }
 
   /** Devuelve si las noticias llegaron del servidor. */
-  async cargarNoticias(): Promise<boolean> {
+  async cargarNoticias(carga = this.cargaId): Promise<boolean> {
     this.cargandoNoticias = true;
+    this.errorNoticias = false;
 
     try {
       const noticias = await firstValueFrom(this.newsService.getPublicNews());
       const listaNoticias = Array.isArray(noticias) ? (noticias as NoticiaHome[]) : [];
-      const noticiasDetectadas = await Promise.all(
-        listaNoticias.map((noticia) => this.detectarMediaNoticia(noticia))
-      );
-
-      if (!this.connection.available()) return false;
-      this.noticias = noticiasDetectadas;
+      if (carga !== this.cargaId || !this.connection.available()) return false;
+      this.noticias = listaNoticias.map(noticia => ({
+        ...noticia,
+        aspectRatio: noticia.video_url ? 16 / 9 : noticia.imagen_url ? 0.8 : null,
+      }));
       return true;
     } catch (error) {
       console.error('Error al cargar noticias:', error);
-      this.noticias = [];
+      if (carga === this.cargaId) this.errorNoticias = true;
       return false;
     } finally {
-      this.cargandoNoticias = false;
-      this.revisarImagenesListas();
+      if (carga === this.cargaId) this.cargandoNoticias = false;
     }
   }
 
   /** Devuelve si los eventos llegaron del servidor. */
-  async cargarEventos(): Promise<boolean> {
+  async cargarEventos(carga = this.cargaId): Promise<boolean> {
     this.cargandoEventos = true;
+    this.errorEventos = false;
 
     try {
       const eventos = await firstValueFrom(this.eventsService.getPublicEvents());
       const listaEventos = Array.isArray(eventos) ? (eventos as EventoHome[]) : [];
 
-      if (!this.connection.available()) return false;
+      if (carga !== this.cargaId || !this.connection.available()) return false;
       this.eventoDestacado = listaEventos.find((evento) => this.normalizarBooleano(evento?.destacado)) ?? null;
       this.imagenesDestacado = this.eventoDestacado ? this.obtenerImagenesEvento(this.eventoDestacado) : [];
       this.imagenActiva = 0;
@@ -568,43 +584,28 @@ export class InicioComponent implements AfterViewInit, OnDestroy {
       return true;
     } catch (error) {
       console.error('Error al cargar eventos:', error);
-      this.eventoDestacado = null;
-      this.imagenesDestacado = [];
+      if (carga === this.cargaId) this.errorEventos = true;
       return false;
     } finally {
-      this.cargandoEventos = false;
-      this.revisarImagenesListas();
+      if (carga === this.cargaId) {
+        this.cargandoEventos = false;
+        this.revisarImagenesListas();
+      }
     }
   }
 
-  private detectarMediaNoticia(noticia: NoticiaHome): Promise<NoticiaDetectada> {
-    if (noticia.video_url) {
-      return Promise.resolve({ ...noticia, mediaKind: 'landscape', aspectRatio: 16 / 9 });
-    }
+  imagenLigera(url: string, ancho: number): string {
+    return url.replace(
+      /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(?=v\d+\/)/,
+      `$1w_${ancho},c_limit,f_auto,q_auto/`,
+    );
+  }
 
-    if (!noticia.imagen_url) {
-      return Promise.resolve({ ...noticia, mediaKind: 'no-media', aspectRatio: null });
-    }
-
-    return new Promise((resolve) => {
-      const image = new Image();
-
-      image.onload = () => {
-        const width = image.naturalWidth || 1;
-        const height = image.naturalHeight || 1;
-        const aspectRatio = width / height;
-
-        let mediaKind: NewsMediaKind;
-        if (aspectRatio >= 1.25) mediaKind = 'landscape';
-        else if (aspectRatio <= 0.9) mediaKind = 'portrait';
-        else mediaKind = 'square';
-
-        resolve({ ...noticia, mediaKind, aspectRatio });
-      };
-
-      image.onerror = () => resolve({ ...noticia, mediaKind: 'square', aspectRatio: 1 });
-      image.src = noticia.imagen_url!;
-    });
+  recuperarImagen(evento: Event, original: string): boolean {
+    const img = evento.target as HTMLImageElement;
+    if (img.getAttribute('src') === original) return false;
+    img.src = original;
+    return true;
   }
 
   // ── Navegación dentro de la página ───────────────────────────────

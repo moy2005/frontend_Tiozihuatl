@@ -1,67 +1,54 @@
-<section class="mc-page">
+<app-page-hero title="Mis compras" description="Consulta y lee las revistas que has adquirido."></app-page-hero>
 
-  <!-- HEADER -->
-  <div class="mc-header">
-    <div class="mc-header-inner">
-      <div class="mc-header-icon">
-        <i class="ph ph-receipt"></i>
-      </div>
-      <div>
-        <h1 class="mc-title">Mis Compras</h1>
-        <p class="mc-subtitle">Revistas adquiridas en tu cuenta</p>
-      </div>
+<section class="purchases" aria-label="Revistas adquiridas" [attr.aria-busy]="status === 'loading'">
+  @if (status === 'loading') {
+    <div class="purchase-grid" aria-hidden="true">
+      @for (item of [1, 2, 3]; track item) {
+        <div class="purchase-card purchase-skeleton">
+          <div class="purchase-cover"></div>
+          <div class="purchase-details">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      }
     </div>
-  </div>
-
-  <!-- LOADING -->
-  <div *ngIf="loadingPurchases" class="mc-loading">
-    <div class="mc-spinner"></div>
-    <p>Cargando tus revistas...</p>
-  </div>
-
-  <!-- EMPTY STATE -->
-  <div *ngIf="!loadingPurchases && purchasedMagazines.length === 0" class="mc-empty">
-    <i class="ph ph-books"></i>
-    <p class="mc-empty-title">Sin compras aún</p>
-    <p class="mc-empty-sub">Cuando adquieras una revista aparecerá aquí.</p>
-  </div>
-
-  <!-- TABLA -->
-  <div *ngIf="!loadingPurchases && purchasedMagazines.length > 0" class="mc-card">
-    <div class="mc-table-wrap">
-      <table class="mc-table">
-        <thead>
-          <tr>
-            <th>Revista</th>
-            <th>Precio</th>
-            <th>Fecha</th>
-            <th class="mc-th-center">Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let mag of purchasedMagazines">
-            <td>
-              <div class="mc-mag-name">
-                <i class="ph ph-newspaper-clipping"></i>
-                {{ mag.titulo }}
-              </div>
-            </td>
-            <td>
-              <span class="mc-price">${{ mag.precio }}</span>
-            </td>
-            <td>
-              <span class="mc-date">{{ mag.fecha_compra | date:'mediumDate' }}</span>
-            </td>
-            <td class="mc-td-center">
-              <button class="mc-btn-read" (click)="irALectura(mag.id_revista)">
-                <i class="ph ph-book-open"></i>
-                Leer
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  } @else if (status === 'error') {
+    <div class="purchase-state" role="status">
+      <i class="ph ph-warning-circle" aria-hidden="true"></i>
+      <h2>No se pudieron cargar tus compras</h2>
+      <button type="button" class="purchase-action" (click)="loadPurchases()">Reintentar</button>
     </div>
-  </div>
-
+  } @else if (purchases.length === 0) {
+    <div class="purchase-state">
+      <i class="ph ph-books" aria-hidden="true"></i>
+      <h2>Aún no tienes revistas compradas</h2>
+    </div>
+  } @else {
+    <ul class="purchase-grid">
+      @for (magazine of purchases; track magazine.id_revista) {
+        <li class="purchase-card">
+          <div class="purchase-cover">
+            @if (magazine.portada_url && !failedCovers.has(magazine.id_revista)) {
+              <img [src]="magazine.portada_url" alt="" width="96" height="144"
+                loading="lazy" decoding="async" (error)="failedCovers.add(magazine.id_revista)">
+            } @else {
+              <i class="ph ph-newspaper-clipping" aria-hidden="true"></i>
+            }
+          </div>
+          <div class="purchase-details">
+            <h2>{{ magazine.titulo }}</h2>
+            <div class="purchase-meta">
+              <span class="purchase-price">{{ magazine.precio | currency:'MXN':'symbol-narrow' }} MXN</span>
+              <time [attr.datetime]="magazine.fecha_compra">{{ magazine.fecha_compra | date:'dd/MM/yyyy' }}</time>
+            </div>
+            <a class="purchase-action" [routerLink]="['/magazines/view', magazine.id_revista]"
+              [attr.aria-label]="'Leer ' + magazine.titulo">
+              <i class="ph ph-book-open" aria-hidden="true"></i>
+              Leer revista
+            </a>
+          </div>
+        </li>
+      }
+    </ul>
+  }
 </section>

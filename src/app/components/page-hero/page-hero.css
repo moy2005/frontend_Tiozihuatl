@@ -1,0 +1,50 @@
+:host { display: block; }
+
+.page-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 2rem 6rem;
+  background: #3fa6e8;
+}
+
+.page-hero::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 100px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,0 C150,50 350,50 600,30 C850,10 1050,30 1200,0 L1200,100 L0,100 Z' fill='%23FFFFFF'/%3E%3C/svg%3E") bottom / cover no-repeat;
+  animation: page-hero-wave-in 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.page-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 .5rem;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+p { margin: 0; color: rgba(255, 255, 255, .9); font-size: 1.15rem; }
+
+@keyframes page-hero-wave-in {
+  from { opacity: 0; transform: translateY(150%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .page-hero { padding: 3.5rem 1.2rem 5rem; }
+  h1 { font-size: 2.35rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-hero::after { animation: none; }
+}

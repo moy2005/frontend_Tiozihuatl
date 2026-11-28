@@ -1,49 +1,37 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../api/environments/environment.prod';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
+import { MagazinesService, PurchasedMagazine } from '../../api/services/magazines.service';
+import { PageHero } from '../../components/page-hero/page-hero';
 
 @Component({
   selector: 'app-my-purchases',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [CurrencyPipe, DatePipe, RouterLink, PageHero],
   templateUrl: './my-purchases.html',
-  styleUrls: ['./my-purchases.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  encapsulation: ViewEncapsulation.None
+  styleUrl: './my-purchases.css',
 })
 export class MyPurchases implements OnInit {
-  purchasedMagazines: any[] = [];
-  loadingPurchases = false;
-  
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) {}
+  private readonly magazines = inject(MagazinesService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  ngOnInit() {
-    this.cargarRevistasCompradas();
+  protected purchases: PurchasedMagazine[] = [];
+  protected readonly failedCovers = new Set<number>();
+  protected status: 'loading' | 'loaded' | 'error' = 'loading';
+
+  ngOnInit(): void {
+    this.loadPurchases();
   }
 
-  cargarRevistasCompradas() {
-    this.loadingPurchases = true;
-
-    this.http.get<any[]>(`${environment.apiUrl}/magazines/my-purchases`).subscribe({
-      next: (data) => {
-        console.log('Compras recibidas:', data);
-
-        this.purchasedMagazines = data; 
-
-        this.loadingPurchases = false;
+  protected loadPurchases(): void {
+    this.status = 'loading';
+    this.magazines.getMyPurchases().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (purchases) => {
+        this.purchases = purchases;
+        this.failedCovers.clear();
+        this.status = 'loaded';
       },
-      error: () => {
-        this.loadingPurchases = false;
-      }
+      error: () => this.status = 'error',
     });
-  }
-
-  irALectura(idRevista: number) {
-    this.router.navigate(['/magazines/view', idRevista]);
   }
 }

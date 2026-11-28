@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { NewsService } from '../../api/services/news.service';
+import { PageHero } from '../../components/page-hero/page-hero';
 
 interface Noticia {
   id_noticia: number;
@@ -26,7 +27,7 @@ const TODAS = 'Todas';
 @Component({
   selector: 'app-noticias',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PageHero],
   templateUrl: './noticias.html',
   styleUrls: ['../eventos/eventos.css'],
   encapsulation: ViewEncapsulation.None,

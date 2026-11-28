@@ -8,3 +8,11 @@
 @font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 200 800; font-display: swap; src: url('../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-opsz-normal.woff2') format('woff2'); }
 @font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 100 900; font-display: swap; src: url('../node_modules/@fontsource-variable/hanken-grotesk/files/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); }
 @font-face { font-family: 'Caveat'; font-style: normal; font-weight: 400 700; font-display: swap; src: url('../node_modules/@fontsource-variable/caveat/files/caveat-latin-wght-normal.woff2') format('woff2'); }
+/* Use the same URL as the early request in index.html and the offline cache. */
+@font-face {
+  font-family: 'Phosphor';
+  src: url('/assets/fonts/phosphor/regular/Phosphor.woff2') format('woff2');
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+}

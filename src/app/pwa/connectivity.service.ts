@@ -14,19 +14,26 @@ export class ConnectivityService {
   private readonly destroy = inject(DestroyRef);
   readonly state = signal<ConnectionState>(this.browser && !navigator.onLine ? 'offline' : 'online');
   readonly confirmed = signal(false);
-  readonly available = computed(() => this.state() === 'online');
+  readonly available = computed(() => this.state() !== 'offline');
   readonly checking = signal(false);
   readonly restored = signal(false);
   private started = false;
   private pending?: Promise<boolean>;
   private lastCheck = 0;
   private epoch = 0;
+  private awaitingRestoration = this.state() === 'offline';
 
   start(): void {
     if (!this.browser || this.started) return;
     this.started = true;
-    const offline = () => this.zone.run(() => { this.epoch++; this.state.set('offline'); this.restored.set(false); this.confirmed.set(true); });
-    const online = () => { void this.check(); };
+    const offline = () => this.zone.run(() => this.markOffline());
+    const online = () => {
+      if (this.pending) {
+        void this.pending.then(() => {
+          if (navigator.onLine && this.state() === 'offline') void this.check();
+        });
+      } else void this.check();
+    };
     const visible = () => { if (document.visibilityState === 'visible') void this.check(); };
     this.zone.runOutsideAngular(() => {
       window.addEventListener('offline', offline);
@@ -44,12 +51,9 @@ export class ConnectivityService {
   }
 
   reportFailure(error: unknown): void {
-    if (!(error instanceof HttpErrorResponse) || ![0, 502, 503, 504].includes(error.status)) return;
+    if (!(error instanceof HttpErrorResponse) || ![0, 408, 502, 503, 504].includes(error.status)) return;
     if (this.browser && !navigator.onLine) {
-      this.epoch++;
-      this.state.set('offline');
-      this.restored.set(false);
-      this.confirmed.set(true);
+      this.markOffline();
     } else if (Date.now() - this.lastCheck > 5_000) {
       void this.check();
     }
@@ -58,10 +62,7 @@ export class ConnectivityService {
   check(): Promise<boolean> {
     if (!this.browser) return Promise.resolve(true);
     if (!navigator.onLine) {
-      this.epoch++;
-      this.state.set('offline');
-      this.restored.set(false);
-      this.confirmed.set(true);
+      this.markOffline();
       return Promise.resolve(false);
     }
     if (this.pending) return this.pending;
@@ -72,7 +73,8 @@ export class ConnectivityService {
         if (response.status !== 'ok') throw new Error('Servicio no disponible');
         if (epoch !== this.epoch) return false;
         this.zone.run(() => {
-          this.restored.set(!this.available());
+          if (this.awaitingRestoration) this.restored.set(true);
+          this.awaitingRestoration = false;
           this.state.set('online');
           this.confirmed.set(true);
         });
@@ -81,9 +83,11 @@ export class ConnectivityService {
       .catch(() => {
         if (epoch !== this.epoch) return false;
         this.zone.run(() => {
-          this.state.set(navigator.onLine ? 'unavailable' : 'offline');
-          this.restored.set(false);
-          this.confirmed.set(true);
+          if (!navigator.onLine) this.markOffline();
+          else {
+            this.state.set('unavailable');
+            this.confirmed.set(true);
+          }
         });
         return false;
       })
@@ -93,5 +97,13 @@ export class ConnectivityService {
         this.zone.run(() => this.checking.set(false));
       });
     return this.pending;
+  }
+
+  private markOffline(): void {
+    this.epoch++;
+    this.awaitingRestoration = true;
+    this.state.set('offline');
+    this.restored.set(false);
+    this.confirmed.set(true);
   }
 }

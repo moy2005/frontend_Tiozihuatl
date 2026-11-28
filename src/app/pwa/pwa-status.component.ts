@@ -10,7 +10,7 @@ import { PublicContentPath } from './pwa-policy';
 
 interface PwaNotice {
   key: string;
-  kind: 'connection' | 'restored' | 'copy' | 'storage' | 'unsupported' | 'update' | 'error' | 'recovery';
+  kind: 'copy' | 'storage' | 'unsupported' | 'update' | 'error' | 'recovery';
   title: string;
   text: string;
   symbol: string;
@@ -40,11 +40,6 @@ export class PwaStatusComponent {
     const notices: PwaNotice[] = [];
     const add = (kind: PwaNotice['kind'], key: string, title: string, text: string, symbol: string, closable = true) =>
       notices.push({ kind, key, title, text, symbol, closable });
-    if (!this.connection.available()) add('connection', this.connection.state(),
-      this.connection.state() === 'offline' ? 'Estás sin conexión' : 'El servicio no responde',
-      'La información descargada sigue disponible. El catálogo y los trámites necesitan conexión.', '↯');
-    else if (this.connection.restored()) add('restored', 'restored', 'Conexión restablecida',
-      'Ya puedes volver a los servicios. No enviamos operaciones pendientes automáticamente.', '✓');
     if (this.copiedAt()) add('copy', 'copy:' + this.route() + ':' + this.copiedAt(), 'Estás viendo una copia guardada',
       'La información puede haber cambiado desde su descarga.', '◷');
     if (this.content.storageError()) add('storage', 'storage', 'Descarga incompleta',
@@ -61,6 +56,11 @@ export class PwaStatusComponent {
   readonly hiddenCount = computed(() => this.notices().length - this.visibleNotices().length);
 
   constructor() {
+    effect(onCleanup => {
+      if (!this.connection.restored()) return;
+      const timer = setTimeout(() => this.connection.restored.set(false), 4500);
+      onCleanup(() => clearTimeout(timer));
+    });
     this.router.events.pipe(filter(event => event instanceof NavigationEnd), takeUntilDestroyed()).subscribe(event => this.route.set(event.urlAfterRedirects));
     effect(() => {
       const active = new Set(this.notices().map(notice => notice.key));
@@ -78,7 +78,4 @@ export class PwaStatusComponent {
 
   showNotices(): void { this.dismissed.set(new Set()); }
 
-  async retry(): Promise<void> {
-    if (await this.connection.check()) await this.content.prepare();
-  }
 }

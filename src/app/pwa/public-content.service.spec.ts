@@ -96,10 +96,11 @@ describe('Contenido institucional y conectividad', () => {
     http.expectOne(`${API_URL}/health`).flush({}, { status: 503, statusText: 'Unavailable' });
     expect(await first).toBeFalse();
     expect(connection.state()).toBe('unavailable');
+    expect(connection.available()).toBeTrue();
     const second = connection.check();
     http.expectOne(`${API_URL}/health`).flush({ status: 'ok' });
     expect(await second).toBeTrue();
-    expect(connection.restored()).toBeTrue();
+    expect(connection.restored()).toBeFalse();
   });
 
   it('un error de permisos no cambia la conectividad', () => {

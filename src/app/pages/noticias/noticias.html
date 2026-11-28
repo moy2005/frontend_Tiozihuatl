@@ -1,11 +1,7 @@
 <!-- Mismo diseño que el listado de eventos (usa eventos.css). -->
 <div class="eventos-page noticias-page">
-  <div class="hero-section">
-    <div class="hero-content">
-      <h1 class="hero-title">Noticias Institucionales</h1>
-      <p class="hero-subtitle">Mantente al día con los anuncios, logros y novedades del Instituto.</p>
-    </div>
-  </div>
+  <app-page-hero title="Noticias Institucionales"
+                 description="Mantente al día con los anuncios, logros y novedades del Instituto." />
 
   <div *ngIf="cargandoNoticias" class="loading-wrapper">
     <div class="loader"></div>

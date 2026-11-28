@@ -142,12 +142,6 @@ export class Footer implements OnInit {
     return this.connection.state() === 'offline' ? '/sin-conexion' : url;
   }
 
-  /** Sin conexión el logo de Cloudinary no carga (el worker no guarda recursos remotos): se usa la copia local. */
-  usarLogoLocal(evento: Event): void {
-    const img = evento.target as HTMLImageElement;
-    if (!img.src.endsWith('/offline/logo.png')) img.src = '/offline/logo.png';
-  }
-
   volverArriba(): void {
     const reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reducir ? 'auto' : 'smooth' });

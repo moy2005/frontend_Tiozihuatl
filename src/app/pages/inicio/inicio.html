@@ -40,7 +40,7 @@
 
           <!-- Columna derecha: flyer del congreso y notas -->
           <div class="mu-side">
-            @if (cargandoEventos) {
+            @if (cargandoEventos && !eventoDestacado) {
               <div class="mu-paper mu-flyer" #enterItem data-enter="0.35 0.22 180 -60 12" style="--r: 2.2deg" role="status" aria-label="Cargando el evento destacado">
                 <span class="mu-pin" aria-hidden="true"></span>
                 <span class="mu-flyer-media mu-skeleton" style="--ratio: 0.7"></span>
@@ -54,18 +54,22 @@
                   [class.mu-skeleton]="!flyerCargado && !flyerError"
                   [style.--ratio]="flyerProporcion || 0.7">
                   <img
-                    [src]="imagenesDestacado[0]"
+                    [src]="imagenLigera(imagenesDestacado[0], 900)"
                     [alt]="eventoDestacado.titulo"
                     fetchpriority="high"
                     [class.is-loaded]="flyerCargado"
                     (load)="alCargarFlyer($event)"
-                    (error)="flyerError = true" />
+                    (error)="flyerError = !recuperarImagen($event, imagenesDestacado[0])" />
                   @if (flyerError) {
                     <i class="ph ph-image-broken mu-media-fallback" aria-hidden="true"></i>
                   }
                 </span>
                 <span class="mu-flyer-title">{{ eventoDestacado.titulo }}</span>
               </a>
+            } @else if (errorEventos && connection.available()) {
+              <button type="button" class="mu-note mu-note--pink mu-retry" (click)="cargarEventos()">
+                Reintentar eventos
+              </button>
             }
 
             @if (!connection.available() && !cargandoNoticias && noticias.length === 0) {
@@ -75,11 +79,11 @@
                 <span class="mu-note-hand">Ver páginas descargadas</span>
               </a>
             } @else {
-              @if (cargandoNoticias) {
+              @if (cargandoNoticias && noticias.length === 0) {
                 <div class="mu-note mu-note--blue" #enterItem data-enter="0.43 0.2 -40 140 -12" style="--r: 2.6deg">
                   <span class="mu-pin" aria-hidden="true"></span>
                   <span class="mu-note-label">Noticias</span>
-                  <span class="mu-note-hand">Cargando…</span>
+                  <span class="mu-skeleton mu-skeleton-line" aria-hidden="true"></span>
                 </div>
               } @else if (noticias[0]; as reciente) {
                 <a class="mu-note mu-note--blue" [routerLink]="['/noticias', reciente.id_noticia]" #enterItem data-enter="0.43 0.2 -40 140 -12" style="--r: 2.6deg">
@@ -186,10 +190,11 @@
               @for (imagen of imagenesDestacado; track imagen; let i = $index) {
                 <figure class="mu-photo" [attr.data-k]="profundidadFoto(i)" [attr.aria-hidden]="i === imagenActiva ? null : 'true'">
                   <img
-                    [src]="imagen"
+                    [src]="imagenLigera(imagen, 900)"
                     [alt]="imagenesDestacado.length > 1 ? evento.titulo + ' — imagen ' + (i + 1) + ' de ' + imagenesDestacado.length : evento.titulo"
-                    [attr.fetchpriority]="i === 0 ? 'high' : 'low'"
-                    [attr.loading]="i < 3 ? null : 'lazy'"
+                    fetchpriority="low"
+                    loading="lazy"
+                    decoding="async"
                     draggable="false" />
                 </figure>
               }
@@ -283,7 +288,7 @@
         </header>
 
         <div class="mu-posts">
-          @if (cargandoNoticias) {
+          @if (cargandoNoticias && noticias.length === 0) {
             @for (n of [0, 1, 2, 3]; track n) {
               <div class="mu-paper mu-post mu-post--loading" [style.--r]="inclinacion(n)" aria-hidden="true">
                 <span class="mu-post-media mu-skeleton"></span>
@@ -291,6 +296,10 @@
                 <span class="mu-skeleton mu-skeleton-line mu-skeleton-line--short"></span>
               </div>
             }
+          } @else if (noticias.length === 0 && errorNoticias && connection.available()) {
+            <button type="button" class="mu-note mu-note--yellow mu-retry" (click)="cargarNoticias()">
+              Reintentar noticias
+            </button>
           } @else if (noticias.length === 0) {
             <div class="mu-note mu-note--yellow mu-empty" style="--r: -1.5deg">
               <span class="mu-tape mu-tape--top" aria-hidden="true"></span>
@@ -313,9 +322,11 @@
                 }
                 <span class="mu-post-media" [style.--media-ratio]="noticia.aspectRatio || 0.8">
                   @if (noticia.video_url) {
-                    <video [src]="noticia.video_url" muted [autoplay]="!reducirMovimiento" loop playsinline [attr.controls]="reducirMovimiento ? '' : null"></video>
+                    <video [src]="noticia.video_url" preload="none" muted loop playsinline [attr.controls]="reducirMovimiento ? '' : null"></video>
                   } @else if (noticia.imagen_url) {
-                    <img [src]="noticia.imagen_url" alt="" loading="lazy" />
+                    <img [src]="imagenLigera(noticia.imagen_url, 640)" alt="" loading="lazy" decoding="async"
+                         (load)="$any($event.target).style.visibility = ''"
+                         (error)="$any($event.target).style.visibility = recuperarImagen($event, noticia.imagen_url) ? '' : 'hidden'" />
                   } @else {
                     <i class="ph ph-newspaper" aria-hidden="true"></i>
                   }

@@ -1,13 +1,5 @@
-<!-- Hero Section -->
-<div class="hero-section">
-  <div class="hero-content">
-    <div class="hero-badge">
-      <i class="ph ph-book"></i>
-    </div>
-    <h1 class="hero-title">Mis Préstamos</h1>
-    <p class="hero-subtitle">Gestiona tus libros actualmente en préstamo y el historial reciente.</p>
-  </div>
-</div>
+<app-page-hero title="Mis Préstamos"
+               description="Consulta tus libros en préstamo y revisa tu historial." />
 
 <div class="loans-page">
 
@@ -15,17 +7,19 @@
   <div class="loans-filters">
     <div class="loans-filter-bar">
       <button
-        *ngFor="let f of filtrosDisponibles"
-        (click)="cambiarFiltro(f)"
+        type="button"
+        *ngFor="let f of filtros"
+        (click)="cambiarFiltro(f.id)"
         class="loans-filter-btn"
-        [class.active]="filtroActual === f">
-        {{ f }}
+        [class.active]="filtroActual === f.id"
+        [attr.aria-pressed]="filtroActual === f.id">
+        {{ f.label }}
       </button>
     </div>
   </div>
 
   <!-- Loading — skeletons -->
-  <div *ngIf="cargando" class="loans-loading-grid">
+  <div *ngIf="cargando && !prestamos.length" class="loans-loading-grid" aria-hidden="true">
     <div class="loans-skeleton" *ngFor="let i of [1,2,3,4]">
       <div class="skeleton-cover"></div>
       <div class="skeleton-body">
@@ -39,14 +33,14 @@
   </div>
 
   <!-- Error -->
-  <div *ngIf="!cargando && mensajeError" class="loans-error">
+  <div *ngIf="!cargando && mensajeError" class="loans-error" role="status">
     <i class="ph ph-warning-circle"></i>
     <p>{{ mensajeError }}</p>
-    <button class="loans-error-btn" (click)="cargarMisPrestamos()">Reintentar</button>
+    <button type="button" class="loans-error-btn" (click)="cargarMisPrestamos()">Reintentar</button>
   </div>
 
   <!-- Empty -->
-  <div *ngIf="!cargando && !mensajeError && prestamosFiltrados.length === 0"
+  <div *ngIf="!cargando && !mensajeError && prestamos.length === 0"
        class="loans-empty">
     <div class="loans-empty-icon">
       <i class="ph ph-books"></i>
@@ -57,11 +51,10 @@
   </div>
 
   <!-- Grid de préstamos -->
-  <div *ngIf="!cargando && !mensajeError && prestamosFiltrados.length > 0"
-       class="loans-grid">
+  <div *ngIf="prestamos.length > 0" class="loans-grid" [attr.aria-busy]="cargando">
 
     <article
-      *ngFor="let p of prestamosFiltrados"
+      *ngFor="let p of prestamos; trackBy: trackPrestamo"
       class="loan-card card-transition"
       [class.devuelto]="p.estado.toLowerCase() === 'devuelto'">
 
@@ -69,7 +62,7 @@
       <div class="loan-cover-wrap"
            [class.devuelto]="p.estado.toLowerCase() === 'devuelto'">
         <div *ngIf="p.previewUrl; else placeholder" class="loan-cover-img">
-          <img [src]="p.previewUrl" alt="Portada">
+          <img [src]="p.previewUrl" alt="" loading="lazy" decoding="async" (error)="p.previewUrl = undefined">
         </div>
         <ng-template #placeholder>
           <div class="loan-cover-placeholder">
@@ -126,5 +119,19 @@
     </article>
 
   </div>
+
+  <nav class="paginacion-biblioteca" aria-label="Páginas de préstamos" *ngIf="totalPaginas > 1">
+    <button type="button" class="pag-btn pag-nav" (click)="cambiarPagina(paginaActual - 1)"
+            [disabled]="cargando || paginaActual === 1" aria-label="Página anterior">
+      <i class="ph ph-caret-left" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="pag-btn" *ngFor="let pagina of paginas"
+            [class.activa]="pagina === paginaActual" [attr.aria-current]="pagina === paginaActual ? 'page' : null"
+            [disabled]="cargando" (click)="cambiarPagina(pagina)">{{ pagina }}</button>
+    <button type="button" class="pag-btn pag-nav" (click)="cambiarPagina(paginaActual + 1)"
+            [disabled]="cargando || paginaActual === totalPaginas" aria-label="Página siguiente">
+      <i class="ph ph-caret-right" aria-hidden="true"></i>
+    </button>
+  </nav>
 
 </div>

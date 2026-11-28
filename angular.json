@@ -40,13 +40,13 @@
               }
             ],
             "styles": [
-              "src/pwa-fonts.css",
               "src/styles.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "node_modules/@phosphor-icons/web/src/regular/style.css",
               "node_modules/@phosphor-icons/web/src/bold/style.css",
               "node_modules/@phosphor-icons/web/src/fill/style.css",
-              "node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css"
+              "node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css",
+              "src/pwa-fonts.css"
             ]
           },
           "configurations": {

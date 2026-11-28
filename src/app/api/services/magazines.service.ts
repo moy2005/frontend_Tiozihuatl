@@ -3,6 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 import { API_URL } from '../api.config';
+
+export interface PurchasedMagazine {
+  id_revista: number;
+  titulo: string;
+  precio: number | string;
+  fecha_compra: string;
+  portada_url?: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -55,13 +64,7 @@ export class MagazinesService {
   );
 }
   getMyPurchases() {
-    const token = localStorage.getItem('accessToken') || '';
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-
-    return this.http.get<any[]>(`${this.api}/my-purchases`, { headers });
+    return this.http.get<PurchasedMagazine[]>(`${this.api}/my-purchases`);
   }
   /* ===========================
      CATÁLOGO PÚBLICO

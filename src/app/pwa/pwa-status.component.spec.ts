@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { PwaStatusComponent } from './pwa-status.component';
@@ -7,6 +7,22 @@ import { PublicContentService } from './public-content.service';
 import { PwaService } from './pwa.service';
 
 describe('Avisos PWA', () => {
+  it('retira automáticamente el aviso de reconexión', fakeAsync(() => {
+    const restored = signal(true);
+    TestBed.configureTestingModule({ providers: [
+      provideRouter([]),
+      { provide: ConnectivityService, useValue: { available: signal(true), restored } },
+      { provide: PwaService, useValue: { updateReady: signal(false), updateError: signal(''), recoveryRequired: signal(false), unsupported: signal(false) } },
+      { provide: PublicContentService, useValue: { displayedCopies: signal({}), displayedAt: signal({}), storageError: signal(false) } },
+    ] });
+    const fixture = TestBed.createComponent(PwaStatusComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.pwa-restored')).not.toBeNull();
+    tick(4500);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.pwa-restored')).toBeNull();
+  }));
+
   it('permite posponer y recuperar avisos sin ocultar un fallo crítico ni otra versión', () => {
     const pwa = { updateReady: signal(true), readyVersion: signal('v1'), updateError: signal(''), recoveryRequired: signal(false), unsupported: signal(false), checkingUpdate: signal(false) };
     TestBed.configureTestingModule({ providers: [

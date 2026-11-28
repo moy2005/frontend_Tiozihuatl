@@ -5,6 +5,7 @@ import { UserProfileService } from '../../api/services/user-profile.service';
 import { NewsService } from '../../api/services/news.service';
 import { EventsService } from '../../api/services/events.service';
 import { PushNotificationService } from '../../pwa/push-notification.service';
+import { ConnectivityService } from '../../pwa/connectivity.service';
 import { NotificationBellComponent } from '../notification-bell/notification-bell';
 import Swal from 'sweetalert2';
 import { filter } from 'rxjs/operators';
@@ -20,6 +21,8 @@ import { filter } from 'rxjs/operators';
 })
 export class Navbar implements OnInit, AfterViewInit, OnDestroy {
   readonly push = inject(PushNotificationService);
+  readonly connection = inject(ConnectivityService);
+  private readonly panelesCargados = new Set<'noticias' | 'eventos'>();
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private navbarResizeObserver?: ResizeObserver;
   isAuthenticated = false;
@@ -71,8 +74,6 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.actualizarRutaInicio(this.router.url);
     this.verificarAutenticacion();
-    this.cargarNoticiasMenu();
-    this.cargarEventosMenu();
 
     this.isScrolled = window.scrollY > this.SCROLL_THRESHOLD;
     this.homeIntroProgress = this.normalizarProgresoNavbar(this.calcularProgresoInicio());
@@ -276,10 +277,12 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
   // ── Noticias del mega menú ──────────────────────────────────────────
 
   cargarNoticiasMenu() {
+    if (this.cargandoNoticiasMenu || this.panelesCargados.has('noticias') || !this.connection.available()) return;
     this.cargandoNoticiasMenu = true;
     this.newsService.getPublicNews().subscribe({
       next: (noticias) => {
         this.noticiasMenu = (noticias || []).slice(0, 3);
+        this.panelesCargados.add('noticias');
         this.cargandoNoticiasMenu = false;
       },
       error: () => {
@@ -291,8 +294,11 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
 
   mostrarPanelInstitucional(tipo: 'noticias' | 'eventos') {
     clearTimeout(this.panelHideTimeout);
+    clearTimeout(this.panelShowTimeout);
     this.panelShowTimeout = setTimeout(() => {
       this.panelInstitucionalActivo = tipo;
+      if (tipo === 'noticias') this.cargarNoticiasMenu();
+      else this.cargarEventosMenu();
     }, 60);
   }
 
@@ -305,10 +311,12 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
 
   // ── Menú móvil ──────────────────────────────────────────────────────
   cargarEventosMenu() {
+    if (this.cargandoEventosMenu || this.panelesCargados.has('eventos') || !this.connection.available()) return;
     this.cargandoEventosMenu = true;
     this.eventsService.getPublicEvents({ limit: 3 }).subscribe({
       next: (eventos) => {
         this.eventosMenu = eventos || [];
+        this.panelesCargados.add('eventos');
         this.cargandoEventosMenu = false;
       },
       error: () => {

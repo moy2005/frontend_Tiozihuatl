@@ -912,3 +912,19 @@ body.auth-navbar-route { padding-top: 52px; }
   border-radius: 4px;
   display: block;
 }
+.navbar-offline {
+  position: absolute;
+  inset: calc(100% + .5rem) .75rem auto auto;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .4rem .65rem;
+  border: 1px solid #c9dbeb;
+  border-radius: .6rem;
+  background: #f4f9fd;
+  color: #143851;
+  font: 650 .78rem/1.2 'Public Sans', sans-serif;
+  text-decoration: none;
+}
+.navbar-offline .ph { font-size: 1rem; }
+.navbar-offline:focus-visible { outline: 2px solid #1368c4; outline-offset: 2px; }

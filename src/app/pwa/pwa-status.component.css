@@ -1,4 +1,6 @@
 :host { font-family:'Public Sans',sans-serif; color:#1e293b; }
+.pwa-restored { display:flex; align-items:center; gap:.5rem; width:max-content; max-width:100%; padding:.65rem .9rem; margin-bottom:.75rem; border:1px solid #cbded5; border-radius:12px; background:#f1faf4; color:#145238; font-size:.875rem; font-weight:650; }
+.pwa-restored .ph { font-size:1.125rem; }
 .pwa-notifications { position:fixed; bottom:max(1.25rem,env(safe-area-inset-bottom)); left:1.25rem; z-index:10000; width:min(420px,calc(100vw - 2.5rem)); pointer-events:none; }
 .pwa-notifications__list { display:grid; gap:.75rem; max-height:65dvh; overflow:auto; padding:.4rem; margin:-.4rem; scrollbar-width:thin; }
 .pwa-notice { pointer-events:auto; padding:1.25rem; background:#fff; border:1px solid #e2e8f0; border-radius:20px; box-shadow:0 12px 40px #15334d1c,0 2px 8px #15334d08; animation:notice-arrive .38s cubic-bezier(.22,1,.36,1) both; }

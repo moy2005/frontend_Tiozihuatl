@@ -805,50 +805,6 @@ body {
 }
 
 /* =====================================================
-   PAGINACIÓN
-   ===================================================== */
-.paginacion {
-  display: flex; justify-content: center; align-items: center;
-  gap: .25rem; padding: .45rem;
-  margin: 2.25rem auto 1rem;
-  grid-column: 1 / -1; flex-wrap: wrap; width: 100%;
-  max-width: max-content;
-  border-radius: 14px;
-  background: #eef7fd;
-}
-.pag-btn {
-  min-width: 40px; height: 40px;
-  border: 0; border-radius: 10px;
-  background: transparent; color: #526579;
-  font-size: .875rem; font-weight: 700;
-  cursor: pointer; transition: all 0.2s;
-  padding: 0 .6rem;
-  box-shadow: none;
-  display: inline-flex; align-items: center; justify-content: center;
-  line-height: 1;
-}
-.pag-btn:hover:not(:disabled) {
-  color: #167fb9;
-  background: #d9effc;
-  box-shadow: none;
-  transform: none;
-}
-.pag-btn.activa {
-  background: #167fb9 !important;
-  border-color: #167fb9 !important;
-  color: #fff !important;
-  box-shadow: none;
-  transform: none;
-}
-.pag-btn:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
-.pag-btn.pag-nav {
-  background: #fff; color: #167fb9; font-size: 1rem;
-}
-.pag-btn.pag-nav:hover:not(:disabled) {
-  background: #d9effc; color: #167fb9;
-}
-
-/* =====================================================
    MODAL PRÉSTAMO
    ===================================================== */
 .prestamo-overlay {

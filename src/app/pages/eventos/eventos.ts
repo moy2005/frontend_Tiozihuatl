@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { EventsService } from '../../api/services/events.service';
+import { PageHero } from '../../components/page-hero/page-hero';
 
 interface EventoImagenPublica {
   id_imagen?: number;
@@ -49,7 +50,7 @@ type FiltroEvento =
 @Component({
   selector: 'app-eventos',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PageHero],
   templateUrl: './eventos.html',
   styleUrls: ['./eventos.css'],
   encapsulation: ViewEncapsulation.None,

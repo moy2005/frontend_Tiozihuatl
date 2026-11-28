@@ -16,7 +16,7 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule, VoiceSearchComponent],
   templateUrl: './catalog.component.html',
-  styleUrls: ['./catalog.component.css'],
+  styleUrls: ['../library-pagination.css', './catalog.component.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CatalogoComponent implements OnInit, OnDestroy {

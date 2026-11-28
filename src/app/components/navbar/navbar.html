@@ -1,3 +1,11 @@
+<ng-template #estadoConexion>
+  @if (connection.state() === 'offline') {
+    <a class="navbar-offline" routerLink="/sin-conexion">
+      <i class="ph ph-wifi-slash" aria-hidden="true"></i>
+      Sin conexión
+    </a>
+  }
+</ng-template>
 <nav
   class="navbar-desktop fixed top-0 left-0 right-0 z-50"
   [class.scrolled]="(isScrolled && !isInicioRoute) || isAuthRoute"
@@ -5,6 +13,7 @@
   [class.auth-route]="isAuthRoute"
   [class.home-scrolled]="isInicioRoute && homeIntroProgress > 0.02"
   [style.--home-brand-progress]="homeBrandReveal">
+  <ng-container *ngTemplateOutlet="estadoConexion" />
   <div class="navbar-top">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-center gap-4">
@@ -68,6 +77,7 @@
                     routerLink="/noticias"
                     class="mega-item-pro noticias-trigger"
                     (mouseenter)="mostrarPanelInstitucional('noticias')"
+                    (focus)="mostrarPanelInstitucional('noticias')"
                     (mouseleave)="ocultarPanelInstitucional()"
                     style="display:flex; align-items:center; gap:14px; padding:0.7rem 1rem; border-radius:10px; text-decoration:none; transition: background 0.18s ease;">
                     <i class="ph ph-newspaper" style="font-size:1.45rem; color:rgba(255,255,255,0.9); flex-shrink:0;"></i>
@@ -79,6 +89,7 @@
                     routerLink="/eventos"
                     class="mega-item-pro noticias-trigger"
                     (mouseenter)="mostrarPanelInstitucional('eventos')"
+                    (focus)="mostrarPanelInstitucional('eventos')"
                     (mouseleave)="ocultarPanelInstitucional()"
                     style="display:flex; align-items:center; gap:14px; padding:0.7rem 1rem; border-radius:10px; text-decoration:none; transition: background 0.18s ease;">
                     <i class="ph ph-calendar-blank" style="font-size:1.45rem; color:rgba(255,255,255,0.9); flex-shrink:0;"></i>
@@ -303,6 +314,7 @@
   [class.auth-route]="isAuthRoute"
   [class.home-scrolled]="isInicioRoute && homeIntroProgress > 0.02"
   [style.--home-brand-progress]="homeBrandReveal">
+  <ng-container *ngTemplateOutlet="estadoConexion" />
   <input type="checkbox" id="menu-toggle" [checked]="isMobileMenuOpen" (change)="toggleMobileMenu($event)" />
 
   <div class="px-4 py-3">

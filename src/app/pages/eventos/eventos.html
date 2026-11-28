@@ -1,10 +1,6 @@
 <div class="eventos-page">
-  <div class="hero-section">
-    <div class="hero-content">
-      <h1 class="hero-title">Eventos Institucionales</h1>
-      <p class="hero-subtitle">Conoce actividades vigentes, destacados y eventos ya finalizados.</p>
-    </div>
-  </div>
+  <app-page-hero title="Eventos Institucionales"
+                 description="Conoce actividades vigentes, destacados y eventos ya finalizados." />
 
   <div *ngIf="cargandoEventos" class="loading-wrapper">
     <div class="loader"></div>

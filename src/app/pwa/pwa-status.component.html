@@ -1,4 +1,9 @@
 <div class="pwa-notifications" aria-label="Avisos de la aplicación">
+  <div role="status">
+    @if (connection.restored()) {
+      <div class="pwa-restored"><i class="ph ph-check-circle" aria-hidden="true"></i> Conexión restablecida</div>
+    }
+  </div>
   <div class="pwa-notifications__list" aria-live="polite" aria-relevant="additions text">
     @for (notice of visibleNotices(); track notice.key) {
       <section class="pwa-notice" [class.pwa-notice--critical]="!notice.closable" [attr.aria-label]="notice.title">
@@ -20,13 +25,6 @@
         }
         <div class="pwa-notice__actions">
           @switch (notice.kind) {
-            @case ('connection') {
-              <button class="pwa-notice__primary" type="button" (click)="retry()" [disabled]="connection.checking()">{{ connection.checking() ? 'Comprobando…' : 'Reintentar' }}</button>
-              <a routerLink="/sin-conexion">Ver páginas disponibles <span aria-hidden="true">↗</span></a>
-            }
-            @case ('restored') {
-              <button class="pwa-notice__secondary" type="button" (click)="connection.restored.set(false)">Entendido</button>
-            }
             @case ('copy') {
               @if (connection.available()) { <button class="pwa-notice__secondary" type="button" (click)="pwa.reload()">Actualizar página</button> }
             }

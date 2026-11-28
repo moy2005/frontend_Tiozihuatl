@@ -9,6 +9,7 @@ import {
   PLATFORM_ID,
   ViewChild,
   afterNextRender,
+  inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router } from '@angular/router';
@@ -22,6 +23,7 @@ import {
   VirtualAssistantService,
   VirtualAssistantSuggestion,
 } from '../../api/services/virtual-assistant.service';
+import { ConnectivityService } from '../../pwa/connectivity.service';
 
 type ChatSender = 'assistant' | 'user';
 
@@ -49,6 +51,9 @@ type ScrollTarget = 'end' | 'latest';
 })
 export class VirtualAssistantComponent implements OnInit, OnDestroy {
   @ViewChild('messagesPane') private messagesPane?: ElementRef<HTMLDivElement>;
+  readonly connection = inject(ConnectivityService);
+  private prepared = false;
+  private topicsLoaded = false;
 
   isOpen = false;
   isExpanded = false;
@@ -87,10 +92,7 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.sessionId = this.getOrCreateSessionId();
     this.currentPath = this.router.url || '/inicio';
-    this.loadHistory();
-    this.loadTopics();
 
     this.subscriptions.add(
       this.router.events
@@ -108,6 +110,12 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
   toggleAssistant(): void {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
+      if (!this.prepared) {
+        this.prepared = true;
+        this.sessionId = this.getOrCreateSessionId();
+        this.loadHistory();
+      }
+      if (!this.topicsLoaded && this.connection.available()) this.loadTopics();
       this.replayHeaderRobotAnimation();
       this.scheduleScroll('latest', false);
     }
@@ -153,7 +161,7 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
 
   sendMessage(value = this.draft): void {
     const message = value.trim();
-    if (!message || this.isLoading) return;
+    if (!message || this.isLoading || !this.connection.available()) return;
 
     this.pushMessage({
       sender: 'user',
@@ -244,16 +252,17 @@ export class VirtualAssistantComponent implements OnInit, OnDestroy {
   }
 
   private loadTopics(): void {
-    this.assistantService.getTopics().subscribe({
+    this.topicsLoaded = true;
+    this.subscriptions.add(this.assistantService.getTopics().subscribe({
       next: (topics) => {
         if (topics.starters?.length) {
           this.starterPrompts = topics.starters.slice(0, 6);
         }
       },
       error: () => {
-        /* El asistente conserva prompts locales si el endpoint no responde. */
+        this.topicsLoaded = false;
       },
-    });
+    }));
   }
 
   private buildContext() {

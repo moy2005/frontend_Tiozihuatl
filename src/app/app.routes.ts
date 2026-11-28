@@ -13,7 +13,6 @@ import { Terminos } from './pages/legal/terminos/terminos';
 import { Seguridad } from './pages/legal/seguridad/seguridad';
 import { InicioComponent } from './pages/inicio/inicio';
 import { AdminLayoutComponent } from './pages/admin/admin-layout/admin-layout';
-import { AdminDashboardComponent } from './pages/admin/admin-dashboard/admin-dashboard';
 import { GestionUsuariosComponent } from './pages/admin/gestion-usuarios/gestion-usuarios';
 import { GestionFaqComponent } from './pages/admin/gestion-faq/gestion-faq';
 import { GestionContactoComponent } from './pages/admin/gestion-contacto/gestion-contacto';
@@ -26,7 +25,6 @@ import { EventosComponent } from './pages/eventos/eventos';
 import { DetalleEventoComponent } from './pages/eventos/detalle-evento';
 import { CatalogoComponent } from './pages/biblioteca/catalogo-bibliografico/catalog.component';
 import { DetalleLibroComponent } from './pages/biblioteca/catalogo-bibliografico/detalle-libro.component';
-import { VisorLibroComponent } from './pages/biblioteca/catalogo-bibliografico/visor-libro.component';
 import { CalendarioComponent } from './pages/calendario/calendario.component';
 import { GestionCatalogoComponent} from './pages/admin/gestion-catalogo/gestion-catalogo';
 import { GestionCalendarioComponent } from './pages/admin/gestion-calendario/gestion-calendario'
@@ -36,15 +34,12 @@ import { Error500Component } from './pages/error/error-500/error-500.component';
 import { GestionPrestamosComponent } from './pages/admin/gestion-prestamos/gestion-prestamos';
 import { GestionBackupsComponent} from './pages/admin/gestion-backups/gestion-backups';
 import { MagazinesComponent } from './pages/magazines/magazines.component';
-import { MagazineViewerComponent } from './pages/magazines/magazine-viewer.component';
 import { MagazineDetailComponent } from './pages/magazines/magazine-detail.component';
 import { CartComponent } from './pages/cart/cart.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { AboutComponent } from './pages/about/about.component';
 import { GestionAboutComponent } from './pages/admin/gestion-about/gestion-about';
-import { GestionRevistasComponent } from './pages/admin/gestion-revistas/gestion-revistas.component';
 import { MyPurchases } from './pages/my-purchases/my-purchases';
-import { MonitoreoComponent } from './pages/admin/monitoreo/monitoreo';
 import { MyLoans } from './pages/my-loans/my-loans';
 import { ActivateAccountComponent } from './auth/activate-account/activate-account';
 import { GestionMantenimientoComponent } from './pages/admin/gestion-maintenance/gestion-maintenance';
@@ -57,7 +52,6 @@ import { GestionPrivacidadComponent } from './pages/admin/gestion-privacidad/ges
 import { GestionTerminosComponent} from './pages/admin/gestion-terminos/gestion-terminos.component';
 import { GestionPagosComponent } from './pages/admin/gestion-pagos/gestion-pagos.component';
 import { GestionDescuentosComponent } from './pages/admin/gestion-descuentos/gestion-descuentos.component';
-import { ReportesComponent } from './pages/admin/reportes/reportes';
 import { GestionNotificacionesComponent } from './pages/admin/gestion-notificaciones/gestion-notificaciones';
 
 const applicationRoutes: Routes = [
@@ -87,14 +81,23 @@ const applicationRoutes: Routes = [
   // Protegidas (todas con AuthGuard)
   { path: 'perfil', component: PerfilUsuarioComponent, canActivate: [AuthGuard] },
   { path: 'magazines', component: MagazinesComponent, canActivate: [AuthGuard]},
-  { path: 'magazines/view/:id', component: MagazineViewerComponent, canActivate: [AuthGuard]},
+  {
+    path: 'magazines/view/:id',
+    loadComponent: () => import('./pages/magazines/magazine-viewer.component').then(m => m.MagazineViewerComponent),
+    canActivate: [AuthGuard],
+  },
   { path: 'magazines/:id', component: MagazineDetailComponent, canActivate: [AuthGuard]},
   { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard] },
   { path: 'my-purchases', component: MyPurchases, canActivate: [AuthGuard] },
   { path: 'my-loans', component: MyLoans, canActivate: [AuthGuard] },
   { path: 'biblioteca/detalle/:id', component: DetalleLibroComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador', 'Docente', 'Bibliotecario'] }},
-  { path: 'biblioteca/libro/:id', component: VisorLibroComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador', 'Docente', 'Bibliotecario'] }},
+  {
+    path: 'biblioteca/libro/:id',
+    loadComponent: () => import('./pages/biblioteca/catalogo-bibliografico/visor-libro.component').then(m => m.VisorLibroComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['Estudiante', 'Administrador', 'Docente', 'Bibliotecario'] },
+  },
   { path: 'materiales', component: MaterialesComponent, canActivate: [AuthGuard], data: { roles: ['Estudiante', 'Administrador'] }},
   { path: 'materiales-doc', component: MaterialesDocComponent, canActivate: [AuthGuard], data: { roles: ['Docente'] }},
 
@@ -102,7 +105,10 @@ const applicationRoutes: Routes = [
   { path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard], data: { roles: ['Administrador'], hideNavbar: true},
     children: [
       { path: '', redirectTo: 'usuarios', pathMatch: 'full' },
-      { path: 'dashboard', component: AdminDashboardComponent },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardComponent),
+      },
       { path: 'usuarios', component: GestionUsuariosComponent },
       { path: 'preguntas', component: GestionFaqComponent },
       { path: 'contactos', component: GestionContactoComponent },
@@ -113,11 +119,20 @@ const applicationRoutes: Routes = [
       { path : 'prestamos', component:GestionPrestamosComponent },
       { path : 'backups', component:GestionBackupsComponent },
       { path: 'about', component: GestionAboutComponent },
-      { path: 'revistas', component: GestionRevistasComponent },
+      {
+        path: 'revistas',
+        loadComponent: () => import('./pages/admin/gestion-revistas/gestion-revistas.component').then(m => m.GestionRevistasComponent),
+      },
       { path: 'pagos', component: GestionPagosComponent },
       { path: 'descuentos', component: GestionDescuentosComponent },
-      { path: 'monitoreo', component: MonitoreoComponent },
-      { path: 'reportes', component: ReportesComponent },
+      {
+        path: 'monitoreo',
+        loadComponent: () => import('./pages/admin/monitoreo/monitoreo').then(m => m.MonitoreoComponent),
+      },
+      {
+        path: 'reportes',
+        loadComponent: () => import('./pages/admin/reportes/reportes').then(m => m.ReportesComponent),
+      },
       { path: 'mantenimiento', component: GestionMantenimientoComponent},
       { path: 'periodos', component: GestionPeriodosComponent},
       { path: 'materias', component: GestionMateriasComponent},

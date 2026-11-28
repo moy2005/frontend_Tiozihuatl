@@ -165,7 +165,7 @@
       <button
         type="submit"
         class="va-send"
-        [disabled]="!draft.trim() || isLoading"
+        [disabled]="!draft.trim() || isLoading || !connection.available()"
         aria-label="Enviar mensaje">
         <i class="ph ph-paper-plane-tilt"></i>
       </button>

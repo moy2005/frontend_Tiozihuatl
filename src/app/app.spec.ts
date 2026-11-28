@@ -50,15 +50,14 @@ describe('Navegación al perder conexión', () => {
     });
   }
 
-  it('sale del catálogo y conserva el destino para reintentar', async () => {
+  it('mantiene el catálogo abierto si se pierde la conexión', async () => {
     await router.navigateByUrl('/catalogo?materia=1');
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     state.set('offline');
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(router.parseUrl(router.url).root.children['primary'].segments[0].path).toBe('sin-conexion');
-    expect(router.parseUrl(router.url).queryParams['volver']).toBe('/catalogo?materia=1');
+    expect(router.url).toBe('/catalogo?materia=1');
   });
 
   it('no redirige por la ruta anterior mientras se abre Quiénes somos', async () => {

@@ -782,6 +782,14 @@ app-inicio .home-brand-name-sub.institution-display-title {
   font-size: 1.05rem;
   line-height: 1.6;
 }
+.mu-retry {
+  justify-self: start;
+  padding: .75rem 1rem;
+  font-weight: 700;
+  color: var(--mu-blue-ink);
+  cursor: pointer;
+}
+.mu-retry:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .mu-offline-note p { margin: 0; }
 
 /* Secciones del instituto */

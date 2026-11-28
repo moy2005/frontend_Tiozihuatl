@@ -29,7 +29,10 @@ export interface MisPrestamosResponse {
   success: boolean;
   data?: Prestamo[];
   message?: string;
+  paginacion?: { pagina: number; limite: number; total: number; totalPaginas: number };
 }
+
+export type FiltroPrestamos = 'activos' | 'vencidos' | 'historial';
 
 @Injectable({ providedIn: 'root' })
 export class PrestamoService {
@@ -44,7 +47,7 @@ export class PrestamoService {
     );
   }
 
-  obtenerMisPrestamos(): Observable<MisPrestamosResponse> {
-    return this.http.get<MisPrestamosResponse>(this.baseUrl);
+  obtenerMisPrestamos(filtro: FiltroPrestamos, pagina: number, limite: number): Observable<MisPrestamosResponse> {
+    return this.http.get<MisPrestamosResponse>(this.baseUrl, { params: { filtro, pagina, limite } });
   }
 }
