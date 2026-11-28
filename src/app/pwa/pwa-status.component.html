@@ -20,7 +20,7 @@
         @if (notice.kind === 'copy') {
           <p class="pwa-notice__detail">Guardada el {{ copiedAt() | date:'dd/MM/yyyy HH:mm' }}</p>
         }
-        @if (notice.kind === 'update' || notice.kind === 'recovery') {
+        @if (notice.kind === 'recovery') {
           <p class="pwa-notice__detail">Antes de recargar, guarda tus cambios y revisa cualquier pago en curso.</p>
         }
         <div class="pwa-notice__actions">
@@ -29,14 +29,6 @@
               @if (connection.available()) { <button class="pwa-notice__secondary" type="button" (click)="pwa.reload()">Actualizar página</button> }
             }
             @case ('storage') { <a routerLink="/sin-conexion">Revisar descarga <span aria-hidden="true">↗</span></a> }
-            @case ('error') {
-              <button class="pwa-notice__primary" type="button" [disabled]="!connection.available() || pwa.checkingUpdate()" (click)="pwa.checkForUpdate(true)">{{ pwa.checkingUpdate() ? 'Comprobando…' : 'Volver a comprobar' }}</button>
-              <button class="pwa-notice__secondary" type="button" (click)="dismiss(notice)">Más tarde</button>
-            }
-            @case ('update') {
-              <button class="pwa-notice__primary" type="button" [disabled]="!connection.available()" (click)="pwa.reload()">Actualizar ahora</button>
-              <button class="pwa-notice__secondary" type="button" (click)="dismiss(notice)">Más tarde</button>
-            }
             @case ('recovery') {
               <button class="pwa-notice__primary" type="button" [disabled]="!connection.available()" (click)="pwa.reload()">Recargar aplicación</button>
             }

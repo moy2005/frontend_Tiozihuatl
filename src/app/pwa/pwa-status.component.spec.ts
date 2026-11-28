@@ -12,7 +12,7 @@ describe('Avisos PWA', () => {
     TestBed.configureTestingModule({ providers: [
       provideRouter([]),
       { provide: ConnectivityService, useValue: { available: signal(true), restored } },
-      { provide: PwaService, useValue: { updateReady: signal(false), updateError: signal(''), recoveryRequired: signal(false), unsupported: signal(false) } },
+      { provide: PwaService, useValue: { recoveryRequired: signal(false), unsupported: signal(false) } },
       { provide: PublicContentService, useValue: { displayedCopies: signal({}), displayedAt: signal({}), storageError: signal(false) } },
     ] });
     const fixture = TestBed.createComponent(PwaStatusComponent);
@@ -23,18 +23,19 @@ describe('Avisos PWA', () => {
     expect(fixture.nativeElement.querySelector('.pwa-restored')).toBeNull();
   }));
 
-  it('permite posponer y recuperar avisos sin ocultar un fallo crítico ni otra versión', () => {
-    const pwa = { updateReady: signal(true), readyVersion: signal('v1'), updateError: signal(''), recoveryRequired: signal(false), unsupported: signal(false), checkingUpdate: signal(false) };
+  it('permite cerrar avisos de almacenamiento y mantiene visible un fallo crítico', () => {
+    const pwa = { recoveryRequired: signal(false), unsupported: signal(false) };
+    const storageError = signal(true);
     TestBed.configureTestingModule({ providers: [
       provideRouter([]),
       { provide: PwaService, useValue: pwa },
       { provide: ConnectivityService, useValue: { available: signal(true), state: signal('online'), restored: signal(false), checking: signal(false) } },
-      { provide: PublicContentService, useValue: { displayedCopies: signal({}), displayedAt: signal({}), storageError: signal(false) } },
+      { provide: PublicContentService, useValue: { displayedCopies: signal({}), displayedAt: signal({}), storageError } },
     ] });
     const fixture = TestBed.createComponent(PwaStatusComponent);
     fixture.detectChanges();
     const component = fixture.componentInstance;
-    expect(fixture.nativeElement.textContent).toContain('Hay mejoras listas para ti');
+    expect(fixture.nativeElement.textContent).toContain('Descarga incompleta');
     fixture.nativeElement.querySelector('.pwa-notice__close').click();
     fixture.detectChanges();
     expect(component.visibleNotices().length).toBe(0);
@@ -43,11 +44,8 @@ describe('Avisos PWA', () => {
     fixture.detectChanges();
     expect(component.visibleNotices().length).toBe(1);
     component.dismiss(component.notices()[0]);
-    pwa.readyVersion.set('v2');
-    fixture.detectChanges();
-    expect(component.visibleNotices()[0].key).toBe('update:v2');
+    storageError.set(false);
     pwa.recoveryRequired.set(true);
-    pwa.updateError.set('Recarga necesaria');
     fixture.detectChanges();
     component.dismiss(component.notices()[0]);
     expect(component.visibleNotices()[0].closable).toBeFalse();

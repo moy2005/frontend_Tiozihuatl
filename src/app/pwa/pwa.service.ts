@@ -14,14 +14,10 @@ export class PwaService {
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly started = signal(false);
   readonly assetsReady = signal(false);
-  readonly updateReady = signal(false);
-  readonly updateError = signal('');
   readonly recoveryRequired = signal(false);
-  readonly readyVersion = signal('');
-  readonly checkingUpdate = signal(false);
   readonly unsupported = signal(false);
+  private checkingUpdate = false;
   private lastUpdateCheck = 0;
-  private versionFailure = false;
   private shellFailed = false;
 
   constructor() {
@@ -41,16 +37,12 @@ export class PwaService {
     if (!window.isSecureContext || !('serviceWorker' in navigator)) { this.unsupported.set(true); return; }
     const subscription = this.updates.versionUpdates.subscribe(event => {
       if (event.type === 'VERSION_READY') {
-        this.versionFailure = false;
+        // Angular usa la versión preparada en la siguiente carga del documento.
+        // La pestaña abierta conserva su versión, incluidos los módulos diferidos.
         this.shellFailed = false;
         this.assetsReady.set(!!navigator.serviceWorker.controller && !this.recoveryRequired());
-        this.readyVersion.set(event.latestVersion?.hash || 'ready');
-        this.updateReady.set(true);
-        if (!this.recoveryRequired()) this.updateError.set('');
       }
-      if (event.type === 'NO_NEW_VERSION_DETECTED' && !this.versionFailure && !this.recoveryRequired()) this.updateError.set('');
       if (event.type === 'VERSION_INSTALLATION_FAILED' || event.type === 'VERSION_FAILED') {
-        this.versionFailure = true;
         // A failed update can leave the existing version usable. A failed
         // installed version, however, cannot be advertised as available offline.
         if (event.type === 'VERSION_FAILED') {
@@ -58,15 +50,12 @@ export class PwaService {
           this.assetsReady.set(false);
         }
         console.warn('[PWA]', event.type, event.version.hash, event.error);
-        if (event.version.hash === this.readyVersion()) { this.updateReady.set(false); this.readyVersion.set(''); }
-        if (!this.recoveryRequired()) this.updateError.set('No pudimos preparar la actualización. Puedes seguir usando la página y volver a comprobarla más tarde.');
       }
     });
     const unrecoverable = this.updates.unrecoverable.subscribe(event => {
       console.warn('[PWA] UNRECOVERABLE', event.reason);
       this.recoveryRequired.set(true);
       this.assetsReady.set(false);
-      this.updateError.set('Esta versión necesita recargarse con conexión. Guarda o revisa tus operaciones antes de continuar.');
     });
     const controlled = () => this.zone.run(() => {
       this.assetsReady.set(!!navigator.serviceWorker.controller && !this.shellFailed && !this.recoveryRequired());
@@ -88,19 +77,17 @@ export class PwaService {
     });
   }
 
-  async checkForUpdate(manual = false): Promise<void> {
-    if (!this.updates.isEnabled || !this.connection.available() || this.checkingUpdate() || (!manual && Date.now() - this.lastUpdateCheck < 60_000)) return;
-    this.checkingUpdate.set(true);
+  private async checkForUpdate(): Promise<void> {
+    if (!this.updates.isEnabled || !this.connection.available() || this.checkingUpdate || Date.now() - this.lastUpdateCheck < 60_000) return;
+    this.checkingUpdate = true;
     this.lastUpdateCheck = Date.now();
     try {
       await this.updates.checkForUpdate();
-      if (!this.versionFailure && !this.recoveryRequired()) this.updateError.set('');
     }
     catch (error) {
       console.warn('[PWA] CHECK_FAILED', error);
-      if (!this.recoveryRequired()) this.updateError.set('No pudimos comprobar la actualización. La página seguirá abierta; vuelve a intentarlo más tarde.');
     }
-    finally { this.checkingUpdate.set(false); }
+    finally { this.checkingUpdate = false; }
   }
 
   reload(): void {

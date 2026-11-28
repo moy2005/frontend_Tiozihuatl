@@ -53,13 +53,14 @@ export async function playSplashIntro(router: Router): Promise<void> {
     .filter(nav => getComputedStyle(nav).display !== 'none');
   const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-  if (reduceMotion || !splashLogo) {
+  if (reduceMotion || !splashLogo?.classList.contains('splash-logo-ready')) {
+    if (!splashLogo?.classList.contains('splash-logo-ready')) splashLogo?.remove();
     await splash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, fill: 'forwards' }).finished;
     splash.remove();
     return;
   }
 
-  const onHome = !!heroLogo && heroLogo.getBoundingClientRect().width > 0 && window.scrollY < 4;
+  const onHome = !!heroLogo?.naturalWidth && heroLogo.getBoundingClientRect().width > 0 && window.scrollY < 4;
 
   // El navbar aparece en su sitio con un fundido y un leve descenso: no se
   // desplaza fuera de pantalla, así nunca deja al descubierto lo que hay debajo.

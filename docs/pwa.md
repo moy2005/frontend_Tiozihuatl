@@ -46,9 +46,11 @@ API no disponible. El endpoint de salud está fuera del rate limit del backend.
 
 ## Actualizaciones
 
-Cuando hay una versión nueva se muestra un aviso y la recarga la decide la persona usuaria;
-nunca se fuerza durante el uso. También se informan los fallos de actualización y de
-almacenamiento.
+El service worker descarga las nuevas versiones en segundo plano. Una vez lista, la versión
+se usa en la próxima carga completa de la página. La pestaña abierta conserva su versión
+sin avisos de actualización ni recargas forzadas. Los fallos de comprobación o instalación
+se registran en consola. Si la sesión actual pierde un recurso indispensable, se muestra
+un aviso de recuperación y la recarga queda a decisión de la persona usuaria.
 
 ## Notificaciones
 

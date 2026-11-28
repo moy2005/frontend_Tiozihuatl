@@ -6,9 +6,10 @@ import { Subject } from 'rxjs';
 import { signal } from '@angular/core';
 import { PwaService } from './pwa.service';
 import { PublicContentService } from './public-content.service';
+import { ConnectivityService } from './connectivity.service';
 
 describe('Actualización de PWA', () => {
-  it('avisa cuando hay nueva versión o un error, sin activación automática', () => {
+  it('deja preparada la nueva versión sin activarla y avisa solo si la sesión queda dañada', () => {
     const events = new Subject<unknown>();
     const unrecoverable = new Subject<unknown>();
     const updates = { isEnabled: true, versionUpdates: events, unrecoverable, checkForUpdate: jasmine.createSpy('checkForUpdate').and.resolveTo(false), activateUpdate: jasmine.createSpy('activateUpdate') };
@@ -20,16 +21,15 @@ describe('Actualización de PWA', () => {
     const pwa = TestBed.inject(PwaService);
     pwa.start();
     events.next({ type: 'VERSION_READY' });
-    expect(pwa.updateReady()).toBeTrue();
+    expect(pwa.recoveryRequired()).toBeFalse();
     expect(updates.activateUpdate).not.toHaveBeenCalled();
     unrecoverable.next({ reason: 'Missing chunk' });
-    expect(pwa.updateError()).toContain('recargarse');
-    events.next({ type: 'NO_NEW_VERSION_DETECTED' });
+    events.next({ type: 'VERSION_READY' });
     expect(pwa.recoveryRequired()).toBeTrue();
-    expect(pwa.updateError()).toContain('recargarse');
+    expect(pwa.assetsReady()).toBeFalse();
   });
 
-  it('conserva el fallo de integridad aunque checkForUpdate resuelva false y agrupa comprobaciones', async () => {
+  it('conserva la versión instalada si falla una descarga y agrupa comprobaciones en segundo plano', async () => {
     const events = new Subject<unknown>();
     let resolveCheck!: (value: boolean) => void;
     const pending = new Promise<boolean>(resolve => { resolveCheck = resolve; });
@@ -37,27 +37,24 @@ describe('Actualización de PWA', () => {
     TestBed.configureTestingModule({ providers: [
       provideHttpClient(), provideHttpClientTesting(),
       { provide: SwUpdate, useValue: updates },
+      { provide: ConnectivityService, useValue: { available: signal(true) } },
       { provide: PublicContentService, useValue: { prepare: async () => undefined, prepareIcons: async () => undefined, iconsReady: signal(false) } },
     ] });
     const pwa = TestBed.inject(PwaService);
     pwa.start();
     pwa.assetsReady.set(true);
     events.next({ type: 'VERSION_INSTALLATION_FAILED', version: { hash: 'broken' }, error: 'Hash mismatch' });
-    expect(pwa.updateError()).not.toBe('');
+    expect(pwa.recoveryRequired()).toBeFalse();
     expect(pwa.assetsReady()).toBeTrue(); // La versión anterior sigue disponible.
-    const check = pwa.checkForUpdate(true);
-    await pwa.checkForUpdate(true);
+    spyOnProperty(document, 'visibilityState', 'get').and.returnValue('visible');
+    document.dispatchEvent(new Event('visibilitychange'));
+    document.dispatchEvent(new Event('visibilitychange'));
     expect(updates.checkForUpdate).toHaveBeenCalledTimes(1);
     resolveCheck(false);
-    await check;
-    expect(pwa.updateError()).not.toBe('');
-    events.next({ type: 'NO_NEW_VERSION_DETECTED' });
-    expect(pwa.updateError()).not.toBe('');
-    expect(pwa.checkingUpdate()).toBeFalse();
-    events.next({ type: 'VERSION_READY', latestVersion: { hash: 'next' } });
-    expect(pwa.updateError()).toBe('');
+    await pending;
+    expect(pwa.assetsReady()).toBeTrue();
     events.next({ type: 'VERSION_FAILED', version: { hash: 'next' }, error: 'Missing asset' });
-    expect(pwa.updateReady()).toBeFalse();
     expect(pwa.assetsReady()).toBeFalse();
+    expect(pwa.recoveryRequired()).toBeFalse();
   });
 });

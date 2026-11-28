@@ -11,6 +11,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="preload" href="/offline/logo.png" as="image" fetchpriority="high">
   <link rel="preload" href="/assets/fonts/phosphor/regular/Phosphor.woff2" as="font" type="font/woff2" crossorigin>
   <script type="module" src="assets/ionicons/ionicons.esm.js"></script>
   <style>
@@ -31,7 +32,11 @@
       width: clamp(96px, 22vmin, 128px);
       height: clamp(96px, 22vmin, 128px);
       object-fit: contain;
-      animation: app-splash-in 700ms cubic-bezier(0.33, 0, 0.2, 1) both;
+      visibility: hidden;
+    }
+    #app-splash .splash-logo-ready {
+      visibility: inherit;
+      animation: app-splash-in 280ms cubic-bezier(0.33, 0, 0.2, 1) both;
     }
     @keyframes app-splash-in {
       from { opacity: 0; transform: scale(0.94); }
@@ -40,14 +45,20 @@
       to { opacity: 0; visibility: hidden; }
     }
     @media (prefers-reduced-motion: reduce) {
-      #app-splash img { animation: none; }
+      #app-splash .splash-logo-ready { animation: none; }
     }
   </style>
 </head>
 <body>
   <div id="app-splash" aria-hidden="true">
-    <img src="offline/logo.png" alt="" width="128" height="128" fetchpriority="high">
+    <img src="/offline/logo.png" alt="" width="128" height="128" fetchpriority="high" decoding="async">
   </div>
+  <script>
+    {
+      const splashLogo = document.querySelector('#app-splash img');
+      splashLogo.decode().then(() => splashLogo.classList.add('splash-logo-ready'), () => {});
+    }
+  </script>
   <app-root></app-root>
   <noscript>Activa JavaScript para utilizar el portal del Instituto Tiozihuatl.</noscript>
 </body>

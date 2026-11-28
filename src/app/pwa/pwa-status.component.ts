@@ -10,7 +10,7 @@ import { PublicContentPath } from './pwa-policy';
 
 interface PwaNotice {
   key: string;
-  kind: 'copy' | 'storage' | 'unsupported' | 'update' | 'error' | 'recovery';
+  kind: 'copy' | 'storage' | 'unsupported' | 'recovery';
   title: string;
   text: string;
   symbol: string;
@@ -46,10 +46,8 @@ export class PwaStatusComponent {
       'No pudimos guardar todo en este dispositivo. Revisa el espacio disponible y los permisos de almacenamiento.', '↓');
     if (this.pwa.unsupported()) add('unsupported', 'unsupported', 'Modo sin conexión no disponible',
       'Necesitas HTTPS y un navegador compatible. Puedes seguir navegando con conexión.', 'ⓘ');
-    if (this.pwa.recoveryRequired()) add('recovery', 'recovery', 'Necesitamos recargar la aplicación', this.pwa.updateError(), '!', false);
-    else if (this.pwa.updateError()) add('error', 'error:' + this.pwa.updateError(), 'Actualización pendiente', this.pwa.updateError(), '↻');
-    else if (this.pwa.updateReady()) add('update', 'update:' + this.pwa.readyVersion(), 'Hay mejoras listas para ti',
-      'Descargamos una nueva versión de la aplicación. Puedes abrirla ahora o continuar y hacerlo después.', '↑');
+    if (this.pwa.recoveryRequired()) add('recovery', 'recovery', 'Necesitamos recargar la aplicación',
+      'Esta sesión no puede cargar algunos archivos. Recarga la página cuando tengas conexión.', '!', false);
     return notices;
   });
   readonly visibleNotices = computed(() => this.notices().filter(notice => !notice.closable || !this.dismissed().has(notice.key)));
